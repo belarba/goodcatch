@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A daily fishing puzzle. Go for the best catch, or the worst.">
+<title>Good Catch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --abyss:#0A1F2B; --deep:#0F2E3C; --sea:#143B4B; --sea2:#174353; --edge:#24566A;
+  --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --rope:#EBDDB4; --sand:#CDB57E;
+  --good:#7FDBA9; --bad:#FF7D70;
+  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --body:Figtree,system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+html,body{background:var(--abyss)}
+body{color:var(--foam);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:580px;margin:0 auto;padding-block:28px 56px;padding-inline:16px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8vw,42px);line-height:1;letter-spacing:-.02em;margin:0}
+h1 span{color:var(--buoy)}
+.date{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.intro{margin:0;color:var(--muted);max-width:60ch}
+.intro b{color:var(--foam);font-weight:600}
+
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--deep);padding:4px;border-radius:12px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--muted);font:600 15px var(--body);padding:10px 8px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
+.tabs button:focus-visible,.btn:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
+
+.game{display:flex;flex-direction:column;gap:12px}
+.rule{margin:0;font-size:14px;color:var(--muted)}
+.rule b{color:var(--foam);font-weight:600}
+.strip{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:13px;color:var(--muted);align-items:center}
+.strip b{color:var(--foam);font-weight:700;font-variant-numeric:tabular-nums}
+.strip .pv.good b{color:var(--good)} .strip .pv.bad b{color:var(--bad)}
+.badge{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--abyss);background:var(--buoy);padding:2px 7px;border-radius:5px}
+
+.boardwrap{display:flex;justify-content:center}
+.board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);
+  aspect-ratio:var(--cols)/var(--rows);width:min(100%, calc(var(--cols) / var(--rows) * 66vh));max-width:100%;
+  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--sea);
+  container-type:inline-size;cursor:crosshair}
+.board.line{border-bottom:8px solid var(--sand)}
+.c{position:relative;display:grid;place-items:center;font-size:calc(100cqw / var(--cols) * .56);line-height:1}
+.board.net .c.alt{background:var(--sea2)}
+.c.in{background:rgba(243,154,54,.20)!important}
+.c.surf{background:#1E5B6B}
+.c .sp{position:relative;z-index:1;pointer-events:none}
+.c.neg::before{content:"";position:absolute;inset:10%;border-radius:50%;border:1.5px dashed rgba(255,125,112,.6)}
+.c.hit.good::before{content:"";position:absolute;inset:8%;border-radius:50%;border:2px solid var(--good);background:rgba(127,219,169,.2)}
+.c.hit.bad::before{border:2px solid var(--bad);background:rgba(255,125,112,.25)}
+.c.gone .sp{opacity:.3}
+.c.rock::after{content:"";width:80%;height:80%;border-radius:38% 30% 42% 34%;background:radial-gradient(circle at 38% 32%,#5b6b6d,#2d393c 70%)}
+.c.boat{font-size:calc(100cqw / var(--cols) * .66)}
+.ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px}
+.btn{appearance:none;border:1px solid var(--edge);background:transparent;color:var(--foam);font:600 14px var(--body);padding:9px 14px;border-radius:10px;cursor:pointer}
+.btn:hover:not(:disabled){background:var(--deep)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.primary{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
+.btn.primary:hover:not(:disabled){background:#ffab4e}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.spacer{flex:1}
+
+.result{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--deep);border-radius:12px;padding:14px 16px}
+.big{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums;min-width:2.4ch}
+.big.good{color:var(--good)} .big.bad{color:var(--bad)} .big.zero{color:var(--muted)}
+.verdict{font-weight:700;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:4px 10px;font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:4px}
+.chips .g{color:var(--good)} .chips .b{color:var(--bad)}
+.rec{font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.rec b{font-variant-numeric:tabular-nums}
+.rec .up b{color:var(--good)} .rec .down b{color:var(--bad)}
+
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.legend h3{margin:0 0 6px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.legend ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.legend li{display:flex;gap:8px;align-items:center;font-size:14px}
+.legend li .pts{margin-left:auto;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+.legend .g .pts{color:var(--good)} .legend .b .pts{color:var(--bad)}
+
+.share{border-top:1px solid var(--edge);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.share h2{margin:0;font-family:var(--display);font-weight:600;font-size:19px}
+.share pre{margin:0;background:var(--deep);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;overflow-x:auto}
+.note{font-size:13px;color:var(--muted);margin:0}
+@media (max-width:420px){.legend{grid-template-columns:1fr}.big{font-size:38px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Good <span>Catch</span></h1>
+    <div class="date" id="date"></div>
+  </header>
+  <p class="intro">A new sea every day, the same for everyone. Go for the <b>highest score</b> or the <b>lowest</b>: both records count. Protected animals (red outline) take points away.</p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-rede" aria-selected="true">Purse net</button>
+    <button role="tab" id="tab-linha" aria-selected="false">Bottom line</button>
+  </div>
+
+  <section class="game" id="game-rede">
+    <p class="rule">Drag from the <b>boat</b> to lay out the net, then come back to it to <b>close the circle</b>. Everything inside is caught. Animals under the net itself slip away.</p>
+    <div class="strip"><span>Net <b data-k="len">0/26</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">—</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
+    <div class="boardwrap"><div class="board net" data-k="board"></div></div>
+    <div class="controls">
+      <button class="btn" data-k="undo">Undo</button>
+      <button class="btn" data-k="clear">Clear</button>
+      <span class="spacer"></span>
+      <button class="btn primary" data-k="go">Haul net</button>
+    </div>
+    <div data-k="result"></div>
+    <div class="rec" data-k="rec"></div>
+    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
+  </section>
+
+  <section class="game" id="game-linha" hidden>
+    <p class="rule">Drag from the <b>boat</b> down to the <b>seabed</b>. Every animal touching the line (above, below or beside it) bites. Crossing <b>over</b> a fish scares it off (no points) and costs 2 squares of line. Crossing a <b>protected</b> animal hurts it: the penalty counts. Only rocks block the way. The line must touch the sand before you can reel it in.</p>
+    <div class="strip"><span>Line <b data-k="len">0/20</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">0</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
+    <div class="boardwrap"><div class="board line" data-k="board"></div></div>
+    <div class="controls">
+      <button class="btn" data-k="undo">Undo</button>
+      <button class="btn" data-k="clear">Clear</button>
+      <span class="spacer"></span>
+      <button class="btn primary" data-k="go">Reel in</button>
+    </div>
+    <div data-k="result"></div>
+    <div class="rec" data-k="rec"></div>
+    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
+  </section>
+
+  <div class="legend">
+    <div><h3>Catch</h3><ul id="lg-pos"></ul></div>
+    <div><h3>Protected</h3><ul id="lg-neg"></ul></div>
+  </div>
+
+  <div class="share">
+    <h2>Your day at sea</h2>
+    <pre id="share-text"></pre>
+    <div class="controls"><button class="btn" id="copy">Copy result</button><span class="note" id="copy-msg"></span></div>
+    <p class="note">Prototype: unlimited tries, records are saved in this browser only.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+const SP = {
+  sardinha:{e:'🐟',n:'Sardine',p:1},
+  lula:{e:'🦑',n:'Squid',p:2},
+  caranguejo:{e:'🦀',n:'Crab',p:2},
+  dourada:{e:'🐠',n:'Sea bream',p:3},
+  lagosta:{e:'🦞',n:'Lobster',p:5},
+  coral:{e:'🪸',n:'Coral',p:-3},
+  tubarao:{e:'🦈',n:'Shark',p:-4},
+  tartaruga:{e:'🐢',n:'Turtle',p:-6},
+  golfinho:{e:'🐬',n:'Dolphin',p:-8},
+};
+
+// ---------- daily date ----------
+const EPOCH = '2026-09-01'; // day #1: change to launch date
+const now = new Date();
+const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+document.getElementById('date').textContent = `#${DAYNUM} · ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+// ---------- deterministic randomness ----------
+function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const ri=(rng,a,b)=>a+Math.floor(rng()*(b-a+1));
+function weighted(rng,list){let t=0;for(const x of list)t+=x[1];let v=rng()*t;for(const [k,w] of list){if((v-=w)<0)return k}return list[0][0]}
+
+// ---------- storage ----------
+function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+const emptyGrid=(R,C)=>Array.from({length:R},()=>Array.from({length:C},()=>({rock:false,sp:null})));
+const key=(r,c)=>r*100+c;
+
+// ---------- generation: net ----------
+function genNet(g,rng){
+  const G=emptyGrid(g.rows,g.cols); const [sr,sc]=g.start;
+  const inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
+  const nearBoat=(r,c)=>Math.abs(r-sr)+Math.abs(c-sc)<=2;
+  const free=(r,c)=>inB(r,c)&&!G[r][c].rock&&!G[r][c].sp&&!nearBoat(r,c);
+  const put=(sp,r,c)=>{if(free(r,c)){G[r][c].sp=sp;return true}return false};
+  for(let i=0;i<9;i++){const r=ri(rng,0,g.rows-1),c=ri(rng,0,g.cols-1);if(free(r,c))G[r][c].rock=true}
+  const posW=[['sardinha',6],['lula',2],['dourada',2]];
+  const negs=['tartaruga','golfinho','tubarao','tartaruga'];
+  for(let k=0;k<5;k++){
+    const cr=ri(rng,1,g.rows-4), cc=ri(rng,1,g.cols-2);
+    let want=ri(rng,4,6);
+    for(let t=0;t<30&&want>0;t++){if(put(weighted(rng,posW),cr+ri(rng,-2,2),cc+ri(rng,-2,2)))want--}
+    if(k<4){for(let t=0;t<20;t++){if(put(negs[k],cr+ri(rng,-1,1),cc+ri(rng,-1,1)))break}}
+  }
+  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-4),ri(rng,0,g.cols-1)))n--}
+  for(let n=6,t=0;n>0&&t<60;t++){if(put('sardinha',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
+  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-3),ri(rng,0,g.cols-1)))n--}
+  return G;
+}
+
+// ---------- generation: line ----------
+function genLine(g,rng){
+  for(let attempt=0;attempt<60;attempt++){
+    const G=emptyGrid(g.rows,g.cols); const R=g.rows, C=g.cols;
+    const [sr,sc]=g.start;
+    const free=(r,c)=>r>=1&&c>=0&&r<R&&c<C&&!G[r][c].rock&&!G[r][c].sp&&!(r===1&&c===sc);
+    const zone=(sp,r0,r1,n,rock)=>{for(let t=0;t<80&&n>0;t++){const r=ri(rng,r0,r1),c=ri(rng,0,C-1);if(free(r,c)){if(rock)G[r][c].rock=true;else G[r][c].sp=sp;n--}}};
+    zone(null,3,R-1,7,true);
+    zone('golfinho',1,4,1);
+    zone('tartaruga',3,7,2);
+    zone('tubarao',5,9,2);
+    zone('coral',R-2,R-1,3);
+    zone('sardinha',1,3,7);
+    zone('lula',2,5,3);
+    zone('dourada',4,8,4);
+    zone('caranguejo',R-1,R-1,2);
+    zone('lagosta',R-2,R-1,1);
+    // make sure a path to the seabed exists
+    const dist=new Map([[key(sr,sc),0]]); const q=[[sr,sc]]; let best=Infinity;
+    while(q.length){const [r,c]=q.shift();const d=dist.get(key(r,c));if(r===R-1)best=Math.min(best,d);
+      for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(nr<1||nc<0||nr>=R||nc>=C)continue;const cell=G[nr][nc];if(cell.rock||cell.sp)continue;if(dist.has(key(nr,nc)))continue;dist.set(key(nr,nc),d+1);q.push([nr,nc])}}
+    if(best<=g.maxLen-4) return G;
+  }
+  return emptyGrid(g.rows,g.cols);
+}
+
+// ---------- jogos ----------
+const games = {
+  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️',label:'Net'},
+  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝',label:'Line'},
+};
+
+function setup(g){
+  const root=document.getElementById('game-'+g.key);
+  g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
+  g.board=g.el.board;
+  g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
+  g.training=false;
+  g.storeKey=`goodcatch:${DATE}:${g.key}`;
+  g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
+  g.trainRec={best:null,worst:null,tries:0};
+  g.last=null;
+  newMap(g, DATE+':'+g.key);
+
+  let drawing=false;
+  const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
+  g.board.addEventListener('pointerdown',e=>{const cell=cellAt(e);if(!cell)return;drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}touch(g,cell,true);render(g)});
+  g.board.addEventListener('pointermove',e=>{if(!drawing)return;const cell=cellAt(e);if(!cell)return;touch(g,cell,false);render(g)});
+  const stop=()=>{drawing=false};
+  g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
+  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;render(g)}});
+  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;render(g)});
+  g.el.go.addEventListener('click',()=>commit(g));
+  g.el['train-btn'].addEventListener('click',()=>{
+    g.training=!g.training;
+    if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
+    else newMap(g,DATE+':'+g.key);
+    g.last=null; render(g);
+  });
+  render(g);
+}
+
+function newMap(g,seed){
+  g.grid=g.gen(g,mulberry(seedFrom(seed)));
+  g.path=[g.start.slice()]; g.closed=false;
+}
+
+const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
+const moves=g=>g.path.slice(1).reduce((s,[r,c])=>s+stepCost(g,r,c),0);
+const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
+function canStep(g,r,c){
+  if(r<0||c<0||r>=g.rows||c>=g.cols) return false;
+  const e=g.path[g.path.length-1];
+  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return false;
+  const cell=g.grid[r][c];
+  if(moves(g)+stepCost(g,r,c)>g.maxLen) return false;
+  if(cell.rock) return false;
+  const onPath=g.path.some(p=>p[0]===r&&p[1]===c);
+  if(g.kind==='net'){
+    if(g.closed) return false;
+    if(isStart(g,r,c)) return g.path.length>=4;
+    return !onPath;
+  }
+  if(r<1) return false;
+  return !onPath;
+}
+function touch(g,[r,c],isDown){
+  const L=g.path.length;
+  const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
+  if(isDown&&idx>=0){g.path=g.path.slice(0,idx+1);g.closed=false;return}
+  const end=g.path[L-1];
+  if(end[0]===r&&end[1]===c) return;
+  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;return}}
+  for(let i=0;i<40;i++){
+    if(g.closed) break;
+    const e=g.path[g.path.length-1]; if(e[0]===r&&e[1]===c) break;
+    const dr=Math.sign(r-e[0]), dc=Math.sign(c-e[1]);
+    const a=[e[0]+dr,e[1]], b=[e[0],e[1]+dc];
+    const opts=Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a];
+    let moved=false;
+    for(const [nr,nc] of opts){
+      if(nr===e[0]&&nc===e[1]) continue;
+      if(canStep(g,nr,nc)){g.path.push([nr,nc]);if(g.kind==='net'&&isStart(g,nr,nc))g.closed=true;moved=true;break}
+    }
+    if(!moved) break;
+  }
+}
+
+function evaluate(g){
+  const onP=new Set(g.path.map(p=>key(p[0],p[1])));
+  const hits=[]; let inside=null;
+  if(g.kind==='net'){
+    if(!g.closed) return {hits:null,inside:null,onP};
+    const out=new Set(); const q=[];
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+      if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!onP.has(key(r,c))){out.add(key(r,c));q.push([r,c])}
+    }
+    while(q.length){const [r,c]=q.pop();for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
+    inside=new Set();
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){const k=key(r,c);if(!onP.has(k)&&!out.has(k)){inside.add(k);if(g.grid[r][c].sp)hits.push([r,c])}}
+  } else {
+    const seen=new Set();
+    for(const [r,c] of g.path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
+    for(const [r,c] of g.path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
+  }
+  return {hits,inside,onP};
+}
+const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
+const ready=g=>g.kind==='net'?g.closed:g.path[g.path.length-1][0]===g.rows-1;
+const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
+const cls=s=>s>0?'good':s<0?'bad':'zero';
+
+function render(g){
+  const {hits,inside,onP}=evaluate(g);
+  const hitSet=new Set((hits||[]).map(([r,c])=>key(r,c)));
+  let html='';
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='', style='';
+    if(g.kind==='net'){ if((r+c)%2) cl.push('alt'); if(inside&&inside.has(k)) cl.push('in'); }
+    else { if(r===0) cl.push('surf'); else { const d=(r-1)/(g.rows-2); style=` style="background:hsl(${196-d*6} ${46-d*10}% ${27-d*15}%)"`; } }
+    if(cell.rock) cl.push('rock');
+    if(isStart(g,r,c)){cl.push('boat');inner='<span class="sp">⛵</span>'}
+    else if(cell.sp){
+      const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
+      if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
+      if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
+      inner=`<span class="sp" title="${s.n} ${fmt(s.p)}">${s.e}</span>`;
+    }
+    html+=`<div class="${cl.join(' ')}"${style}>${inner}</div>`;
+  }
+  // path overlay
+  const pts=g.path.map(([r,c])=>`${c+.5},${r+.5}`).join(' ');
+  const e=g.path[g.path.length-1];
+  let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
+  if(g.kind==='net'){
+    svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>`;
+    g.path.forEach(([r,c],i)=>{if(i>0&&i%2===0&&!isStart(g,r,c))svg+=`<circle cx="${c+.5}" cy="${r+.5}" r=".13" fill="#F39A36"/>`});
+  } else {
+    svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+    if(g.path.length>1) svg+=`<circle cx="${e[1]+.5}" cy="${e[0]+.5}" r=".15" fill="${ready(g)?'#F39A36':'#EBDDB4'}"/>`;
+  }
+  svg+='</svg>';
+  g.board.innerHTML=html+svg;
+
+  g.el.len.textContent=`${moves(g)}/${g.maxLen}`;
+  if(hits){const s=scoreOf(g,hits);g.el.pv.textContent=fmt(s);g.el.pvwrap.className='pv '+cls(s)}
+  else {g.el.pv.textContent='—';g.el.pvwrap.className='pv'}
+  g.el.go.disabled=!ready(g);
+  g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
+  g.el.train.hidden=!g.training;
+  g.el['train-btn'].textContent=g.training?'Back to today’s map':'Practice on another map';
+  const rec=g.training?g.trainRec:g.rec;
+  g.el.tries.textContent=rec.tries;
+  g.el.rec.innerHTML=rec.tries
+    ? `<span class="up">Highest ${g.training?'in practice':'today'} <b>${fmt(rec.best)}</b></span><span class="down">Lowest ${g.training?'in practice':'today'} <b>${fmt(rec.worst)}</b></span>`
+    : `<span>${g.training?'Practice map: nothing is saved.':'No tries yet today.'}</span>`;
+  renderResult(g);
+  renderShare();
+}
+
+function verdict(s){if(s>=25)return'Good catch!';if(s>=12)return'Solid haul';if(s>0)return'Enough for dinner';if(s===0)return'Not a nibble';if(s>-15)return'Fined by the coast guard';return'Ecological disaster'}
+
+function renderResult(g){
+  const L=g.last; if(!L){g.el.result.innerHTML='';return}
+  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span>${SP[k].e}×${n} <span class="${p>0?'g':'b'}">${fmt(p)}</span></span>`}).join('')||'<span>Nothing caught.</span>';
+  g.el.result.innerHTML=`<div class="result"><div class="big ${cls(L.score)}">${fmt(L.score)}</div><div><div class="verdict">${verdict(L.score)}</div><div class="chips">${chips}</div></div></div>`;
+}
+
+function commit(g){
+  if(!ready(g)) return;
+  const {hits}=evaluate(g); const score=scoreOf(g,hits);
+  const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
+  g.last={score,count};
+  const rec=g.training?g.trainRec:g.rec;
+  rec.tries++; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
+  if(!g.training) save(g.storeKey,rec);
+  render(g);
+}
+
+function shareText(){
+  let t=`Good Catch #${DAYNUM}\n`;
+  for(const g of Object.values(games)){
+    const r=g.rec||{tries:0};
+    t+= r.tries ? `${g.icon} ${g.label.padEnd(4)} ▲ ${fmt(r.best).padStart(3)}   ▼ ${fmt(r.worst).padStart(3)}\n` : `${g.icon} ${g.label.padEnd(4)} not played yet\n`;
+  }
+  return (t+'goodcatch.fish').trim();
+}
+function renderShare(){document.getElementById('share-text').textContent=shareText()}
+document.getElementById('copy').addEventListener('click',()=>{
+  const msg=document.getElementById('copy-msg'); const txt=shareText();
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('share-text'));const s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent='Text selected, press Ctrl/Cmd+C to copy.'};
+  try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent='Copied.'},fallback)}catch(e){fallback()}
+});
+
+// legend
+const pos=document.getElementById('lg-pos'), neg=document.getElementById('lg-neg');
+for(const s of Object.values(SP).sort((a,b)=>Math.abs(a.p)-Math.abs(b.p))){
+  const li=`<li class="${s.p>0?'g':'b'}"><span>${s.e}</span>${s.n}<span class="pts">${fmt(s.p)}</span></li>`;
+  (s.p>0?pos:neg).insertAdjacentHTML('beforeend',li);
+}
+
+// tabs
+function showTab(k){
+  for(const x of ['rede','linha']){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
+  try{localStorage.setItem('goodcatch:tab',k)}catch(e){}
+}
+document.getElementById('tab-rede').addEventListener('click',()=>showTab('rede'));
+document.getElementById('tab-linha').addEventListener('click',()=>showTab('linha'));
+
+setup(games.rede); setup(games.linha);
+let t=null; try{t=localStorage.getItem('goodcatch:tab')}catch(e){}
+showTab(t==='linha'?'linha':'rede');
+})();
+</script>
+</body>
+</html>
