@@ -26,9 +26,9 @@ button:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
 .wrap{max-width:540px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:10px}
 
 .top{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center}
-.icon-btn{appearance:none;width:40px;height:40px;border:1px solid var(--edge);background:transparent;border-radius:10px;font:400 26px var(--pixel);color:var(--muted);cursor:pointer}
+.icon-btn{appearance:none;width:40px;height:40px;border:1px solid var(--edge);background:transparent;border-radius:10px;font:400 28px var(--pixel);color:var(--muted);cursor:pointer}
 .icon-btn:hover{color:var(--foam);background:var(--deep)}
-h1{font:400 clamp(36px,10vw,46px)/1 var(--pixel);margin:0}
+h1{font:400 clamp(36px,10vw,44px)/1 var(--pixel);margin:0}
 h1 span{color:var(--buoy)}
 .date{font:400 18px var(--pixel);color:var(--muted);margin-top:2px}
 
@@ -37,11 +37,11 @@ h1 span{color:var(--buoy)}
 .menu button:hover{background:var(--sea2)}
 
 .switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
-.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 20px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
 .switch button .sp{grid-row:span 2}
 .switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
 .switch .sp{width:28px;height:28px}
-.switch small{font-size:17px;color:var(--good);text-align:left}
+.switch small{font-size:18px;color:var(--good);text-align:left}
 .switch small:empty{display:none}
 .switch button:has(small:empty) .sp{grid-row:auto}
 
@@ -66,18 +66,18 @@ h1 span{color:var(--buoy)}
 .big{font:400 72px/1 var(--pixel)}
 .big.good,.good b,.pos{color:var(--good)} .big.bad,.bad b,.neg-t{color:var(--bad)} .big.zero{color:var(--muted)}
 .verdict{font:400 28px var(--pixel)}
-.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 21px var(--pixel);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 22px var(--pixel);color:var(--muted)}
 .chips span{display:inline-flex;align-items:center;gap:3px}
 .chips .sp{width:28px;height:28px}
 .big-good{color:var(--good)} .big-bad{color:var(--bad)} .big-zero{color:var(--muted)}
-.recs{font:400 21px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.recs{font:400 22px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
 
-.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 23px var(--pixel)}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 22px var(--pixel)}
 .meta .count b{font-weight:500}
 .meta .count.warn{color:var(--buoy)}
 .meta .pv{color:var(--muted)} .meta .pv b{color:var(--foam)}
-.badge{font:400 17px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
-.hint{margin:0;min-height:1.5em;font-size:14px;color:var(--muted);text-align:center}
+.badge{font:400 18px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
+.hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
 .hint.alert{color:var(--bad)}
 .mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
 .mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
@@ -98,15 +98,15 @@ h1 span{color:var(--buoy)}
 .note{font-size:13px;color:var(--muted);margin:0;text-align:center;min-height:1.2em}
 
 .legend{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:var(--deep);border-radius:12px;padding:6px 4px;margin-top:4px}
-.legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:400 19px var(--pixel)}
+.legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:400 18px var(--pixel)}
 .legend button[aria-pressed="true"]{background:var(--sea2)}
 .legend .sp{width:28px;height:28px}
 .legend .pos,.legend .neg-t{line-height:1}
 
 dialog{background:var(--deep);color:var(--foam);border:1px solid var(--edge);border-radius:14px;padding:20px;max-width:min(92vw,460px)}
 dialog::backdrop{background:rgba(5,16,25,.7)}
-dialog h2{font:400 34px var(--pixel);margin:0 0 8px}
-dialog h3{font:400 24px var(--pixel);margin:14px 0 4px;display:flex;align-items:center;gap:8px}
+dialog h2{font:400 28px var(--pixel);margin:0 0 8px}
+dialog h3{font:400 22px var(--pixel);margin:14px 0 4px;display:flex;align-items:center;gap:8px}
 dialog h3 .sp{width:28px;height:28px}
 dialog p{margin:0 0 6px;color:var(--muted)} dialog b{color:var(--foam)}
 dialog .btn{width:100%;margin-top:14px}
