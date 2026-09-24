@@ -11,7 +11,7 @@
 :root{
   color-scheme:dark;
   --abyss:#0A1F2B; --deep:#0F2E3C; --sea:#143B4B; --sea2:#174353; --edge:#24566A;
-  --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --rope:#EBDDB4; --sand:#CDB57E;
+  --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --sand:#CDB57E;
   --good:#7FDBA9; --bad:#FF7D70;
   --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
   --body:Figtree,system-ui,-apple-system,sans-serif;
@@ -62,7 +62,7 @@ h1 span{color:var(--buoy)}
 .board.spot .c:not(.lit) .sp:not(.s-boat){opacity:.25}
 .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 
-.panel{position:absolute;inset:0;margin:auto;width:min(100%,420px);max-height:100%;overflow:auto;background:rgba(10,31,43,.94);border:1px solid var(--edge);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;z-index:3}
+.panel{position:absolute;inset:0 0 auto;margin:0 auto;width:min(100%,420px);min-height:100%;background:rgba(10,31,43,.94);border:1px solid var(--edge);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;z-index:3}
 .big{font:400 72px/1 var(--pixel)}
 .big.good,.good b,.pos{color:var(--good)} .big.bad,.bad b,.neg-t{color:var(--bad)} .big.zero{color:var(--muted)}
 .verdict{font:400 28px var(--pixel)}
@@ -70,6 +70,12 @@ h1 span{color:var(--buoy)}
 .chips span{display:inline-flex;align-items:center;gap:3px}
 .chips .sp{width:28px;height:28px}
 .big-good{color:var(--good)} .big-bad{color:var(--bad)} .big-zero{color:var(--muted)}
+.range{display:flex;flex-direction:column;gap:4px}
+.range-label{font-size:13px;color:var(--muted)}
+.bar{position:relative;height:10px;background:var(--sea);border-radius:2px}
+.bar i{position:absolute;top:0;bottom:0;min-width:4px;background:linear-gradient(90deg,var(--bad),var(--good));border-radius:2px}
+.range-ends{display:flex;justify-content:space-between;font:400 18px var(--pixel)}
+.range-note{margin:0;font-size:13px;color:var(--buoy)}
 .recs{font:400 22px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
 
 .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 22px var(--pixel)}
@@ -163,18 +169,6 @@ dialog .btn{width:100%;margin-top:14px}
 
 <script>
 (function(){
-const SP = {
-  sardinha:{p:1},
-  lula:{p:2},
-  caranguejo:{p:2},
-  dourada:{p:3},
-  lagosta:{p:5},
-  coral:{p:-3},
-  tubarao:{p:-4},
-  tartaruga:{p:-6},
-  golfinho:{p:-8},
-};
-
 // ---------- pixel sprites ----------
 const PAL = {
   s:'#5E8FA3', b:'#9CC3CF', e:'#0A1F2B', w:'#EDEAE0',
@@ -239,15 +233,24 @@ const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
 
+// @gen-start
+const SP = {
+  sardinha:{p:1},
+  lula:{p:2},
+  caranguejo:{p:2},
+  dourada:{p:3},
+  lagosta:{p:5},
+  coral:{p:-3},
+  tubarao:{p:-4},
+  tartaruga:{p:-6},
+  golfinho:{p:-8},
+};
+
 // ---------- deterministic randomness ----------
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const ri=(rng,a,b)=>a+Math.floor(rng()*(b-a+1));
 function weighted(rng,list){let t=0;for(const x of list)t+=x[1];let v=rng()*t;for(const [k,w] of list){if((v-=w)<0)return k}return list[0][0]}
-
-// ---------- storage ----------
-function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 const emptyGrid=(R,C)=>Array.from({length:R},()=>Array.from({length:C},()=>({rock:false,sp:null})));
 const key=(r,c)=>r*100+c;
@@ -302,9 +305,120 @@ function genLine(g,rng){
 
 // ---------- jogos ----------
 const games = {
-  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️',label:'Net'},
-  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝',label:'Line'},
+  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️'},
+  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝'},
 };
+
+function evaluate(g){
+  const onP=new Set(g.path.map(p=>key(p[0],p[1])));
+  const hits=[]; let inside=null;
+  if(g.kind==='net'){
+    if(!g.closed) return {hits:null,inside:null,onP};
+    const out=new Set(); const q=[];
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+      if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!onP.has(key(r,c))){out.add(key(r,c));q.push([r,c])}
+    }
+    while(q.length){const [r,c]=q.pop();for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
+    inside=new Set();
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){const k=key(r,c);if(!onP.has(k)&&!out.has(k)){inside.add(k);if(g.grid[r][c].sp)hits.push([r,c])}}
+  } else {
+    const seen=new Set();
+    for(const [r,c] of g.path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
+    for(const [r,c] of g.path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
+  }
+  return {hits,inside,onP};
+}
+const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
+// Self-contained like solveNet. Every species has non-zero points, so v !== 0 means "an animal is here".
+function solveLine(m){
+  const R=m.rows, C=m.cols, D=[[1,0],[-1,0],[0,1],[0,-1]], on=new Uint8Array(R*C), path=[m.start];
+  let best=-Infinity, worst=Infinity, bestPath=null, worstPath=null;
+  const score=()=>{
+    let s=0; const seen=new Uint8Array(R*C);
+    for(const [r,c] of path){const x=m.v[r][c];if(x<0&&!seen[r*C+c]){seen[r*C+c]=1;s+=x}}
+    for(const [r,c] of path)for(const [dr,dc] of D){const nr=r+dr,nc=c+dc,k=nr*C+nc;if(nr<0||nc<0||nr>=R||nc>=C||on[k]||seen[k])continue;if(m.v[nr][nc]){seen[k]=1;s+=m.v[nr][nc]}}
+    return s;
+  };
+  on[m.start[0]*C+m.start[1]]=1;
+  (function dfs(r,c,moves){
+    if(r===R-1){const s=score();if(s>best){best=s;bestPath=path.slice()}if(s<worst){worst=s;worstPath=path.slice()}}
+    for(const [dr,dc] of D){
+      const nr=r+dr,nc=c+dc,k=nr*C+nc;
+      if(nr<1||nc<0||nr>=R||nc>=C||on[k]||m.rock[nr][nc]) continue;
+      const cost=m.v[nr][nc]?2:1;
+      if(moves+cost+(R-1-nr)>m.maxLen) continue;
+      on[k]=1;path.push([nr,nc]);dfs(nr,nc,moves+cost);path.pop();on[k]=0;
+    }
+  })(m.start[0],m.start[1],0);
+  return {best,worst,bestPath,worstPath,complete:true};
+}
+const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,
+  v:g.grid.map(row=>row.map(x=>x.sp?SP[x.sp].p:0)), rock:g.grid.map(row=>row.map(x=>x.rock))});
+// Self-contained: it is stringified into a Web Worker.
+function solveNet(m,ms){
+  const R=m.rows, C=m.cols, sr=m.start[0], sc=m.start[1], D=[[1,0],[-1,0],[0,1],[0,-1]];
+  const on=new Uint8Array(R*C), path=[[sr,sc]], edges=[];
+  const pref=m.v.map(row=>{const p=[0];for(const x of row)p.push(p[p.length-1]+x);return p});
+  const t0=Date.now(); let W=0, best=-Infinity, worst=Infinity, bestPath=null, worstPath=null, nodes=0, stop=false;
+  // A cell is enclosed iff an odd number of the loop's vertical edges lie to its right on its row.
+  // W accumulates each vertical edge's row-prefix (signed by direction), so W = enclosed total plus
+  // whatever the loop's own cells picked up; closed() removes the latter and fixes orientation.
+  const closed=()=>{
+    let area=0, s=W;
+    for(const e of edges) area+=e[2]*e[1];
+    for(const [r,c] of path){const x=m.v[r][c];if(!x)continue;let w=0;for(const e of edges)if(e[0]===r&&e[1]>c)w+=e[2];s-=x*w}
+    return area<0?-s:s;
+  };
+  const enter=(r0,r,c)=>{if(r===r0)return false;const er=Math.min(r0,r),es=r>r0?1:-1;W+=es*pref[er][c];edges.push([er,c,es]);return true};
+  const leave=()=>{const e=edges.pop();W-=e[2]*pref[e[0]][e[1]]};
+  on[sr*C+sc]=1;
+  (function dfs(r,c,moves){
+    if(stop||(++nodes&0xffff)===0&&Date.now()-t0>ms){stop=true;return}
+    for(const [dr,dc] of D){
+      const nr=r+dr, nc=c+dc;
+      if(nr<0||nc<0||nr>=R||nc>=C) continue;
+      if(nr===sr&&nc===sc){
+        if(path.length<4) continue;
+        const v=enter(r,nr,nc), s=closed(); if(v) leave();
+        if(s>best){best=s;bestPath=path.concat([[sr,sc]])}
+        if(s<worst){worst=s;worstPath=path.concat([[sr,sc]])}
+        continue;
+      }
+      if(on[nr*C+nc]||m.rock[nr][nc]||moves+1+Math.abs(nr-sr)+Math.abs(nc-sc)>m.maxLen) continue;
+      on[nr*C+nc]=1; path.push([nr,nc]); const v=enter(r,nr,nc);
+      dfs(nr,nc,moves+1);
+      if(v) leave(); path.pop(); on[nr*C+nc]=0;
+    }
+  })(sr,sc,0);
+  return {best,worst,bestPath,worstPath,complete:!stop};
+}
+// @gen-end
+
+// @net-ref-start
+const NET_REF = {
+  "2026-09-24":[25,-16],"2026-09-25":[15,-6]
+};
+// @net-ref-end
+
+// ---------- storage ----------
+function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+// ---------- today's reference ----------
+// The one seam the UI reads the day's best/worst from; a future backend replaces this function.
+function dailyReference(g,done){
+  const row=g.kind==='net'&&!g.training&&NET_REF[DATE];
+  if(row) return done({best:row[0],worst:row[1],exact:true});
+  solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete}));
+}
+let solver=null;
+function solveAsync(g,ms,done){
+  try{solver??=new Worker(URL.createObjectURL(new Blob([`const solveNet=${solveNet},solveLine=${solveLine};onmessage=e=>{const [id,kind,m,ms]=e.data;postMessage([id,kind==='net'?solveNet(m,ms):solveLine(m)])}`],{type:'text/javascript'})))}
+  catch(e){return}
+  const id=Math.random();
+  solver.addEventListener('message',function on(e){if(e.data[0]!==id)return;solver.removeEventListener('message',on);done(e.data[1])});
+  solver.postMessage([id,g.kind,boardModel(g),ms]);
+}
 
 // ---------- text ----------
 const STR = {
@@ -337,6 +451,9 @@ const STR = {
     help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
     help_points:'Tap an animal in the strip under the board to find it on the map.',
     other_lang:'Português',
+    range:'Today’s possible range', range_map:'This map’s possible range', range_known:'Best known range',
+    range_wait:'Working out the possible range…',
+    top_found:'You found the top catch.', low_found:'You found the lowest possible.', beat_known:'You beat the best known score.',
   },
   pt:{
     how_to_play:'Como jogar', menu:'Menu', got_it:'Entendi',
@@ -367,6 +484,9 @@ const STR = {
     help_linha:'Desça a linha do <b>barco</b> até o <b>fundo</b>. Todo animal encostado na linha morde a isca. Cruzar um peixe o espanta e custa 2 casas; cruzar um animal protegido também conta a penalidade. Só pedras bloqueiam o caminho.',
     help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
     other_lang:'English',
+    range:'Faixa possível de hoje', range_map:'Faixa possível deste mapa', range_known:'Melhor faixa conhecida',
+    range_wait:'Calculando a faixa possível…',
+    top_found:'Você achou a maior pesca possível.', low_found:'Você achou a menor possível.', beat_known:'Você superou o melhor conhecido.',
   },
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -425,7 +545,8 @@ function toggleTraining(g){
 
 function newMap(g,seed){
   g.grid=g.gen(g,mulberry(seedFrom(seed)));
-  g.path=[g.start.slice()]; g.closed=false;
+  g.path=[g.start.slice()]; g.closed=false; g.ref=null; g.seed=seed;
+  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;if(!g.training)g.dailyRef=ref;render(g)}));
 }
 
 const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
@@ -504,26 +625,6 @@ function spawn(g,r,c,kind,text=''){
   b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
 }
 
-function evaluate(g){
-  const onP=new Set(g.path.map(p=>key(p[0],p[1])));
-  const hits=[]; let inside=null;
-  if(g.kind==='net'){
-    if(!g.closed) return {hits:null,inside:null,onP};
-    const out=new Set(); const q=[];
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-      if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!onP.has(key(r,c))){out.add(key(r,c));q.push([r,c])}
-    }
-    while(q.length){const [r,c]=q.pop();for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
-    inside=new Set();
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){const k=key(r,c);if(!onP.has(k)&&!out.has(k)){inside.add(k);if(g.grid[r][c].sp)hits.push([r,c])}}
-  } else {
-    const seen=new Set();
-    for(const [r,c] of g.path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
-    for(const [r,c] of g.path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
-  }
-  return {hits,inside,onP};
-}
-const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
 const ready=g=>g.kind==='net'?g.closed:g.path[g.path.length-1][0]===g.rows-1;
 const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
 const cls=s=>s>0?'good':s<0?'bad':'zero';
@@ -575,7 +676,7 @@ function render(g){
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
   g.el.train.hidden=!g.training;
-  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}`:'';
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}${g.dailyRef?' / '+fmt(g.dailyRef.best):''}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
 }
@@ -590,8 +691,24 @@ function renderResult(g){
     <div class="verdict">${verdict(L.score)}</div>
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
+    ${rangeHTML(g,rec)}
     <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
+}
+
+function rangeHTML(g,rec){
+  const ref=g.ref;
+  if(!ref) return `<p class="range-note">${t('range_wait')}</p>`;
+  const beat=!ref.exact&&(rec.best>ref.best||rec.worst<ref.worst);
+  if(!ref.exact){ref.best=Math.max(ref.best,rec.best);ref.worst=Math.min(ref.worst,rec.worst)}
+  const span=ref.best-ref.worst||1, pos=x=>Math.max(0,Math.min(100,(x-ref.worst)/span*100));
+  const notes=[beat&&t('beat_known'),rec.best>=ref.best&&t('top_found'),rec.worst<=ref.worst&&t('low_found')].filter(Boolean);
+  return `<div class="range">
+    <div class="range-label">${t(ref.exact?(g.training?'range_map':'range'):'range_known')}</div>
+    <div class="bar" role="img" aria-label="${t('your_lowest')} ${fmt(rec.worst)}, ${t('your_best')} ${fmt(rec.best)}, ${fmt(ref.worst)} … ${fmt(ref.best)}"><i style="left:${pos(rec.worst)}%;width:${pos(rec.best)-pos(rec.worst)}%"></i></div>
+    <div class="range-ends"><span class="big-${cls(ref.worst)}">▼${fmt(ref.worst)}</span><span class="big-${cls(ref.best)}">▲${fmt(ref.best)}</span></div>
+    ${notes.map(n=>`<p class="range-note">${n}</p>`).join('')}
+  </div>`;
 }
 
 function commit(g){
@@ -608,15 +725,17 @@ function commit(g){
 function shareText(){
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
-    const r=g.rec;
-    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)} ▼${fmt(r.worst)}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
+    const r=g.rec, ref=g.dailyRef&&g.dailyRef.exact?g.dailyRef:null;
+    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${ref?'/'+fmt(ref.best):''} ▼${fmt(r.worst)}${ref?'/'+fmt(ref.worst):''}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
   }
   return s+'goodcatch.fish';
 }
 function share(note){
   const txt=shareText();
   const fail=()=>{note.textContent=t('copy_fail')+txt.replace(/\n/g,' · ')};
-  try{navigator.clipboard.writeText(txt).then(()=>{note.textContent=t('copied')},fail)}catch(e){fail()}
+  const copy=()=>{try{navigator.clipboard.writeText(txt).then(()=>{note.textContent=t('copied')},fail)}catch(e){fail()}};
+  if(navigator.share&&matchMedia('(pointer:coarse)').matches) navigator.share({text:txt}).catch(e=>{if(e.name!=='AbortError')copy()});
+  else copy();
 }
 
 let spotlight=null;

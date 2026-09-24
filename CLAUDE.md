@@ -16,24 +16,28 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - Only rocks block the line.
 
 ## Code
-- Everything lives in one static `index.html` (inline CSS + JS, no build, no dependencies). Keep it that way until there's a real reason to split.
+- Everything the page needs lives in one static `index.html` (inline CSS + JS, no build, no runtime dependencies). Dev-only Node tooling lives in `tools/` and is never loaded by the page.
 - Key places in the script:
-  - `SP`: species, emoji, points.
+  - `// @gen-start` … `// @gen-end`: pure game logic (`SP`, PRNG, `genNet`/`genLine`, `games`, `evaluate`, `solveLine`/`solveNet`). No DOM in here: `tools/solve-net.mjs` evaluates this block in Node.
+  - `SP`: species points. Names live in `STR` (`sp_<key>`), sprites in `SPRITES`.
   - `games`: board sizes, start cell, length budget.
   - `genNet` / `genLine`: deterministic generation (`mulberry` PRNG seeded from `DATE + ':' + game key`). `genLine` retries until a path to the seabed exists.
-  - `canStep` / `touch`: drawing rules. `stepCost` handles the 2-square crossing cost.
+  - `stepBlock`: whether a step is allowed and, if not, why (shown to the player). Net steps that would leave no way back to the boat are refused; `returnPath` is the BFS behind that and behind "tap the boat to close".
   - `evaluate`: what gets caught (flood fill for the net, adjacency for the line).
+  - `dailyReference`: the single seam for "today's best/worst". A future backend replaces this function only.
+  - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date, written by `node tools/solve-net.mjs [days] [from]`. The tool checks every optimum against `evaluate` before writing.
+  - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs.
+  - `STR.en` / `STR.pt`: every UI string. Add a key to both.
   - `EPOCH`: the date of puzzle #1. Set it to the launch date.
-- Records live in `localStorage` under `goodcatch:<date>:<game>`, always wrapped in try/catch.
-- Changing generation logic changes every past and future map. That's fine before launch, but bump a version in the seed afterwards.
+- Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records, `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
+- Changing generation logic changes every past and future map and invalidates `NET_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
 ## Roadmap ideas
-1. Compute each day's best and worst possible score (solver) and show "31 / 38".
-2. Limit tries per day (or count only the first attempt for sharing).
-3. Tune difficulty so both extremes are hard. Test with the practice map.
-4. Replace emoji with custom illustrations.
-5. Optional: a global daily leaderboard (would need a backend).
+1. Limit tries per day (or count only the first attempt for sharing). Today unlimited tries, best counts.
+2. Tune difficulty so both extremes are hard. Test with the practice map.
+3. Optional: a global daily leaderboard (would need a backend). Plug it in through `dailyReference`.
 
 ## Conventions
-- UI text in English (international audience).
+- UI in English and Portuguese: default from `navigator.language`, switchable in the menu.
+- Pixel font is Jersey 10. Pixelify Sans was rejected: its C/O, 2/8 and 5/S are near-identical, which misreads scores.
 - Test in a browser at phone width (~400px) and desktop.
