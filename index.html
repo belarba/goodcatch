@@ -6,183 +6,251 @@
 <meta name="description" content="A daily fishing puzzle. Go for the best catch, or the worst.">
 <title>Good Catch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Jersey+10&display=swap">
 <style>
 :root{
   color-scheme:dark;
   --abyss:#0A1F2B; --deep:#0F2E3C; --sea:#143B4B; --sea2:#174353; --edge:#24566A;
-  --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --rope:#EBDDB4; --sand:#CDB57E;
+  --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --sand:#CDB57E;
   --good:#7FDBA9; --bad:#FF7D70;
-  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
   --body:Figtree,system-ui,-apple-system,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
 }
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
 [hidden]{display:none!important}
 html,body{background:var(--abyss)}
 body{color:var(--foam);font-family:var(--body);font-size:15px;line-height:1.5}
-.wrap{max-width:580px;margin:0 auto;padding-block:28px 56px;padding-inline:16px;display:flex;flex-direction:column;gap:18px}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8vw,42px);line-height:1;letter-spacing:-.02em;margin:0}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
+.wrap{max-width:540px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:10px}
+
+.top{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center}
+.icon-btn{appearance:none;width:40px;height:40px;border:1px solid var(--edge);background:transparent;border-radius:10px;font:400 28px var(--pixel);color:var(--muted);cursor:pointer}
+.icon-btn:hover{color:var(--foam);background:var(--deep)}
+h1{font:400 clamp(36px,10vw,44px)/1 var(--pixel);margin:0}
 h1 span{color:var(--buoy)}
-.date{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.intro{margin:0;color:var(--muted);max-width:60ch}
-.intro b{color:var(--foam);font-weight:600}
+.date{font:400 18px var(--pixel);color:var(--muted);margin-top:2px}
 
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--deep);padding:4px;border-radius:12px}
-.tabs button{appearance:none;border:0;background:transparent;color:var(--muted);font:600 15px var(--body);padding:10px 8px;border-radius:9px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
-.tabs button:focus-visible,.btn:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
+.menu{margin:0;inset:auto;top:60px;right:max(16px,calc(50vw - 254px));position:fixed;background:var(--deep);color:var(--foam);border:1px solid var(--edge);border-radius:12px;padding:6px;min-width:220px}
+.menu button{display:block;width:100%;appearance:none;border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer}
+.menu button:hover{background:var(--sea2)}
 
-.game{display:flex;flex-direction:column;gap:12px}
-.rule{margin:0;font-size:14px;color:var(--muted)}
-.rule b{color:var(--foam);font-weight:600}
-.strip{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:13px;color:var(--muted);align-items:center}
-.strip b{color:var(--foam);font-weight:700;font-variant-numeric:tabular-nums}
-.strip .pv.good b{color:var(--good)} .strip .pv.bad b{color:var(--bad)}
-.badge{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--abyss);background:var(--buoy);padding:2px 7px;border-radius:5px}
+.switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
+.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button .sp{grid-row:span 2}
+.switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
+.switch .sp{width:28px;height:28px}
+.switch small{font-size:18px;color:var(--good);text-align:left}
+.switch small:empty{display:none}
+.switch button:has(small:empty) .sp{grid-row:auto}
 
-.boardwrap{display:flex;justify-content:center}
+.game{display:flex;flex-direction:column;gap:8px}
+.stage{position:relative;display:flex;justify-content:center}
 .board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);
-  aspect-ratio:var(--cols)/var(--rows);width:min(100%, calc(var(--cols) / var(--rows) * 66vh));max-width:100%;
-  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--sea);
-  container-type:inline-size;cursor:crosshair}
+  aspect-ratio:var(--cols)/var(--rows);width:min(100%, max(260px, calc(var(--cols) / var(--rows) * (100svh - 360px))));
+  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:10px;overflow:hidden;background:var(--sea) center/100% 100%;
+  image-rendering:pixelated;cursor:crosshair}
 .board.line{border-bottom:8px solid var(--sand)}
-.c{position:relative;display:grid;place-items:center;font-size:calc(100cqw / var(--cols) * .56);line-height:1}
-.board.net .c.alt{background:var(--sea2)}
-.c.in{background:rgba(243,154,54,.20)!important}
-.c.surf{background:#1E5B6B}
-.c .sp{position:relative;z-index:1;pointer-events:none}
-.c.neg::before{content:"";position:absolute;inset:10%;border-radius:50%;border:1.5px dashed rgba(255,125,112,.6)}
-.c.hit.good::before{content:"";position:absolute;inset:8%;border-radius:50%;border:2px solid var(--good);background:rgba(127,219,169,.2)}
-.c.hit.bad::before{border:2px solid var(--bad);background:rgba(255,125,112,.25)}
+.c{position:relative;display:grid;place-items:center}
+.c.in{background:rgba(243,154,54,.22)}
+.sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
+.c.neg::before,.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
+.c.hit.good::before{border-color:var(--good);background:rgba(127,219,169,.18)}
+.c.hit.bad::before{border-color:var(--bad);background:rgba(255,125,112,.25)}
 .c.gone .sp{opacity:.3}
-.c.rock::after{content:"";width:80%;height:80%;border-radius:38% 30% 42% 34%;background:radial-gradient(circle at 38% 32%,#5b6b6d,#2d393c 70%)}
-.c.boat{font-size:calc(100cqw / var(--cols) * .66)}
+.board.spot .c:not(.lit) .sp:not(.s-boat){opacity:.25}
 .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 
-.controls{display:flex;flex-wrap:wrap;gap:8px}
-.btn{appearance:none;border:1px solid var(--edge);background:transparent;color:var(--foam);font:600 14px var(--body);padding:9px 14px;border-radius:10px;cursor:pointer}
+.panel{position:absolute;inset:0 0 auto;margin:0 auto;width:min(100%,420px);min-height:100%;background:rgba(10,31,43,.94);border:1px solid var(--edge);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;z-index:3}
+.big{font:400 72px/1 var(--pixel)}
+.big.good,.good b,.pos{color:var(--good)} .big.bad,.bad b,.neg-t{color:var(--bad)} .big.zero{color:var(--muted)}
+.verdict{font:400 28px var(--pixel)}
+.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 22px var(--pixel);color:var(--muted)}
+.chips span{display:inline-flex;align-items:center;gap:3px}
+.chips .sp{width:28px;height:28px}
+.big-good{color:var(--good)} .big-bad{color:var(--bad)} .big-zero{color:var(--muted)}
+.range{display:flex;flex-direction:column;gap:4px}
+.range-label{font-size:13px;color:var(--muted)}
+.bar{position:relative;height:10px;background:var(--sea);border-radius:2px}
+.bar i{position:absolute;top:0;bottom:0;min-width:4px;background:linear-gradient(90deg,var(--bad),var(--good));border-radius:2px}
+.range-ends{display:flex;justify-content:space-between;font:400 18px var(--pixel)}
+.range-note{margin:0;font-size:13px;color:var(--buoy)}
+.recs{font:400 22px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 22px var(--pixel)}
+.meta .count b{font-weight:500}
+.meta .count.warn{color:var(--buoy)}
+.meta .pv{color:var(--muted)} .meta .pv b{color:var(--foam)}
+.badge{font:400 18px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
+.hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
+.hint.alert{color:var(--bad)}
+.mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
+.mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
+.mark.cost{color:var(--bad);text-shadow:0 2px 0 #051019;animation:rise .8s ease-out forwards}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes fade{to{opacity:0}}
+@keyframes rise{from{transform:translateY(0)}to{transform:translateY(-70%);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}}
+
+.controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
+.panel .controls{grid-template-columns:1fr 1fr}
+.game.done>.meta,.game.done>.hint,.game.done>.controls{visibility:hidden}
+.btn{appearance:none;border:1px solid var(--edge);background:transparent;font:400 22px var(--pixel);padding:10px 12px;border-radius:10px;cursor:pointer}
 .btn:hover:not(:disabled){background:var(--deep)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn.primary{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
 .btn.primary:hover:not(:disabled){background:#ffab4e}
-.btn.ghost{border-color:transparent;color:var(--muted)}
-.spacer{flex:1}
+.note{font-size:13px;color:var(--muted);margin:0;text-align:center;min-height:1.2em}
 
-.result{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--deep);border-radius:12px;padding:14px 16px}
-.big{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums;min-width:2.4ch}
-.big.good{color:var(--good)} .big.bad{color:var(--bad)} .big.zero{color:var(--muted)}
-.verdict{font-weight:700;font-size:16px}
-.chips{display:flex;flex-wrap:wrap;gap:4px 10px;font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:4px}
-.chips .g{color:var(--good)} .chips .b{color:var(--bad)}
-.rec{font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
-.rec b{font-variant-numeric:tabular-nums}
-.rec .up b{color:var(--good)} .rec .down b{color:var(--bad)}
+.legend{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:var(--deep);border-radius:12px;padding:6px 4px;margin-top:4px}
+.legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:400 18px var(--pixel)}
+.legend button[aria-pressed="true"]{background:var(--sea2)}
+.legend .sp{width:28px;height:28px}
+.legend .pos,.legend .neg-t{line-height:1}
 
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.legend h3{margin:0 0 6px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.legend ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
-.legend li{display:flex;gap:8px;align-items:center;font-size:14px}
-.legend li .pts{margin-left:auto;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
-.legend .g .pts{color:var(--good)} .legend .b .pts{color:var(--bad)}
-
-.share{border-top:1px solid var(--edge);padding-top:16px;display:flex;flex-direction:column;gap:10px}
-.share h2{margin:0;font-family:var(--display);font-weight:600;font-size:19px}
-.share pre{margin:0;background:var(--deep);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;overflow-x:auto}
-.note{font-size:13px;color:var(--muted);margin:0}
-@media (max-width:420px){.legend{grid-template-columns:1fr}.big{font-size:38px}}
+dialog{background:var(--deep);color:var(--foam);border:1px solid var(--edge);border-radius:14px;padding:20px;max-width:min(92vw,460px)}
+dialog::backdrop{background:rgba(5,16,25,.7)}
+dialog h2{font:400 28px var(--pixel);margin:0 0 8px}
+dialog h3{font:400 22px var(--pixel);margin:14px 0 4px;display:flex;align-items:center;gap:8px}
+dialog h3 .sp{width:28px;height:28px}
+dialog p{margin:0 0 6px;color:var(--muted)} dialog b{color:var(--foam)}
+dialog .btn{width:100%;margin-top:14px}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <header>
-    <h1>Good <span>Catch</span></h1>
-    <div class="date" id="date"></div>
+  <header class="top">
+    <button class="icon-btn" id="help-btn" data-t-label="how_to_play">?</button>
+    <div><h1>Good <span>Catch</span></h1><div class="date" id="date"></div></div>
+    <button class="icon-btn" id="menu-btn" popovertarget="menu" data-t-label="menu">≡</button>
   </header>
-  <p class="intro">A new sea every day, the same for everyone. Go for the <b>highest score</b> or the <b>lowest</b>: both records count. Protected animals (red outline) take points away.</p>
-
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-rede" aria-selected="true">Purse net</button>
-    <button role="tab" id="tab-linha" aria-selected="false">Bottom line</button>
+  <div id="menu" class="menu" popover>
+    <button id="train-btn"></button>
+    <button id="lang-btn"></button>
   </div>
 
+  <nav class="switch" role="tablist">
+    <button role="tab" id="tab-rede"><i class="sp s-sardinha"></i><span data-t="game_rede"></span><small data-k="best"></small></button>
+    <button role="tab" id="tab-linha"><i class="sp s-hook"></i><span data-t="game_linha"></span><small data-k="best"></small></button>
+  </nav>
+
   <section class="game" id="game-rede">
-    <p class="rule">Drag from the <b>boat</b> to lay out the net, then come back to it to <b>close the circle</b>. Everything inside is caught. Animals under the net itself slip away.</p>
-    <div class="strip"><span>Net <b data-k="len">0/26</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">—</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
-    <div class="boardwrap"><div class="board net" data-k="board"></div></div>
+    <div class="stage"><div class="board net" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
+    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
+    <p class="hint" data-k="hint" aria-live="polite"></p>
     <div class="controls">
-      <button class="btn" data-k="undo">Undo</button>
-      <button class="btn" data-k="clear">Clear</button>
-      <span class="spacer"></span>
-      <button class="btn primary" data-k="go">Haul net</button>
+      <button class="btn" data-k="undo" data-t="undo"></button>
+      <button class="btn" data-k="clear" data-t="clear"></button>
+      <button class="btn primary" data-k="go" data-t="go_rede"></button>
     </div>
-    <div data-k="result"></div>
-    <div class="rec" data-k="rec"></div>
-    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
   </section>
 
   <section class="game" id="game-linha" hidden>
-    <p class="rule">Drag from the <b>boat</b> down to the <b>seabed</b>. Every animal touching the line (above, below or beside it) bites. Crossing <b>over</b> a fish scares it off (no points) and costs 2 squares of line. Crossing a <b>protected</b> animal hurts it: the penalty counts. Only rocks block the way. The line must touch the sand before you can reel it in.</p>
-    <div class="strip"><span>Line <b data-k="len">0/20</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">0</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
-    <div class="boardwrap"><div class="board line" data-k="board"></div></div>
+    <div class="stage"><div class="board line" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
+    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
+    <p class="hint" data-k="hint" aria-live="polite"></p>
     <div class="controls">
-      <button class="btn" data-k="undo">Undo</button>
-      <button class="btn" data-k="clear">Clear</button>
-      <span class="spacer"></span>
-      <button class="btn primary" data-k="go">Reel in</button>
+      <button class="btn" data-k="undo" data-t="undo"></button>
+      <button class="btn" data-k="clear" data-t="clear"></button>
+      <button class="btn primary" data-k="go" data-t="go_linha"></button>
     </div>
-    <div data-k="result"></div>
-    <div class="rec" data-k="rec"></div>
-    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
   </section>
 
-  <div class="legend">
-    <div><h3>Catch</h3><ul id="lg-pos"></ul></div>
-    <div><h3>Protected</h3><ul id="lg-neg"></ul></div>
-  </div>
-
-  <div class="share">
-    <h2>Your day at sea</h2>
-    <pre id="share-text"></pre>
-    <div class="controls"><button class="btn" id="copy">Copy result</button><span class="note" id="copy-msg"></span></div>
-    <p class="note">Prototype: unlimited tries, records are saved in this browser only.</p>
-  </div>
+  <div class="legend" id="legend"></div>
 </div>
+
+<dialog id="help">
+  <h2 data-t="how_to_play"></h2>
+  <div id="help-body"></div>
+  <form method="dialog"><button class="btn primary" data-t="got_it"></button></form>
+</dialog>
 
 <script>
 (function(){
-const SP = {
-  sardinha:{e:'🐟',n:'Sardine',p:1},
-  lula:{e:'🦑',n:'Squid',p:2},
-  caranguejo:{e:'🦀',n:'Crab',p:2},
-  dourada:{e:'🐠',n:'Sea bream',p:3},
-  lagosta:{e:'🦞',n:'Lobster',p:5},
-  coral:{e:'🪸',n:'Coral',p:-3},
-  tubarao:{e:'🦈',n:'Shark',p:-4},
-  tartaruga:{e:'🐢',n:'Turtle',p:-6},
-  golfinho:{e:'🐬',n:'Dolphin',p:-8},
+// ---------- pixel sprites ----------
+const PAL = {
+  s:'#5E8FA3', b:'#9CC3CF', e:'#0A1F2B', w:'#EDEAE0',
+  p:'#D98BB0', P:'#A9608A',
+  o:'#E0703A', O:'#B24E22',
+  y:'#E9C25A', Y:'#C9962E',
+  r:'#D8553A', R:'#A33A28', c:'#E86A4A',
+  k:'#F07C9A', K:'#B8466A',
+  G:'#7F929E', u:'#D3DDE1',
+  h:'#9BC46A', f:'#7FA84E', g:'#3F6B33', v:'#6E9B4A',
+  d:'#6F9FC4', D:'#4C7DA3',
+  m:'#6B4A2E', n:'#F39A36', N:'#C8741F',
+  q:'#7A8A8C', Q:'#56666A', z:'#36454A',
+  x:'#C9D3D6', l:'#EBDDB4',
 };
+const SPRITES = {
+  sardinha:["............","............","............",".....ssss...",".s..ssssss..",".ss.sssssses","..bbbbbbbbbb",".bb.bbbbbbb.",".b...bbbbb..","............","............","............"],
+  lula:["............","....pppp....","...pppppp...","..pPppppPp..","..pppppppp..","..ppeppepp..","...pppppp...","..p.p..p.p..","..p.p..p.p..",".p..p..p..p.",".p...pp...p.","............"],
+  caranguejo:["............",".oo......oo.","o.o......o.o",".oo.e..e.oo.","..o.o..o.o..","...oooooo...","..oOooooOo..",".oooooooooo.","o.oOOOOOOo.o","..o.o..o.o..",".o..o..o..o.","............"],
+  dourada:["............","....yyyy....","...yyyyyy...","y.yyyyyyyy..","yyyYyyyyyey.","yyyYyyyyyyyy","yyyYyyyyyyy.","y.yyyyyyyy..","...yyyyyy...","....yyyy....","............","............"],
+  lagosta:[".c........c.","cc........cc","cc..r..r..cc",".c..r..r..c.","..rrrrrrrr..","...rRRRRr...","...rrrrrr...","...rRRRRr...","....rrrr....","....rRRr....","...rrrrrr...","............"],
+  coral:["............","..k.....k...","..k..k..k.k.","k.kk.k.kk.k.","kk.k.k.k..k.",".k.kkkkk.kk.",".kk..k..kk..","..kk.k.kk...","...kkkkk....","....kKk.....","...KKKKK....","............"],
+  tubarao:["............","............",".....G......","....GG......","G..GGGGGG...","GGGGGGGGGGG.","GGGGGGGGGeGG",".GGuuuuuuuu.","G..uuuuuu...",".....u......","............","............"],
+  tartaruga:["....hh......","....hh......","..f.gggg.f..",".ffgvgvggff.","..gvvgvvgg..","..ggvgvgvg..","..gvvgvvgg..",".ffggvgggff.","..f.gggg.f..",".....hh.....","............","............"],
+  golfinho:["............","............","......D.....",".....DD.....","...dddddd...","..ddddddded.",".ddwwwwddddd","dd...wwww...","d...........","dd..........","............","............"],
+  boat:["............","......w.....","......ww....","......www...","......wwww..","...w..wwwww.","..ww..m.....",".www..m.....","nnnnnnnnnnnn",".nNNNNNNNNn.","..nnnnnnnn..","............"],
+  rock:["............","............","....qqqQ....","..qqqqqQQQ..",".qqqQQQQQQQ.",".qqQQQQQQQz.","QqQQQQQQQQzz","QQQQQQQQQzzz",".QQQQQQQzzz.","..zzzzzzzz..","............","............"],
+  hook:[".......l....",".......l....",".......l....","......xxx...",".......x....",".......x....",".......x....","..x....x....","..xx...x....","...x...x....","...xx.xx....","....xxx....."],
+};
+function spriteURL(map){
+  const cv=document.createElement('canvas'); cv.width=cv.height=14; const x=cv.getContext('2d');
+  const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
+  for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
+    if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(c+1,r+1,1,1)}
+    else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(c+1,r+1,1,1)}
+  }
+  return cv.toDataURL();
+}
+const spriteCSS=Object.entries(SPRITES).map(([k,m])=>`.s-${k}{background-image:url(${spriteURL(m)})}`).join('');
+document.head.insertAdjacentHTML('beforeend',`<style>${spriteCSS}</style>`);
+const sprite=(k,extra='')=>`<i class="sp s-${k}"${extra}></i>`;
+
+function seaURL(g){
+  const S=14, cv=document.createElement('canvas'); cv.width=g.cols*S; cv.height=g.rows*S; const x=cv.getContext('2d');
+  const rng=mulberry(seedFrom('sea:'+g.key));
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+    let base, tick;
+    if(g.kind==='net'){base=(r+c)%2?'#174353':'#143B4B';tick='#1C4F60'}
+    else if(r===0){base='#1E5B6B';tick='#2A6E7E'}
+    else {const d=(r-1)/(g.rows-2);base=`hsl(${196-d*6} ${46-d*10}% ${27-d*15}%)`;tick=`hsl(${196-d*6} ${46-d*10}% ${31-d*15}%)`}
+    x.fillStyle=base; x.fillRect(c*S,r*S,S,S);
+    x.fillStyle=tick;
+    for(let k=0;k<2;k++) if(rng()<.35){const wx=c*S+Math.floor(rng()*8), wy=r*S+2+Math.floor(rng()*10); x.fillRect(wx,wy,3,1); x.fillRect(wx+3,wy-1,2,1)}
+  }
+  if(g.kind==='line'){x.fillStyle='#E8F0EC';for(let c=0;c<g.cols*S;c+=4)x.fillRect(c,0,2,1)}
+  return cv.toDataURL();
+}
 
 // ---------- daily date ----------
 const EPOCH = '2026-09-01'; // day #1: change to launch date
 const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-document.getElementById('date').textContent = `#${DAYNUM} · ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+// @gen-start
+const SP = {
+  sardinha:{p:1},
+  lula:{p:2},
+  caranguejo:{p:2},
+  dourada:{p:3},
+  lagosta:{p:5},
+  coral:{p:-3},
+  tubarao:{p:-4},
+  tartaruga:{p:-6},
+  golfinho:{p:-8},
+};
 
 // ---------- deterministic randomness ----------
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const ri=(rng,a,b)=>a+Math.floor(rng()*(b-a+1));
 function weighted(rng,list){let t=0;for(const x of list)t+=x[1];let v=rng()*t;for(const [k,w] of list){if((v-=w)<0)return k}return list[0][0]}
-
-// ---------- storage ----------
-function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 const emptyGrid=(R,C)=>Array.from({length:R},()=>Array.from({length:C},()=>({rock:false,sp:null})));
 const key=(r,c)=>r*100+c;
@@ -237,85 +305,9 @@ function genLine(g,rng){
 
 // ---------- jogos ----------
 const games = {
-  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️',label:'Net'},
-  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝',label:'Line'},
+  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️'},
+  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝'},
 };
-
-function setup(g){
-  const root=document.getElementById('game-'+g.key);
-  g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
-  g.board=g.el.board;
-  g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
-  g.training=false;
-  g.storeKey=`goodcatch:${DATE}:${g.key}`;
-  g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
-  g.trainRec={best:null,worst:null,tries:0};
-  g.last=null;
-  newMap(g, DATE+':'+g.key);
-
-  let drawing=false;
-  const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
-  g.board.addEventListener('pointerdown',e=>{const cell=cellAt(e);if(!cell)return;drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}touch(g,cell,true);render(g)});
-  g.board.addEventListener('pointermove',e=>{if(!drawing)return;const cell=cellAt(e);if(!cell)return;touch(g,cell,false);render(g)});
-  const stop=()=>{drawing=false};
-  g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
-  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;render(g)}});
-  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;render(g)});
-  g.el.go.addEventListener('click',()=>commit(g));
-  g.el['train-btn'].addEventListener('click',()=>{
-    g.training=!g.training;
-    if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
-    else newMap(g,DATE+':'+g.key);
-    g.last=null; render(g);
-  });
-  render(g);
-}
-
-function newMap(g,seed){
-  g.grid=g.gen(g,mulberry(seedFrom(seed)));
-  g.path=[g.start.slice()]; g.closed=false;
-}
-
-const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
-const moves=g=>g.path.slice(1).reduce((s,[r,c])=>s+stepCost(g,r,c),0);
-const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
-function canStep(g,r,c){
-  if(r<0||c<0||r>=g.rows||c>=g.cols) return false;
-  const e=g.path[g.path.length-1];
-  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return false;
-  const cell=g.grid[r][c];
-  if(moves(g)+stepCost(g,r,c)>g.maxLen) return false;
-  if(cell.rock) return false;
-  const onPath=g.path.some(p=>p[0]===r&&p[1]===c);
-  if(g.kind==='net'){
-    if(g.closed) return false;
-    if(isStart(g,r,c)) return g.path.length>=4;
-    return !onPath;
-  }
-  if(r<1) return false;
-  return !onPath;
-}
-function touch(g,[r,c],isDown){
-  const L=g.path.length;
-  const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
-  if(isDown&&idx>=0){g.path=g.path.slice(0,idx+1);g.closed=false;return}
-  const end=g.path[L-1];
-  if(end[0]===r&&end[1]===c) return;
-  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;return}}
-  for(let i=0;i<40;i++){
-    if(g.closed) break;
-    const e=g.path[g.path.length-1]; if(e[0]===r&&e[1]===c) break;
-    const dr=Math.sign(r-e[0]), dc=Math.sign(c-e[1]);
-    const a=[e[0]+dr,e[1]], b=[e[0],e[1]+dc];
-    const opts=Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a];
-    let moved=false;
-    for(const [nr,nc] of opts){
-      if(nr===e[0]&&nc===e[1]) continue;
-      if(canStep(g,nr,nc)){g.path.push([nr,nc]);if(g.kind==='net'&&isStart(g,nr,nc))g.closed=true;moved=true;break}
-    }
-    if(!moved) break;
-  }
-}
 
 function evaluate(g){
   const onP=new Set(g.path.map(p=>key(p[0],p[1])));
@@ -337,6 +329,302 @@ function evaluate(g){
   return {hits,inside,onP};
 }
 const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
+// Self-contained like solveNet. Every species has non-zero points, so v !== 0 means "an animal is here".
+function solveLine(m){
+  const R=m.rows, C=m.cols, D=[[1,0],[-1,0],[0,1],[0,-1]], on=new Uint8Array(R*C), path=[m.start];
+  let best=-Infinity, worst=Infinity, bestPath=null, worstPath=null;
+  const score=()=>{
+    let s=0; const seen=new Uint8Array(R*C);
+    for(const [r,c] of path){const x=m.v[r][c];if(x<0&&!seen[r*C+c]){seen[r*C+c]=1;s+=x}}
+    for(const [r,c] of path)for(const [dr,dc] of D){const nr=r+dr,nc=c+dc,k=nr*C+nc;if(nr<0||nc<0||nr>=R||nc>=C||on[k]||seen[k])continue;if(m.v[nr][nc]){seen[k]=1;s+=m.v[nr][nc]}}
+    return s;
+  };
+  on[m.start[0]*C+m.start[1]]=1;
+  (function dfs(r,c,moves){
+    if(r===R-1){const s=score();if(s>best){best=s;bestPath=path.slice()}if(s<worst){worst=s;worstPath=path.slice()}}
+    for(const [dr,dc] of D){
+      const nr=r+dr,nc=c+dc,k=nr*C+nc;
+      if(nr<1||nc<0||nr>=R||nc>=C||on[k]||m.rock[nr][nc]) continue;
+      const cost=m.v[nr][nc]?2:1;
+      if(moves+cost+(R-1-nr)>m.maxLen) continue;
+      on[k]=1;path.push([nr,nc]);dfs(nr,nc,moves+cost);path.pop();on[k]=0;
+    }
+  })(m.start[0],m.start[1],0);
+  return {best,worst,bestPath,worstPath,complete:true};
+}
+const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,
+  v:g.grid.map(row=>row.map(x=>x.sp?SP[x.sp].p:0)), rock:g.grid.map(row=>row.map(x=>x.rock))});
+// Self-contained: it is stringified into a Web Worker.
+function solveNet(m,ms){
+  const R=m.rows, C=m.cols, sr=m.start[0], sc=m.start[1], D=[[1,0],[-1,0],[0,1],[0,-1]];
+  const on=new Uint8Array(R*C), path=[[sr,sc]], edges=[];
+  const pref=m.v.map(row=>{const p=[0];for(const x of row)p.push(p[p.length-1]+x);return p});
+  const t0=Date.now(); let W=0, best=-Infinity, worst=Infinity, bestPath=null, worstPath=null, nodes=0, stop=false;
+  // A cell is enclosed iff an odd number of the loop's vertical edges lie to its right on its row.
+  // W accumulates each vertical edge's row-prefix (signed by direction), so W = enclosed total plus
+  // whatever the loop's own cells picked up; closed() removes the latter and fixes orientation.
+  const closed=()=>{
+    let area=0, s=W;
+    for(const e of edges) area+=e[2]*e[1];
+    for(const [r,c] of path){const x=m.v[r][c];if(!x)continue;let w=0;for(const e of edges)if(e[0]===r&&e[1]>c)w+=e[2];s-=x*w}
+    return area<0?-s:s;
+  };
+  const enter=(r0,r,c)=>{if(r===r0)return false;const er=Math.min(r0,r),es=r>r0?1:-1;W+=es*pref[er][c];edges.push([er,c,es]);return true};
+  const leave=()=>{const e=edges.pop();W-=e[2]*pref[e[0]][e[1]]};
+  on[sr*C+sc]=1;
+  (function dfs(r,c,moves){
+    if(stop||(++nodes&0xffff)===0&&Date.now()-t0>ms){stop=true;return}
+    for(const [dr,dc] of D){
+      const nr=r+dr, nc=c+dc;
+      if(nr<0||nc<0||nr>=R||nc>=C) continue;
+      if(nr===sr&&nc===sc){
+        if(path.length<4) continue;
+        const v=enter(r,nr,nc), s=closed(); if(v) leave();
+        if(s>best){best=s;bestPath=path.concat([[sr,sc]])}
+        if(s<worst){worst=s;worstPath=path.concat([[sr,sc]])}
+        continue;
+      }
+      if(on[nr*C+nc]||m.rock[nr][nc]||moves+1+Math.abs(nr-sr)+Math.abs(nc-sc)>m.maxLen) continue;
+      on[nr*C+nc]=1; path.push([nr,nc]); const v=enter(r,nr,nc);
+      dfs(nr,nc,moves+1);
+      if(v) leave(); path.pop(); on[nr*C+nc]=0;
+    }
+  })(sr,sc,0);
+  return {best,worst,bestPath,worstPath,complete:!stop};
+}
+// @gen-end
+
+// @net-ref-start
+const NET_REF = {
+  "2026-09-24":[25,-16],"2026-09-25":[15,-6]
+};
+// @net-ref-end
+
+// ---------- storage ----------
+function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+// ---------- today's reference ----------
+// The one seam the UI reads the day's best/worst from; a future backend replaces this function.
+function dailyReference(g,done){
+  const row=g.kind==='net'&&!g.training&&NET_REF[DATE];
+  if(row) return done({best:row[0],worst:row[1],exact:true});
+  solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete}));
+}
+let solver=null;
+function solveAsync(g,ms,done){
+  try{solver??=new Worker(URL.createObjectURL(new Blob([`const solveNet=${solveNet},solveLine=${solveLine};onmessage=e=>{const [id,kind,m,ms]=e.data;postMessage([id,kind==='net'?solveNet(m,ms):solveLine(m)])}`],{type:'text/javascript'})))}
+  catch(e){return}
+  const id=Math.random();
+  solver.addEventListener('message',function on(e){if(e.data[0]!==id)return;solver.removeEventListener('message',on);done(e.data[1])});
+  solver.postMessage([id,g.kind,boardModel(g),ms]);
+}
+
+// ---------- text ----------
+const STR = {
+  en:{
+    how_to_play:'How to play', menu:'Menu', got_it:'Got it',
+    game_rede:'Purse net', game_linha:'Bottom line',
+    left_rede:'Net left', left_linha:'Line left', catch:'Catch',
+    undo:'Undo', clear:'Clear', go_rede:'Haul net', go_linha:'Reel in',
+    practice:'Practice', practice_on:'Practice on another map', practice_off:'Back to today’s map',
+    try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
+    your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
+    not_played:'not played yet',
+    hint_rede_start:'Drag or tap from the boat to lay out the net.',
+    hint_rede_go:'Bring the net back to the boat to close it.',
+    hint_rede_ready:'Loop closed. Haul it in.',
+    hint_linha_start:'Drag or tap from the boat down to the seabed.',
+    hint_linha_go:'Reach the sand to reel in.',
+    hint_linha_ready:'On the seabed. Reel it in.',
+    hint_rede_warn:'Head back now: {n} squares to the boat.',
+    hint_linha_warn:'Head down now: {n} rows to the seabed.',
+    block_rock_rede:'Rock in the way.', block_rock_linha:'Rock in the way.',
+    block_self_rede:'The net can’t cross itself.', block_self_linha:'The line can’t cross itself.',
+    block_noway_rede:'Not enough net to get back to the boat.', block_noway_linha:'Not enough line to reach the seabed.',
+    block_budget_linha:'Out of line.',
+    v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
+    sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
+    sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
+    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red frame) take points away.',
+    help_rede:'Lay the net from the <b>boat</b> and bring it back to close a loop, within the squares you have. Everything <b>inside</b> is caught; animals under the net slip away. Rocks block the net.',
+    help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
+    help_points:'Tap an animal in the strip under the board to find it on the map.',
+    other_lang:'Português',
+    range:'Today’s possible range', range_map:'This map’s possible range', range_known:'Best known range',
+    range_wait:'Working out the possible range…',
+    top_found:'You found the top catch.', low_found:'You found the lowest possible.', beat_known:'You beat the best known score.',
+  },
+  pt:{
+    how_to_play:'Como jogar', menu:'Menu', got_it:'Entendi',
+    game_rede:'Rede de cerco', game_linha:'Linha de fundo',
+    left_rede:'Rede restante', left_linha:'Linha restante', catch:'Pesca',
+    undo:'Desfazer', clear:'Limpar', go_rede:'Puxar rede', go_linha:'Recolher',
+    practice:'Treino', practice_on:'Treinar em outro mapa', practice_off:'Voltar ao mapa de hoje',
+    try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
+    your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
+    not_played:'ainda não jogado',
+    hint_rede_start:'Arraste ou toque a partir do barco para lançar a rede.',
+    hint_rede_go:'Traga a rede de volta ao barco para fechar o cerco.',
+    hint_rede_ready:'Cerco fechado. Pode puxar.',
+    hint_linha_start:'Arraste ou toque do barco até o fundo do mar.',
+    hint_linha_go:'Chegue na areia para recolher.',
+    hint_linha_ready:'No fundo. Pode recolher.',
+    hint_rede_warn:'Volte agora: {n} casas até o barco.',
+    hint_linha_warn:'Desça agora: {n} fileiras até o fundo.',
+    block_rock_rede:'Tem uma pedra no caminho.', block_rock_linha:'Tem uma pedra no caminho.',
+    block_self_rede:'A rede não pode se cruzar.', block_self_linha:'A linha não pode se cruzar.',
+    block_noway_rede:'Não sobra rede para voltar ao barco.', block_noway_linha:'Não sobra linha para chegar ao fundo.',
+    block_budget_linha:'Acabou a linha.',
+    v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
+    sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
+    sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
+    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (moldura vermelha) tiram pontos.',
+    help_rede:'Lance a rede a partir do <b>barco</b> e traga de volta para fechar o cerco, dentro das casas disponíveis. Tudo o que ficar <b>dentro</b> é pescado; animais embaixo da rede escapam. Pedras bloqueiam a rede.',
+    help_linha:'Desça a linha do <b>barco</b> até o <b>fundo</b>. Todo animal encostado na linha morde a isca. Cruzar um peixe o espanta e custa 2 casas; cruzar um animal protegido também conta a penalidade. Só pedras bloqueiam o caminho.',
+    help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
+    other_lang:'English',
+    range:'Faixa possível de hoje', range_map:'Faixa possível deste mapa', range_known:'Melhor faixa conhecida',
+    range_wait:'Calculando a faixa possível…',
+    top_found:'Você achou a maior pesca possível.', low_found:'Você achou a menor possível.', beat_known:'Você superou o melhor conhecido.',
+  },
+};
+let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
+const t=k=>STR[LANG][k]??STR.en[k]??k;
+const spName=k=>t('sp_'+k);
+function applyText(){
+  document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`;
+  document.getElementById('lang-btn').textContent=t('other_lang');
+  renderLegend();
+  document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
+  document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
+  document.getElementById('help-body').innerHTML=`<p>${t('help_intro')}</p>
+    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
+    <h3>${sprite('hook')}${t('game_linha')}</h3><p>${t('help_linha')}</p>
+    <p>${t('help_points')}</p>`;
+}
+
+function setup(g){
+  const root=document.getElementById('game-'+g.key);
+  g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
+  g.tab=document.getElementById('tab-'+g.key);
+  g.board=g.el.board;
+  g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
+  g.board.style.backgroundImage=`url(${seaURL(g)})`;
+  new ResizeObserver(()=>{const cell=g.board.clientWidth/g.cols;g.board.style.setProperty('--spx',14*Math.max(1,Math.floor(cell*.9/14))+'px')}).observe(g.board);
+  g.training=false;
+  g.storeKey=`goodcatch:${DATE}:${g.key}`;
+  g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
+  g.trainRec={best:null,worst:null,tries:0};
+  g.last=null;
+  newMap(g, DATE+':'+g.key);
+
+  let drawing=false;
+  const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
+  g.board.addEventListener('pointerdown',e=>{const cell=cellAt(e);if(!cell)return;drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}touch(g,cell,true);render(g)});
+  g.board.addEventListener('pointermove',e=>{if(!drawing)return;const cell=cellAt(e);if(!cell)return;touch(g,cell,false);render(g)});
+  const stop=()=>{drawing=false};
+  g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
+  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;g.blocked=null;render(g)}});
+  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;g.blocked=null;render(g)});
+  g.el.go.addEventListener('click',()=>commit(g));
+  g.el.result.addEventListener('click',e=>{
+    const a=e.target.closest('[data-act]')?.dataset.act;
+    if(a==='again'){g.last=null;g.path=[g.start.slice()];g.closed=false;render(g)}
+    if(a==='share') share(g.el.result.querySelector('.note'));
+  });
+}
+
+function toggleTraining(g){
+  g.training=!g.training;
+  if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
+  else newMap(g,DATE+':'+g.key);
+  g.last=null; render(g);
+}
+
+function newMap(g,seed){
+  g.grid=g.gen(g,mulberry(seedFrom(seed)));
+  g.path=[g.start.slice()]; g.closed=false; g.ref=null; g.seed=seed;
+  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;if(!g.training)g.dailyRef=ref;render(g)}));
+}
+
+const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
+const moves=g=>g.path.slice(1).reduce((s,[r,c])=>s+stepCost(g,r,c),0);
+const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
+function returnPath(g,from,extra){
+  const [sr,sc]=g.start, walls=new Set(g.path.slice(1).map(([r,c])=>key(r,c)));
+  if(extra) walls.add(key(extra[0],extra[1]));
+  walls.delete(key(from[0],from[1]));
+  const prev=new Map([[key(from[0],from[1]),null]]), q=[from];
+  for(let i=0;i<q.length;i++){
+    const [r,c]=q[i];
+    if(r===sr&&c===sc){const out=[];for(let k=key(r,c);k!==null;k=prev.get(k))out.push([Math.floor(k/100),k%100]);return out.reverse()}
+    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nr=r+dr,nc=c+dc,k=key(nr,nc);
+      if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||prev.has(k)||walls.has(k)||g.grid[nr][nc].rock) continue;
+      prev.set(k,key(r,c)); q.push([nr,nc]);
+    }
+  }
+  return null;
+}
+// null = allowed; otherwise why not. Silent reasons are not shown to the player.
+function stepBlock(g,r,c){
+  if(r<0||c<0||r>=g.rows||c>=g.cols) return 'silent';
+  const e=g.path[g.path.length-1];
+  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return 'silent';
+  if(g.kind==='net'&&g.closed) return 'silent';
+  if(g.grid[r][c].rock) return 'rock';
+  const left=g.maxLen-moves(g)-stepCost(g,r,c);
+  if(g.kind==='net'){
+    if(isStart(g,r,c)) return g.path.length>=4?null:'silent';
+    if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
+    const back=returnPath(g,[r,c],[r,c]);
+    return back&&back.length-1<=left?null:'noway';
+  }
+  if(r<1) return 'silent';
+  if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
+  if(left<0) return 'budget';
+  return left>=g.rows-1-r?null:'noway';
+}
+function touch(g,[r,c],isDown){
+  const L=g.path.length;
+  const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
+  const closing=g.kind==='net'&&idx===0&&!g.closed&&L>=4;
+  if(isDown&&idx>=0&&!closing){g.path=g.path.slice(0,idx+1);g.closed=false;g.blocked=null;return}
+  const end=g.path[L-1];
+  if(end[0]===r&&end[1]===c) return;
+  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;g.blocked=null;return}}
+  if(closing){
+    const back=returnPath(g,end);
+    if(back&&back.length-1<=g.maxLen-moves(g)&&L+back.length-2>=4){g.path.push(...back.slice(1));g.closed=true;g.blocked=null;return}
+  }
+  for(let i=0;i<40;i++){
+    if(g.closed) break;
+    const e=g.path[g.path.length-1]; if(e[0]===r&&e[1]===c) break;
+    const dr=Math.sign(r-e[0]), dc=Math.sign(c-e[1]);
+    const a=[e[0]+dr,e[1]], b=[e[0],e[1]+dc];
+    const opts=(Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a]).filter(([nr,nc])=>nr!==e[0]||nc!==e[1]);
+    const why=opts.map(([nr,nc])=>stepBlock(g,nr,nc));
+    const ok=why.indexOf(null);
+    if(ok<0){
+      const [br,bc]=opts[0], k=`${br},${bc},${why[0]}`;
+      if(why[0]!=='silent'&&g.blocked!==k){g.blocked=k;g.blockReason=why[0];spawn(g,br,bc,'blocked')}
+      break;
+    }
+    const [nr,nc]=opts[ok];
+    g.path.push([nr,nc]); g.blocked=null;
+    if(g.kind==='net'&&isStart(g,nr,nc)) g.closed=true;
+    if(stepCost(g,nr,nc)===2) spawn(g,nr,nc,'cost','−2');
+  }
+}
+function spawn(g,r,c,kind,text=''){
+  const b=g.board, m=document.createElement('div');
+  m.className='mark '+kind; m.textContent=text;
+  m.style.cssText=`left:${b.offsetLeft+c*b.clientWidth/g.cols}px;top:${b.offsetTop+r*b.clientHeight/g.rows}px;width:${b.clientWidth/g.cols}px;height:${b.clientHeight/g.rows}px`;
+  b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
+}
+
 const ready=g=>g.kind==='net'?g.closed:g.path[g.path.length-1][0]===g.rows-1;
 const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
 const cls=s=>s>0?'good':s<0?'bad':'zero';
@@ -346,20 +634,19 @@ function render(g){
   const hitSet=new Set((hits||[]).map(([r,c])=>key(r,c)));
   let html='';
   for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='', style='';
-    if(g.kind==='net'){ if((r+c)%2) cl.push('alt'); if(inside&&inside.has(k)) cl.push('in'); }
-    else { if(r===0) cl.push('surf'); else { const d=(r-1)/(g.rows-2); style=` style="background:hsl(${196-d*6} ${46-d*10}% ${27-d*15}%)"`; } }
-    if(cell.rock) cl.push('rock');
-    if(isStart(g,r,c)){cl.push('boat');inner='<span class="sp">⛵</span>'}
+    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='';
+    if(inside&&inside.has(k)) cl.push('in');
+    if(cell.rock) inner=sprite('rock');
+    if(isStart(g,r,c)) inner=sprite('boat');
     else if(cell.sp){
       const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
       if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
       if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
-      inner=`<span class="sp" title="${s.n} ${fmt(s.p)}">${s.e}</span>`;
+      if(cell.sp===spotlight) cl.push('lit');
+      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
     }
-    html+=`<div class="${cl.join(' ')}"${style}>${inner}</div>`;
+    html+=`<div class="${cl.join(' ')}">${inner}</div>`;
   }
-  // path overlay
   const pts=g.path.map(([r,c])=>`${c+.5},${r+.5}`).join(' ');
   const e=g.path[g.path.length-1];
   let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
@@ -370,31 +657,58 @@ function render(g){
     svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
     if(g.path.length>1) svg+=`<circle cx="${e[1]+.5}" cy="${e[0]+.5}" r=".15" fill="${ready(g)?'#F39A36':'#EBDDB4'}"/>`;
   }
+  const back=g.kind==='net'&&!g.closed&&g.path.length>1?returnPath(g,e):null;
+  if(back) svg+=`<polyline points="${back.map(([r,c])=>`${c+.5},${r+.5}`).join(' ')}" fill="none" stroke="#F39A36" stroke-opacity=".75" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   svg+='</svg>';
   g.board.innerHTML=html+svg;
+  const left=g.maxLen-moves(g), need=back?back.length-1:g.kind==='line'?g.rows-1-e[0]:0;
+  const warn=!ready(g)&&g.path.length>1&&left-need<=1;
+  g.board.classList.toggle('spot',!!spotlight);
 
-  g.el.len.textContent=`${moves(g)}/${g.maxLen}`;
-  if(hits){const s=scoreOf(g,hits);g.el.pv.textContent=fmt(s);g.el.pvwrap.className='pv '+cls(s)}
-  else {g.el.pv.textContent='—';g.el.pvwrap.className='pv'}
+  g.el.count.innerHTML=`${t('left_'+g.key)}: <b>${left}</b>`;
+  g.el.count.classList.toggle('warn',warn);
+  g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(scoreOf(g,hits))}">${fmt(scoreOf(g,hits))}</b>`:`${t('catch')}: <b>—</b>`;
+  g.el.pv.className='pv '+(hits?cls(scoreOf(g,hits)):'');
+  g.el.hint.textContent=g.blocked?t(`block_${g.blockReason}_${g.key}`)
+    :warn?t(`hint_${g.key}_warn`).replace('{n}',need)
+    :t(`hint_${g.key}_${ready(g)?'ready':g.path.length>1?'go':'start'}`);
+  g.el.hint.classList.toggle('alert',!!g.blocked);
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
   g.el.train.hidden=!g.training;
-  g.el['train-btn'].textContent=g.training?'Back to today’s map':'Practice on another map';
-  const rec=g.training?g.trainRec:g.rec;
-  g.el.tries.textContent=rec.tries;
-  g.el.rec.innerHTML=rec.tries
-    ? `<span class="up">Highest ${g.training?'in practice':'today'} <b>${fmt(rec.best)}</b></span><span class="down">Lowest ${g.training?'in practice':'today'} <b>${fmt(rec.worst)}</b></span>`
-    : `<span>${g.training?'Practice map: nothing is saved.':'No tries yet today.'}</span>`;
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}${g.dailyRef?' / '+fmt(g.dailyRef.best):''}`:'';
+  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
-  renderShare();
 }
 
-function verdict(s){if(s>=25)return'Good catch!';if(s>=12)return'Solid haul';if(s>0)return'Enough for dinner';if(s===0)return'Not a nibble';if(s>-15)return'Fined by the coast guard';return'Ecological disaster'}
+function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5':'v6')}
 
 function renderResult(g){
-  const L=g.last; if(!L){g.el.result.innerHTML='';return}
-  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span>${SP[k].e}×${n} <span class="${p>0?'g':'b'}">${fmt(p)}</span></span>`}).join('')||'<span>Nothing caught.</span>';
-  g.el.result.innerHTML=`<div class="result"><div class="big ${cls(L.score)}">${fmt(L.score)}</div><div><div class="verdict">${verdict(L.score)}</div><div class="chips">${chips}</div></div></div>`;
+  const L=g.last; g.el.result.hidden=!L; g.el.board.closest('.game').classList.toggle('done',!!L); if(!L) return;
+  const rec=g.training?g.trainRec:g.rec;
+  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')||`<span>${t('nothing')}</span>`;
+  g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
+    <div class="verdict">${verdict(L.score)}</div>
+    <div class="chips">${chips}</div>
+    <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
+    ${rangeHTML(g,rec)}
+    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+    <p class="note" aria-live="polite"></p>`;
+}
+
+function rangeHTML(g,rec){
+  const ref=g.ref;
+  if(!ref) return `<p class="range-note">${t('range_wait')}</p>`;
+  const beat=!ref.exact&&(rec.best>ref.best||rec.worst<ref.worst);
+  if(!ref.exact){ref.best=Math.max(ref.best,rec.best);ref.worst=Math.min(ref.worst,rec.worst)}
+  const span=ref.best-ref.worst||1, pos=x=>Math.max(0,Math.min(100,(x-ref.worst)/span*100));
+  const notes=[beat&&t('beat_known'),rec.best>=ref.best&&t('top_found'),rec.worst<=ref.worst&&t('low_found')].filter(Boolean);
+  return `<div class="range">
+    <div class="range-label">${t(ref.exact?(g.training?'range_map':'range'):'range_known')}</div>
+    <div class="bar" role="img" aria-label="${t('your_lowest')} ${fmt(rec.worst)}, ${t('your_best')} ${fmt(rec.best)}, ${fmt(ref.worst)} … ${fmt(ref.best)}"><i style="left:${pos(rec.worst)}%;width:${pos(rec.best)-pos(rec.worst)}%"></i></div>
+    <div class="range-ends"><span class="big-${cls(ref.worst)}">▼${fmt(ref.worst)}</span><span class="big-${cls(ref.best)}">▲${fmt(ref.best)}</span></div>
+    ${notes.map(n=>`<p class="range-note">${n}</p>`).join('')}
+  </div>`;
 }
 
 function commit(g){
@@ -409,38 +723,59 @@ function commit(g){
 }
 
 function shareText(){
-  let t=`Good Catch #${DAYNUM}\n`;
+  let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
-    const r=g.rec||{tries:0};
-    t+= r.tries ? `${g.icon} ${g.label.padEnd(4)} ▲ ${fmt(r.best).padStart(3)}   ▼ ${fmt(r.worst).padStart(3)}\n` : `${g.icon} ${g.label.padEnd(4)} not played yet\n`;
+    const r=g.rec, ref=g.dailyRef&&g.dailyRef.exact?g.dailyRef:null;
+    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${ref?'/'+fmt(ref.best):''} ▼${fmt(r.worst)}${ref?'/'+fmt(ref.worst):''}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
   }
-  return (t+'goodcatch.fish').trim();
+  return s+'goodcatch.fish';
 }
-function renderShare(){document.getElementById('share-text').textContent=shareText()}
-document.getElementById('copy').addEventListener('click',()=>{
-  const msg=document.getElementById('copy-msg'); const txt=shareText();
-  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('share-text'));const s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent='Text selected, press Ctrl/Cmd+C to copy.'};
-  try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent='Copied.'},fallback)}catch(e){fallback()}
+function share(note){
+  const txt=shareText();
+  const fail=()=>{note.textContent=t('copy_fail')+txt.replace(/\n/g,' · ')};
+  const copy=()=>{try{navigator.clipboard.writeText(txt).then(()=>{note.textContent=t('copied')},fail)}catch(e){fail()}};
+  if(navigator.share&&matchMedia('(pointer:coarse)').matches) navigator.share({text:txt}).catch(e=>{if(e.name!=='AbortError')copy()});
+  else copy();
+}
+
+let spotlight=null;
+const legend=document.getElementById('legend');
+function renderLegend(){
+  legend.innerHTML=Object.entries(SP).sort((a,b)=>b[1].p-a[1].p).map(([k,s])=>
+    `<button data-sp="${k}" aria-pressed="${k===spotlight}" aria-label="${spName(k)} ${fmt(s.p)}" title="${spName(k)}">${sprite(k)}<span class="${s.p>0?'pos':'neg-t'}">${fmt(s.p)}</span></button>`).join('');
+}
+legend.addEventListener('click',e=>{
+  const b=e.target.closest('[data-sp]'); if(!b) return;
+  spotlight=spotlight===b.dataset.sp?null:b.dataset.sp;
+  legend.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.sp===spotlight)));
+  render(current());
 });
 
-// legend
-const pos=document.getElementById('lg-pos'), neg=document.getElementById('lg-neg');
-for(const s of Object.values(SP).sort((a,b)=>Math.abs(a.p)-Math.abs(b.p))){
-  const li=`<li class="${s.p>0?'g':'b'}"><span>${s.e}</span>${s.n}<span class="pts">${fmt(s.p)}</span></li>`;
-  (s.p>0?pos:neg).insertAdjacentHTML('beforeend',li);
-}
-
-// tabs
+let tab='rede';
+const current=()=>games[tab];
 function showTab(k){
+  tab=k;
   for(const x of ['rede','linha']){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
   try{localStorage.setItem('goodcatch:tab',k)}catch(e){}
+  render(current());
 }
 document.getElementById('tab-rede').addEventListener('click',()=>showTab('rede'));
 document.getElementById('tab-linha').addEventListener('click',()=>showTab('linha'));
+document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+document.getElementById('lang-btn').addEventListener('click',()=>{
+  LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
+  applyText(); render(games.rede); render(games.linha); document.getElementById('menu').hidePopover();
+});
+const help=document.getElementById('help');
+document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
+applyText();
 setup(games.rede); setup(games.linha);
-let t=null; try{t=localStorage.getItem('goodcatch:tab')}catch(e){}
-showTab(t==='linha'?'linha':'rede');
+let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
+showTab(saved==='linha'?'linha':'rede');
+render(games.rede); render(games.linha);
+let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
+if(!seen){help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
 })();
 </script>
 </body>
