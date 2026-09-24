@@ -6,16 +6,16 @@
 <meta name="description" content="A daily fishing puzzle. Go for the best catch, or the worst.">
 <title>Good Catch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
 <style>
 :root{
   color-scheme:dark;
   --abyss:#0A1F2B; --deep:#0F2E3C; --sea:#143B4B; --sea2:#174353; --edge:#24566A;
   --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --rope:#EBDDB4; --sand:#CDB57E;
   --good:#7FDBA9; --bad:#FF7D70;
-  --display:"Bricolage Grotesque",ui-rounded,system-ui,sans-serif;
+  --display:"Pixelify Sans",ui-rounded,system-ui,sans-serif;
   --body:Figtree,system-ui,-apple-system,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --mono:"Pixelify Sans",ui-monospace,Menlo,monospace;
 }
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
@@ -46,20 +46,16 @@ h1 span{color:var(--buoy)}
 .boardwrap{display:flex;justify-content:center}
 .board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);
   aspect-ratio:var(--cols)/var(--rows);width:min(100%, calc(var(--cols) / var(--rows) * 66vh));max-width:100%;
-  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--sea);
-  container-type:inline-size;cursor:crosshair}
+  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--sea) center/100% 100%;
+  image-rendering:pixelated;cursor:crosshair}
 .board.line{border-bottom:8px solid var(--sand)}
-.c{position:relative;display:grid;place-items:center;font-size:calc(100cqw / var(--cols) * .56);line-height:1}
-.board.net .c.alt{background:var(--sea2)}
-.c.in{background:rgba(243,154,54,.20)!important}
-.c.surf{background:#1E5B6B}
-.c .sp{position:relative;z-index:1;pointer-events:none}
-.c.neg::before{content:"";position:absolute;inset:10%;border-radius:50%;border:1.5px dashed rgba(255,125,112,.6)}
-.c.hit.good::before{content:"";position:absolute;inset:8%;border-radius:50%;border:2px solid var(--good);background:rgba(127,219,169,.2)}
-.c.hit.bad::before{border:2px solid var(--bad);background:rgba(255,125,112,.25)}
+.c{position:relative;display:grid;place-items:center}
+.c.in{background:rgba(243,154,54,.22)}
+.sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
+.c.neg::before,.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
+.c.hit.good::before{border-color:var(--good);background:rgba(127,219,169,.18)}
+.c.hit.bad::before{border-color:var(--bad);background:rgba(255,125,112,.25)}
 .c.gone .sp{opacity:.3}
-.c.rock::after{content:"";width:80%;height:80%;border-radius:38% 30% 42% 34%;background:radial-gradient(circle at 38% 32%,#5b6b6d,#2d393c 70%)}
-.c.boat{font-size:calc(100cqw / var(--cols) * .66)}
 .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 
 .controls{display:flex;flex-wrap:wrap;gap:8px}
@@ -166,6 +162,64 @@ const SP = {
   golfinho:{e:'🐬',n:'Dolphin',p:-8},
 };
 
+// ---------- pixel sprites ----------
+const PAL = {
+  s:'#5E8FA3', b:'#9CC3CF', e:'#0A1F2B', w:'#EDEAE0',
+  p:'#D98BB0', P:'#A9608A',
+  o:'#E0703A', O:'#B24E22',
+  y:'#E9C25A', Y:'#C9962E',
+  r:'#D8553A', R:'#A33A28', c:'#E86A4A',
+  k:'#F07C9A', K:'#B8466A',
+  G:'#7F929E', u:'#D3DDE1',
+  h:'#9BC46A', f:'#7FA84E', g:'#3F6B33', v:'#6E9B4A',
+  d:'#6F9FC4', D:'#4C7DA3',
+  m:'#6B4A2E', n:'#F39A36', N:'#C8741F',
+  q:'#7A8A8C', Q:'#56666A', z:'#36454A',
+  x:'#C9D3D6', l:'#EBDDB4',
+};
+const SPRITES = {
+  sardinha:["............","............","............",".....ssss...",".s..ssssss..",".ss.sssssses","..bbbbbbbbbb",".bb.bbbbbbb.",".b...bbbbb..","............","............","............"],
+  lula:["............","....pppp....","...pppppp...","..pPppppPp..","..pppppppp..","..ppeppepp..","...pppppp...","..p.p..p.p..","..p.p..p.p..",".p..p..p..p.",".p...pp...p.","............"],
+  caranguejo:["............",".oo......oo.","o.o......o.o",".oo.e..e.oo.","..o.o..o.o..","...oooooo...","..oOooooOo..",".oooooooooo.","o.oOOOOOOo.o","..o.o..o.o..",".o..o..o..o.","............"],
+  dourada:["............","....yyyy....","...yyyyyy...","y.yyyyyyyy..","yyyYyyyyyey.","yyyYyyyyyyyy","yyyYyyyyyyy.","y.yyyyyyyy..","...yyyyyy...","....yyyy....","............","............"],
+  lagosta:[".c........c.","cc........cc","cc..r..r..cc",".c..r..r..c.","..rrrrrrrr..","...rRRRRr...","...rrrrrr...","...rRRRRr...","....rrrr....","....rRRr....","...rrrrrr...","............"],
+  coral:["............","..k.....k...","..k..k..k.k.","k.kk.k.kk.k.","kk.k.k.k..k.",".k.kkkkk.kk.",".kk..k..kk..","..kk.k.kk...","...kkkkk....","....kKk.....","...KKKKK....","............"],
+  tubarao:["............","............",".....G......","....GG......","G..GGGGGG...","GGGGGGGGGGG.","GGGGGGGGGeGG",".GGuuuuuuuu.","G..uuuuuu...",".....u......","............","............"],
+  tartaruga:["....hh......","....hh......","..f.gggg.f..",".ffgvgvggff.","..gvvgvvgg..","..ggvgvgvg..","..gvvgvvgg..",".ffggvgggff.","..f.gggg.f..",".....hh.....","............","............"],
+  golfinho:["............","............","......D.....",".....DD.....","...dddddd...","..ddddddded.",".ddwwwwddddd","dd...wwww...","d...........","dd..........","............","............"],
+  boat:["............","......w.....","......ww....","......www...","......wwww..","...w..wwwww.","..ww..m.....",".www..m.....","nnnnnnnnnnnn",".nNNNNNNNNn.","..nnnnnnnn..","............"],
+  rock:["............","............","....qqqQ....","..qqqqqQQQ..",".qqqQQQQQQQ.",".qqQQQQQQQz.","QqQQQQQQQQzz","QQQQQQQQQzzz",".QQQQQQQzzz.","..zzzzzzzz..","............","............"],
+  hook:[".......l....",".......l....",".......l....","......xxx...",".......x....",".......x....",".......x....","..x....x....","..xx...x....","...x...x....","...xx.xx....","....xxx....."],
+};
+function spriteURL(map){
+  const cv=document.createElement('canvas'); cv.width=cv.height=14; const x=cv.getContext('2d');
+  const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
+  for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
+    if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(c+1,r+1,1,1)}
+    else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(c+1,r+1,1,1)}
+  }
+  return cv.toDataURL();
+}
+const spriteCSS=Object.entries(SPRITES).map(([k,m])=>`.s-${k}{background-image:url(${spriteURL(m)})}`).join('');
+document.head.insertAdjacentHTML('beforeend',`<style>${spriteCSS}</style>`);
+const sprite=(k,extra='')=>`<i class="sp s-${k}"${extra}></i>`;
+
+function seaURL(g){
+  const S=14, cv=document.createElement('canvas'); cv.width=g.cols*S; cv.height=g.rows*S; const x=cv.getContext('2d');
+  const rng=mulberry(seedFrom('sea:'+g.key));
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+    let base, tick;
+    if(g.kind==='net'){base=(r+c)%2?'#174353':'#143B4B';tick='#1C4F60'}
+    else if(r===0){base='#1E5B6B';tick='#2A6E7E'}
+    else {const d=(r-1)/(g.rows-2);base=`hsl(${196-d*6} ${46-d*10}% ${27-d*15}%)`;tick=`hsl(${196-d*6} ${46-d*10}% ${31-d*15}%)`}
+    x.fillStyle=base; x.fillRect(c*S,r*S,S,S);
+    x.fillStyle=tick;
+    for(let k=0;k<2;k++) if(rng()<.35){const wx=c*S+Math.floor(rng()*8), wy=r*S+2+Math.floor(rng()*10); x.fillRect(wx,wy,3,1); x.fillRect(wx+3,wy-1,2,1)}
+  }
+  if(g.kind==='line'){x.fillStyle='#E8F0EC';for(let c=0;c<g.cols*S;c+=4)x.fillRect(c,0,2,1)}
+  return cv.toDataURL();
+}
+
 // ---------- daily date ----------
 const EPOCH = '2026-09-01'; // day #1: change to launch date
 const now = new Date();
@@ -246,6 +300,8 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.board=g.el.board;
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
+  g.board.style.backgroundImage=`url(${seaURL(g)})`;
+  new ResizeObserver(()=>{const cell=g.board.clientWidth/g.cols;g.board.style.setProperty('--spx',14*Math.max(1,Math.floor(cell*.9/14))+'px')}).observe(g.board);
   g.training=false;
   g.storeKey=`goodcatch:${DATE}:${g.key}`;
   g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
@@ -347,18 +403,17 @@ function render(g){
   const hitSet=new Set((hits||[]).map(([r,c])=>key(r,c)));
   let html='';
   for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='', style='';
-    if(g.kind==='net'){ if((r+c)%2) cl.push('alt'); if(inside&&inside.has(k)) cl.push('in'); }
-    else { if(r===0) cl.push('surf'); else { const d=(r-1)/(g.rows-2); style=` style="background:hsl(${196-d*6} ${46-d*10}% ${27-d*15}%)"`; } }
-    if(cell.rock) cl.push('rock');
-    if(isStart(g,r,c)){cl.push('boat');inner='<span class="sp">⛵</span>'}
+    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='';
+    if(inside&&inside.has(k)) cl.push('in');
+    if(cell.rock) inner=sprite('rock');
+    if(isStart(g,r,c)) inner=sprite('boat');
     else if(cell.sp){
       const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
       if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
       if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
-      inner=`<span class="sp" title="${s.n} ${fmt(s.p)}">${s.e}</span>`;
+      inner=sprite(cell.sp,` title="${s.n} ${fmt(s.p)}"`);
     }
-    html+=`<div class="${cl.join(' ')}"${style}>${inner}</div>`;
+    html+=`<div class="${cl.join(' ')}">${inner}</div>`;
   }
   // path overlay
   const pts=g.path.map(([r,c])=>`${c+.5},${r+.5}`).join(' ');
@@ -394,7 +449,7 @@ function verdict(s){if(s>=25)return'Good catch!';if(s>=12)return'Solid haul';if(
 
 function renderResult(g){
   const L=g.last; if(!L){g.el.result.innerHTML='';return}
-  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span>${SP[k].e}×${n} <span class="${p>0?'g':'b'}">${fmt(p)}</span></span>`}).join('')||'<span>Nothing caught.</span>';
+  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span>${sprite(k,' style="display:inline-block;width:21px;height:21px;vertical-align:middle"')}×${n} <span class="${p>0?'g':'b'}">${fmt(p)}</span></span>`}).join('')||'<span>Nothing caught.</span>';
   g.el.result.innerHTML=`<div class="result"><div class="big ${cls(L.score)}">${fmt(L.score)}</div><div><div class="verdict">${verdict(L.score)}</div><div class="chips">${chips}</div></div></div>`;
 }
 
@@ -426,8 +481,8 @@ document.getElementById('copy').addEventListener('click',()=>{
 
 // legend
 const pos=document.getElementById('lg-pos'), neg=document.getElementById('lg-neg');
-for(const s of Object.values(SP).sort((a,b)=>Math.abs(a.p)-Math.abs(b.p))){
-  const li=`<li class="${s.p>0?'g':'b'}"><span>${s.e}</span>${s.n}<span class="pts">${fmt(s.p)}</span></li>`;
+for(const [k,s] of Object.entries(SP).sort((a,b)=>Math.abs(a[1].p)-Math.abs(b[1].p))){
+  const li=`<li class="${s.p>0?'g':'b'}">${sprite(k,' style="width:28px;height:28px"')}${s.n}<span class="pts">${fmt(s.p)}</span></li>`;
   (s.p>0?pos:neg).insertAdjacentHTML('beforeend',li);
 }
 
