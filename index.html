@@ -75,6 +75,14 @@ h1 span{color:var(--buoy)}
 .meta .pv{color:var(--muted)} .meta .pv b{color:var(--foam)}
 .badge{font:400 17px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
 .hint{margin:0;min-height:1.5em;font-size:14px;color:var(--muted);text-align:center}
+.hint.alert{color:var(--bad)}
+.mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
+.mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
+.mark.cost{color:var(--bad);text-shadow:0 2px 0 #051019;animation:rise .8s ease-out forwards}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes fade{to{opacity:0}}
+@keyframes rise{from{transform:translateY(0)}to{transform:translateY(-70%);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}}
 
 .controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
 .panel .controls{grid-template-columns:1fr 1fr}
@@ -313,6 +321,12 @@ const STR = {
     hint_linha_start:'Drag or tap from the boat down to the seabed.',
     hint_linha_go:'Reach the sand to reel in.',
     hint_linha_ready:'On the seabed. Reel it in.',
+    hint_rede_warn:'Head back now: {n} squares to the boat.',
+    hint_linha_warn:'Head down now: {n} rows to the seabed.',
+    block_rock_rede:'Rock in the way.', block_rock_linha:'Rock in the way.',
+    block_self_rede:'The net can’t cross itself.', block_self_linha:'The line can’t cross itself.',
+    block_noway_rede:'Not enough net to get back to the boat.', block_noway_linha:'Not enough line to reach the seabed.',
+    block_budget_linha:'Out of line.',
     v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
     sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
     sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
@@ -355,8 +369,8 @@ function setup(g){
   g.board.addEventListener('pointermove',e=>{if(!drawing)return;const cell=cellAt(e);if(!cell)return;touch(g,cell,false);render(g)});
   const stop=()=>{drawing=false};
   g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
-  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;render(g)}});
-  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;render(g)});
+  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;g.blocked=null;render(g)}});
+  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;g.blocked=null;render(g)});
   g.el.go.addEventListener('click',()=>commit(g));
   g.el.result.addEventListener('click',e=>{
     const a=e.target.closest('[data-act]')?.dataset.act;
@@ -380,43 +394,77 @@ function newMap(g,seed){
 const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
 const moves=g=>g.path.slice(1).reduce((s,[r,c])=>s+stepCost(g,r,c),0);
 const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
-function canStep(g,r,c){
-  if(r<0||c<0||r>=g.rows||c>=g.cols) return false;
-  const e=g.path[g.path.length-1];
-  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return false;
-  const cell=g.grid[r][c];
-  if(moves(g)+stepCost(g,r,c)>g.maxLen) return false;
-  if(cell.rock) return false;
-  const onPath=g.path.some(p=>p[0]===r&&p[1]===c);
-  if(g.kind==='net'){
-    if(g.closed) return false;
-    if(isStart(g,r,c)) return g.path.length>=4;
-    return !onPath;
+function returnPath(g,from,extra){
+  const [sr,sc]=g.start, walls=new Set(g.path.slice(1).map(([r,c])=>key(r,c)));
+  if(extra) walls.add(key(extra[0],extra[1]));
+  walls.delete(key(from[0],from[1]));
+  const prev=new Map([[key(from[0],from[1]),null]]), q=[from];
+  for(let i=0;i<q.length;i++){
+    const [r,c]=q[i];
+    if(r===sr&&c===sc){const out=[];for(let k=key(r,c);k!==null;k=prev.get(k))out.push([Math.floor(k/100),k%100]);return out.reverse()}
+    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nr=r+dr,nc=c+dc,k=key(nr,nc);
+      if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||prev.has(k)||walls.has(k)||g.grid[nr][nc].rock) continue;
+      prev.set(k,key(r,c)); q.push([nr,nc]);
+    }
   }
-  if(r<1) return false;
-  return !onPath;
+  return null;
+}
+// null = allowed; otherwise why not. Silent reasons are not shown to the player.
+function stepBlock(g,r,c){
+  if(r<0||c<0||r>=g.rows||c>=g.cols) return 'silent';
+  const e=g.path[g.path.length-1];
+  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return 'silent';
+  if(g.kind==='net'&&g.closed) return 'silent';
+  if(g.grid[r][c].rock) return 'rock';
+  const left=g.maxLen-moves(g)-stepCost(g,r,c);
+  if(g.kind==='net'){
+    if(isStart(g,r,c)) return g.path.length>=4?null:'silent';
+    if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
+    const back=returnPath(g,[r,c],[r,c]);
+    return back&&back.length-1<=left?null:'noway';
+  }
+  if(r<1) return 'silent';
+  if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
+  if(left<0) return 'budget';
+  return left>=g.rows-1-r?null:'noway';
 }
 function touch(g,[r,c],isDown){
   const L=g.path.length;
   const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
   const closing=g.kind==='net'&&idx===0&&!g.closed&&L>=4;
-  if(isDown&&idx>=0&&!closing){g.path=g.path.slice(0,idx+1);g.closed=false;return}
+  if(isDown&&idx>=0&&!closing){g.path=g.path.slice(0,idx+1);g.closed=false;g.blocked=null;return}
   const end=g.path[L-1];
   if(end[0]===r&&end[1]===c) return;
-  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;return}}
+  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;g.blocked=null;return}}
+  if(closing){
+    const back=returnPath(g,end);
+    if(back&&back.length-1<=g.maxLen-moves(g)&&L+back.length-2>=4){g.path.push(...back.slice(1));g.closed=true;g.blocked=null;return}
+  }
   for(let i=0;i<40;i++){
     if(g.closed) break;
     const e=g.path[g.path.length-1]; if(e[0]===r&&e[1]===c) break;
     const dr=Math.sign(r-e[0]), dc=Math.sign(c-e[1]);
     const a=[e[0]+dr,e[1]], b=[e[0],e[1]+dc];
-    const opts=Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a];
-    let moved=false;
-    for(const [nr,nc] of opts){
-      if(nr===e[0]&&nc===e[1]) continue;
-      if(canStep(g,nr,nc)){g.path.push([nr,nc]);if(g.kind==='net'&&isStart(g,nr,nc))g.closed=true;moved=true;break}
+    const opts=(Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a]).filter(([nr,nc])=>nr!==e[0]||nc!==e[1]);
+    const why=opts.map(([nr,nc])=>stepBlock(g,nr,nc));
+    const ok=why.indexOf(null);
+    if(ok<0){
+      const [br,bc]=opts[0], k=`${br},${bc},${why[0]}`;
+      if(why[0]!=='silent'&&g.blocked!==k){g.blocked=k;g.blockReason=why[0];spawn(g,br,bc,'blocked')}
+      break;
     }
-    if(!moved) break;
+    const [nr,nc]=opts[ok];
+    g.path.push([nr,nc]); g.blocked=null;
+    if(g.kind==='net'&&isStart(g,nr,nc)) g.closed=true;
+    if(stepCost(g,nr,nc)===2) spawn(g,nr,nc,'cost','−2');
   }
+}
+function spawn(g,r,c,kind,text=''){
+  const b=g.board, m=document.createElement('div');
+  m.className='mark '+kind; m.textContent=text;
+  m.style.cssText=`left:${b.offsetLeft+c*b.clientWidth/g.cols}px;top:${b.offsetTop+r*b.clientHeight/g.rows}px;width:${b.clientWidth/g.cols}px;height:${b.clientHeight/g.rows}px`;
+  b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
 }
 
 function evaluate(g){
@@ -471,14 +519,22 @@ function render(g){
     svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
     if(g.path.length>1) svg+=`<circle cx="${e[1]+.5}" cy="${e[0]+.5}" r=".15" fill="${ready(g)?'#F39A36':'#EBDDB4'}"/>`;
   }
+  const back=g.kind==='net'&&!g.closed&&g.path.length>1?returnPath(g,e):null;
+  if(back) svg+=`<polyline points="${back.map(([r,c])=>`${c+.5},${r+.5}`).join(' ')}" fill="none" stroke="#F39A36" stroke-opacity=".75" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   svg+='</svg>';
   g.board.innerHTML=html+svg;
+  const left=g.maxLen-moves(g), need=back?back.length-1:g.kind==='line'?g.rows-1-e[0]:0;
+  const warn=!ready(g)&&g.path.length>1&&left-need<=1;
   g.board.classList.toggle('spot',!!spotlight);
 
-  g.el.count.innerHTML=`${t('left_'+g.key)}: <b>${g.maxLen-moves(g)}</b>`;
+  g.el.count.innerHTML=`${t('left_'+g.key)}: <b>${left}</b>`;
+  g.el.count.classList.toggle('warn',warn);
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(scoreOf(g,hits))}">${fmt(scoreOf(g,hits))}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(scoreOf(g,hits)):'');
-  g.el.hint.textContent=t(`hint_${g.key}_${ready(g)?'ready':g.path.length>1?'go':'start'}`);
+  g.el.hint.textContent=g.blocked?t(`block_${g.blockReason}_${g.key}`)
+    :warn?t(`hint_${g.key}_warn`).replace('{n}',need)
+    :t(`hint_${g.key}_${ready(g)?'ready':g.path.length>1?'go':'start'}`);
+  g.el.hint.classList.toggle('alert',!!g.blocked);
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
   g.el.train.hidden=!g.training;
