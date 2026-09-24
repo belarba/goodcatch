@@ -6,47 +6,47 @@
 <meta name="description" content="A daily fishing puzzle. Go for the best catch, or the worst.">
 <title>Good Catch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Jersey+10&display=swap">
 <style>
 :root{
   color-scheme:dark;
   --abyss:#0A1F2B; --deep:#0F2E3C; --sea:#143B4B; --sea2:#174353; --edge:#24566A;
   --foam:#E8F0EC; --muted:#8DAAB0; --buoy:#F39A36; --rope:#EBDDB4; --sand:#CDB57E;
   --good:#7FDBA9; --bad:#FF7D70;
-  --display:"Pixelify Sans",ui-rounded,system-ui,sans-serif;
+  --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
   --body:Figtree,system-ui,-apple-system,sans-serif;
-  --mono:"Pixelify Sans",ui-monospace,Menlo,monospace;
 }
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0}
 [hidden]{display:none!important}
 html,body{background:var(--abyss)}
 body{color:var(--foam);font-family:var(--body);font-size:15px;line-height:1.5}
-.wrap{max-width:580px;margin:0 auto;padding-block:28px 56px;padding-inline:16px;display:flex;flex-direction:column;gap:18px}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,8vw,42px);line-height:1;letter-spacing:-.02em;margin:0}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
+.wrap{max-width:540px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:10px}
+
+.top{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center}
+.icon-btn{appearance:none;width:40px;height:40px;border:1px solid var(--edge);background:transparent;border-radius:10px;font:400 26px var(--pixel);color:var(--muted);cursor:pointer}
+.icon-btn:hover{color:var(--foam);background:var(--deep)}
+h1{font:400 clamp(36px,10vw,46px)/1 var(--pixel);margin:0}
 h1 span{color:var(--buoy)}
-.date{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.intro{margin:0;color:var(--muted);max-width:60ch}
-.intro b{color:var(--foam);font-weight:600}
+.date{font:400 18px var(--pixel);color:var(--muted);margin-top:2px}
 
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--deep);padding:4px;border-radius:12px}
-.tabs button{appearance:none;border:0;background:transparent;color:var(--muted);font:600 15px var(--body);padding:10px 8px;border-radius:9px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
-.tabs button:focus-visible,.btn:focus-visible{outline:2px solid var(--buoy);outline-offset:2px}
+.menu{margin:0;inset:auto;top:60px;right:max(16px,calc(50vw - 254px));position:fixed;background:var(--deep);color:var(--foam);border:1px solid var(--edge);border-radius:12px;padding:6px;min-width:220px}
+.menu button{display:block;width:100%;appearance:none;border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer}
+.menu button:hover{background:var(--sea2)}
 
-.game{display:flex;flex-direction:column;gap:12px}
-.rule{margin:0;font-size:14px;color:var(--muted)}
-.rule b{color:var(--foam);font-weight:600}
-.strip{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:13px;color:var(--muted);align-items:center}
-.strip b{color:var(--foam);font-weight:700;font-variant-numeric:tabular-nums}
-.strip .pv.good b{color:var(--good)} .strip .pv.bad b{color:var(--bad)}
-.badge{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--abyss);background:var(--buoy);padding:2px 7px;border-radius:5px}
+.switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
+.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 21px var(--pixel);padding:7px 6px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
+.switch .sp{width:28px;height:28px}
+.switch small{font-size:18px;color:var(--good)}
 
-.boardwrap{display:flex;justify-content:center}
+.game{display:flex;flex-direction:column;gap:8px}
+.stage{position:relative;display:flex;justify-content:center}
 .board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);
-  aspect-ratio:var(--cols)/var(--rows);width:min(100%, calc(var(--cols) / var(--rows) * 66vh));max-width:100%;
-  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--sea) center/100% 100%;
+  aspect-ratio:var(--cols)/var(--rows);width:min(100%, max(260px, calc(var(--cols) / var(--rows) * (100svh - 360px))));
+  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:10px;overflow:hidden;background:var(--sea) center/100% 100%;
   image-rendering:pixelated;cursor:crosshair}
 .board.line{border-bottom:8px solid var(--sand)}
 .c{position:relative;display:grid;place-items:center}
@@ -56,97 +56,98 @@ h1 span{color:var(--buoy)}
 .c.hit.good::before{border-color:var(--good);background:rgba(127,219,169,.18)}
 .c.hit.bad::before{border-color:var(--bad);background:rgba(255,125,112,.25)}
 .c.gone .sp{opacity:.3}
+.board.spot .c:not(.lit) .sp:not(.s-boat){opacity:.25}
 .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 
-.controls{display:flex;flex-wrap:wrap;gap:8px}
-.btn{appearance:none;border:1px solid var(--edge);background:transparent;color:var(--foam);font:600 14px var(--body);padding:9px 14px;border-radius:10px;cursor:pointer}
+.panel{position:absolute;inset:0;margin:auto;width:min(100%,420px);max-height:100%;overflow:auto;background:rgba(10,31,43,.94);border:1px solid var(--edge);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;z-index:3}
+.big{font:400 72px/1 var(--pixel)}
+.big.good,.good b,.pos{color:var(--good)} .big.bad,.bad b,.neg-t{color:var(--bad)} .big.zero{color:var(--muted)}
+.verdict{font:400 28px var(--pixel)}
+.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 21px var(--pixel);color:var(--muted)}
+.chips span{display:inline-flex;align-items:center;gap:3px}
+.chips .sp{width:28px;height:28px}
+.big-good{color:var(--good)} .big-bad{color:var(--bad)} .big-zero{color:var(--muted)}
+.recs{font:400 21px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 23px var(--pixel)}
+.meta .count b{font-weight:500}
+.meta .count.warn{color:var(--buoy)}
+.meta .pv{color:var(--muted)} .meta .pv b{color:var(--foam)}
+.badge{font:400 17px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
+.hint{margin:0;min-height:1.5em;font-size:14px;color:var(--muted);text-align:center}
+
+.controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
+.panel .controls{grid-template-columns:1fr 1fr}
+.game.done>.meta,.game.done>.hint,.game.done>.controls{visibility:hidden}
+.btn{appearance:none;border:1px solid var(--edge);background:transparent;font:400 22px var(--pixel);padding:10px 12px;border-radius:10px;cursor:pointer}
 .btn:hover:not(:disabled){background:var(--deep)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn.primary{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
 .btn.primary:hover:not(:disabled){background:#ffab4e}
-.btn.ghost{border-color:transparent;color:var(--muted)}
-.spacer{flex:1}
+.note{font-size:13px;color:var(--muted);margin:0;text-align:center;min-height:1.2em}
 
-.result{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--deep);border-radius:12px;padding:14px 16px}
-.big{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums;min-width:2.4ch}
-.big.good{color:var(--good)} .big.bad{color:var(--bad)} .big.zero{color:var(--muted)}
-.verdict{font-weight:700;font-size:16px}
-.chips{display:flex;flex-wrap:wrap;gap:4px 10px;font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:4px}
-.chips .g{color:var(--good)} .chips .b{color:var(--bad)}
-.rec{font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
-.rec b{font-variant-numeric:tabular-nums}
-.rec .up b{color:var(--good)} .rec .down b{color:var(--bad)}
+.legend{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:var(--deep);border-radius:12px;padding:6px 4px;margin-top:4px}
+.legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:400 19px var(--pixel)}
+.legend button[aria-pressed="true"]{background:var(--sea2)}
+.legend .sp{width:28px;height:28px}
+.legend .pos,.legend .neg-t{line-height:1}
 
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.legend h3{margin:0 0 6px;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.legend ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
-.legend li{display:flex;gap:8px;align-items:center;font-size:14px}
-.legend li .pts{margin-left:auto;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
-.legend .g .pts{color:var(--good)} .legend .b .pts{color:var(--bad)}
-
-.share{border-top:1px solid var(--edge);padding-top:16px;display:flex;flex-direction:column;gap:10px}
-.share h2{margin:0;font-family:var(--display);font-weight:600;font-size:19px}
-.share pre{margin:0;background:var(--deep);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;overflow-x:auto}
-.note{font-size:13px;color:var(--muted);margin:0}
-@media (max-width:420px){.legend{grid-template-columns:1fr}.big{font-size:38px}}
+dialog{background:var(--deep);color:var(--foam);border:1px solid var(--edge);border-radius:14px;padding:20px;max-width:min(92vw,460px)}
+dialog::backdrop{background:rgba(5,16,25,.7)}
+dialog h2{font:400 34px var(--pixel);margin:0 0 8px}
+dialog h3{font:400 24px var(--pixel);margin:14px 0 4px;display:flex;align-items:center;gap:8px}
+dialog h3 .sp{width:28px;height:28px}
+dialog p{margin:0 0 6px;color:var(--muted)} dialog b{color:var(--foam)}
+dialog .btn{width:100%;margin-top:14px}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <header>
-    <h1>Good <span>Catch</span></h1>
-    <div class="date" id="date"></div>
+  <header class="top">
+    <button class="icon-btn" id="help-btn" data-t-label="how_to_play">?</button>
+    <div><h1>Good <span>Catch</span></h1><div class="date" id="date"></div></div>
+    <button class="icon-btn" id="menu-btn" popovertarget="menu" data-t-label="menu">≡</button>
   </header>
-  <p class="intro">A new sea every day, the same for everyone. Go for the <b>highest score</b> or the <b>lowest</b>: both records count. Protected animals (red outline) take points away.</p>
-
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-rede" aria-selected="true">Purse net</button>
-    <button role="tab" id="tab-linha" aria-selected="false">Bottom line</button>
+  <div id="menu" class="menu" popover>
+    <button id="train-btn"></button>
   </div>
 
+  <nav class="switch" role="tablist">
+    <button role="tab" id="tab-rede"><i class="sp s-sardinha"></i><span data-t="game_rede"></span><small data-k="best"></small></button>
+    <button role="tab" id="tab-linha"><i class="sp s-hook"></i><span data-t="game_linha"></span><small data-k="best"></small></button>
+  </nav>
+
   <section class="game" id="game-rede">
-    <p class="rule">Drag from the <b>boat</b> to lay out the net, then come back to it to <b>close the circle</b>. Everything inside is caught. Animals under the net itself slip away.</p>
-    <div class="strip"><span>Net <b data-k="len">0/26</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">—</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
-    <div class="boardwrap"><div class="board net" data-k="board"></div></div>
+    <div class="stage"><div class="board net" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
+    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
+    <p class="hint" data-k="hint" aria-live="polite"></p>
     <div class="controls">
-      <button class="btn" data-k="undo">Undo</button>
-      <button class="btn" data-k="clear">Clear</button>
-      <span class="spacer"></span>
-      <button class="btn primary" data-k="go">Haul net</button>
+      <button class="btn" data-k="undo" data-t="undo"></button>
+      <button class="btn" data-k="clear" data-t="clear"></button>
+      <button class="btn primary" data-k="go" data-t="go_rede"></button>
     </div>
-    <div data-k="result"></div>
-    <div class="rec" data-k="rec"></div>
-    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
   </section>
 
   <section class="game" id="game-linha" hidden>
-    <p class="rule">Drag from the <b>boat</b> down to the <b>seabed</b>. Every animal touching the line (above, below or beside it) bites. Crossing <b>over</b> a fish scares it off (no points) and costs 2 squares of line. Crossing a <b>protected</b> animal hurts it: the penalty counts. Only rocks block the way. The line must touch the sand before you can reel it in.</p>
-    <div class="strip"><span>Line <b data-k="len">0/20</b></span><span class="pv" data-k="pvwrap">Preview <b data-k="pv">0</b></span><span>Tries <b data-k="tries">0</b></span><span class="badge" data-k="train" hidden>Practice</span></div>
-    <div class="boardwrap"><div class="board line" data-k="board"></div></div>
+    <div class="stage"><div class="board line" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
+    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
+    <p class="hint" data-k="hint" aria-live="polite"></p>
     <div class="controls">
-      <button class="btn" data-k="undo">Undo</button>
-      <button class="btn" data-k="clear">Clear</button>
-      <span class="spacer"></span>
-      <button class="btn primary" data-k="go">Reel in</button>
+      <button class="btn" data-k="undo" data-t="undo"></button>
+      <button class="btn" data-k="clear" data-t="clear"></button>
+      <button class="btn primary" data-k="go" data-t="go_linha"></button>
     </div>
-    <div data-k="result"></div>
-    <div class="rec" data-k="rec"></div>
-    <div class="controls"><button class="btn ghost" data-k="train-btn">Practice on another map</button></div>
   </section>
 
-  <div class="legend">
-    <div><h3>Catch</h3><ul id="lg-pos"></ul></div>
-    <div><h3>Protected</h3><ul id="lg-neg"></ul></div>
-  </div>
-
-  <div class="share">
-    <h2>Your day at sea</h2>
-    <pre id="share-text"></pre>
-    <div class="controls"><button class="btn" id="copy">Copy result</button><span class="note" id="copy-msg"></span></div>
-    <p class="note">Prototype: unlimited tries, records are saved in this browser only.</p>
-  </div>
+  <div class="legend" id="legend"></div>
 </div>
+
+<dialog id="help">
+  <h2 data-t="how_to_play"></h2>
+  <div id="help-body"></div>
+  <form method="dialog"><button class="btn primary" data-t="got_it"></button></form>
+</dialog>
 
 <script>
 (function(){
@@ -226,7 +227,7 @@ const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-document.getElementById('date').textContent = `#${DAYNUM} · ${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+document.getElementById('date').textContent = `#${DAYNUM} · ${MONTHS[now.getMonth()]} ${now.getDate()}`;
 
 // ---------- deterministic randomness ----------
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
@@ -295,9 +296,48 @@ const games = {
   linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝',label:'Line'},
 };
 
+// ---------- text ----------
+const STR = {
+  en:{
+    how_to_play:'How to play', menu:'Menu', got_it:'Got it',
+    game_rede:'Purse net', game_linha:'Bottom line',
+    left_rede:'Net left', left_linha:'Line left', catch:'Catch',
+    undo:'Undo', clear:'Clear', go_rede:'Haul net', go_linha:'Reel in',
+    practice:'Practice', practice_on:'Practice on another map', practice_off:'Back to today’s map',
+    try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
+    your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
+    not_played:'not played yet',
+    hint_rede_start:'Drag or tap from the boat to lay out the net.',
+    hint_rede_go:'Bring the net back to the boat to close it.',
+    hint_rede_ready:'Loop closed. Haul it in.',
+    hint_linha_start:'Drag or tap from the boat down to the seabed.',
+    hint_linha_go:'Reach the sand to reel in.',
+    hint_linha_ready:'On the seabed. Reel it in.',
+    v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
+    sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
+    sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
+    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red frame) take points away.',
+    help_rede:'Lay the net from the <b>boat</b> and bring it back to close a loop, within the squares you have. Everything <b>inside</b> is caught; animals under the net slip away. Rocks block the net.',
+    help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
+    help_points:'Tap an animal in the strip under the board to find it on the map.',
+  },
+};
+let LANG='en';
+const t=k=>STR[LANG][k]??STR.en[k]??k;
+const spName=k=>t('sp_'+k);
+function applyText(){
+  document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
+  document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
+  document.getElementById('help-body').innerHTML=`<p>${t('help_intro')}</p>
+    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
+    <h3>${sprite('hook')}${t('game_linha')}</h3><p>${t('help_linha')}</p>
+    <p>${t('help_points')}</p>`;
+}
+
 function setup(g){
   const root=document.getElementById('game-'+g.key);
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
+  g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -318,13 +358,18 @@ function setup(g){
   g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;render(g)}});
   g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;render(g)});
   g.el.go.addEventListener('click',()=>commit(g));
-  g.el['train-btn'].addEventListener('click',()=>{
-    g.training=!g.training;
-    if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
-    else newMap(g,DATE+':'+g.key);
-    g.last=null; render(g);
+  g.el.result.addEventListener('click',e=>{
+    const a=e.target.closest('[data-act]')?.dataset.act;
+    if(a==='again'){g.last=null;g.path=[g.start.slice()];g.closed=false;render(g)}
+    if(a==='share') share(g.el.result.querySelector('.note'));
   });
-  render(g);
+}
+
+function toggleTraining(g){
+  g.training=!g.training;
+  if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
+  else newMap(g,DATE+':'+g.key);
+  g.last=null; render(g);
 }
 
 function newMap(g,seed){
@@ -411,11 +456,11 @@ function render(g){
       const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
       if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
       if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
-      inner=sprite(cell.sp,` title="${s.n} ${fmt(s.p)}"`);
+      if(cell.sp===spotlight) cl.push('lit');
+      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
     }
     html+=`<div class="${cl.join(' ')}">${inner}</div>`;
   }
-  // path overlay
   const pts=g.path.map(([r,c])=>`${c+.5},${r+.5}`).join(' ');
   const e=g.path[g.path.length-1];
   let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
@@ -428,29 +473,32 @@ function render(g){
   }
   svg+='</svg>';
   g.board.innerHTML=html+svg;
+  g.board.classList.toggle('spot',!!spotlight);
 
-  g.el.len.textContent=`${moves(g)}/${g.maxLen}`;
-  if(hits){const s=scoreOf(g,hits);g.el.pv.textContent=fmt(s);g.el.pvwrap.className='pv '+cls(s)}
-  else {g.el.pv.textContent='—';g.el.pvwrap.className='pv'}
+  g.el.count.innerHTML=`${t('left_'+g.key)}: <b>${g.maxLen-moves(g)}</b>`;
+  g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(scoreOf(g,hits))}">${fmt(scoreOf(g,hits))}</b>`:`${t('catch')}: <b>—</b>`;
+  g.el.pv.className='pv '+(hits?cls(scoreOf(g,hits)):'');
+  g.el.hint.textContent=t(`hint_${g.key}_${ready(g)?'ready':g.path.length>1?'go':'start'}`);
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
   g.el.train.hidden=!g.training;
-  g.el['train-btn'].textContent=g.training?'Back to today’s map':'Practice on another map';
-  const rec=g.training?g.trainRec:g.rec;
-  g.el.tries.textContent=rec.tries;
-  g.el.rec.innerHTML=rec.tries
-    ? `<span class="up">Highest ${g.training?'in practice':'today'} <b>${fmt(rec.best)}</b></span><span class="down">Lowest ${g.training?'in practice':'today'} <b>${fmt(rec.worst)}</b></span>`
-    : `<span>${g.training?'Practice map: nothing is saved.':'No tries yet today.'}</span>`;
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}`:'';
+  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
-  renderShare();
 }
 
-function verdict(s){if(s>=25)return'Good catch!';if(s>=12)return'Solid haul';if(s>0)return'Enough for dinner';if(s===0)return'Not a nibble';if(s>-15)return'Fined by the coast guard';return'Ecological disaster'}
+function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5':'v6')}
 
 function renderResult(g){
-  const L=g.last; if(!L){g.el.result.innerHTML='';return}
-  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span>${sprite(k,' style="display:inline-block;width:21px;height:21px;vertical-align:middle"')}×${n} <span class="${p>0?'g':'b'}">${fmt(p)}</span></span>`}).join('')||'<span>Nothing caught.</span>';
-  g.el.result.innerHTML=`<div class="result"><div class="big ${cls(L.score)}">${fmt(L.score)}</div><div><div class="verdict">${verdict(L.score)}</div><div class="chips">${chips}</div></div></div>`;
+  const L=g.last; g.el.result.hidden=!L; g.el.board.closest('.game').classList.toggle('done',!!L); if(!L) return;
+  const rec=g.training?g.trainRec:g.rec;
+  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')||`<span>${t('nothing')}</span>`;
+  g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
+    <div class="verdict">${verdict(L.score)}</div>
+    <div class="chips">${chips}</div>
+    <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
+    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+    <p class="note" aria-live="polite"></p>`;
 }
 
 function commit(g){
@@ -465,38 +513,51 @@ function commit(g){
 }
 
 function shareText(){
-  let t=`Good Catch #${DAYNUM}\n`;
+  let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
-    const r=g.rec||{tries:0};
-    t+= r.tries ? `${g.icon} ${g.label.padEnd(4)} ▲ ${fmt(r.best).padStart(3)}   ▼ ${fmt(r.worst).padStart(3)}\n` : `${g.icon} ${g.label.padEnd(4)} not played yet\n`;
+    const r=g.rec;
+    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)} ▼${fmt(r.worst)}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
   }
-  return (t+'goodcatch.fish').trim();
+  return s+'goodcatch.fish';
 }
-function renderShare(){document.getElementById('share-text').textContent=shareText()}
-document.getElementById('copy').addEventListener('click',()=>{
-  const msg=document.getElementById('copy-msg'); const txt=shareText();
-  const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('share-text'));const s=getSelection();s.removeAllRanges();s.addRange(r);msg.textContent='Text selected, press Ctrl/Cmd+C to copy.'};
-  try{navigator.clipboard.writeText(txt).then(()=>{msg.textContent='Copied.'},fallback)}catch(e){fallback()}
+function share(note){
+  const txt=shareText();
+  const fail=()=>{note.textContent=t('copy_fail')+txt.replace(/\n/g,' · ')};
+  try{navigator.clipboard.writeText(txt).then(()=>{note.textContent=t('copied')},fail)}catch(e){fail()}
+}
+
+let spotlight=null;
+const legend=document.getElementById('legend');
+legend.innerHTML=Object.entries(SP).sort((a,b)=>b[1].p-a[1].p).map(([k,s])=>
+  `<button data-sp="${k}" aria-pressed="false" title="${spName(k)}">${sprite(k)}<span class="${s.p>0?'pos':'neg-t'}">${fmt(s.p)}</span></button>`).join('');
+legend.addEventListener('click',e=>{
+  const b=e.target.closest('[data-sp]'); if(!b) return;
+  spotlight=spotlight===b.dataset.sp?null:b.dataset.sp;
+  legend.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.sp===spotlight)));
+  render(current());
 });
 
-// legend
-const pos=document.getElementById('lg-pos'), neg=document.getElementById('lg-neg');
-for(const [k,s] of Object.entries(SP).sort((a,b)=>Math.abs(a[1].p)-Math.abs(b[1].p))){
-  const li=`<li class="${s.p>0?'g':'b'}">${sprite(k,' style="width:28px;height:28px"')}${s.n}<span class="pts">${fmt(s.p)}</span></li>`;
-  (s.p>0?pos:neg).insertAdjacentHTML('beforeend',li);
-}
-
-// tabs
+let tab='rede';
+const current=()=>games[tab];
 function showTab(k){
+  tab=k;
   for(const x of ['rede','linha']){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
   try{localStorage.setItem('goodcatch:tab',k)}catch(e){}
+  render(current());
 }
 document.getElementById('tab-rede').addEventListener('click',()=>showTab('rede'));
 document.getElementById('tab-linha').addEventListener('click',()=>showTab('linha'));
+document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+const help=document.getElementById('help');
+document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
+applyText();
 setup(games.rede); setup(games.linha);
-let t=null; try{t=localStorage.getItem('goodcatch:tab')}catch(e){}
-showTab(t==='linha'?'linha':'rede');
+let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
+showTab(saved==='linha'?'linha':'rede');
+render(games.rede); render(games.linha);
+let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
+if(!seen){help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
 })();
 </script>
 </body>
