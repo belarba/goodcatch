@@ -298,7 +298,8 @@ function canStep(g,r,c){
 function touch(g,[r,c],isDown){
   const L=g.path.length;
   const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
-  if(isDown&&idx>=0){g.path=g.path.slice(0,idx+1);g.closed=false;return}
+  const closing=g.kind==='net'&&idx===0&&!g.closed&&L>=4;
+  if(isDown&&idx>=0&&!closing){g.path=g.path.slice(0,idx+1);g.closed=false;return}
   const end=g.path[L-1];
   if(end[0]===r&&end[1]===c) return;
   if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;return}}
