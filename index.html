@@ -37,10 +37,13 @@ h1 span{color:var(--buoy)}
 .menu button:hover{background:var(--sea2)}
 
 .switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
-.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 21px var(--pixel);padding:7px 6px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 20px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button .sp{grid-row:span 2}
 .switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
 .switch .sp{width:28px;height:28px}
-.switch small{font-size:18px;color:var(--good)}
+.switch small{font-size:17px;color:var(--good);text-align:left}
+.switch small:empty{display:none}
+.switch button:has(small:empty) .sp{grid-row:auto}
 
 .game{display:flex;flex-direction:column;gap:8px}
 .stage{position:relative;display:flex;justify-content:center}
@@ -119,6 +122,7 @@ dialog .btn{width:100%;margin-top:14px}
   </header>
   <div id="menu" class="menu" popover>
     <button id="train-btn"></button>
+    <button id="lang-btn"></button>
   </div>
 
   <nav class="switch" role="tablist">
@@ -160,15 +164,15 @@ dialog .btn{width:100%;margin-top:14px}
 <script>
 (function(){
 const SP = {
-  sardinha:{e:'🐟',n:'Sardine',p:1},
-  lula:{e:'🦑',n:'Squid',p:2},
-  caranguejo:{e:'🦀',n:'Crab',p:2},
-  dourada:{e:'🐠',n:'Sea bream',p:3},
-  lagosta:{e:'🦞',n:'Lobster',p:5},
-  coral:{e:'🪸',n:'Coral',p:-3},
-  tubarao:{e:'🦈',n:'Shark',p:-4},
-  tartaruga:{e:'🐢',n:'Turtle',p:-6},
-  golfinho:{e:'🐬',n:'Dolphin',p:-8},
+  sardinha:{p:1},
+  lula:{p:2},
+  caranguejo:{p:2},
+  dourada:{p:3},
+  lagosta:{p:5},
+  coral:{p:-3},
+  tubarao:{p:-4},
+  tartaruga:{p:-6},
+  golfinho:{p:-8},
 };
 
 // ---------- pixel sprites ----------
@@ -234,8 +238,6 @@ const EPOCH = '2026-09-01'; // day #1: change to launch date
 const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-document.getElementById('date').textContent = `#${DAYNUM} · ${MONTHS[now.getMonth()]} ${now.getDate()}`;
 
 // ---------- deterministic randomness ----------
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
@@ -334,12 +336,47 @@ const STR = {
     help_rede:'Lay the net from the <b>boat</b> and bring it back to close a loop, within the squares you have. Everything <b>inside</b> is caught; animals under the net slip away. Rocks block the net.',
     help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
     help_points:'Tap an animal in the strip under the board to find it on the map.',
+    other_lang:'Português',
+  },
+  pt:{
+    how_to_play:'Como jogar', menu:'Menu', got_it:'Entendi',
+    game_rede:'Rede de cerco', game_linha:'Linha de fundo',
+    left_rede:'Rede restante', left_linha:'Linha restante', catch:'Pesca',
+    undo:'Desfazer', clear:'Limpar', go_rede:'Puxar rede', go_linha:'Recolher',
+    practice:'Treino', practice_on:'Treinar em outro mapa', practice_off:'Voltar ao mapa de hoje',
+    try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
+    your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
+    not_played:'ainda não jogado',
+    hint_rede_start:'Arraste ou toque a partir do barco para lançar a rede.',
+    hint_rede_go:'Traga a rede de volta ao barco para fechar o cerco.',
+    hint_rede_ready:'Cerco fechado. Pode puxar.',
+    hint_linha_start:'Arraste ou toque do barco até o fundo do mar.',
+    hint_linha_go:'Chegue na areia para recolher.',
+    hint_linha_ready:'No fundo. Pode recolher.',
+    hint_rede_warn:'Volte agora: {n} casas até o barco.',
+    hint_linha_warn:'Desça agora: {n} fileiras até o fundo.',
+    block_rock_rede:'Tem uma pedra no caminho.', block_rock_linha:'Tem uma pedra no caminho.',
+    block_self_rede:'A rede não pode se cruzar.', block_self_linha:'A linha não pode se cruzar.',
+    block_noway_rede:'Não sobra rede para voltar ao barco.', block_noway_linha:'Não sobra linha para chegar ao fundo.',
+    block_budget_linha:'Acabou a linha.',
+    v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
+    sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
+    sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
+    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (moldura vermelha) tiram pontos.',
+    help_rede:'Lance a rede a partir do <b>barco</b> e traga de volta para fechar o cerco, dentro das casas disponíveis. Tudo o que ficar <b>dentro</b> é pescado; animais embaixo da rede escapam. Pedras bloqueiam a rede.',
+    help_linha:'Desça a linha do <b>barco</b> até o <b>fundo</b>. Todo animal encostado na linha morde a isca. Cruzar um peixe o espanta e custa 2 casas; cruzar um animal protegido também conta a penalidade. Só pedras bloqueiam o caminho.',
+    help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
+    other_lang:'English',
   },
 };
-let LANG='en';
+let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
 const t=k=>STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
+  document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`;
+  document.getElementById('lang-btn').textContent=t('other_lang');
+  renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
   document.getElementById('help-body').innerHTML=`<p>${t('help_intro')}</p>
@@ -584,8 +621,10 @@ function share(note){
 
 let spotlight=null;
 const legend=document.getElementById('legend');
-legend.innerHTML=Object.entries(SP).sort((a,b)=>b[1].p-a[1].p).map(([k,s])=>
-  `<button data-sp="${k}" aria-pressed="false" title="${spName(k)}">${sprite(k)}<span class="${s.p>0?'pos':'neg-t'}">${fmt(s.p)}</span></button>`).join('');
+function renderLegend(){
+  legend.innerHTML=Object.entries(SP).sort((a,b)=>b[1].p-a[1].p).map(([k,s])=>
+    `<button data-sp="${k}" aria-pressed="${k===spotlight}" aria-label="${spName(k)} ${fmt(s.p)}" title="${spName(k)}">${sprite(k)}<span class="${s.p>0?'pos':'neg-t'}">${fmt(s.p)}</span></button>`).join('');
+}
 legend.addEventListener('click',e=>{
   const b=e.target.closest('[data-sp]'); if(!b) return;
   spotlight=spotlight===b.dataset.sp?null:b.dataset.sp;
@@ -604,6 +643,10 @@ function showTab(k){
 document.getElementById('tab-rede').addEventListener('click',()=>showTab('rede'));
 document.getElementById('tab-linha').addEventListener('click',()=>showTab('linha'));
 document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+document.getElementById('lang-btn').addEventListener('click',()=>{
+  LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
+  applyText(); render(games.rede); render(games.linha); document.getElementById('menu').hidePopover();
+});
 const help=document.getElementById('help');
 document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
