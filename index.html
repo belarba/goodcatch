@@ -37,10 +37,11 @@ h1 span{color:var(--buoy)}
 .menu button:hover{background:var(--sea2)}
 
 .switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
-.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button{appearance:none;border:1px solid var(--edge);background:var(--sea);color:var(--foam);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
 .switch button:nth-child(3){grid-column:1/-1}
 .switch button .sp{grid-row:span 2}
-.switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
+.switch button[aria-selected="true"]{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
+.switch button[aria-selected="true"] small{color:#1b1206}
 .switch .sp{width:28px;height:28px}
 .switch small{font-size:18px;color:var(--good);text-align:left}
 .switch small:empty{display:none}
@@ -149,6 +150,7 @@ dialog .btn{width:100%;margin-top:14px}
   </header>
   <div id="menu" class="menu" popover>
     <button id="train-btn"></button>
+    <button id="tourney-btn"></button>
     <button id="lang-btn"></button>
   </div>
 
@@ -660,6 +662,7 @@ const STR = {
     see_best:'Show top catch', see_worst:'Show lowest catch', cancel:'Cancel', reveal_go:'Show solution',
     reveal_confirm:'See today’s solution? After that, your plays no longer count toward today’s records.',
     revealed:'Solution seen: new plays don’t count today.',
+    locked:'Tournament: only your first haul counted today.', tourney_enable:'Tournament: first haul counts', tourney_disable:'Leave tournament (unlimited tries)', tourney_badge:'Tournament',
     showing_best:'Top catch on this map: {n}.', showing_worst:'Lowest catch on this map: {n}.',
   },
   pt:{
@@ -697,16 +700,23 @@ const STR = {
     see_best:'Ver a maior', see_worst:'Ver a menor', cancel:'Cancelar', reveal_go:'Ver solução',
     reveal_confirm:'Ver a solução de hoje? Depois disso, suas jogadas não contam mais para os recordes do dia.',
     revealed:'Solução vista: novas jogadas não contam hoje.',
+    locked:'Torneio: só a primeira puxada valeu hoje.', tourney_enable:'Torneio: só a primeira puxada vale', tourney_disable:'Sair do torneio (tentativas livres)', tourney_badge:'Torneio',
     showing_best:'Maior pesca deste mapa: {n}.', showing_worst:'Menor pesca deste mapa: {n}.',
   },
 };
+// Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
+let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
+  const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
+  return v==='1'})();
+const frozen=rec=>!!(rec.revealed||rec.locked);
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
 const t=k=>STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
   document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`;
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(TOURNEY?` · ${t('tourney_badge')}`:'');
   document.getElementById('lang-btn').textContent=t('other_lang');
+  document.getElementById('tourney-btn').textContent=t(TOURNEY?'tourney_disable':'tourney_enable');
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
@@ -786,7 +796,7 @@ function setup(g){
 }
 
 function reveal(g,which){
-  if(!g.training&&!g.rec.revealed){
+  if(!g.training&&!frozen(g.rec)){
     const d=document.getElementById('reveal');
     d.returnValue=''; d.onclose=()=>{if(d.returnValue!=='yes')return;g.rec.revealed=true;save(g.storeKey,g.rec);reveal(g,which)};
     return d.showModal();
@@ -1001,6 +1011,7 @@ function renderResult(g){
       <div class="verdict">${verdictText}</div>
       <div class="recs"><span>${t('your_best')} <b class="big-good">▲${fmt(rec.best)}</b></span></div>
       ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
+      ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:''}
       <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
       <p class="note" aria-live="polite"></p>`;
     return;
@@ -1012,7 +1023,7 @@ function renderResult(g){
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}
     ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
-    ${!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
+    ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
     <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
 }
@@ -1037,8 +1048,9 @@ function commit(g){
   if(g.kind==='drop'){
     g.last={score:g.score,count:{}};
     const rec=g.training?g.trainRec:g.rec;
-    if(rec.revealed) return render(g);
+    if(frozen(rec)) return render(g);
     rec.tries++; rec.best=rec.best===null?g.score:Math.max(rec.best,g.score);
+    if(TOURNEY&&!g.training) rec.locked=true;
     if(!g.training) save(g.storeKey,rec);
     return render(g);
   }
@@ -1047,8 +1059,9 @@ function commit(g){
   const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
   g.last={score,count};
   const rec=g.training?g.trainRec:g.rec;
-  if(rec.revealed) return render(g);
+  if(frozen(rec)) return render(g);
   rec.tries++; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
+  if(TOURNEY&&!g.training) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
   render(g);
 }
@@ -1093,6 +1106,10 @@ function showTab(k){
 }
 for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
 document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+document.getElementById('tourney-btn').addEventListener('click',()=>{
+  TOURNEY=!TOURNEY; try{localStorage.setItem('goodcatch:torneio',TOURNEY?'1':'0')}catch(e){}
+  applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
+});
 document.getElementById('lang-btn').addEventListener('click',()=>{
   LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
   applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();

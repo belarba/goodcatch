@@ -14,7 +14,7 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - A regular fish under the line is scared off (no points) and costs 2 squares.
   - A protected animal under the line costs 2 squares and **counts its penalty**.
   - Rocks can't hold line.
-- **Sea floor** (7x9 side view, `kind:'drop'`): the sea is packed in layers of fish. Tap a column: the hook drops to the first animal and hauls up its whole 4-connected school, worth N². What is above sinks to fill the gap (gravity per column). Turtles can't be hooked and block the column. 6 casts; the game ends by itself. The best possible score is solved live (`solveDrop`, memoised DFS, ~5 ms) and shown only on the result panel.
+- **Sea floor** (7x9 side view, `kind:'drop'`): the sea is packed in layers of fish. Tap a column: the hook drops to the first animal and hauls up its whole 4-connected school, worth N². What is above sinks to fill the gap (gravity per column). Turtles can't be hooked and block the column. 5 casts; the game ends by itself. The best possible score is solved live (`solveDrop`, memoised DFS, ~5 ms) and shown only on the result panel. `genDrop` builds candidates until one has something to find: greedy play (always the biggest school) scores ≤ 65% of the optimum and the optimal sequence includes a setup cast of ≤ 4 points (median 10 candidates / 16 ms, worst seen 56 / 80 ms over 60 days; `DROP_TRIES` caps it and falls back to the best ratio).
 
 ## Code
 - Everything the page needs lives in one static `index.html` (inline CSS + JS, no build, no runtime dependencies). Dev-only Node tooling lives in `tools/` and is never loaded by the page.
@@ -31,11 +31,12 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs. `FRAME2` derives a second frame per species (`shift` moves a region by a pixel); the pair becomes a 2-frame sheet animated in CSS, kept in phase across re-renders by `--clock`.
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
   - `EPOCH`: the date of puzzle #1 (2026-09-25).
-- Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records, `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
+- Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records (`best`, `worst`, `tries`, `revealed`, `locked`), `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`, `goodcatch:torneio`.
+- Tournament (`TOURNEY`, menu toggle or `?torneio=1`): the first haul of the day sets `rec.locked`; `frozen(rec)` (locked or solution revealed) stops later plays from touching records, like a single submission. Practice maps never lock.
 - Changing generation logic changes every past and future map and invalidates `NET_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
 ## Roadmap ideas
-1. Limit tries per day (or count only the first attempt for sharing). Today unlimited tries, best counts.
+1. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
 2. Tune difficulty so both extremes are hard. Test with the practice map.
 3. Optional: a global daily leaderboard (would need a backend). Plug it in through `dailyReference`.
 
