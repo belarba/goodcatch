@@ -89,6 +89,7 @@ h1 span{color:var(--buoy)}
 .hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
 .hint.alert{color:var(--bad)}
 .mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
+.hook{position:absolute;pointer-events:none;z-index:4;width:2px;background:var(--buoy);transform:translateX(-1px)}
 .mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
 .bubble{position:absolute;z-index:5;max-width:78%;padding:6px 10px;background:#F4EFE2;color:#0A1F2B;font:400 18px/1.1 var(--pixel);text-align:center;border:2px solid #0A1F2B;border-radius:10px;box-shadow:0 3px 0 rgba(0,0,0,.35);pointer-events:none;animation:pop .18s ease-out,fade .4s 2.5s forwards}
 .bubble::before,.bubble::after{content:"";position:absolute;left:var(--tail);border:solid transparent}
@@ -712,15 +713,11 @@ function setup(g){
   g.board.addEventListener('pointerdown',e=>{
     const cell=cellAt(e);if(!cell)return;
     if(g.kind==='drop'){
-      if(g.last) return;
+      if(g.last||g.busy) return;
       const c=cell[1], targetRow=dropTarget(g.cells,c), res=dropFish(g.cells,c);
       if(res.why==='turtle'){g.blocked='turtle'+c;g.blockReason='turtle';spawn(g,targetRow,c,'blocked');render(g);return}
       if(res.why==='empty') return;
-      g.history.push({cells:g.cells,score:g.score,moves:g.moves});
-      g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
-      spawn(g,targetRow,c,'cost','+'+res.points);
-      syncDrop(g);
-      if(g.moves>=g.lances) commit(g); else render(g);
+      dropAnimate(g,c,targetRow,res);
       return;
     }
     drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}g.showing=null;
@@ -794,7 +791,7 @@ function newMap(g,seed){
   g.grid=g.gen(g,mulberry(seedFrom(seed)));
   g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
   if(g.kind==='drop'){
-    g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null;
+    g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
     syncDrop(g);
     setTimeout(()=>{const r=solveDrop(g.cells0,g.lances);if(g.seed!==seed)return;g.par=r.best;render(g)});
     return;
@@ -808,6 +805,54 @@ function spawn(g,r,c,kind,text=''){
   m.className='mark '+kind; m.textContent=text;
   m.style.cssText=`left:${b.offsetLeft+c*b.clientWidth/g.cols}px;top:${b.offsetTop+r*b.clientHeight/g.rows}px;width:${b.clientWidth/g.cols}px;height:${b.clientHeight/g.rows}px`;
   b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
+}
+
+function computeFalls(oldCells,newCells,caughtSet){
+  const R=oldCells.length, C=oldCells[0].length, falls=[];
+  for(let cc=0;cc<C;cc++){
+    const oldRows=[]; for(let r=R-1;r>=1;r--) if(oldCells[r][cc]!=null&&!caughtSet.has(key(r,cc))) oldRows.push(r);
+    const newRows=[]; for(let r=R-1;r>=1;r--) if(newCells[r][cc]!=null) newRows.push(r);
+    for(let k=0;k<oldRows.length;k++) if(newRows[k]!=null&&newRows[k]!==oldRows[k]) falls.push([oldRows[k],cc,newRows[k]-oldRows[k]]);
+  }
+  return falls;
+}
+function dropAnimate(g,c,targetRow,res){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    g.history.push({cells:g.cells,score:g.score,moves:g.moves});
+    g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
+    spawn(g,targetRow,c,'cost','+'+res.points); syncDrop(g);
+    if(g.moves>=g.lances) commit(g); else render(g);
+    return;
+  }
+  g.busy=true;
+  const oldCells=g.cells, b=g.board, cellW=b.clientWidth/g.cols, cellH=b.clientHeight/g.rows;
+  const hook=document.createElement('div'); hook.className='hook';
+  hook.style.cssText=`left:${b.offsetLeft+c*cellW+cellW/2}px;top:${b.offsetTop+cellH/2}px;height:0px`;
+  b.parentNode.appendChild(hook);
+  requestAnimationFrame(()=>{hook.style.transition='height .2s ease-in';hook.style.height=(targetRow*cellH)+'px'});
+  setTimeout(()=>{
+    hook.remove();
+    spawn(g,targetRow,c,'cost','+'+res.points);
+    const caughtSet=new Set(res.caught.map(([r,cc])=>key(r,cc)));
+    for(const [r,cc] of res.caught){
+      const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
+      if(sp){sp.style.transition='transform .25s ease-in, opacity .25s';sp.style.transform=`translateY(${-r*cellH}px)`;sp.style.opacity='0'}
+    }
+    setTimeout(()=>{
+      const falls=computeFalls(oldCells,res.cells,caughtSet);
+      for(const [r,cc,dist] of falls){
+        const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
+        if(sp){sp.style.transition='transform .25s ease-out';sp.style.transform=`translateY(${dist*cellH}px)`}
+      }
+      // A fixed timeout instead of transitionend: transitionend can be skipped/coalesced, a timer always fires.
+      setTimeout(()=>{
+        g.history.push({cells:oldCells,score:g.score,moves:g.moves});
+        g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
+        syncDrop(g); g.busy=false;
+        if(g.moves>=g.lances) commit(g); else render(g);
+      },260);
+    },250);
+  },200);
 }
 
 const ready=g=>!!evaluate(g).hits;
@@ -836,12 +881,12 @@ function renderDrop(g){
   g.board.innerHTML=html+svg;
   g.board.classList.toggle('spot',!!spotlight);
   g.el.count.innerHTML=`${t('lances')}: <b>${g.lances-g.moves}</b>`;
-  g.el.pv.innerHTML=`${t('catch')}: <b class="good">${g.score}</b>`+(g.par!=null?` · ${t('par')} ${g.par}`:'');
+  g.el.pv.innerHTML=`${t('catch')}: <b class="good">${g.score}</b>`;
   g.el.pv.className='pv';
   g.el.hint.textContent=g.blocked?t('block_turtle_fundo'):t('hint_fundo_start');
   g.el.hint.classList.toggle('alert',!!g.blocked);
   g.bubble.hidden=true;
-  g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.history.length;
+  g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
   g.el.train.hidden=!g.training;
   g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
