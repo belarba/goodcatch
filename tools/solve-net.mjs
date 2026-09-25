@@ -36,12 +36,12 @@ function score(g) {
   return hits ? G.scoreOf(g, hits) : null;
 }
 function checkLine(g, path, expected) {
-  g.path = path;
-  if (score(g) !== expected) throw new Error(`line: solver says ${expected}, evaluate says ${score(g)}`);
+  g.marks = new Set(path.slice(1).map(([r, c]) => r * 100 + c));
+  if (score(g) !== expected) throw new Error(`line: solver says ${expected}, the page's lineChain + evaluate say ${score(g)}`);
 }
 function checkNet(g, sol) {
-  g.buoys = new Set(sol.buoys.map(([r, c]) => r * 100 + c));
-  if (g.buoys.size > g.maxBuoys) throw new Error(`net: ${g.buoys.size} buoys > ${g.maxBuoys}`);
+  g.marks = new Set(sol.buoys.map(([r, c]) => r * 100 + c));
+  if (g.marks.size > g.maxBuoys) throw new Error(`net: ${g.marks.size} buoys > ${g.maxBuoys}`);
   if (score(g) !== sol.score) throw new Error(`net: solver says ${sol.score}, evaluate says ${score(g)}`);
   return G.packCells(g, sol.buoys);
 }

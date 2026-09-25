@@ -9,11 +9,11 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
 
 ## Modes
 - **Purse net** (11x11 top view): tap or paint squares to drop up to 14 buoys. Buoys, rocks and the boat are fence; the board edge is open sea. The catch is every square the open sea cannot reach (4-directional) in the pen(s) touching the boat. Animals under a buoy escape. Rocks come in reef formations so they do real fencing work.
-- **Bottom line** (9x12 side view): drag from the boat (row 0) to the seabed (last row), with a budget of 20.
+- **Bottom line** (9x12 side view): tap or paint squares to lay the line from the boat (row 0) to the seabed (last row), with a budget of 20. The marks must form one chain that never touches itself (`lineChain`).
   - Animals orthogonally adjacent to the line bite.
-  - Crossing a regular fish scares it off (no points) and costs 2 squares.
-  - Crossing a protected animal costs 2 squares and **counts its penalty**.
-  - Only rocks block the line.
+  - A regular fish under the line is scared off (no points) and costs 2 squares.
+  - A protected animal under the line costs 2 squares and **counts its penalty**.
+  - Rocks can't hold line.
 
 ## Code
 - Everything the page needs lives in one static `index.html` (inline CSS + JS, no build, no runtime dependencies). Dev-only Node tooling lives in `tools/` and is never loaded by the page.
@@ -22,8 +22,8 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - `SP`: species points. Names live in `STR` (`sp_<key>`), sprites in `SPRITES`.
   - `games`: board sizes, line length budget (`maxLen`), buoy budget (`maxBuoys`). `buoy: true` marks the net.
   - `genNet` / `genLine`: deterministic generation (`mulberry` PRNG seeded from `DATE + ':' + game key`). Each one sets `g.start` (the boat) first: any cell for the net, any column of row 0 for the line. `genLine` retries until a path to the seabed exists.
-  - Net input: `paint` toggles a buoy (the first touch of a drag decides add or remove); `g.buoys` holds cell keys and `g.history` feeds Undo.
-  - Line input: `stepBlock` says whether a step is allowed and, if not, why (shown in the boat's speech bubble). Dragging a middle cell re-routes it with `reshape` (L-shaped links first, BFS `route` as fallback).
+  - Input (both games): `paint` toggles a mark, a buoy or a square of line (the first touch of a drag decides add or remove; fast drags are filled in square by square). `g.marks` holds cell keys and `g.history` feeds Undo. Blocked marks say why in the boat's speech bubble.
+  - `lineChain`: turns the line's marks into the ordered path `evaluate` scores, or says why it can't (`start`, `go`, `self`). `solveLine` enforces the same no-touch rule, and `tools/solve-net.mjs` fails if any optimum breaks `lineChain`.
   - `evaluate`: what gets caught (`evaluateBuoys` flood fill for the net, adjacency for the line).
   - `dailyReference`: the single seam for "today's best/worst". A future backend replaces this function only.
   - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date plus the buoys of each (`packCells`), written by `node tools/solve-net.mjs [days] [from]` after `(cd tools && npm install)`. The tool solves an integer program with HiGHS (dev dependency only), checks every optimum against `evaluate` and self-checks a two-pen case before writing. A date missing from the table shows no range; keep it generated well ahead. The line's range is solved live in a Web Worker.
