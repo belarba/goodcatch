@@ -661,7 +661,7 @@ const STR = {
     top_found:'You found the top catch.', low_found:'You found the lowest possible.', beat_known:'You beat the best known score.',
     see_best:'Show top catch', see_worst:'Show lowest catch', cancel:'Cancel', reveal_go:'Show solution',
     reveal_confirm:'See today’s solution? After that, your plays no longer count toward today’s records.',
-    revealed:'Solution seen: new plays don’t count today.',
+    revealed:'Solution seen: new plays don’t count today.', uncounted:'Free play: this one doesn’t count today.',
     locked:'Tournament: only your first haul counted today.', tourney_enable:'Tournament: first haul counts', tourney_disable:'Leave tournament (unlimited tries)', tourney_badge:'Tournament',
     showing_best:'Top catch on this map: {n}.', showing_worst:'Lowest catch on this map: {n}.',
   },
@@ -699,7 +699,7 @@ const STR = {
     top_found:'Você achou a maior pesca possível.', low_found:'Você achou a menor possível.', beat_known:'Você superou o melhor conhecido.',
     see_best:'Ver a maior', see_worst:'Ver a menor', cancel:'Cancelar', reveal_go:'Ver solução',
     reveal_confirm:'Ver a solução de hoje? Depois disso, suas jogadas não contam mais para os recordes do dia.',
-    revealed:'Solução vista: novas jogadas não contam hoje.',
+    revealed:'Solução vista: novas jogadas não contam hoje.', uncounted:'Jogada livre: esta não conta hoje.',
     locked:'Torneio: só a primeira puxada valeu hoje.', tourney_enable:'Torneio: só a primeira puxada vale', tourney_disable:'Sair do torneio (tentativas livres)', tourney_badge:'Torneio',
     showing_best:'Maior pesca deste mapa: {n}.', showing_worst:'Menor pesca deste mapa: {n}.',
   },
@@ -1006,8 +1006,8 @@ function renderResult(g){
   g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());
   const rec=g.training?g.trainRec:g.rec;
   if(g.kind==='drop'){
-    const verdictText=g.par!=null&&L.score>=g.par?t('par_hit'):t('par_over').replace('{n}',g.par-L.score);
-    g.el.result.innerHTML=`<div class="big good">${L.score}</div>
+    const verdictText=!L.counted?t('uncounted'):g.par!=null&&L.score>=g.par?t('par_hit'):t('par_over').replace('{n}',g.par-L.score);
+    g.el.result.innerHTML=`<div class="big ${L.counted?'good':'zero'}">${L.score}</div>
       <div class="verdict">${verdictText}</div>
       <div class="recs"><span>${t('your_best')} <b class="big-good">▲${fmt(rec.best)}</b></span></div>
       ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
@@ -1017,8 +1017,8 @@ function renderResult(g){
     return;
   }
   const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')||`<span>${t('nothing')}</span>`;
-  g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
-    <div class="verdict">${verdict(L.score)}</div>
+  g.el.result.innerHTML=`<div class="big ${L.counted?cls(L.score):'zero'}">${fmt(L.score)}</div>
+    <div class="verdict">${L.counted?verdict(L.score):L.shown?t('showing_'+L.shown).replace('{n}',fmt(L.score)):t('uncounted')}</div>
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}
@@ -1046,9 +1046,9 @@ function rangeHTML(g,rec){
 
 function commit(g){
   if(g.kind==='drop'){
-    g.last={score:g.score,count:{}};
     const rec=g.training?g.trainRec:g.rec;
-    if(frozen(rec)) return render(g);
+    g.last={score:g.score,count:{},counted:!frozen(rec)};
+    if(!g.last.counted) return render(g);
     rec.tries++; rec.best=rec.best===null?g.score:Math.max(rec.best,g.score);
     if(TOURNEY&&!g.training) rec.locked=true;
     if(!g.training) save(g.storeKey,rec);
@@ -1057,9 +1057,9 @@ function commit(g){
   if(!ready(g)) return;
   const {hits}=evaluate(g); const score=scoreOf(g,hits);
   const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
-  g.last={score,count};
   const rec=g.training?g.trainRec:g.rec;
-  if(frozen(rec)) return render(g);
+  g.last={score,count,counted:!frozen(rec),shown:frozen(rec)?g.showing:null};
+  if(!g.last.counted) return render(g);
   rec.tries++; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
   if(TOURNEY&&!g.training) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
