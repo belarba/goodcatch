@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "Dev-only tooling for Good Catch. Never loaded by the page.",
+  "devDependencies": {
+    "highs": "^1.15.3"
+  }
+}

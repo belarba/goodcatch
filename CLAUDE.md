@@ -8,7 +8,7 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
 - Protected animals (turtle, dolphin, shark, coral) have negative points. Catching them is how "lowest score" players play.
 
 ## Modes
-- **Purse net** (11x11 top view): drag a closed loop from the boat, up to 26 squares. Animals strictly inside are caught. Animals under the net itself escape. Rocks block the net but do not act as walls for the enclosure.
+- **Purse net** (11x11 top view): tap or paint squares to drop up to 14 buoys. Buoys, rocks and the boat are fence; the board edge is open sea. The catch is every square the open sea cannot reach (4-directional) in the pen(s) touching the boat. Animals under a buoy escape. Rocks come in reef formations so they do real fencing work.
 - **Bottom line** (9x12 side view): drag from the boat (row 0) to the seabed (last row), with a budget of 20.
   - Animals orthogonally adjacent to the line bite.
   - Crossing a regular fish scares it off (no points) and costs 2 squares.
@@ -18,15 +18,16 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
 ## Code
 - Everything the page needs lives in one static `index.html` (inline CSS + JS, no build, no runtime dependencies). Dev-only Node tooling lives in `tools/` and is never loaded by the page.
 - Key places in the script:
-  - `// @gen-start` … `// @gen-end`: pure game logic (`SP`, PRNG, `genNet`/`genLine`, `games`, `evaluate`, `solveLine`/`solveNet`). No DOM in here: `tools/solve-net.mjs` evaluates this block in Node.
+  - `// @gen-start` … `// @gen-end`: pure game logic (`SP`, PRNG, `genNet`/`genLine`, `games`, `evaluate`/`evaluateBuoys`, `solveLine`, `packCells`). No DOM in here: `tools/solve-net.mjs` evaluates this block in Node.
   - `SP`: species points. Names live in `STR` (`sp_<key>`), sprites in `SPRITES`.
-  - `games`: board sizes, start cell, length budget.
-  - `genNet` / `genLine`: deterministic generation (`mulberry` PRNG seeded from `DATE + ':' + game key`). `genLine` retries until a path to the seabed exists.
-  - `stepBlock`: whether a step is allowed and, if not, why (shown to the player). Net steps that would leave no way back to the boat are refused; `returnPath` is the BFS behind that and behind "tap the boat to close".
-  - `evaluate`: what gets caught (flood fill for the net, adjacency for the line).
+  - `games`: board sizes, line length budget (`maxLen`), buoy budget (`maxBuoys`). `buoy: true` marks the net.
+  - `genNet` / `genLine`: deterministic generation (`mulberry` PRNG seeded from `DATE + ':' + game key`). Each one sets `g.start` (the boat) first: any cell for the net, any column of row 0 for the line. `genLine` retries until a path to the seabed exists.
+  - Net input: `paint` toggles a buoy (the first touch of a drag decides add or remove); `g.buoys` holds cell keys and `g.history` feeds Undo.
+  - Line input: `stepBlock` says whether a step is allowed and, if not, why (shown in the boat's speech bubble). Dragging a middle cell re-routes it with `reshape` (L-shaped links first, BFS `route` as fallback).
+  - `evaluate`: what gets caught (`evaluateBuoys` flood fill for the net, adjacency for the line).
   - `dailyReference`: the single seam for "today's best/worst". A future backend replaces this function only.
-  - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date, written by `node tools/solve-net.mjs [days] [from]`. The tool checks every optimum against `evaluate` before writing.
-  - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs.
+  - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date plus the buoys of each (`packCells`), written by `node tools/solve-net.mjs [days] [from]` after `(cd tools && npm install)`. The tool solves an integer program with HiGHS (dev dependency only), checks every optimum against `evaluate` and self-checks a two-pen case before writing. A date missing from the table shows no range; keep it generated well ahead. The line's range is solved live in a Web Worker.
+  - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs. `FRAME2` derives a second frame per species (`shift` moves a region by a pixel); the pair becomes a 2-frame sheet animated in CSS, kept in phase across re-renders by `--clock`.
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
   - `EPOCH`: the date of puzzle #1. Set it to the launch date.
 - Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records, `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
