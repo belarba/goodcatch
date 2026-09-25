@@ -709,7 +709,7 @@ function render(g){
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
   g.el.train.hidden=!g.training;
-  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}${g.dailyRef?' / '+fmt(g.dailyRef.best):''}`:'';
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)} ▼${fmt(g.rec.worst)}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
 }
@@ -758,8 +758,8 @@ function commit(g){
 function shareText(){
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
-    const r=g.rec, ref=g.dailyRef&&g.dailyRef.exact?g.dailyRef:null;
-    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${ref?'/'+fmt(ref.best):''} ▼${fmt(r.worst)}${ref?'/'+fmt(ref.worst):''}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
+    const r=g.rec;
+    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)} ▼${fmt(r.worst)}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
   }
   return s+'goodcatch.fish';
 }
