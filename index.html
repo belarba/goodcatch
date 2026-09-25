@@ -55,7 +55,9 @@ h1 span{color:var(--buoy)}
 .c{position:relative;display:grid;place-items:center}
 .c.in{background:rgba(243,154,54,.22)}
 .sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
-.c.neg::before,.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
+.c.neg{background:radial-gradient(circle,rgba(255,96,80,.34) 0 52%,transparent 88%)}
+.c.in.neg{background:radial-gradient(circle,rgba(255,96,80,.34) 0 52%,transparent 88%),rgba(243,154,54,.22)}
+.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
 .c.hit.good::before{border-color:var(--good);background:rgba(127,219,169,.18)}
 .c.hit.bad::before{border-color:var(--bad);background:rgba(255,125,112,.25)}
 .c.gone .sp{opacity:.3}
@@ -474,7 +476,7 @@ const STR = {
     v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
     sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
     sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
-    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red frame) take points away.',
+    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
     help_rede:'Lay the net from the <b>boat</b> and bring it back to close a loop, within the squares you have. Everything <b>inside</b> is caught; animals under the net slip away. Rocks block the net.',
     help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
     help_points:'Tap an animal in the strip under the board to find it on the map.',
@@ -507,7 +509,7 @@ const STR = {
     v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
     sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
     sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
-    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (moldura vermelha) tiram pontos.',
+    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
     help_rede:'Lance a rede a partir do <b>barco</b> e traga de volta para fechar o cerco, dentro das casas disponíveis. Tudo o que ficar <b>dentro</b> é pescado; animais embaixo da rede escapam. Pedras bloqueiam a rede.',
     help_linha:'Desça a linha do <b>barco</b> até o <b>fundo</b>. Todo animal encostado na linha morde a isca. Cruzar um peixe o espanta e custa 2 casas; cruzar um animal protegido também conta a penalidade. Só pedras bloqueiam o caminho.',
     help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
