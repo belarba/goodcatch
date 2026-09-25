@@ -292,7 +292,7 @@ function seaURL(g){
 }
 
 // ---------- daily date ----------
-const EPOCH = '2026-09-01'; // day #1: change to launch date
+const EPOCH = '2026-09-25';
 const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
@@ -345,7 +345,6 @@ function genNet(g,rng){
     if(k<4){for(let t=0;t<20;t++){if(put(negs[k],cr+ri(rng,-1,1),cc+ri(rng,-1,1)))break}}
   }
   for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
-  for(let n=6,t=0;n>0&&t<60;t++){if(put('sardinha',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
   for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
   return G;
 }
@@ -539,36 +538,37 @@ const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);ret
 
 // @net-ref-start
 const NET_REF = {
-  "2026-09-24":[18,-11,"1f1p202e2h2i2o2r2w2x2y343536","0r1b1c1d1l1p1v1y21252g2i2r2t"],"2026-09-25":[34,-13,"060g0i0q0u10161e1g1x2y353638","0p0z11131c1d1f292b2j2m2v3839"],
-  "2026-09-26":[25,-5,"0q10121e1q222e2i2o2w2y343536","0r1011131e1o1y1z2b2h2k2l2u34"],"2026-09-27":[26,-18,"0r0s0z10191j1u262i2k2t2w3536","0e0g0h0i0j0o0v0y13161a1b1c1g"],
-  "2026-09-28":[12,-17,"0q1j1n1u1y252a2h2o2t2y353637","0f0p0r10121d1m1p1x292k2n2w2y"],"2026-09-29":[23,-12,"1f1g1m1s1w20242e2k2o2v2y3738","141g1n1p1r1x232a2b2c2f2k2o2p"],
-  "2026-09-30":[23,-23,"0g0q0t1015161a1e1i1k1q1t2224","030r0t11141d1g1p1r222d2l2m2n"],"2026-10-01":[20,-22,"030d0f0x10111c1v25292h2i2k2u","0h0p0q0t0z151b1f1n1q222b2d2n"],
-  "2026-10-02":[42,-6,"0304050d0t161i1t1w23272c2j2k","0304050d0i0s131e1h1q1s1y2123"],"2026-10-03":[19,-12,"04050e0h0o0q0s0y191d1l1w282a","0f0p0r10121a1e1k1v1x262a2i2u"],
-  "2026-10-04":[23,-16,"0j0l0t0w171i1p1t242a2f2m2p2z","050h0k0s0v161h1o1t232b2e2m2o"],"2026-10-05":[28,-6,"05060p0z151a1g1l1x272a2j2o2v","0p0r10131b1f1n1o1r1x21292b2l"],
-  "2026-10-06":[19,-11,"0203040506070c0x13181k1w282k","1a1c1k1n1v1x262b2i2j2n2v2w2x"],"2026-10-07":[37,-8,"1m1v1w22252h2n2o2t2y35363738","1l1x2122272b2j2m2o2v2x2z3739"],
-  "2026-10-08":[18,-15,"0i0s121c1m1w2021262k2l2m2n2s","1b1c1l1o1p1q1x26272b2c2l2s2v"],"2026-10-09":[21,-22,"0v0y1015171a1i1j1u25272a2h3b","0d0f0g0o0p0s0y121b1j1m1v262a"],
-  "2026-10-10":[18,-14,"050f0h0p0t0z141g1l1q1x20282a","0i0j0s0v13151g1j1m1q1v20282a"],"2026-10-11":[32,-13,"0o0p0r0y1a1l222f2p2v2z373839","02030c0m0p0x0z181b1j1m1v2026"],
-  "2026-10-12":[27,-14,"0s0t12151c1g1q1v222b2c2j2r2t","0o0p0y11181b1j1u2728292r2u34"],"2026-10-13":[22,-10,"10141g1s242b2f2p2u303638393a","1y20232a2c2d2e2j2q2v2y2z3038"],
-  "2026-10-14":[18,-12,"0g0h0i0q0u1013161i232f2p2y2z","0s12141p1s1x222e2q2z30373839"],"2026-10-15":[19,-12,"0j0l0s0t0u0w171h1s232b2f2n2p","080i0l0s0v14151f1q212b2c2l2m"],
-  "2026-10-16":[27,-12,"0v13151d1i1p1t1z232f2m2q2y30","080i0w0y121a1c1d1f1h1m1q1y20"],"2026-10-17":[28,-6,"1k1q1u2022252e2h2q3135363739","0s0t151h1o1p1q1s1z232c2d2l"],
-  "2026-10-18":[12,-12,"1l1m1o1v1y252e2p2r2t2v373839","0g0q0s11131b1e1l1q1v252a2r2t"],"2026-10-19":[8,-10,"0c0e0m0p0y1a1k1q1w21282b2k2l","0c0e0m0p0y1a1m1r1y1z212a2c2m"],
-  "2026-10-20":[18,-11,"0k0s0u0w0y11121a1h1s1v272j2v","15161e1q1r242b2d2f2q2x2y303a"],"2026-10-21":[29,-14,"101a1c1d1p1u272x3334353637","0r101113141a1g1n1o1q1u1x282i"],
-  "2026-10-22":[22,-12,"0d0i0n0u141g1w22282e2m2o2w2y","0708090h0l0t0u0w14171f1i1r2z"],"2026-10-23":[36,-13,"08111l1o1q1v23252e2h2i2k2o2u","111d1e1f1l1r1x2021282j2m2v2w"],
-  "2026-10-24":[28,-21,"0i0s151c1e1o2j3035363738393a","0z101113191f1k1n1p1u1z262h2j"],"2026-10-25":[36,-16,"0g0i0o0s0u0z16191i1j1v22232c","090j0l0u0w14171i232d2n2v2w2x"],
-  "2026-10-26":[16,-14,"06070g111i1n1s1y222a2d2l2n2x","131i1m1p1q1r1t1z2021242c2e2o"],"2026-10-27":[19,-23,"080h1i1r1t1y24282k2p2w2x2z39","03040506080d0u0z151b1d1h1s22"],
-  "2026-10-28":[32,-11,"080i0s0w16191e1g1j1y2a2e2m2p","0607080g0t0v14151b1d1f1n1p37"],"2026-10-29":[14,-23,"151f1g1s1w1y22272c2l2m2t2v35","1415161i1q1r1s1w2026292a2j2t"],
-  "2026-10-30":[38,-8,"0j0o0v16191k1r1w282i2s2v2x37","14151e1o1r1x1z27292i2u2w2x36"],"2026-10-31":[26,-11,"0i0s1c1m1p1t1w24262e2i2u2v2w","1c1e1n1q1x20272a2h2k2t2w3536"],
-  "2026-11-01":[39,-10,"0e0n0o0p0u171h1r232c2d2m2u2w","0d0e0n0q0y101c1o20292b2m2u2w"],"2026-11-02":[18,-14,"0q10121a1e1k1u1x1y2025272a2h","060g0i0s0u131c1d1g1m1x1z2029"],
-  "2026-11-03":[36,-19,"0m0x10181f1j1r1u1y23262i2j37","1g1q1s2124272b2c2h2j2l2s3537"],"2026-11-04":[29,-17,"0c0e0m0q111314191d1h1k1t1u24","030c0f0m0r0s1014181a1c1e1k1o"],
-  "2026-11-05":[22,-17,"0p0t11161b1i1n1s1y2c2y363738","0o0q0t0z1b1m1q1y1z2b2e2q2z30"],"2026-11-06":[14,-16,"0f0h0k0r0w16191g1l1q1s2429","1e1f1n1o1r1v1w21252h2i2m2v2w"],
-  "2026-11-07":[24,-16,"0f0p0r0s0z14191c1j1s1v1z2j2v","0g0q0s1113141b1e1n1p1x202j2k"],"2026-11-08":[39,-18,"030r0z13181j1m1p1u25292h2j2t","050h0o0p0s0y11141a1c1l1p1x1y"],
-  "2026-11-09":[15,-17,"0e0f0h0o0z131a1f1l1o1p272j2k","0z101112191e1j1m1n1q1w212c2m"],"2026-11-10":[34,-11,"040506070e0o0y1d1u2a2h2k2t2u","0q0r10131c1e1m1u1w1z292h2i2j"],
-  "2026-11-11":[21,-6,"13141c1g1m1s242f2q303738393a","0t0u0v13171a1c1g1i1o1t22232h"],"2026-11-12":[30,-15,"0e181a1f1j1m1r1u1y21252c2m2w","0o0p0q0s13191k1n1w1z28292e"],
-  "2026-11-13":[17,-20,"0c0d0e0f0m0y1015181e1k1q1u26","0102040b0e0n0p0y12141a1b1q20"],"2026-11-14":[24,-10,"040506070e0k0o0w0y171a1c1e1g","0z1011191e1j1v1y21262i2j2k2l"],
-  "2026-11-15":[25,-14,"0708090c0d0h0m0x181j1m1v2227","0h0o0s0t0y131e1h1l1r1x1y2023"],"2026-11-16":[20,-22,"0k0w13171i1q1s222a2e2m2q2y30","141g1p1r22292b2d2l2p2x2y303b"],
-  "2026-11-17":[14,-10,"0g0s11141b1g1m1x21292a2d2m2n","0g0t1013151b1g1m1x22292b2c2l"],"2026-11-18":[31,-22,"0204050h0t15181e1h1k1n1r1w1y","04060d0g0i0p0t11131c1f1m1p1x"],
-  "2026-11-19":[27,-16,"1214151l1w282k2q2w3138393a3b","0u141f1s1x1z22272j2m2t2w3536"],"2026-11-20":[14,-11,"1c1d1e1m1w1z262i2o2w30363839","1k1o2027282h2m2o2v30373839"],
-  "2026-11-21":[29,-16,"070h0j0v171f1t21242f2n2p2z39","0i0s0u14161q1r1s222b2d2m2o2y"],"2026-11-22":[19,-10,"0p1d1p1v21272j2q2v2x3137393a","1m1x2a2k2m2n2q2u31363738393a"]
+  "2026-09-24":[18,-11,"1f1p202e2h2i2o2r2w2x2y343536","0r1b1c1d1l1p1v1y21252g2i2r2t"],"2026-09-25":[34,-11,"060g0i0j0q0v10161e1g2y353638","131d1f1o1y21292b2k2m2n2v3839"],
+  "2026-09-26":[25,-5,"0q10121e1q222e2h2q3034353637","0r10111315161e1o1y292h2k2u34"],"2026-09-27":[26,-18,"0607080g0k0u101a1k1u262i2k2u","0e0g0h0i0j0o0v0y13161a1b1g1n"],
+  "2026-09-28":[12,-17,"141j1n1u1y252a2h2o2t2w2y3536","0f0p0r10121d1m1p1x292k2n2w2y"],"2026-09-29":[23,-8,"151f1h1m1s1y242e2j2o2v2y3738","1y1z232b2d2f2k2n2q2w3038393a"],
+  "2026-09-30":[23,-23,"0q0r0t10151a1e1h1k1q1t242c2d","0j0r0t12141d1g1p1r222d2l2m2n"],"2026-10-01":[18,-22,"03040d0g0x10111c1v25292h2i2j","0f0p0s0t0z151b1f1n1q222b2d2n"],
+  "2026-10-02":[38,-8,"03040d0g0t1h1t1w23262c2i2j2k","04050e0i0s131e1h1q1t21232835"],"2026-10-03":[22,-11,"04050e0h0i0o0u0y181d1k1w282a","060g0i0r0t10111a1l1w26292i2u"],
+  "2026-10-04":[21,-21,"0j0l0t0w171i1r1t242a2f2m2o2p","0h0k0n0s0v161h1o1s232b2e2m2o"],"2026-10-05":[27,-14,"05060p0z141a1g1m1x272a2j2o2v","0p0r1013151c1g1o1r1y21292b2l"],
+  "2026-10-06":[18,-17,"0203040506070c0x181k1w272j2k","1a1c1k1n1u1x262b2i2n2u2v2w2x"],"2026-10-07":[37,-12,"1m1w23262g2n2o2s2t2y35363738","090l0w171i1n1t1x21242b2m2o2y"],
+  "2026-10-08":[17,-15,"0i0s121c1m1w2021262m2n2r2w36","1b1c1l1o1p1q1x26272a2b2c2k2r"],"2026-10-09":[20,-27,"0v0y0z1015171i1j1u25272a2h3b","0f0g0o0p0s0y121b1k1m1v262a2d"],
+  "2026-10-10":[16,-16,"050f0h0p0t0z141g1l1q1x20282a","0i0j0s0v13151g1j1m1q1v20282a"],"2026-10-11":[29,-9,"0e0o0r0y1a1l222f2k2p2w2z3839","02030c0m0p0x0z181b1j1m1v262v"],
+  "2026-10-12":[25,-14,"0s0t12151c1f1q1v222b2c2j2r2t","0p0y0z11181c1j1u27282q2r2t2u"],"2026-10-13":[20,-11,"10141g1s242b2f2p2u2x3036393a","1f1y20222a2c2e2q2u2y2z303638"],
+  "2026-10-14":[18,-12,"0g0h0i0q0u1013161h242f2p2y2z","0s12141h1x21242e2q2z30373839"],"2026-10-15":[18,-12,"0j0l0s0t0u0w171h1r232b2e2n2p","080i0l0s0v1415181j1u262b2i2l"],
+  "2026-10-16":[26,-9,"0u0v131d1i1p1t1z232f2m2q2y30","080i0v121e1f1h1r2d2n2p2x313b"],"2026-10-17":[26,-9,"1k1q1u2022252e2h2q3135363739","060g0i0r0t151g1k1p1r1z222c2l"],
+  "2026-10-18":[11,-10,"0q0r10131b1f1l1p1v1y252l2r2t","1d1e1n1q1v1w1x252a2f2q2r2t2y"],"2026-10-19":[7,-14,"010e0n0p0x191b1k1o1w20282a2k","0c0e0n0p0y1a1m1q1y1z212a2c2m"],
+  "2026-10-20":[17,-11,"0k0s0u0w0z1112191h1s1v272j2v","0u161f1r242b2d2f2q2u2x2y303a"],"2026-10-21":[28,-16,"10111a1d1h1p1u272x3334353637","0o0p0q0y12181b1e1n1o1u1x282i"],
+  "2026-10-22":[20,-11,"0d0i0n0u151g1w22282e2m2o2w2y","1e22242b2c2d2f2l2q2x31393a3b"],"2026-10-23":[33,-17,"080s111l1o1q1v24262e2i2k2o2u","0t11151e1n1p1r1y1z212k2l2m"],
+  "2026-10-24":[25,-14,"0i0s151c1e1o2j2o2y3035363738","131c1f1l1n1p1v20262b2h2l2v35"],"2026-10-25":[33,-12,"0g0i0p0s0u0z16191i1k1v22232c","0k0u0w1415171i242e2k2n2o2w2x"],
+  "2026-10-26":[15,-14,"06070g111i1n1s1x22292d2l2n2x","131i1p1q1r1t21242b2c2e2o2x2z"],"2026-10-27":[18,-18,"080h101b1i1t20242a2l2p2x2z39","0102030405060b0j0t0z1b1c1d1g"],
+  "2026-10-28":[32,-11,"07080h0w17191e1i1k1y2a2f2m2p","0607080g0t0v151b1d1f1n1p27"],"2026-10-29":[17,-16,"0v161g1s1w1y22272c2k2l2m2t2u","1415161i1q1r1s1w2026292a2j2t"],
+  "2026-10-30":[38,-4,"0o0u15191j1r1u25272g2r2v2x37","080k0n0w1113171d1o1q1t20232d"],"2026-10-31":[24,-12,"0i0s1c1m1p1t1w24262e2i2l2u2v","131c1f1g1o1s20242c2d2f2q313b"],
+  "2026-11-01":[35,-14,"0f0p0u11171b1h1r232d2n2u2w2x","25292a2b2c2g2o2s2x2z34353739"],"2026-11-02":[18,-20,"0q10121a1e1k1u1y202527282a2h","0i0s0u131e1g1s20222b2e2m2o2y"],
+  "2026-11-03":[38,-19,"0o0t10151a1h1k1r1u23262i2j37","1g1q1s2124272b2c2h2j2l2s3537"],"2026-11-04":[29,-17,"0c0e0m0q111314191d1h1l1s1v24","030c0f0m0r0s1014181a1c1e1k1o"],
+  "2026-11-05":[22,-16,"0o0p0t0y1116191i1l1s1x2c2w36","0o0q0t0z1b1c1o1q1z2b2e2q2z30"],"2026-11-06":[11,-17,"04050h0k0w161b1i1n1q1s22292j","1e1f1n1o1r1v1w22252h2i2m2v2w"],
+  "2026-11-07":[24,-20,"0f0p0r0s0z14191c1j1s1v1z2j2v","0b0f0g0n0s0z121b1e1n1q1x2j2k"],"2026-11-08":[39,-23,"030r0z13181j1m1u25292b2h2j2t","050h0t12141b1c1l1x292k2v2x37"],
+  "2026-11-09":[13,-17,"111213171b1f1l1o1r1y2127282b","0q0z1012191e1j1m1n1q1w212c2m"],"2026-11-10":[37,-7,"05060f0i0o0p0y111u2a2h2k2t2u","030d0f0o0q0z121a1c1n1u1x272h"],
+  "2026-11-11":[19,-14,"0s141d1g1o1s242f2q303738393a","030f0n0q0z1a1e1f1g1h1m1t2223"],"2026-11-12":[30,-15,"181a1j1q1u1y21252c2m2u2x3637","0o0p0q0s13181g1k1n1w1z232829"],
+  "2026-11-13":[16,-13,"0c0d0e0f0m0y1014181k1p1r1u26","0203040c0n0p0y1112141a1b1q20"],"2026-11-14":[24,-14,"040506070e0k0o0w0y171a1c1e1g","0z1011191e1k1v1y20262i2l2u2v"],
+  "2026-11-15":[24,-14,"060708090c0d0m0x181j1m1v2227","01020b0m0x181e1k1l1r1x2023"],"2026-11-16":[19,-19,"0k0w13171i1q1t232a2f2m2p2y30","141g1p1r23292b2d2l2o2x3039"],
+  "2026-11-17":[13,-14,"10121b1e1m1x21292d2k2m2o2w2y","10121b1d1l1w1y22272b2c2j2l2v"],"2026-11-18":[29,-16,"0204050h0t15181e1h1k1n1r1w1y","0d0f0o0r0s10141c1f1m1p1x1z"],
+  "2026-11-19":[25,-16,"1214151l1w282k2q2w3138393a3b","0u141f1s1x1z22272h2l2m2t2v35"],"2026-11-20":[12,-11,"0s121d1n1x1z272i2o3036373839","111b1d1m1p27282h2o2v30373839"],
+  "2026-11-21":[29,-16,"06070j0v171f1t21242f2n2p2z39","1415161e1r1t2022232b2d2m2o2y"],"2026-11-22":[17,-2,"0p1d1p1v21272j2p2v313738393a","2a2j2k2m2n2q2t3135363738393a"],
+  "2026-11-23":[33,-18,"0g0h0i0q0u12161i1m1r2f2l2p31","101a1g1k1o1q1w202e2k2n2o2q31"]
 };
 // @net-ref-end
 
@@ -621,7 +621,7 @@ const STR = {
     v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
     sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
     sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
-    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
+    help_intro:'Three puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
     help_rede:'Drop <b>buoys</b> to fence in a pen against the <b>boat</b>. Rocks close the fence too; the open sea at the edge never does. Everything <b>inside</b> is caught, and animals under a buoy slip away. You have 14 buoys.',
     help_linha:'Tap squares to lay the line from the <b>boat</b> to the <b>seabed</b> in one chain that never touches itself. Every animal touching the line bites. A fish under the line is scared off and costs 2 squares; a protected animal under it also counts its penalty. Rocks can’t hold line.',
     help_fundo:'The sea is packed in layers. Tap a column: the hook drops to the first animal and hauls up its whole school; a school of N is worth N². What is above sinks to fill the gap. Turtles can’t be hooked and block the way. 6 casts.',
@@ -658,7 +658,7 @@ const STR = {
     v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
     sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
     sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
-    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
+    help_intro:'Três desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
     help_rede:'Solte <b>boias</b> para cercar uma área encostada no <b>barco</b>. Pedras também fecham o cerco; o mar aberto da borda nunca fecha. Tudo o que ficar <b>dentro</b> é pescado, e animais embaixo de uma boia escapam. Você tem 14 boias.',
     help_linha:'Toque nas casas para descer a linha do <b>barco</b> até o <b>fundo</b>, numa corrente só que nunca encosta nela mesma. Todo animal encostado na linha morde a isca. Peixe embaixo da linha foge e custa 2 casas; animal protegido embaixo dela também conta a penalidade. Pedra não segura linha.',
     help_fundo:'O mar vem em camadas. Toque numa coluna: o anzol desce até o primeiro bicho e puxa o cardume inteiro dele; cardume de N vale N². O que está em cima afunda para preencher. Tartaruga não pode ser fisgada e bloqueia o caminho. 6 lances.',
@@ -871,7 +871,7 @@ function render(g){
   let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
   if(g.buoy){
     const fence=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||isStart(g,r,c)||g.grid[r][c].rock), mine=(r,c)=>g.marks.has(key(r,c))||isStart(g,r,c);
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(mine(r,c)) for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1],[-1,0],[0,-1],[-1,-1],[-1,1]]){
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(mine(r,c)) for(const [dr,dc] of [[0,1],[1,0],[-1,0],[0,-1]]){
       const nr=r+dr,nc=c+dc; if(!fence(nr,nc)||mine(nr,nc)&&(dr<0||dr===0&&dc<0)) continue;
       svg+=`<line x1="${c+.5}" y1="${r+.5}" x2="${nc+.5}" y2="${nr+.5}" stroke="#EBDDB4" stroke-opacity=".7" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
     }

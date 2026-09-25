@@ -14,22 +14,23 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - A regular fish under the line is scared off (no points) and costs 2 squares.
   - A protected animal under the line costs 2 squares and **counts its penalty**.
   - Rocks can't hold line.
+- **Sea floor** (7x9 side view, `kind:'drop'`): the sea is packed in layers of fish. Tap a column: the hook drops to the first animal and hauls up its whole 4-connected school, worth N². What is above sinks to fill the gap (gravity per column). Turtles can't be hooked and block the column. 6 casts; the game ends by itself. The best possible score is solved live (`solveDrop`, memoised DFS, ~5 ms) and shown only on the result panel.
 
 ## Code
 - Everything the page needs lives in one static `index.html` (inline CSS + JS, no build, no runtime dependencies). Dev-only Node tooling lives in `tools/` and is never loaded by the page.
 - Key places in the script:
   - `// @gen-start` … `// @gen-end`: pure game logic (`SP`, PRNG, `genNet`/`genLine`, `games`, `evaluate`/`evaluateBuoys`, `solveLine`, `packCells`). No DOM in here: `tools/solve-net.mjs` evaluates this block in Node.
   - `SP`: species points. Names live in `STR` (`sp_<key>`), sprites in `SPRITES`.
-  - `games`: board sizes, line length budget (`maxLen`), buoy budget (`maxBuoys`). `buoy: true` marks the net.
+  - `games`: board sizes, line length budget (`maxLen`), buoy budget (`maxBuoys`), casts (`lances`). `buoy: true` marks the net; `kind:'drop'` the sea floor.
   - `genNet` / `genLine`: deterministic generation (`mulberry` PRNG seeded from `DATE + ':' + game key`). Each one sets `g.start` (the boat) first: any cell for the net, any column of row 0 for the line. `genLine` retries until a path to the seabed exists.
   - Input (both games): `paint` toggles a mark, a buoy or a square of line (the first touch of a drag decides add or remove; fast drags are filled in square by square). `g.marks` holds cell keys and `g.history` feeds Undo. Blocked marks say why in the boat's speech bubble.
   - `lineChain`: turns the line's marks into the ordered path `evaluate` scores, or says why it can't (`start`, `go`, `self`). `solveLine` enforces the same no-touch rule, and `tools/solve-net.mjs` fails if any optimum breaks `lineChain`.
-  - `evaluate`: what gets caught (`evaluateBuoys` flood fill for the net, adjacency for the line).
+  - `evaluate`: what gets caught (`evaluateBuoys` flood fill for the net, adjacency for the line). The sea floor keeps its state in `g.cells` (`genDrop`, `dropFish`, `solveDrop`, all pure) and mirrors it into `g.grid[..].sp` through `syncDrop` so `render` stays shared; `dropAnimate` runs hook → haul → sink before committing the move.
   - `dailyReference`: the single seam for "today's best/worst". A future backend replaces this function only.
   - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date plus the buoys of each (`packCells`), written by `node tools/solve-net.mjs [days] [from]` after `(cd tools && npm install)`. The tool solves an integer program with HiGHS (dev dependency only), checks every optimum against `evaluate` and self-checks a two-pen case before writing. A date missing from the table shows no range; keep it generated well ahead. The line's range is solved live in a Web Worker.
   - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs. `FRAME2` derives a second frame per species (`shift` moves a region by a pixel); the pair becomes a 2-frame sheet animated in CSS, kept in phase across re-renders by `--clock`.
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
-  - `EPOCH`: the date of puzzle #1. Set it to the launch date.
+  - `EPOCH`: the date of puzzle #1 (2026-09-25).
 - Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records, `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
 - Changing generation logic changes every past and future map and invalidates `NET_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
