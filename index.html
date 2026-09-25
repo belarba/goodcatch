@@ -37,9 +37,11 @@ h1 span{color:var(--buoy)}
 .menu button:hover{background:var(--sea2)}
 
 .switch{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--deep);padding:3px;border-radius:12px}
-.switch button{appearance:none;border:0;background:transparent;color:var(--muted);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button{appearance:none;border:1px solid var(--edge);background:var(--sea);color:var(--foam);font:400 22px/1 var(--pixel);padding:6px;border-radius:9px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
+.switch button:nth-child(3){grid-column:1/-1}
 .switch button .sp{grid-row:span 2}
-.switch button[aria-selected="true"]{background:var(--sea2);color:var(--foam);box-shadow:inset 0 -2px 0 var(--buoy)}
+.switch button[aria-selected="true"]{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
+.switch button[aria-selected="true"] small{color:#1b1206}
 .switch .sp{width:28px;height:28px}
 .switch small{font-size:18px;color:var(--good);text-align:left}
 .switch small:empty{display:none}
@@ -55,10 +57,13 @@ h1 span{color:var(--buoy)}
 .c{position:relative;display:grid;place-items:center}
 .c.in{background:rgba(243,154,54,.22)}
 .sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
-.c.neg::before,.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
+.c.neg{background:radial-gradient(circle,rgba(255,96,80,.34) 0 52%,transparent 88%)}
+.c.in.neg{background:radial-gradient(circle,rgba(255,96,80,.34) 0 52%,transparent 88%),rgba(243,154,54,.22)}
+.c.hit::before{content:"";position:absolute;inset:7%;border:2px solid rgba(255,125,112,.55)}
 .c.hit.good::before{border-color:var(--good);background:rgba(127,219,169,.18)}
 .c.hit.bad::before{border-color:var(--bad);background:rgba(255,125,112,.25)}
 .c.gone .sp{opacity:.3}
+.c>.s-buoy{position:absolute;inset:0;margin:auto;z-index:2;opacity:1!important}
 .board.spot .c:not(.lit) .sp:not(.s-boat){opacity:.25}
 .ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 
@@ -80,18 +85,32 @@ h1 span{color:var(--buoy)}
 
 .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 22px var(--pixel)}
 .meta .count b{font-weight:500}
-.meta .count.warn{color:var(--buoy)}
 .meta .pv{color:var(--muted)} .meta .pv b{color:var(--foam)}
 .badge{font:400 18px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
 .hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
 .hint.alert{color:var(--bad)}
 .mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
+.hook{position:absolute;pointer-events:none;z-index:4;width:2px;background:var(--buoy);transform:translateX(-1px)}
 .mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
+.bubble{position:absolute;z-index:5;max-width:78%;padding:6px 10px;background:#F4EFE2;color:#0A1F2B;font:400 18px/1.1 var(--pixel);text-align:center;border:2px solid #0A1F2B;border-radius:10px;box-shadow:0 3px 0 rgba(0,0,0,.35);pointer-events:none;animation:pop .18s ease-out,fade .4s 2.5s forwards}
+.bubble::before,.bubble::after{content:"";position:absolute;left:var(--tail);border:solid transparent}
+.bubble::before{top:100%;margin-left:-9px;border-width:9px;border-top-color:#0A1F2B}
+.bubble::after{top:100%;margin-left:-6px;border-width:6px;border-top-color:#F4EFE2}
+.bubble.below::before,.bubble.below::after{top:auto;bottom:100%;border-top-color:transparent}
+.bubble.below::before{border-bottom-color:#0A1F2B}
+.bubble.below::after{border-bottom-color:#F4EFE2}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
 .mark.cost{color:var(--bad);text-shadow:0 2px 0 #051019;animation:rise .8s ease-out forwards}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes fade{to{opacity:0}}
 @keyframes rise{from{transform:translateY(0)}to{transform:translateY(-70%);opacity:0}}
-@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}}
+@keyframes frames{0%{background-position:0 0}50%{background-position:100% 0}}
+.c:nth-child(3n+1) .sp{animation-delay:calc(var(--clock,0s) - .4s)}
+.c:nth-child(3n+2) .sp{animation-delay:calc(var(--clock,0s) - .8s)}
+.c.boat{background:radial-gradient(circle,rgba(243,154,54,.4) 0 40%,transparent 72%)}
+.c.boat::after{content:"";position:absolute;inset:4%;border:2px solid var(--buoy);border-radius:50%;animation:ping 1.2s ease-out infinite;animation-delay:var(--clock,0s)}
+@keyframes ping{from{transform:scale(.55);opacity:.9}to{transform:scale(1.1);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}.sp,.c.boat::after{animation:none!important}.bubble{animation:fade .01s 2.5s forwards!important}}
 
 .controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
 .panel .controls{grid-template-columns:1fr 1fr}
@@ -99,6 +118,8 @@ h1 span{color:var(--buoy)}
 .btn{appearance:none;border:1px solid var(--edge);background:transparent;font:400 22px var(--pixel);padding:10px 12px;border-radius:10px;cursor:pointer}
 .btn:hover:not(:disabled){background:var(--deep)}
 .btn:disabled{opacity:.4;cursor:default}
+.reveal{display:flex;gap:8px}
+.reveal .btn{flex:1;font-size:18px;padding:6px 8px}
 .btn.primary{background:var(--buoy);border-color:var(--buoy);color:#1b1206}
 .btn.primary:hover:not(:disabled){background:#ffab4e}
 .note{font-size:13px;color:var(--muted);margin:0;text-align:center;min-height:1.2em}
@@ -116,6 +137,7 @@ dialog h3{font:400 22px var(--pixel);margin:14px 0 4px;display:flex;align-items:
 dialog h3 .sp{width:28px;height:28px}
 dialog p{margin:0 0 6px;color:var(--muted)} dialog b{color:var(--foam)}
 dialog .btn{width:100%;margin-top:14px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 </style>
 </head>
 <body>
@@ -128,12 +150,14 @@ dialog .btn{width:100%;margin-top:14px}
   </header>
   <div id="menu" class="menu" popover>
     <button id="train-btn"></button>
+    <button id="tourney-btn"></button>
     <button id="lang-btn"></button>
   </div>
 
   <nav class="switch" role="tablist">
     <button role="tab" id="tab-rede"><i class="sp s-sardinha"></i><span data-t="game_rede"></span><small data-k="best"></small></button>
     <button role="tab" id="tab-linha"><i class="sp s-hook"></i><span data-t="game_linha"></span><small data-k="best"></small></button>
+    <button role="tab" id="tab-fundo"><i class="sp s-hook"></i><span data-t="game_fundo"></span><small data-k="best"></small></button>
   </nav>
 
   <section class="game" id="game-rede">
@@ -158,8 +182,27 @@ dialog .btn{width:100%;margin-top:14px}
     </div>
   </section>
 
+  <section class="game" id="game-fundo" hidden>
+    <div class="stage"><div class="board line" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
+    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
+    <p class="hint" data-k="hint" aria-live="polite"></p>
+    <div class="controls">
+      <button class="btn" data-k="undo" data-t="undo"></button>
+      <button class="btn" data-k="clear" data-t="clear"></button>
+      <button class="btn primary" data-k="go" data-t="go_linha"></button>
+    </div>
+  </section>
+
   <div class="legend" id="legend"></div>
 </div>
+
+<dialog id="reveal">
+  <p data-t="reveal_confirm"></p>
+  <form method="dialog" class="choice">
+    <button class="btn" value="no" data-t="cancel"></button>
+    <button class="btn primary" value="yes" data-t="reveal_go"></button>
+  </form>
+</dialog>
 
 <dialog id="help">
   <h2 data-t="how_to_play"></h2>
@@ -186,7 +229,7 @@ const PAL = {
 };
 const SPRITES = {
   sardinha:["............","............","............",".....ssss...",".s..ssssss..",".ss.sssssses","..bbbbbbbbbb",".bb.bbbbbbb.",".b...bbbbb..","............","............","............"],
-  lula:["............","....pppp....","...pppppp...","..pPppppPp..","..pppppppp..","..ppeppepp..","...pppppp...","..p.p..p.p..","..p.p..p.p..",".p..p..p..p.",".p...pp...p.","............"],
+  lula:[".....pp.....","....pppp....","..P.pPpp.P..",".PPppppppPP.","..PppPpppP..","....pppp....","....pPpp....","...epppPe...","...pppppp...","..p.p..p.p..","..p.p..p.p..",".p..p..p..p."],
   caranguejo:["............",".oo......oo.","o.o......o.o",".oo.e..e.oo.","..o.o..o.o..","...oooooo...","..oOooooOo..",".oooooooooo.","o.oOOOOOOo.o","..o.o..o.o..",".o..o..o..o.","............"],
   dourada:["............","....yyyy....","...yyyyyy...","y.yyyyyyyy..","yyyYyyyyyey.","yyyYyyyyyyyy","yyyYyyyyyyy.","y.yyyyyyyy..","...yyyyyy...","....yyyy....","............","............"],
   lagosta:[".c........c.","cc........cc","cc..r..r..cc",".c..r..r..c.","..rrrrrrrr..","...rRRRRr...","...rrrrrr...","...rRRRRr...","....rrrr....","....rRRr....","...rrrrrr...","............"],
@@ -194,20 +237,44 @@ const SPRITES = {
   tubarao:["............","............",".....G......","....GG......","G..GGGGGG...","GGGGGGGGGGG.","GGGGGGGGGeGG",".GGuuuuuuuu.","G..uuuuuu...",".....u......","............","............"],
   tartaruga:["....hh......","....hh......","..f.gggg.f..",".ffgvgvggff.","..gvvgvvgg..","..ggvgvgvg..","..gvvgvvgg..",".ffggvgggff.","..f.gggg.f..",".....hh.....","............","............"],
   golfinho:["............","............","......D.....",".....DD.....","...dddddd...","..ddddddded.",".ddwwwwddddd","dd...wwww...","d...........","dd..........","............","............"],
-  boat:["............","......w.....","......ww....","......www...","......wwww..","...w..wwwww.","..ww..m.....",".www..m.....","nnnnnnnnnnnn",".nNNNNNNNNn.","..nnnnnnnn..","............"],
+  boat:["......rr....","......mrr...","......ww....","......www...","....w.wwww..","...ww.wwwww.","..www.wwwwww","......m.....","nnnnnnnnnnnn","nNNNNNNNNNNn",".nnnnnnnnnn.","............"],
   rock:["............","............","....qqqQ....","..qqqqqQQQ..",".qqqQQQQQQQ.",".qqQQQQQQQz.","QqQQQQQQQQzz","QQQQQQQQQzzz",".QQQQQQQzzz.","..zzzzzzzz..","............","............"],
+  buoy:["............",".....ll.....",".....ll.....","....rrrr....","...rrrrrr...","..rrrrrrrr..","..wwwwwwww..","..wwwwwwww..","..rrrrrrrr..","...rRRRRr...","....RRRR....","............"],
   hook:[".......l....",".......l....",".......l....","......xxx...",".......x....",".......x....",".......x....","..x....x....","..xx...x....","...x...x....","...xx.xx....","....xxx....."],
 };
-function spriteURL(map){
-  const cv=document.createElement('canvas'); cv.width=cv.height=14; const x=cv.getContext('2d');
-  const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
-  for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
-    if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(c+1,r+1,1,1)}
-    else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(c+1,r+1,1,1)}
-  }
+function shift(m,[r0,r1],[c0,c1],dr,dc){
+  const out=m.map(row=>[...row]);
+  for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++) out[r][c]='.';
+  for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++){const nr=r+dr,nc=c+dc;if(m[r][c]!=='.'&&nr>=0&&nc>=0&&nr<12&&nc<12)out[nr][nc]=m[r][c]}
+  return out.map(row=>row.join(''));
+}
+const FRAME2 = {
+  sardinha:m=>shift(m,[0,11],[0,2],-1,0),
+  dourada:m=>shift(m,[0,11],[0,1],1,0),
+  tubarao:m=>shift(m,[0,11],[0,2],-1,0),
+  golfinho:m=>shift(m,[6,11],[0,1],-1,0),
+  lula:m=>shift(m,[9,11],[0,11],0,1),
+  caranguejo:m=>shift(m,[0,3],[0,11],1,0),
+  lagosta:m=>shift(m,[0,3],[0,11],1,0),
+  coral:m=>shift(m,[0,4],[0,11],0,1),
+  tartaruga:m=>shift(shift(m,[0,11],[0,2],1,0),[0,11],[9,11],1,0),
+  boat:m=>shift(m,[0,11],[0,11],1,0),
+  buoy:m=>shift(m,[0,11],[0,11],1,0),
+};
+function spriteURL(frames){
+  const cv=document.createElement('canvas'); cv.width=14*frames.length; cv.height=14; const x=cv.getContext('2d');
+  frames.forEach((map,f)=>{
+    const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
+    for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
+      if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(14*f+c+1,r+1,1,1)}
+      else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(14*f+c+1,r+1,1,1)}
+    }
+  });
   return cv.toDataURL();
 }
-const spriteCSS=Object.entries(SPRITES).map(([k,m])=>`.s-${k}{background-image:url(${spriteURL(m)})}`).join('');
+const spriteCSS=Object.entries(SPRITES).map(([k,m])=>FRAME2[k]
+  ?`.s-${k}{background-image:url(${spriteURL([m,FRAME2[k](m)])});background-size:200% 100%;background-position:0 0;animation:frames 1.2s step-end infinite;animation-delay:var(--clock,0s)}`
+  :`.s-${k}{background-image:url(${spriteURL([m])})}`).join('');
 document.head.insertAdjacentHTML('beforeend',`<style>${spriteCSS}</style>`);
 const sprite=(k,extra='')=>`<i class="sp s-${k}"${extra}></i>`;
 
@@ -228,7 +295,7 @@ function seaURL(g){
 }
 
 // ---------- daily date ----------
-const EPOCH = '2026-09-01'; // day #1: change to launch date
+const EPOCH = '2026-09-25';
 const now = new Date();
 const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
@@ -257,28 +324,37 @@ const key=(r,c)=>r*100+c;
 
 // ---------- generation: net ----------
 function genNet(g,rng){
+  g.start=[ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)];
   const G=emptyGrid(g.rows,g.cols); const [sr,sc]=g.start;
   const inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
   const nearBoat=(r,c)=>Math.abs(r-sr)+Math.abs(c-sc)<=2;
   const free=(r,c)=>inB(r,c)&&!G[r][c].rock&&!G[r][c].sp&&!nearBoat(r,c);
   const put=(sp,r,c)=>{if(free(r,c)){G[r][c].sp=sp;return true}return false};
-  for(let i=0;i<9;i++){const r=ri(rng,0,g.rows-1),c=ri(rng,0,g.cols-1);if(free(r,c))G[r][c].rock=true}
+  for(let f=0;f<5;f++){
+    let r=ri(rng,0,g.rows-1), c=ri(rng,0,g.cols-1), d=ri(rng,0,3);
+    for(let n=ri(rng,3,7);n>0;n--){
+      if(free(r,c)) G[r][c].rock=true;
+      if(rng()<.4) d=ri(rng,0,3);
+      const [dr,dc]=[[1,0],[-1,0],[0,1],[0,-1]][d];
+      r=Math.max(0,Math.min(g.rows-1,r+dr)); c=Math.max(0,Math.min(g.cols-1,c+dc));
+    }
+  }
   const posW=[['sardinha',6],['lula',2],['dourada',2]];
   const negs=['tartaruga','golfinho','tubarao','tartaruga'];
   for(let k=0;k<5;k++){
-    const cr=ri(rng,1,g.rows-4), cc=ri(rng,1,g.cols-2);
+    const cr=ri(rng,1,g.rows-2), cc=ri(rng,1,g.cols-2);
     let want=ri(rng,4,6);
     for(let t=0;t<30&&want>0;t++){if(put(weighted(rng,posW),cr+ri(rng,-2,2),cc+ri(rng,-2,2)))want--}
     if(k<4){for(let t=0;t<20;t++){if(put(negs[k],cr+ri(rng,-1,1),cc+ri(rng,-1,1)))break}}
   }
-  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-4),ri(rng,0,g.cols-1)))n--}
-  for(let n=6,t=0;n>0&&t<60;t++){if(put('sardinha',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
-  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-3),ri(rng,0,g.cols-1)))n--}
+  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
+  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
   return G;
 }
 
 // ---------- generation: line ----------
 function genLine(g,rng){
+  g.start=[0,ri(rng,0,g.cols-1)];
   for(let attempt=0;attempt<60;attempt++){
     const G=emptyGrid(g.rows,g.cols); const R=g.rows, C=g.cols;
     const [sr,sc]=g.start;
@@ -303,33 +379,163 @@ function genLine(g,rng){
   return emptyGrid(g.rows,g.cols);
 }
 
+// ---------- generation: drop ----------
+function syncDrop(g){
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) g.grid[r][c].sp=g.cells[r][c];
+}
+function buildDrop(g,rng){
+  const R=g.rows, C=g.cols;
+  const cells=Array.from({length:R},()=>Array(C).fill(null));
+  const species=['sardinha','dourada','lula','caranguejo'];
+  for(let c=0;c<C;c++){
+    for(let r=R-1;r>=1;r--){
+      const below=r<R-1?cells[r+1][c]:null, left=c>0?cells[r][c-1]:null;
+      cells[r][c]=(rng()<.55&&(below||left))?(below||left):species[ri(rng,0,species.length-1)];
+    }
+  }
+  let placed=0;
+  while(placed<2){
+    const r=ri(rng,2,7), c=ri(rng,0,C-1);
+    if(cells[r][c]!=='tartaruga'){cells[r][c]='tartaruga';placed++}
+  }
+  return cells;
+}
+// Greedy play (always the biggest school) is the obvious plan; a day only passes when the obvious plan
+// scores at most 65% of the optimum and the optimum needs a small setup cast, so the map has something to find.
+const DROP_TRIES=80;
+function greedyDrop(cells,lances){
+  let total=0;
+  for(let i=0;i<lances;i++){
+    let pick=null;
+    for(let c=0;c<cells[0].length;c++){const res=dropFish(cells,c);if(!res.why&&(!pick||res.points>pick.points))pick=res}
+    if(!pick) break;
+    total+=pick.points; cells=pick.cells;
+  }
+  return total;
+}
+function genDrop(g,rng){
+  g.start=[0,Math.floor(g.cols/2)];
+  let fallback=null, fallbackRatio=2;
+  for(let t=0;t<DROP_TRIES;t++){
+    const cells=buildDrop(g,rng), opt=solveDrop(cells,g.lances), ratio=greedyDrop(cells,g.lances)/opt.best;
+    if(ratio<=.65&&opt.path.some(p=>p<=4)){g.cells0=cells;g.tries=t+1;return emptyGrid(g.rows,g.cols)}
+    if(ratio<fallbackRatio){fallbackRatio=ratio;fallback=cells}
+  }
+  g.cells0=fallback; g.tries=DROP_TRIES; return emptyGrid(g.rows,g.cols);
+}
+function dropTarget(cells,c){
+  for(let r=1;r<cells.length;r++) if(cells[r][c]!=null) return r;
+  return -1;
+}
+function dropGroup(cells,r,c){
+  const sp=cells[r][c]; if(sp==null) return [];
+  const R=cells.length, C=cells[0].length;
+  const seen=new Set([key(r,c)]), stack=[[r,c]], out=[[r,c]];
+  while(stack.length){
+    const [cr,cc]=stack.pop();
+    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const nr=cr+dr, nc=cc+dc;
+      if(nr<1||nr>=R||nc<0||nc>=C||seen.has(key(nr,nc))||cells[nr][nc]!==sp) continue;
+      seen.add(key(nr,nc)); stack.push([nr,nc]); out.push([nr,nc]);
+    }
+  }
+  return out;
+}
+function dropFish(cells,c){
+  const r=dropTarget(cells,c);
+  if(r<0) return {cells,caught:[],sp:null,points:0,why:'empty'};
+  const sp=cells[r][c];
+  if(sp==='tartaruga') return {cells,caught:[],sp,points:0,why:'turtle'};
+  const group=dropGroup(cells,r,c);
+  const R=cells.length, C=cells[0].length;
+  const next=cells.map(row=>row.slice());
+  for(const [gr,gc] of group) next[gr][gc]=null;
+  for(let cc=0;cc<C;cc++){
+    const colVals=[];
+    for(let rr=1;rr<R;rr++) if(next[rr][cc]!=null) colVals.push(next[rr][cc]);
+    for(let rr=1;rr<R;rr++) next[rr][cc]=null;
+    let write=R-1;
+    for(let i=colVals.length-1;i>=0;i--){ next[write][cc]=colVals[i]; write--; }
+  }
+  return {cells:next, caught:group, sp, points:group.length*group.length, why:null};
+}
+function solveDrop(cells0,lances){
+  const memo=new Map();
+  let nodes=0, complete=true;
+  const keyOf=(cells,rem)=>JSON.stringify(cells)+':'+rem;
+  const choice=new Map();
+  function dfs(cells,rem){
+    if(rem===0) return 0;
+    // node cap: bails out of the DFS once the branching factor makes an exact solve too slow, and reports the partial best instead
+    if(++nodes>200000){ complete=false; return 0 }
+    const k=keyOf(cells,rem);
+    if(memo.has(k)) return memo.get(k);
+    let best=0, bestC=-1;
+    for(let c=0;c<cells[0].length;c++){
+      const res=dropFish(cells,c);
+      if(res.why) continue;
+      const v=res.points+dfs(res.cells,rem-1);
+      if(v>best){best=v;bestC=c}
+    }
+    memo.set(k,best); choice.set(k,bestC);
+    return best;
+  }
+  const best=dfs(cells0,lances), path=[];
+  for(let cells=cells0,rem=lances;rem>0;rem--){
+    const c=choice.get(keyOf(cells,rem)); if(c==null||c<0) break;
+    const res=dropFish(cells,c); path.push(res.points); cells=res.cells;
+  }
+  return {best,complete,path};
+}
+
 // ---------- jogos ----------
 const games = {
-  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️'},
-  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝'},
+  rede:{key:'rede',kind:'net',buoy:true,cols:11,rows:11,maxBuoys:14,gen:genNet,icon:'🕸️'},
+  linha:{key:'linha',kind:'line',cols:9,rows:12,maxLen:20,gen:genLine,icon:'🪝'},
+  fundo:{key:'fundo',kind:'drop',cols:7,rows:9,lances:5,gen:genDrop,icon:'🎣'},
 };
 
-function evaluate(g){
-  const onP=new Set(g.path.map(p=>key(p[0],p[1])));
-  const hits=[]; let inside=null;
-  if(g.kind==='net'){
-    if(!g.closed) return {hits:null,inside:null,onP};
-    const out=new Set(); const q=[];
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-      if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!onP.has(key(r,c))){out.add(key(r,c));q.push([r,c])}
-    }
-    while(q.length){const [r,c]=q.pop();for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
-    inside=new Set();
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){const k=key(r,c);if(!onP.has(k)&&!out.has(k)){inside.add(k);if(g.grid[r][c].sp)hits.push([r,c])}}
-  } else {
-    const seen=new Set();
-    for(const [r,c] of g.path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
-    for(const [r,c] of g.path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
+// Buoys, rocks and the boat are fence; the catch is whatever the open sea cannot reach on the boat's side.
+function evaluateBuoys(g){
+  const [sr,sc]=g.start, D=[[1,0],[-1,0],[0,1],[0,-1]], inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
+  const wall=(r,c)=>g.marks.has(key(r,c))||g.grid[r][c].rock||r===sr&&c===sc;
+  const out=new Set(), q=[];
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!wall(r,c)){out.add(key(r,c));q.push([r,c])}
+  while(q.length){const [r,c]=q.pop();for(const [dr,dc] of D){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(!inB(nr,nc)||wall(nr,nc)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
+  const inside=new Set(), hits=[];
+  for(const [dr,dc] of D){const r0=sr+dr,c0=sc+dc;if(!inB(r0,c0)||wall(r0,c0)||out.has(key(r0,c0))||inside.has(key(r0,c0)))continue;
+    inside.add(key(r0,c0)); q.push([r0,c0]);
+    while(q.length){const [r,c]=q.pop();for(const [er,ec] of D){const nr=r+er,nc=c+ec,k=key(nr,nc);if(!inB(nr,nc)||wall(nr,nc)||inside.has(k))continue;inside.add(k);q.push([nr,nc])}}}
+  for(const k of inside){const r=Math.floor(k/100),c=k%100;if(g.grid[r][c].sp)hits.push([r,c])}
+  return {hits:inside.size?hits:null,inside,onP:g.marks};
+}
+// The marks must form one chain from the boat to the seabed: a single end, no branch, never touching itself
+// (every marked square has at most two marked neighbours, counting the boat).
+function lineChain(g){
+  const [sr,sc]=g.start, on=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(r===sr&&c===sc||g.marks.has(key(r,c)));
+  const nb=(r,c)=>[[1,0],[-1,0],[0,1],[0,-1]].map(([dr,dc])=>[r+dr,c+dc]).filter(([r,c])=>on(r,c));
+  if(!g.marks.size) return {path:null,why:'start'};
+  for(const k of g.marks) if(nb(Math.floor(k/100),k%100).length>2) return {path:null,why:'self'};
+  const path=[[sr,sc]];
+  for(let prev=null,cur=[sr,sc];;){
+    const next=nb(...cur).filter(([r,c])=>!prev||r!==prev[0]||c!==prev[1]);
+    if(!next.length) break;
+    prev=cur; cur=next[0]; path.push(cur);
   }
-  return {hits,inside,onP};
+  return path.length-1===g.marks.size&&path.at(-1)[0]===g.rows-1?{path,why:null}:{path:null,why:'go'};
+}
+const lineCost=g=>[...g.marks].reduce((s,k)=>s+(g.grid[Math.floor(k/100)][k%100].sp?2:1),0);
+function evaluate(g){
+  if(g.buoy) return evaluateBuoys(g);
+  const path=lineChain(g).path;
+  if(!path) return {hits:null,inside:null,onP:g.marks};
+  const onP=new Set(path.map(p=>key(p[0],p[1]))), hits=[], seen=new Set();
+  for(const [r,c] of path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
+  for(const [r,c] of path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
+  return {hits,inside:null,onP};
 }
 const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
-// Self-contained like solveNet. Every species has non-zero points, so v !== 0 means "an animal is here".
+// Self-contained: it is stringified into a Web Worker. Every species has non-zero points, so v !== 0 means "an animal is here".
 function solveLine(m){
   const R=m.rows, C=m.cols, D=[[1,0],[-1,0],[0,1],[0,-1]], on=new Uint8Array(R*C), path=[m.start];
   let best=-Infinity, worst=Infinity, bestPath=null, worstPath=null;
@@ -345,6 +551,7 @@ function solveLine(m){
     for(const [dr,dc] of D){
       const nr=r+dr,nc=c+dc,k=nr*C+nc;
       if(nr<1||nc<0||nr>=R||nc>=C||on[k]||m.rock[nr][nc]) continue;
+      if(D.some(([er,ec])=>{const ar=nr+er,ac=nc+ec;return (ar!==r||ac!==c)&&ar>=0&&ac>=0&&ar<R&&ac<C&&on[ar*C+ac]})) continue;
       const cost=m.v[nr][nc]?2:1;
       if(moves+cost+(R-1-nr)>m.maxLen) continue;
       on[k]=1;path.push([nr,nc]);dfs(nr,nc,moves+cost);path.pop();on[k]=0;
@@ -352,51 +559,45 @@ function solveLine(m){
   })(m.start[0],m.start[1],0);
   return {best,worst,bestPath,worstPath,complete:true};
 }
-const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,
+const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,maxBuoys:g.maxBuoys,
   v:g.grid.map(row=>row.map(x=>x.sp?SP[x.sp].p:0)), rock:g.grid.map(row=>row.map(x=>x.rock))});
-// Self-contained: it is stringified into a Web Worker.
-function solveNet(m,ms){
-  const R=m.rows, C=m.cols, sr=m.start[0], sc=m.start[1], D=[[1,0],[-1,0],[0,1],[0,-1]];
-  const on=new Uint8Array(R*C), path=[[sr,sc]], edges=[];
-  const pref=m.v.map(row=>{const p=[0];for(const x of row)p.push(p[p.length-1]+x);return p});
-  const t0=Date.now(); let W=0, best=-Infinity, worst=Infinity, bestPath=null, worstPath=null, nodes=0, stop=false;
-  // A cell is enclosed iff an odd number of the loop's vertical edges lie to its right on its row.
-  // W accumulates each vertical edge's row-prefix (signed by direction), so W = enclosed total plus
-  // whatever the loop's own cells picked up; closed() removes the latter and fixes orientation.
-  const closed=()=>{
-    let area=0, s=W;
-    for(const e of edges) area+=e[2]*e[1];
-    for(const [r,c] of path){const x=m.v[r][c];if(!x)continue;let w=0;for(const e of edges)if(e[0]===r&&e[1]>c)w+=e[2];s-=x*w}
-    return area<0?-s:s;
-  };
-  const enter=(r0,r,c)=>{if(r===r0)return false;const er=Math.min(r0,r),es=r>r0?1:-1;W+=es*pref[er][c];edges.push([er,c,es]);return true};
-  const leave=()=>{const e=edges.pop();W-=e[2]*pref[e[0]][e[1]]};
-  on[sr*C+sc]=1;
-  (function dfs(r,c,moves){
-    if(stop||(++nodes&0xffff)===0&&Date.now()-t0>ms){stop=true;return}
-    for(const [dr,dc] of D){
-      const nr=r+dr, nc=c+dc;
-      if(nr<0||nc<0||nr>=R||nc>=C) continue;
-      if(nr===sr&&nc===sc){
-        if(path.length<4) continue;
-        const v=enter(r,nr,nc), s=closed(); if(v) leave();
-        if(s>best){best=s;bestPath=path.concat([[sr,sc]])}
-        if(s<worst){worst=s;worstPath=path.concat([[sr,sc]])}
-        continue;
-      }
-      if(on[nr*C+nc]||m.rock[nr][nc]||moves+1+Math.abs(nr-sr)+Math.abs(nc-sc)>m.maxLen) continue;
-      on[nr*C+nc]=1; path.push([nr,nc]); const v=enter(r,nr,nc);
-      dfs(nr,nc,moves+1);
-      if(v) leave(); path.pop(); on[nr*C+nc]=0;
-    }
-  })(sr,sc,0);
-  return {best,worst,bestPath,worstPath,complete:!stop};
-}
+const packCells=(g,cells)=>cells.map(([r,c])=>(r*g.cols+c).toString(36).padStart(2,'0')).join('');
+const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);return key(Math.floor(n/g.cols),n%g.cols)});
 // @gen-end
 
 // @net-ref-start
 const NET_REF = {
-  "2026-09-24":[25,-16],"2026-09-25":[15,-6]
+  "2026-09-24":[18,-11,"1f1p202e2h2i2o2r2w2x2y343536","0r1b1c1d1l1p1v1y21252g2i2r2t"],"2026-09-25":[34,-11,"060g0i0j0q0v10161e1g2y353638","131d1f1o1y21292b2k2m2n2v3839"],
+  "2026-09-26":[25,-5,"0q10121e1q222e2h2q3034353637","0r10111315161e1o1y292h2k2u34"],"2026-09-27":[26,-18,"0607080g0k0u101a1k1u262i2k2u","0e0g0h0i0j0o0v0y13161a1b1g1n"],
+  "2026-09-28":[12,-17,"141j1n1u1y252a2h2o2t2w2y3536","0f0p0r10121d1m1p1x292k2n2w2y"],"2026-09-29":[23,-8,"151f1h1m1s1y242e2j2o2v2y3738","1y1z232b2d2f2k2n2q2w3038393a"],
+  "2026-09-30":[23,-23,"0q0r0t10151a1e1h1k1q1t242c2d","0j0r0t12141d1g1p1r222d2l2m2n"],"2026-10-01":[18,-22,"03040d0g0x10111c1v25292h2i2j","0f0p0s0t0z151b1f1n1q222b2d2n"],
+  "2026-10-02":[38,-8,"03040d0g0t1h1t1w23262c2i2j2k","04050e0i0s131e1h1q1t21232835"],"2026-10-03":[22,-11,"04050e0h0i0o0u0y181d1k1w282a","060g0i0r0t10111a1l1w26292i2u"],
+  "2026-10-04":[21,-21,"0j0l0t0w171i1r1t242a2f2m2o2p","0h0k0n0s0v161h1o1s232b2e2m2o"],"2026-10-05":[27,-14,"05060p0z141a1g1m1x272a2j2o2v","0p0r1013151c1g1o1r1y21292b2l"],
+  "2026-10-06":[18,-17,"0203040506070c0x181k1w272j2k","1a1c1k1n1u1x262b2i2n2u2v2w2x"],"2026-10-07":[37,-12,"1m1w23262g2n2o2s2t2y35363738","090l0w171i1n1t1x21242b2m2o2y"],
+  "2026-10-08":[17,-15,"0i0s121c1m1w2021262m2n2r2w36","1b1c1l1o1p1q1x26272a2b2c2k2r"],"2026-10-09":[20,-27,"0v0y0z1015171i1j1u25272a2h3b","0f0g0o0p0s0y121b1k1m1v262a2d"],
+  "2026-10-10":[16,-16,"050f0h0p0t0z141g1l1q1x20282a","0i0j0s0v13151g1j1m1q1v20282a"],"2026-10-11":[29,-9,"0e0o0r0y1a1l222f2k2p2w2z3839","02030c0m0p0x0z181b1j1m1v262v"],
+  "2026-10-12":[25,-14,"0s0t12151c1f1q1v222b2c2j2r2t","0p0y0z11181c1j1u27282q2r2t2u"],"2026-10-13":[20,-11,"10141g1s242b2f2p2u2x3036393a","1f1y20222a2c2e2q2u2y2z303638"],
+  "2026-10-14":[18,-12,"0g0h0i0q0u1013161h242f2p2y2z","0s12141h1x21242e2q2z30373839"],"2026-10-15":[18,-12,"0j0l0s0t0u0w171h1r232b2e2n2p","080i0l0s0v1415181j1u262b2i2l"],
+  "2026-10-16":[26,-9,"0u0v131d1i1p1t1z232f2m2q2y30","080i0v121e1f1h1r2d2n2p2x313b"],"2026-10-17":[26,-9,"1k1q1u2022252e2h2q3135363739","060g0i0r0t151g1k1p1r1z222c2l"],
+  "2026-10-18":[11,-10,"0q0r10131b1f1l1p1v1y252l2r2t","1d1e1n1q1v1w1x252a2f2q2r2t2y"],"2026-10-19":[7,-14,"010e0n0p0x191b1k1o1w20282a2k","0c0e0n0p0y1a1m1q1y1z212a2c2m"],
+  "2026-10-20":[17,-11,"0k0s0u0w0z1112191h1s1v272j2v","0u161f1r242b2d2f2q2u2x2y303a"],"2026-10-21":[28,-16,"10111a1d1h1p1u272x3334353637","0o0p0q0y12181b1e1n1o1u1x282i"],
+  "2026-10-22":[20,-11,"0d0i0n0u151g1w22282e2m2o2w2y","1e22242b2c2d2f2l2q2x31393a3b"],"2026-10-23":[33,-17,"080s111l1o1q1v24262e2i2k2o2u","0t11151e1n1p1r1y1z212k2l2m"],
+  "2026-10-24":[25,-14,"0i0s151c1e1o2j2o2y3035363738","131c1f1l1n1p1v20262b2h2l2v35"],"2026-10-25":[33,-12,"0g0i0p0s0u0z16191i1k1v22232c","0k0u0w1415171i242e2k2n2o2w2x"],
+  "2026-10-26":[15,-14,"06070g111i1n1s1x22292d2l2n2x","131i1p1q1r1t21242b2c2e2o2x2z"],"2026-10-27":[18,-18,"080h101b1i1t20242a2l2p2x2z39","0102030405060b0j0t0z1b1c1d1g"],
+  "2026-10-28":[32,-11,"07080h0w17191e1i1k1y2a2f2m2p","0607080g0t0v151b1d1f1n1p27"],"2026-10-29":[17,-16,"0v161g1s1w1y22272c2k2l2m2t2u","1415161i1q1r1s1w2026292a2j2t"],
+  "2026-10-30":[38,-4,"0o0u15191j1r1u25272g2r2v2x37","080k0n0w1113171d1o1q1t20232d"],"2026-10-31":[24,-12,"0i0s1c1m1p1t1w24262e2i2l2u2v","131c1f1g1o1s20242c2d2f2q313b"],
+  "2026-11-01":[35,-14,"0f0p0u11171b1h1r232d2n2u2w2x","25292a2b2c2g2o2s2x2z34353739"],"2026-11-02":[18,-20,"0q10121a1e1k1u1y202527282a2h","0i0s0u131e1g1s20222b2e2m2o2y"],
+  "2026-11-03":[38,-19,"0o0t10151a1h1k1r1u23262i2j37","1g1q1s2124272b2c2h2j2l2s3537"],"2026-11-04":[29,-17,"0c0e0m0q111314191d1h1l1s1v24","030c0f0m0r0s1014181a1c1e1k1o"],
+  "2026-11-05":[22,-16,"0o0p0t0y1116191i1l1s1x2c2w36","0o0q0t0z1b1c1o1q1z2b2e2q2z30"],"2026-11-06":[11,-17,"04050h0k0w161b1i1n1q1s22292j","1e1f1n1o1r1v1w22252h2i2m2v2w"],
+  "2026-11-07":[24,-20,"0f0p0r0s0z14191c1j1s1v1z2j2v","0b0f0g0n0s0z121b1e1n1q1x2j2k"],"2026-11-08":[39,-23,"030r0z13181j1m1u25292b2h2j2t","050h0t12141b1c1l1x292k2v2x37"],
+  "2026-11-09":[13,-17,"111213171b1f1l1o1r1y2127282b","0q0z1012191e1j1m1n1q1w212c2m"],"2026-11-10":[37,-7,"05060f0i0o0p0y111u2a2h2k2t2u","030d0f0o0q0z121a1c1n1u1x272h"],
+  "2026-11-11":[19,-14,"0s141d1g1o1s242f2q303738393a","030f0n0q0z1a1e1f1g1h1m1t2223"],"2026-11-12":[30,-15,"181a1j1q1u1y21252c2m2u2x3637","0o0p0q0s13181g1k1n1w1z232829"],
+  "2026-11-13":[16,-13,"0c0d0e0f0m0y1014181k1p1r1u26","0203040c0n0p0y1112141a1b1q20"],"2026-11-14":[24,-14,"040506070e0k0o0w0y171a1c1e1g","0z1011191e1k1v1y20262i2l2u2v"],
+  "2026-11-15":[24,-14,"060708090c0d0m0x181j1m1v2227","01020b0m0x181e1k1l1r1x2023"],"2026-11-16":[19,-19,"0k0w13171i1q1t232a2f2m2p2y30","141g1p1r23292b2d2l2o2x3039"],
+  "2026-11-17":[13,-14,"10121b1e1m1x21292d2k2m2o2w2y","10121b1d1l1w1y22272b2c2j2l2v"],"2026-11-18":[29,-16,"0204050h0t15181e1h1k1n1r1w1y","0d0f0o0r0s10141c1f1m1p1x1z"],
+  "2026-11-19":[25,-16,"1214151l1w282k2q2w3138393a3b","0u141f1s1x1z22272h2l2m2t2v35"],"2026-11-20":[12,-11,"0s121d1n1x1z272i2o3036373839","111b1d1m1p27282h2o2v30373839"],
+  "2026-11-21":[29,-16,"06070j0v171f1t21242f2n2p2z39","1415161e1r1t2022232b2d2m2o2y"],"2026-11-22":[17,-2,"0p1d1p1v21272j2p2v313738393a","2a2j2k2m2n2q2t3135363738393a"],
+  "2026-11-23":[33,-18,"0g0h0i0q0u12161i1m1r2f2l2p31","101a1g1k1o1q1w202e2k2n2o2q31"]
 };
 // @net-ref-end
 
@@ -407,101 +608,122 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 // ---------- today's reference ----------
 // The one seam the UI reads the day's best/worst from; a future backend replaces this function.
 function dailyReference(g,done){
-  const row=g.kind==='net'&&!g.training&&NET_REF[DATE];
-  if(row) return done({best:row[0],worst:row[1],exact:true});
-  solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete}));
+  if(g.kind==='drop') return;
+  if(g.kind==='net'){
+    const row=!g.training&&NET_REF[DATE];
+    if(row) done({best:row[0],worst:row[1],exact:true,bestBuoys:unpackCells(g,row[2]),worstBuoys:unpackCells(g,row[3])});
+    return;
+  }
+  solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete,bestPath:r.complete&&r.bestPath,worstPath:r.complete&&r.worstPath}));
 }
 let solver=null;
 function solveAsync(g,ms,done){
-  try{solver??=new Worker(URL.createObjectURL(new Blob([`const solveNet=${solveNet},solveLine=${solveLine};onmessage=e=>{const [id,kind,m,ms]=e.data;postMessage([id,kind==='net'?solveNet(m,ms):solveLine(m)])}`],{type:'text/javascript'})))}
+  try{solver??=new Worker(URL.createObjectURL(new Blob([`const solveLine=${solveLine};onmessage=e=>{const [id,m]=e.data;postMessage([id,solveLine(m)])}`],{type:'text/javascript'})))}
   catch(e){return}
   const id=Math.random();
   solver.addEventListener('message',function on(e){if(e.data[0]!==id)return;solver.removeEventListener('message',on);done(e.data[1])});
-  solver.postMessage([id,g.kind,boardModel(g),ms]);
+  solver.postMessage([id,boardModel(g)]);
 }
 
 // ---------- text ----------
 const STR = {
   en:{
     how_to_play:'How to play', menu:'Menu', got_it:'Got it',
-    game_rede:'Purse net', game_linha:'Bottom line',
-    left_rede:'Net left', left_linha:'Line left', catch:'Catch',
+    game_rede:'Purse net', game_linha:'Bottom line', game_fundo:'Sea floor',
+    left_linha:'Line left', catch:'Catch', lances:'Casts left', par:'Best',
     undo:'Undo', clear:'Clear', go_rede:'Haul net', go_linha:'Reel in',
     practice:'Practice', practice_on:'Practice on another map', practice_off:'Back to today’s map',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
     not_played:'not played yet',
-    hint_rede_start:'Drag or tap from the boat to lay out the net.',
-    hint_rede_go:'Bring the net back to the boat to close it.',
     hint_rede_ready:'Loop closed. Haul it in.',
-    hint_linha_start:'Drag or tap from the boat down to the seabed.',
-    hint_linha_go:'Reach the sand to reel in.',
+    hint_linha_start:'Tap squares to lay the line from the boat down to the seabed.',
+    hint_linha_go:'Link the boat to the seabed in one chain.', hint_linha_self:'The line can’t touch itself.',
     hint_linha_ready:'On the seabed. Reel it in.',
-    hint_rede_warn:'Head back now: {n} squares to the boat.',
-    hint_linha_warn:'Head down now: {n} rows to the seabed.',
-    block_rock_rede:'Rock in the way.', block_rock_linha:'Rock in the way.',
-    block_self_rede:'The net can’t cross itself.', block_self_linha:'The line can’t cross itself.',
-    block_noway_rede:'Not enough net to get back to the boat.', block_noway_linha:'Not enough line to reach the seabed.',
+    hint_fundo_start:'Tap a column: the hook takes the first animal and its whole school.',
+    block_turtle_fundo:'A turtle is in the way.',
+    par_hit:'Best possible!', par_over:'{n} short of the best', par_is:'Best possible: {n}',
+    block_rock_linha:'Rock in the way.',
     block_budget_linha:'Out of line.',
+    block_rockwall_rede:'Rocks already close the net.', block_buoys_rede:'Out of buoys.',
+    left_buoys:'Buoys left', hint_rede_start:'Tap squares to drop buoys. Rocks close the net too.', hint_rede_go:'Close a pen against the boat.',
     v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
     sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
     sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
-    help_intro:'Two puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red frame) take points away.',
-    help_rede:'Lay the net from the <b>boat</b> and bring it back to close a loop, within the squares you have. Everything <b>inside</b> is caught; animals under the net slip away. Rocks block the net.',
-    help_linha:'Drop the line from the <b>boat</b> to the <b>seabed</b>. Every animal touching the line bites. Crossing a fish scares it off and costs 2 squares; crossing a protected animal also counts its penalty. Only rocks block the way.',
+    help_intro:'Three puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
+    help_rede:'Drop <b>buoys</b> to fence in a pen against the <b>boat</b>. Rocks close the fence too; the open sea at the edge never does. Everything <b>inside</b> is caught, and animals under a buoy slip away. You have 14 buoys.',
+    help_linha:'Tap squares to lay the line from the <b>boat</b> to the <b>seabed</b> in one chain that never touches itself. Every animal touching the line bites. A fish under the line is scared off and costs 2 squares; a protected animal under it also counts its penalty. Rocks can’t hold line.',
+    help_fundo:'The sea is packed in layers. Tap a column: the hook drops to the first animal and hauls up its whole school; a school of N is worth N². What is above sinks to fill the gap. Turtles can’t be hooked and block the way. 5 casts.',
     help_points:'Tap an animal in the strip under the board to find it on the map.',
     other_lang:'Português',
     range:'Today’s possible range', range_map:'This map’s possible range', range_known:'Best known range',
     range_wait:'Working out the possible range…',
     top_found:'You found the top catch.', low_found:'You found the lowest possible.', beat_known:'You beat the best known score.',
+    see_best:'Show top catch', see_worst:'Show lowest catch', cancel:'Cancel', reveal_go:'Show solution',
+    reveal_confirm:'See today’s solution? After that, your plays no longer count toward today’s records.',
+    revealed:'Solution seen: new plays don’t count today.',
+    locked:'Tournament: only your first haul counted today.', tourney_enable:'Tournament: first haul counts', tourney_disable:'Leave tournament (unlimited tries)', tourney_badge:'Tournament',
+    showing_best:'Top catch on this map: {n}.', showing_worst:'Lowest catch on this map: {n}.',
   },
   pt:{
     how_to_play:'Como jogar', menu:'Menu', got_it:'Entendi',
-    game_rede:'Rede de cerco', game_linha:'Linha de fundo',
-    left_rede:'Rede restante', left_linha:'Linha restante', catch:'Pesca',
+    game_rede:'Rede de cerco', game_linha:'Linha de fundo', game_fundo:'Fundo',
+    left_linha:'Linha restante', catch:'Pesca', lances:'Lances', par:'Melhor',
     undo:'Desfazer', clear:'Limpar', go_rede:'Puxar rede', go_linha:'Recolher',
     practice:'Treino', practice_on:'Treinar em outro mapa', practice_off:'Voltar ao mapa de hoje',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
     not_played:'ainda não jogado',
-    hint_rede_start:'Arraste ou toque a partir do barco para lançar a rede.',
-    hint_rede_go:'Traga a rede de volta ao barco para fechar o cerco.',
     hint_rede_ready:'Cerco fechado. Pode puxar.',
-    hint_linha_start:'Arraste ou toque do barco até o fundo do mar.',
-    hint_linha_go:'Chegue na areia para recolher.',
+    hint_linha_start:'Toque nas casas para descer a linha do barco até o fundo.',
+    hint_linha_go:'Ligue o barco ao fundo numa corrente só.', hint_linha_self:'A linha não pode encostar nela mesma.',
     hint_linha_ready:'No fundo. Pode recolher.',
-    hint_rede_warn:'Volte agora: {n} casas até o barco.',
-    hint_linha_warn:'Desça agora: {n} fileiras até o fundo.',
-    block_rock_rede:'Tem uma pedra no caminho.', block_rock_linha:'Tem uma pedra no caminho.',
-    block_self_rede:'A rede não pode se cruzar.', block_self_linha:'A linha não pode se cruzar.',
-    block_noway_rede:'Não sobra rede para voltar ao barco.', block_noway_linha:'Não sobra linha para chegar ao fundo.',
+    hint_fundo_start:'Toque numa coluna: o anzol pega o primeiro bicho e o cardume todo dele.',
+    block_turtle_fundo:'Tem uma tartaruga no caminho.',
+    par_hit:'Melhor possível!', par_over:'{n} abaixo do melhor', par_is:'Melhor possível: {n}',
+    block_rock_linha:'Tem uma pedra no caminho.',
     block_budget_linha:'Acabou a linha.',
+    block_rockwall_rede:'A pedra já fecha o cerco.', block_buoys_rede:'Acabaram as boias.',
+    left_buoys:'Boias restantes', hint_rede_start:'Toque nas casas para soltar boias. Pedras também fecham o cerco.', hint_rede_go:'Feche um cerco encostado no barco.',
     v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
     sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
     sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
-    help_intro:'Dois desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (moldura vermelha) tiram pontos.',
-    help_rede:'Lance a rede a partir do <b>barco</b> e traga de volta para fechar o cerco, dentro das casas disponíveis. Tudo o que ficar <b>dentro</b> é pescado; animais embaixo da rede escapam. Pedras bloqueiam a rede.',
-    help_linha:'Desça a linha do <b>barco</b> até o <b>fundo</b>. Todo animal encostado na linha morde a isca. Cruzar um peixe o espanta e custa 2 casas; cruzar um animal protegido também conta a penalidade. Só pedras bloqueiam o caminho.',
+    help_intro:'Três desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
+    help_rede:'Solte <b>boias</b> para cercar uma área encostada no <b>barco</b>. Pedras também fecham o cerco; o mar aberto da borda nunca fecha. Tudo o que ficar <b>dentro</b> é pescado, e animais embaixo de uma boia escapam. Você tem 14 boias.',
+    help_linha:'Toque nas casas para descer a linha do <b>barco</b> até o <b>fundo</b>, numa corrente só que nunca encosta nela mesma. Todo animal encostado na linha morde a isca. Peixe embaixo da linha foge e custa 2 casas; animal protegido embaixo dela também conta a penalidade. Pedra não segura linha.',
+    help_fundo:'O mar vem em camadas. Toque numa coluna: o anzol desce até o primeiro bicho e puxa o cardume inteiro dele; cardume de N vale N². O que está em cima afunda para preencher. Tartaruga não pode ser fisgada e bloqueia o caminho. 5 lances.',
     help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
     other_lang:'English',
     range:'Faixa possível de hoje', range_map:'Faixa possível deste mapa', range_known:'Melhor faixa conhecida',
     range_wait:'Calculando a faixa possível…',
     top_found:'Você achou a maior pesca possível.', low_found:'Você achou a menor possível.', beat_known:'Você superou o melhor conhecido.',
+    see_best:'Ver a maior', see_worst:'Ver a menor', cancel:'Cancelar', reveal_go:'Ver solução',
+    reveal_confirm:'Ver a solução de hoje? Depois disso, suas jogadas não contam mais para os recordes do dia.',
+    revealed:'Solução vista: novas jogadas não contam hoje.',
+    locked:'Torneio: só a primeira puxada valeu hoje.', tourney_enable:'Torneio: só a primeira puxada vale', tourney_disable:'Sair do torneio (tentativas livres)', tourney_badge:'Torneio',
+    showing_best:'Maior pesca deste mapa: {n}.', showing_worst:'Menor pesca deste mapa: {n}.',
   },
 };
+// Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
+let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
+  const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
+  return v==='1'})();
+const frozen=rec=>!!(rec.revealed||rec.locked);
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
 const t=k=>STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
   document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`;
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(TOURNEY?` · ${t('tourney_badge')}`:'');
   document.getElementById('lang-btn').textContent=t('other_lang');
+  document.getElementById('tourney-btn').textContent=t(TOURNEY?'tourney_disable':'tourney_enable');
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
   document.getElementById('help-body').innerHTML=`<p>${t('help_intro')}</p>
     <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
     <h3>${sprite('hook')}${t('game_linha')}</h3><p>${t('help_linha')}</p>
+    <h3>${sprite('hook')}${t('game_fundo')}</h3><p>${t('help_fundo')}</p>
     <p>${t('help_points')}</p>`;
 }
 
@@ -510,6 +732,7 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
+  g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
   new ResizeObserver(()=>{const cell=g.board.clientWidth/g.cols;g.board.style.setProperty('--spx',14*Math.max(1,Math.floor(cell*.9/14))+'px')}).observe(g.board);
@@ -518,24 +741,81 @@ function setup(g){
   g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
   g.trainRec={best:null,worst:null,tries:0};
   g.last=null;
+  if(g.kind==='drop') g.el.go.hidden=true;
   newMap(g, DATE+':'+g.key);
 
   let drawing=false;
   const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
-  g.board.addEventListener('pointerdown',e=>{const cell=cellAt(e);if(!cell)return;drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}touch(g,cell,true);render(g)});
-  g.board.addEventListener('pointermove',e=>{if(!drawing)return;const cell=cellAt(e);if(!cell)return;touch(g,cell,false);render(g)});
+  g.board.addEventListener('pointerdown',e=>{
+    const cell=cellAt(e);if(!cell)return;
+    if(g.kind==='drop'){
+      if(g.last||g.busy) return;
+      const c=cell[1], targetRow=dropTarget(g.cells,c), res=dropFish(g.cells,c);
+      if(res.why==='turtle'){g.blocked='turtle'+c;g.blockReason='turtle';spawn(g,targetRow,c,'blocked');render(g);return}
+      if(res.why==='empty') return;
+      dropAnimate(g,c,targetRow,res);
+      return;
+    }
+    drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}g.showing=null;
+    g.paint=!g.marks.has(key(...cell)); g.painted=key(...cell); paint(g,cell); render(g);
+  });
+  g.board.addEventListener('pointermove',e=>{
+    if(g.kind==='drop'){
+      const cell=cellAt(e), hc=cell?cell[1]:null;
+      if(hc!==g.hoverCol){g.hoverCol=hc; render(g)}
+      return;
+    }
+    if(!drawing)return;const cell=cellAt(e);if(!cell)return;
+    // Fast drags skip squares between pointer events; walk one square at a time so the stroke has no gaps.
+    let [r,c]=[Math.floor(g.painted/100),g.painted%100];
+    if(r===cell[0]&&c===cell[1]) return;
+    while(r!==cell[0]||c!==cell[1]){
+      if(Math.abs(cell[0]-r)>=Math.abs(cell[1]-c)) r+=Math.sign(cell[0]-r); else c+=Math.sign(cell[1]-c);
+      paint(g,[r,c]);
+    }
+    g.painted=key(...cell); render(g);
+  });
+  g.board.addEventListener('pointerleave',()=>{if(g.kind==='drop'&&g.hoverCol!=null){g.hoverCol=null;render(g)}});
   const stop=()=>{drawing=false};
   g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
-  g.el.undo.addEventListener('click',()=>{if(g.path.length>1){g.path.pop();g.closed=false;g.blocked=null;render(g)}});
-  g.el.clear.addEventListener('click',()=>{g.path=[g.start.slice()];g.closed=false;g.blocked=null;render(g)});
+  g.el.undo.addEventListener('click',()=>{
+    if(g.kind==='drop'){const h=g.history.pop();if(h){g.cells=h.cells;g.score=h.score;g.moves=h.moves;g.blocked=null;syncDrop(g);render(g)}return}
+    const h=g.history.pop();if(h){h[0]?g.marks.delete(h[1]):g.marks.add(h[1]);g.blocked=null;g.showing=null;render(g)}
+  });
+  g.el.clear.addEventListener('click',()=>{
+    if(g.kind==='drop'){g.cells=g.cells0.map(row=>row.slice());g.moves=0;g.score=0;g.history=[];g.blocked=null;syncDrop(g);render(g);return}
+    g.marks.clear();g.history=[];g.blocked=null;g.showing=null;render(g);
+  });
   g.el.go.addEventListener('click',()=>commit(g));
   g.el.result.addEventListener('click',e=>{
     const a=e.target.closest('[data-act]')?.dataset.act;
-    if(a==='again'){g.last=null;g.path=[g.start.slice()];g.closed=false;render(g)}
+    if(a==='again'){g.last=null;g.blocked=null;render(g)}
     if(a==='share') share(g.el.result.querySelector('.note'));
+    if(a==='best'||a==='worst') reveal(g,a);
   });
 }
 
+function reveal(g,which){
+  if(!g.training&&!frozen(g.rec)){
+    const d=document.getElementById('reveal');
+    d.returnValue=''; d.onclose=()=>{if(d.returnValue!=='yes')return;g.rec.revealed=true;save(g.storeKey,g.rec);reveal(g,which)};
+    return d.showModal();
+  }
+  g.last=null; g.blocked=null; g.showing=which;
+  g.marks=new Set(g.buoy?g.ref[which+'Buoys']:g.ref[which+'Path'].slice(1).map(([r,c])=>key(r,c))); g.history=[];
+  render(g);
+}
+
+function paint(g,[r,c]){
+  const k=key(r,c);
+  if(isStart(g,r,c)||g.kind==='line'&&r<1||g.paint===g.marks.has(k)) return;
+  const cost=g.grid[r][c].sp?2:1;
+  const why=!g.paint?null:g.buoy?(g.grid[r][c].rock?'rockwall':g.marks.size>=g.maxBuoys?'buoys':null)
+    :g.grid[r][c].rock?'rock':lineCost(g)+cost>g.maxLen?'budget':null;
+  if(why){if(g.blocked!==k+why){g.blocked=k+why;g.blockReason=why;spawn(g,r,c,'blocked')}return}
+  g.paint?g.marks.add(k):g.marks.delete(k); g.history.push([g.paint,k]); g.blocked=null;
+  if(g.paint&&!g.buoy&&cost===2) spawn(g,r,c,'cost','−2');
+}
 function toggleTraining(g){
   g.training=!g.training;
   if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
@@ -545,79 +825,17 @@ function toggleTraining(g){
 
 function newMap(g,seed){
   g.grid=g.gen(g,mulberry(seedFrom(seed)));
-  g.path=[g.start.slice()]; g.closed=false; g.ref=null; g.seed=seed;
-  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;if(!g.training)g.dailyRef=ref;render(g)}));
+  g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
+  if(g.kind==='drop'){
+    g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
+    syncDrop(g);
+    setTimeout(()=>{const r=solveDrop(g.cells0,g.lances);if(g.seed!==seed)return;g.par=r.best;render(g)});
+    return;
+  }
+  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;render(g)}));
 }
 
-const stepCost=(g,r,c)=>g.kind==='line'&&g.grid[r][c].sp?2:1;
-const moves=g=>g.path.slice(1).reduce((s,[r,c])=>s+stepCost(g,r,c),0);
 const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
-function returnPath(g,from,extra){
-  const [sr,sc]=g.start, walls=new Set(g.path.slice(1).map(([r,c])=>key(r,c)));
-  if(extra) walls.add(key(extra[0],extra[1]));
-  walls.delete(key(from[0],from[1]));
-  const prev=new Map([[key(from[0],from[1]),null]]), q=[from];
-  for(let i=0;i<q.length;i++){
-    const [r,c]=q[i];
-    if(r===sr&&c===sc){const out=[];for(let k=key(r,c);k!==null;k=prev.get(k))out.push([Math.floor(k/100),k%100]);return out.reverse()}
-    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
-      const nr=r+dr,nc=c+dc,k=key(nr,nc);
-      if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||prev.has(k)||walls.has(k)||g.grid[nr][nc].rock) continue;
-      prev.set(k,key(r,c)); q.push([nr,nc]);
-    }
-  }
-  return null;
-}
-// null = allowed; otherwise why not. Silent reasons are not shown to the player.
-function stepBlock(g,r,c){
-  if(r<0||c<0||r>=g.rows||c>=g.cols) return 'silent';
-  const e=g.path[g.path.length-1];
-  if(Math.abs(e[0]-r)+Math.abs(e[1]-c)!==1) return 'silent';
-  if(g.kind==='net'&&g.closed) return 'silent';
-  if(g.grid[r][c].rock) return 'rock';
-  const left=g.maxLen-moves(g)-stepCost(g,r,c);
-  if(g.kind==='net'){
-    if(isStart(g,r,c)) return g.path.length>=4?null:'silent';
-    if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
-    const back=returnPath(g,[r,c],[r,c]);
-    return back&&back.length-1<=left?null:'noway';
-  }
-  if(r<1) return 'silent';
-  if(g.path.some(p=>p[0]===r&&p[1]===c)) return 'self';
-  if(left<0) return 'budget';
-  return left>=g.rows-1-r?null:'noway';
-}
-function touch(g,[r,c],isDown){
-  const L=g.path.length;
-  const idx=g.path.findIndex(p=>p[0]===r&&p[1]===c);
-  const closing=g.kind==='net'&&idx===0&&!g.closed&&L>=4;
-  if(isDown&&idx>=0&&!closing){g.path=g.path.slice(0,idx+1);g.closed=false;g.blocked=null;return}
-  const end=g.path[L-1];
-  if(end[0]===r&&end[1]===c) return;
-  if(L>=2){const p=g.path[L-2];if(p[0]===r&&p[1]===c){g.path.pop();g.closed=false;g.blocked=null;return}}
-  if(closing){
-    const back=returnPath(g,end);
-    if(back&&back.length-1<=g.maxLen-moves(g)&&L+back.length-2>=4){g.path.push(...back.slice(1));g.closed=true;g.blocked=null;return}
-  }
-  for(let i=0;i<40;i++){
-    if(g.closed) break;
-    const e=g.path[g.path.length-1]; if(e[0]===r&&e[1]===c) break;
-    const dr=Math.sign(r-e[0]), dc=Math.sign(c-e[1]);
-    const a=[e[0]+dr,e[1]], b=[e[0],e[1]+dc];
-    const opts=(Math.abs(r-e[0])>=Math.abs(c-e[1])?[a,b]:[b,a]).filter(([nr,nc])=>nr!==e[0]||nc!==e[1]);
-    const why=opts.map(([nr,nc])=>stepBlock(g,nr,nc));
-    const ok=why.indexOf(null);
-    if(ok<0){
-      const [br,bc]=opts[0], k=`${br},${bc},${why[0]}`;
-      if(why[0]!=='silent'&&g.blocked!==k){g.blocked=k;g.blockReason=why[0];spawn(g,br,bc,'blocked')}
-      break;
-    }
-    const [nr,nc]=opts[ok];
-    g.path.push([nr,nc]); g.blocked=null;
-    if(g.kind==='net'&&isStart(g,nr,nc)) g.closed=true;
-    if(stepCost(g,nr,nc)===2) spawn(g,nr,nc,'cost','−2');
-  }
-}
 function spawn(g,r,c,kind,text=''){
   const b=g.board, m=document.createElement('div');
   m.className='mark '+kind; m.textContent=text;
@@ -625,11 +843,94 @@ function spawn(g,r,c,kind,text=''){
   b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
 }
 
-const ready=g=>g.kind==='net'?g.closed:g.path[g.path.length-1][0]===g.rows-1;
+function computeFalls(oldCells,newCells,caughtSet){
+  const R=oldCells.length, C=oldCells[0].length, falls=[];
+  for(let cc=0;cc<C;cc++){
+    const oldRows=[]; for(let r=R-1;r>=1;r--) if(oldCells[r][cc]!=null&&!caughtSet.has(key(r,cc))) oldRows.push(r);
+    const newRows=[]; for(let r=R-1;r>=1;r--) if(newCells[r][cc]!=null) newRows.push(r);
+    for(let k=0;k<oldRows.length;k++) if(newRows[k]!=null&&newRows[k]!==oldRows[k]) falls.push([oldRows[k],cc,newRows[k]-oldRows[k]]);
+  }
+  return falls;
+}
+function dropAnimate(g,c,targetRow,res){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    g.history.push({cells:g.cells,score:g.score,moves:g.moves});
+    g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
+    spawn(g,targetRow,c,'cost','+'+res.points); syncDrop(g);
+    if(g.moves>=g.lances) commit(g); else render(g);
+    return;
+  }
+  g.busy=true;
+  const oldCells=g.cells, b=g.board, cellW=b.clientWidth/g.cols, cellH=b.clientHeight/g.rows;
+  const hook=document.createElement('div'); hook.className='hook';
+  hook.style.cssText=`left:${b.offsetLeft+c*cellW+cellW/2}px;top:${b.offsetTop+cellH/2}px;height:0px`;
+  b.parentNode.appendChild(hook);
+  requestAnimationFrame(()=>{hook.style.transition='height .2s ease-in';hook.style.height=(targetRow*cellH)+'px'});
+  setTimeout(()=>{
+    hook.remove();
+    spawn(g,targetRow,c,'cost','+'+res.points);
+    const caughtSet=new Set(res.caught.map(([r,cc])=>key(r,cc)));
+    for(const [r,cc] of res.caught){
+      const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
+      if(sp){sp.style.transition='transform .25s ease-in, opacity .25s';sp.style.transform=`translateY(${-r*cellH}px)`;sp.style.opacity='0'}
+    }
+    setTimeout(()=>{
+      const falls=computeFalls(oldCells,res.cells,caughtSet);
+      for(const [r,cc,dist] of falls){
+        const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
+        if(sp){sp.style.transition='transform .25s ease-out';sp.style.transform=`translateY(${dist*cellH}px)`}
+      }
+      // A fixed timeout instead of transitionend: transitionend can be skipped/coalesced, a timer always fires.
+      setTimeout(()=>{
+        g.history.push({cells:oldCells,score:g.score,moves:g.moves});
+        g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
+        syncDrop(g); g.busy=false;
+        if(g.moves>=g.lances) commit(g); else render(g);
+      },260);
+    },250);
+  },200);
+}
+
+const ready=g=>!!evaluate(g).hits;
 const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
 const cls=s=>s>0?'good':s<0?'bad':'zero';
 
+function renderDrop(g){
+  let html='';
+  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
+    const cell=g.grid[r][c], cl=['c']; let inner='';
+    if(isStart(g,r,c)){inner=sprite('boat');cl.push('boat')}
+    else if(cell.sp){
+      const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
+      if(cell.sp===spotlight) cl.push('lit');
+      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
+    }
+    html+=`<div class="${cl.join(' ')}">${inner}</div>`;
+  }
+  let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
+  if(g.hoverCol!=null&&!g.last){
+    const tr=dropTarget(g.cells,g.hoverCol);
+    if(tr>=0) svg+=`<line x1="${g.hoverCol+.5}" y1="0" x2="${g.hoverCol+.5}" y2="${tr+.5}" stroke="#EBDDB4" stroke-width="2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`;
+  }
+  svg+='</svg>';
+  g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
+  g.board.innerHTML=html+svg;
+  g.board.classList.toggle('spot',!!spotlight);
+  g.el.count.innerHTML=`${t('lances')}: <b>${g.lances-g.moves}</b>`;
+  g.el.pv.innerHTML=`${t('catch')}: <b class="good">${g.score}</b>`;
+  g.el.pv.className='pv';
+  g.el.hint.textContent=g.blocked?t('block_turtle_fundo'):t('hint_fundo_start');
+  g.el.hint.classList.toggle('alert',!!g.blocked);
+  g.bubble.hidden=true;
+  g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
+  g.el.train.hidden=!g.training;
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}`:'';
+  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
+  renderResult(g);
+}
+
 function render(g){
+  if(g.kind==='drop'){renderDrop(g);return}
   const {hits,inside,onP}=evaluate(g);
   const hitSet=new Set((hits||[]).map(([r,c])=>key(r,c)));
   let html='';
@@ -637,7 +938,7 @@ function render(g){
     const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='';
     if(inside&&inside.has(k)) cl.push('in');
     if(cell.rock) inner=sprite('rock');
-    if(isStart(g,r,c)) inner=sprite('boat');
+    if(isStart(g,r,c)){inner=sprite('boat');cl.push('boat')}
     else if(cell.sp){
       const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
       if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
@@ -645,38 +946,55 @@ function render(g){
       if(cell.sp===spotlight) cl.push('lit');
       inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
     }
+    if(g.buoy&&g.marks.has(k)) inner+=sprite('buoy');
     html+=`<div class="${cl.join(' ')}">${inner}</div>`;
   }
-  const pts=g.path.map(([r,c])=>`${c+.5},${r+.5}`).join(' ');
-  const e=g.path[g.path.length-1];
   let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
-  if(g.kind==='net'){
-    svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>`;
-    g.path.forEach(([r,c],i)=>{if(i>0&&i%2===0&&!isStart(g,r,c))svg+=`<circle cx="${c+.5}" cy="${r+.5}" r=".13" fill="#F39A36"/>`});
+  if(g.buoy){
+    const fence=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||isStart(g,r,c)||g.grid[r][c].rock), mine=(r,c)=>g.marks.has(key(r,c))||isStart(g,r,c);
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(mine(r,c)) for(const [dr,dc] of [[0,1],[1,0],[-1,0],[0,-1]]){
+      const nr=r+dr,nc=c+dc; if(!fence(nr,nc)||mine(nr,nc)&&(dr<0||dr===0&&dc<0)) continue;
+      svg+=`<line x1="${c+.5}" y1="${r+.5}" x2="${nc+.5}" y2="${nr+.5}" stroke="#EBDDB4" stroke-opacity=".7" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+    }
   } else {
-    svg+=`<polyline points="${pts}" fill="none" stroke="#EBDDB4" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
-    if(g.path.length>1) svg+=`<circle cx="${e[1]+.5}" cy="${e[0]+.5}" r=".15" fill="${ready(g)?'#F39A36':'#EBDDB4'}"/>`;
+    const on=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||isStart(g,r,c)), end=hits&&lineChain(g).path.at(-1);
+    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(on(r,c)){
+      for(const [dr,dc] of [[0,1],[1,0]]) if(on(r+dr,c+dc)) svg+=`<line x1="${c+.5}" y1="${r+.5}" x2="${c+dc+.5}" y2="${r+dr+.5}" stroke="#EBDDB4" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+      if(!isStart(g,r,c)) svg+=`<circle cx="${c+.5}" cy="${r+.5}" r="${end&&end[0]===r&&end[1]===c?.18:.1}" fill="${end&&end[0]===r&&end[1]===c?'#F39A36':'#EBDDB4'}"/>`;
+    }
   }
-  const back=g.kind==='net'&&!g.closed&&g.path.length>1?returnPath(g,e):null;
-  if(back) svg+=`<polyline points="${back.map(([r,c])=>`${c+.5},${r+.5}`).join(' ')}" fill="none" stroke="#F39A36" stroke-opacity=".75" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   svg+='</svg>';
+  // innerHTML rebuilds every sprite on each render; a negative delay pinned to the page clock keeps the animations from restarting.
+  g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
   g.board.innerHTML=html+svg;
-  const left=g.maxLen-moves(g), need=back?back.length-1:g.kind==='line'?g.rows-1-e[0]:0;
-  const warn=!ready(g)&&g.path.length>1&&left-need<=1;
+  const why=g.buoy?(hits?null:g.marks.size?'go':'start'):lineChain(g).why;
   g.board.classList.toggle('spot',!!spotlight);
 
-  g.el.count.innerHTML=`${t('left_'+g.key)}: <b>${left}</b>`;
-  g.el.count.classList.toggle('warn',warn);
+  g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`:`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(scoreOf(g,hits))}">${fmt(scoreOf(g,hits))}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(scoreOf(g,hits)):'');
-  g.el.hint.textContent=g.blocked?t(`block_${g.blockReason}_${g.key}`)
-    :warn?t(`hint_${g.key}_warn`).replace('{n}',need)
-    :t(`hint_${g.key}_${ready(g)?'ready':g.path.length>1?'go':'start'}`);
+  g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
+    :g.blocked?t(`block_${g.blockReason}_${g.key}`)
+    :t(`hint_${g.key}_${why||'ready'}`);
   g.el.hint.classList.toggle('alert',!!g.blocked);
+  const say=(g.blocked||!why||why==='self')&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
+  g.bubble.hidden=!say;
+  if(!say) delete g.bubble.dataset.k;
+  if(say){
+    const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, lastK=g.history.at(-1)?.[1], focus=lastK!=null?Math.floor(lastK/100):br, below=br<2||focus<br&&br<g.rows-2;
+    if(g.bubble.dataset.k!==sayKey){g.bubble.dataset.k=sayKey;g.bubble.getAnimations().forEach(a=>{a.cancel();a.play()})}
+    g.bubble.textContent=g.el.hint.textContent; g.bubble.classList.toggle('below',below);
+    const w=g.bubble.offsetWidth, h=g.bubble.offsetHeight, x=b.offsetLeft+(bc+.5)*cw;
+    const left=Math.max(b.offsetLeft+4,Math.min(x-w/2,b.offsetLeft+b.clientWidth-w-4));
+    g.bubble.style.left=left+'px';
+    g.bubble.style.top=(below?b.offsetTop+(br+1)*ch+10:b.offsetTop+br*ch-h-10)+'px';
+    g.bubble.style.setProperty('--tail',x-left+'px');
+    g.bubble.style.transformOrigin=`${x-left}px ${below?0:h}px`;
+  }
   g.el.go.disabled=!ready(g);
-  g.el.undo.disabled=g.path.length<2; g.el.clear.disabled=g.path.length<2;
+  g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.marks.size;
   g.el.train.hidden=!g.training;
-  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)}${g.dailyRef?' / '+fmt(g.dailyRef.best):''}`:'';
+  g.tab.querySelector('small').textContent=g.rec.tries?`▲${fmt(g.rec.best)} ▼${fmt(g.rec.worst)}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
 }
@@ -685,20 +1003,35 @@ function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5
 
 function renderResult(g){
   const L=g.last; g.el.result.hidden=!L; g.el.board.closest('.game').classList.toggle('done',!!L); if(!L) return;
+  g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());
   const rec=g.training?g.trainRec:g.rec;
+  if(g.kind==='drop'){
+    const verdictText=g.par!=null&&L.score>=g.par?t('par_hit'):t('par_over').replace('{n}',g.par-L.score);
+    g.el.result.innerHTML=`<div class="big good">${L.score}</div>
+      <div class="verdict">${verdictText}</div>
+      <div class="recs"><span>${t('your_best')} <b class="big-good">▲${fmt(rec.best)}</b></span></div>
+      ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
+      ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:''}
+      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+      <p class="note" aria-live="polite"></p>`;
+    return;
+  }
   const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')||`<span>${t('nothing')}</span>`;
   g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
     <div class="verdict">${verdict(L.score)}</div>
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}
+    ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
+    ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
     <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
 }
 
 function rangeHTML(g,rec){
+  if(g.kind==='drop') return '';
   const ref=g.ref;
-  if(!ref) return `<p class="range-note">${t('range_wait')}</p>`;
+  if(!ref) return g.buoy?'':`<p class="range-note">${t('range_wait')}</p>`;
   const beat=!ref.exact&&(rec.best>ref.best||rec.worst<ref.worst);
   if(!ref.exact){ref.best=Math.max(ref.best,rec.best);ref.worst=Math.min(ref.worst,rec.worst)}
   const span=ref.best-ref.worst||1, pos=x=>Math.max(0,Math.min(100,(x-ref.worst)/span*100));
@@ -712,12 +1045,23 @@ function rangeHTML(g,rec){
 }
 
 function commit(g){
+  if(g.kind==='drop'){
+    g.last={score:g.score,count:{}};
+    const rec=g.training?g.trainRec:g.rec;
+    if(frozen(rec)) return render(g);
+    rec.tries++; rec.best=rec.best===null?g.score:Math.max(rec.best,g.score);
+    if(TOURNEY&&!g.training) rec.locked=true;
+    if(!g.training) save(g.storeKey,rec);
+    return render(g);
+  }
   if(!ready(g)) return;
   const {hits}=evaluate(g); const score=scoreOf(g,hits);
   const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
   g.last={score,count};
   const rec=g.training?g.trainRec:g.rec;
+  if(frozen(rec)) return render(g);
   rec.tries++; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
+  if(TOURNEY&&!g.training) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
   render(g);
 }
@@ -725,8 +1069,9 @@ function commit(g){
 function shareText(){
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
-    const r=g.rec, ref=g.dailyRef&&g.dailyRef.exact?g.dailyRef:null;
-    s+= r.tries ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${ref?'/'+fmt(ref.best):''} ▼${fmt(r.worst)}${ref?'/'+fmt(ref.worst):''}\n` : `${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`;
+    const r=g.rec;
+    if(!r.tries){ s+=`${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`; continue; }
+    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}\n` : `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)} ▼${fmt(r.worst)}\n`;
   }
   return s+'goodcatch.fish';
 }
@@ -755,25 +1100,28 @@ let tab='rede';
 const current=()=>games[tab];
 function showTab(k){
   tab=k;
-  for(const x of ['rede','linha']){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
+  for(const x of Object.keys(games)){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
   try{localStorage.setItem('goodcatch:tab',k)}catch(e){}
   render(current());
 }
-document.getElementById('tab-rede').addEventListener('click',()=>showTab('rede'));
-document.getElementById('tab-linha').addEventListener('click',()=>showTab('linha'));
+for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
 document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+document.getElementById('tourney-btn').addEventListener('click',()=>{
+  TOURNEY=!TOURNEY; try{localStorage.setItem('goodcatch:torneio',TOURNEY?'1':'0')}catch(e){}
+  applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
+});
 document.getElementById('lang-btn').addEventListener('click',()=>{
   LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
-  applyText(); render(games.rede); render(games.linha); document.getElementById('menu').hidePopover();
+  applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
 });
 const help=document.getElementById('help');
 document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
 applyText();
-setup(games.rede); setup(games.linha);
+for(const g of Object.values(games)) setup(g);
 let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
-showTab(saved==='linha'?'linha':'rede');
-render(games.rede); render(games.linha);
+showTab(saved in games?saved:'rede');
+for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
 if(!seen){help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
 })();
