@@ -381,8 +381,7 @@ function genLine(g,rng){
 function syncDrop(g){
   for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) g.grid[r][c].sp=g.cells[r][c];
 }
-function genDrop(g,rng){
-  g.start=[0,Math.floor(g.cols/2)];
+function buildDrop(g,rng){
   const R=g.rows, C=g.cols;
   const cells=Array.from({length:R},()=>Array(C).fill(null));
   const species=['sardinha','dourada','lula','caranguejo'];
@@ -397,8 +396,30 @@ function genDrop(g,rng){
     const r=ri(rng,2,7), c=ri(rng,0,C-1);
     if(cells[r][c]!=='tartaruga'){cells[r][c]='tartaruga';placed++}
   }
-  g.cells0=cells.map(row=>row.slice());
-  return emptyGrid(R,C);
+  return cells;
+}
+// Greedy play (always the biggest school) is the obvious plan; a day only passes when the obvious plan
+// scores at most 65% of the optimum and the optimum needs a small setup cast, so the map has something to find.
+const DROP_TRIES=80;
+function greedyDrop(cells,lances){
+  let total=0;
+  for(let i=0;i<lances;i++){
+    let pick=null;
+    for(let c=0;c<cells[0].length;c++){const res=dropFish(cells,c);if(!res.why&&(!pick||res.points>pick.points))pick=res}
+    if(!pick) break;
+    total+=pick.points; cells=pick.cells;
+  }
+  return total;
+}
+function genDrop(g,rng){
+  g.start=[0,Math.floor(g.cols/2)];
+  let fallback=null, fallbackRatio=2;
+  for(let t=0;t<DROP_TRIES;t++){
+    const cells=buildDrop(g,rng), opt=solveDrop(cells,g.lances), ratio=greedyDrop(cells,g.lances)/opt.best;
+    if(ratio<=.65&&opt.path.some(p=>p<=4)){g.cells0=cells;g.tries=t+1;return emptyGrid(g.rows,g.cols)}
+    if(ratio<fallbackRatio){fallbackRatio=ratio;fallback=cells}
+  }
+  g.cells0=fallback; g.tries=DROP_TRIES; return emptyGrid(g.rows,g.cols);
 }
 function dropTarget(cells,c){
   for(let r=1;r<cells.length;r++) if(cells[r][c]!=null) return r;
@@ -440,31 +461,36 @@ function solveDrop(cells0,lances){
   const memo=new Map();
   let nodes=0, complete=true;
   const keyOf=(cells,rem)=>JSON.stringify(cells)+':'+rem;
+  const choice=new Map();
   function dfs(cells,rem){
     if(rem===0) return 0;
     // node cap: bails out of the DFS once the branching factor makes an exact solve too slow, and reports the partial best instead
     if(++nodes>200000){ complete=false; return 0 }
     const k=keyOf(cells,rem);
     if(memo.has(k)) return memo.get(k);
-    let best=0;
+    let best=0, bestC=-1;
     for(let c=0;c<cells[0].length;c++){
       const res=dropFish(cells,c);
       if(res.why) continue;
       const v=res.points+dfs(res.cells,rem-1);
-      if(v>best) best=v;
+      if(v>best){best=v;bestC=c}
     }
-    memo.set(k,best);
+    memo.set(k,best); choice.set(k,bestC);
     return best;
   }
-  const best=dfs(cells0,lances);
-  return {best,complete};
+  const best=dfs(cells0,lances), path=[];
+  for(let cells=cells0,rem=lances;rem>0;rem--){
+    const c=choice.get(keyOf(cells,rem)); if(c==null||c<0) break;
+    const res=dropFish(cells,c); path.push(res.points); cells=res.cells;
+  }
+  return {best,complete,path};
 }
 
 // ---------- jogos ----------
 const games = {
   rede:{key:'rede',kind:'net',buoy:true,cols:11,rows:11,maxBuoys:14,gen:genNet,icon:'🕸️'},
   linha:{key:'linha',kind:'line',cols:9,rows:12,maxLen:20,gen:genLine,icon:'🪝'},
-  fundo:{key:'fundo',kind:'drop',cols:7,rows:9,lances:6,gen:genDrop,icon:'🎣'},
+  fundo:{key:'fundo',kind:'drop',cols:7,rows:9,lances:5,gen:genDrop,icon:'🎣'},
 };
 
 // Buoys, rocks and the boat are fence; the catch is whatever the open sea cannot reach on the boat's side.
@@ -625,7 +651,7 @@ const STR = {
     help_intro:'Three puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
     help_rede:'Drop <b>buoys</b> to fence in a pen against the <b>boat</b>. Rocks close the fence too; the open sea at the edge never does. Everything <b>inside</b> is caught, and animals under a buoy slip away. You have 14 buoys.',
     help_linha:'Tap squares to lay the line from the <b>boat</b> to the <b>seabed</b> in one chain that never touches itself. Every animal touching the line bites. A fish under the line is scared off and costs 2 squares; a protected animal under it also counts its penalty. Rocks can’t hold line.',
-    help_fundo:'The sea is packed in layers. Tap a column: the hook drops to the first animal and hauls up its whole school; a school of N is worth N². What is above sinks to fill the gap. Turtles can’t be hooked and block the way. 6 casts.',
+    help_fundo:'The sea is packed in layers. Tap a column: the hook drops to the first animal and hauls up its whole school; a school of N is worth N². What is above sinks to fill the gap. Turtles can’t be hooked and block the way. 5 casts.',
     help_points:'Tap an animal in the strip under the board to find it on the map.',
     other_lang:'Português',
     range:'Today’s possible range', range_map:'This map’s possible range', range_known:'Best known range',
@@ -662,7 +688,7 @@ const STR = {
     help_intro:'Três desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
     help_rede:'Solte <b>boias</b> para cercar uma área encostada no <b>barco</b>. Pedras também fecham o cerco; o mar aberto da borda nunca fecha. Tudo o que ficar <b>dentro</b> é pescado, e animais embaixo de uma boia escapam. Você tem 14 boias.',
     help_linha:'Toque nas casas para descer a linha do <b>barco</b> até o <b>fundo</b>, numa corrente só que nunca encosta nela mesma. Todo animal encostado na linha morde a isca. Peixe embaixo da linha foge e custa 2 casas; animal protegido embaixo dela também conta a penalidade. Pedra não segura linha.',
-    help_fundo:'O mar vem em camadas. Toque numa coluna: o anzol desce até o primeiro bicho e puxa o cardume inteiro dele; cardume de N vale N². O que está em cima afunda para preencher. Tartaruga não pode ser fisgada e bloqueia o caminho. 6 lances.',
+    help_fundo:'O mar vem em camadas. Toque numa coluna: o anzol desce até o primeiro bicho e puxa o cardume inteiro dele; cardume de N vale N². O que está em cima afunda para preencher. Tartaruga não pode ser fisgada e bloqueia o caminho. 5 lances.',
     help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
     other_lang:'English',
     range:'Faixa possível de hoje', range_map:'Faixa possível deste mapa', range_known:'Melhor faixa conhecida',
