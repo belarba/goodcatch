@@ -287,6 +287,7 @@ const key=(r,c)=>r*100+c;
 
 // ---------- generation: net ----------
 function genNet(g,rng){
+  g.start=[ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)];
   const G=emptyGrid(g.rows,g.cols); const [sr,sc]=g.start;
   const inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
   const nearBoat=(r,c)=>Math.abs(r-sr)+Math.abs(c-sc)<=2;
@@ -296,19 +297,20 @@ function genNet(g,rng){
   const posW=[['sardinha',6],['lula',2],['dourada',2]];
   const negs=['tartaruga','golfinho','tubarao','tartaruga'];
   for(let k=0;k<5;k++){
-    const cr=ri(rng,1,g.rows-4), cc=ri(rng,1,g.cols-2);
+    const cr=ri(rng,1,g.rows-2), cc=ri(rng,1,g.cols-2);
     let want=ri(rng,4,6);
     for(let t=0;t<30&&want>0;t++){if(put(weighted(rng,posW),cr+ri(rng,-2,2),cc+ri(rng,-2,2)))want--}
     if(k<4){for(let t=0;t<20;t++){if(put(negs[k],cr+ri(rng,-1,1),cc+ri(rng,-1,1)))break}}
   }
-  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-4),ri(rng,0,g.cols-1)))n--}
+  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
   for(let n=6,t=0;n>0&&t<60;t++){if(put('sardinha',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
-  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-3),ri(rng,0,g.cols-1)))n--}
+  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
   return G;
 }
 
 // ---------- generation: line ----------
 function genLine(g,rng){
+  g.start=[0,ri(rng,0,g.cols-1)];
   for(let attempt=0;attempt<60;attempt++){
     const G=emptyGrid(g.rows,g.cols); const R=g.rows, C=g.cols;
     const [sr,sc]=g.start;
@@ -335,8 +337,8 @@ function genLine(g,rng){
 
 // ---------- jogos ----------
 const games = {
-  rede:{key:'rede',kind:'net',cols:11,rows:11,start:[10,5],maxLen:26,gen:genNet,icon:'🕸️'},
-  linha:{key:'linha',kind:'line',cols:9,rows:12,start:[0,4],maxLen:20,gen:genLine,icon:'🪝'},
+  rede:{key:'rede',kind:'net',cols:11,rows:11,maxLen:26,gen:genNet,icon:'🕸️'},
+  linha:{key:'linha',kind:'line',cols:9,rows:12,maxLen:20,gen:genLine,icon:'🪝'},
 };
 
 function evaluate(g){
@@ -426,7 +428,6 @@ function solveNet(m,ms){
 
 // @net-ref-start
 const NET_REF = {
-  "2026-09-24":[25,-16],"2026-09-25":[15,-6]
 };
 // @net-ref-end
 
