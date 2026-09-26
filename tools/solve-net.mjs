@@ -75,7 +75,7 @@ function solveBuoys(m, sense) {
       st.push(`y_${i} + w_${i} = 1`);
       bounds.push(`0 <= gs_${i} <= ${M}`); inflow.get(i).y.push(`gs_${i}`); st.push(`gs_${i} - ${M} y_${i} <= 0`);
     }
-    if (Math.abs(r - sr) + Math.abs(c - sc) === 1) {
+    if (Math.max(Math.abs(r - sr), Math.abs(c - sc)) === 1) {
       st.push(`w_${i} + x_${i} + y_${i} = 1`);
       bounds.push(`0 <= fs_${i} <= ${M}`); inflow.get(i).x.push(`fs_${i}`); st.push(`fs_${i} - ${M} x_${i} <= 0`);
     }
