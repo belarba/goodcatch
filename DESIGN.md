@@ -161,9 +161,9 @@ A daylight sea palette: pale seafoam and white carry the page, navy ink draws ev
 - **Protected Glow** (`protect-glow`, rgba(214,60,45,.42)): a radial red glow behind every protected animal (turtle, dolphin, shark, coral), drawn as a background image so it layers over the pen's sand. It follows the card: an animal a card turns positive loses the glow.
 
 ### Tertiary
-- **Shallow Water** (`shallow-water`): the net board's water and the art window of boon rule cards.
+- **Shallow Water** (`shallow-water`): the net board's water.
 - **Open Sea Ring** (`open-sea-ring`): the outermost ring of net cells, deeper than the water with white wave ticks, meaning "the sea reaches here". Line boards instead grade from `#D6F1F3` surface row down through an HSL depth ramp (hue 186→194, darker with depth).
-- **Pen Sand** (`pen-sand`): the enclosed pen fill, the art window of limit rule cards, the practice badge, the pressed legend item, icon-button hover and text selection.
+- **Pen Sand** (`pen-sand`): the enclosed pen fill, the practice badge, the pressed legend item, icon-button hover and text selection.
 - **Seabed Sand** (`seabed-sand`): the 8px seabed strip under the line and sea-floor boards.
 
 ### Neutral
@@ -245,9 +245,9 @@ Three outlined tabs (52px min height, 12px radius), each with a 28px sprite, the
 ### Rule Cards (signature)
 Face-up playing cards offered on practice purse-net maps.
 - **Stock:** white, 2px navy outline, 10px radius, resting shadow; three across in a fan (−3°, 0°, +3°), straightening and lifting 3px on hover.
-- **Art window:** 46px tall, 6px radius, 1.5px ink border, holding a 28px sprite. Water for boon cards, pen sand for limit cards.
+- **Art window:** 46px tall, 6px radius, 1.5px ink border, holding a 28px sprite on the pale surface tint, the same for every card, always at full opacity.
 - **Rank:** a Jersey 10 value in the top-left corner of the art window, only on cards that change points.
-- **Picked:** lifts 6px, straightens, rust border, orange ring and deeper shadow; its rule text turns navy ink. Unpicked cards fade their art to 50% and drop to a slate border, but their rule text keeps full tide-grey contrast.
+- **Picked:** lifts 6px, straightens, rust border, orange ring and deeper shadow; its rule text turns navy ink. Unpicked cards drop to a slate border and lose their shadow; art and text stay at full contrast. The pick is final for the map.
 - **Motion:** 0.25s ease-out (`cubic-bezier(.16,1,.3,1)`) on transform and shadow; none under reduced motion.
 
 ### Board
@@ -260,7 +260,7 @@ Laid over the board: 96% white, 2px navy outline, 14px radius, 18px padding, flo
 A white strip with a navy outline and 12px radius, nine columns of 28px sprite over its Jersey 10 value in green or red. Items hover to foam tint and press to pen sand (spotlighting that species on the board).
 
 ### Speech Bubble
-The boat's voice for blocked moves: white, 2px navy outline, 10px radius, Jersey 10 at 18px, a navy-outlined tail pointing at the boat; pops in over 0.18s and fades after 2.5s.
+The boat's voice for blocked moves: white, 2px navy outline, 10px radius, Jersey 10 at 18px, a navy-outlined tail pointing at the boat; pops in over 0.18s and fades after 2.5s. While no rule card is picked it becomes the pick prompt: anchored to the top of the board, tail up toward the cards, it stays and bobs gently until a card is chosen (still, with reduced motion).
 
 ### Pixel Sprites
 12×12 maps on a named palette, rendered once to data URLs with a 1px sprite-outline border and a second frame shifted one pixel, looped in 1.2s steps and phase-locked across re-renders. UI icons (menu, up/down arrows) are sprites from the same set, not font glyphs.

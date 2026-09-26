@@ -106,14 +106,12 @@ h1 span{color:var(--accent-text)}
 .board.await>.c{opacity:.55}
 .board.await{cursor:default}
 .card:hover{transform:translateY(-3px) rotate(0)}
-.card .art{position:relative;display:grid;place-items:center;height:46px;border-radius:6px;background:var(--water);border:1.5px solid var(--ink)}
-.card.limit .art{background:var(--pen)}
+.card .art{position:relative;display:grid;place-items:center;height:46px;border-radius:6px;background:var(--surface2);border:1.5px solid var(--ink)}
 .card .art .sp{width:28px;height:28px}
 .card .rank{position:absolute;top:1px;left:5px;font:400 18px/1 var(--pixel)}
 .card b{font:400 18px/1 var(--pixel);margin-top:2px}
 .card .rule{font-size:13px;line-height:1.25;color:var(--muted)}
 .cards.picked .card:not([aria-pressed="true"]){border-color:var(--edge);box-shadow:none}
-.cards.picked .card:not([aria-pressed="true"]) .art{opacity:.5}
 .card[aria-pressed="true"]{transform:translateY(-6px) rotate(0);border-color:var(--accent-text);box-shadow:0 0 0 3px var(--accent),0 10px 18px rgba(16,50,74,.22)}
 .card[aria-pressed="true"] .rule{color:var(--ink)}
 .sp.arr{display:inline-block;width:.75em;height:.75em;vertical-align:-.05em;margin-right:1px}
@@ -130,6 +128,8 @@ h1 span{color:var(--accent-text)}
 .bubble.below::before{border-bottom-color:var(--ink)}
 .bubble.below::after{border-bottom-color:var(--surface)}
 @keyframes pop{from{transform:scale(.5);opacity:0}}
+.bubble.stay{animation:pop .18s ease-out,bob 1.6s ease-in-out .2s infinite}
+@keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes fade{to{opacity:0}}
@@ -138,7 +138,7 @@ h1 span{color:var(--accent-text)}
 .c.boat{background:radial-gradient(circle,rgba(255,255,255,.75) 0 42%,transparent 72%)}
 .c.boat::after{content:"";position:absolute;inset:4%;border:2px solid var(--accent);border-radius:50%;animation:ping 1.6s ease-out infinite;animation-delay:var(--clock,0s)}
 @keyframes ping{from{transform:scale(.55);opacity:.9}to{transform:scale(1.1);opacity:0}}
-@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}.sp,.c.boat::after,.c.in,.ov .rope{animation:none!important}.bubble{animation:fade .01s 2.5s forwards!important}}
+@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}.sp,.c.boat::after,.c.in,.ov .rope{animation:none!important}.bubble{animation:fade .01s 2.5s forwards!important}.bubble.stay{animation:none!important}}
 
 .controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
 .panel .controls{grid-template-columns:1fr 1fr}
@@ -742,7 +742,7 @@ const STR = {
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'+3 per protected animal under a buoy',
     card_extra:'Card', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
-    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to haul', new_map:'New map', playtest:'playtest', help_cards_title:'Rule cards', help_intro_test:'A fishing puzzle. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. It locks when you drop the first buoy; clear the net to change it. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Clear the net to change cards',
+    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', new_map:'New map', playtest:'playtest', help_cards_title:'Rule cards', help_intro_test:'A fishing puzzle. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for this map; New map in the menu deals fresh cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map. New map deals new cards.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
     not_played:'not played yet',
@@ -785,7 +785,7 @@ const STR = {
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'+3 por protegido sob boia',
     card_extra:'Carta', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
-    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para puxar', new_map:'Novo mapa', playtest:'teste', help_cards_title:'Cartas de regra', help_intro_test:'Um quebra-cabeça de pesca. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. Ela trava quando você solta a primeira boia; limpe a rede para trocar. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'Limpe a rede para trocar de carta',
+    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', new_map:'Novo mapa', playtest:'teste', help_cards_title:'Cartas de regra', help_intro_test:'Um quebra-cabeça de pesca. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; Novo mapa, no menu, distribui outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo. Novo mapa distribui outras.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
     not_played:'ainda não jogado',
@@ -852,7 +852,7 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
-  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card&&g.marks.size){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);g.blocked=null;g.showing=null;render(g)});
+  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);g.blocked=null;g.showing=null;render(g)});
   g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -1120,7 +1120,7 @@ function render(g){
   const now=hits&&scoreOf(g,hits,inside);
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(now):'');
-  if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!(g.card&&g.marks.size);if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
+  if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!g.card;if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
   g.board.classList.toggle('await',!!(g.cards&&!g.card));
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
     :g.blocked?t(`block_${g.blockReason}_${g.key}`)
@@ -1130,13 +1130,13 @@ function render(g){
   g.bubble.hidden=!say;
   if(!say) delete g.bubble.dataset.k;
   if(say){
-    const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, lastK=g.history.at(-1)?.[1], focus=lastK!=null?Math.floor(lastK/100):br, below=br<2||focus<br&&br<g.rows-2;
+    const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, lastK=g.history.at(-1)?.[1], focus=lastK!=null?Math.floor(lastK/100):br, pick=!!(g.cards&&!g.card), below=pick||br<2||focus<br&&br<g.rows-2;
     if(g.bubble.dataset.k!==sayKey){g.bubble.dataset.k=sayKey;g.bubble.getAnimations().forEach(a=>{a.cancel();a.play()})}
-    g.bubble.textContent=g.el.hint.textContent; g.bubble.classList.toggle('below',below);
-    const w=g.bubble.offsetWidth, h=g.bubble.offsetHeight, x=b.offsetLeft+(bc+.5)*cw;
+    g.bubble.textContent=g.el.hint.textContent; g.bubble.classList.toggle('below',below); g.bubble.classList.toggle('stay',pick);
+    const w=g.bubble.offsetWidth, h=g.bubble.offsetHeight, x=pick?b.offsetLeft+b.clientWidth/2:b.offsetLeft+(bc+.5)*cw;
     const left=Math.max(b.offsetLeft+4,Math.min(x-w/2,b.offsetLeft+b.clientWidth-w-4));
     g.bubble.style.left=left+'px';
-    g.bubble.style.top=(below?b.offsetTop+(br+1)*ch+10:b.offsetTop+br*ch-h-10)+'px';
+    g.bubble.style.top=(pick?b.offsetTop+12:below?b.offsetTop+(br+1)*ch+10:b.offsetTop+br*ch-h-10)+'px';
     g.bubble.style.setProperty('--tail',x-left+'px');
     g.bubble.style.transformOrigin=`${x-left}px ${below?0:h}px`;
   }
