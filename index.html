@@ -13,7 +13,7 @@
   --bg:#E4F4F2; --surface:#FFFFFF; --surface2:#EEF7F6; --edge:#5F8A92;
   --ink:#10324A; --muted:#48656F; --accent:#F08A24; --accent-text:#A04C08; --sand:#E8C77E;
   --good:#157A4C; --bad:#C8352A;
-  --water:#9EDFE4; --pen:#F7E6B0; --protect:#9E2419;
+  --water:#9EDFE4; --pen:#F7E6B0;
   --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
   --body:Figtree,system-ui,-apple-system,sans-serif;
 }
@@ -58,7 +58,8 @@ h1 span{color:var(--accent-text)}
   box-shadow:0 0 0 3px var(--ink);image-rendering:pixelated;cursor:crosshair}
 .board.line{border-bottom:8px solid var(--sand)}
 .c{position:relative;display:grid;place-items:center}
-.c.in{background:var(--pen);animation:sweep .45s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--since,0s) + var(--d,0)*45ms)}
+.c.in{background-color:var(--pen);animation:sweep .45s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--since,0s) + var(--d,0)*45ms)}
+.c.neg{background-image:radial-gradient(circle,rgba(214,60,45,.42) 0 46%,rgba(214,60,45,0) 80%)}
 .ov .rope{animation:ropein .35s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--since,0s) + var(--d,0)*45ms + 120ms)}
 @keyframes sweep{from{background-color:rgba(247,230,176,0)}}
 @keyframes ropein{from{opacity:0}}
@@ -66,8 +67,6 @@ h1 span{color:var(--accent-text)}
 .c.rock .s-rock{width:100%;height:100%}
 .board.spot .c.rock:not(.lit) .sp.s-rock{opacity:1}
 .sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
-.c.neg.hit::after{display:none}
-.c.neg::after{content:"";position:absolute;inset:8%;z-index:0;border:2px dashed var(--protect);border-radius:6px;background:rgba(158,36,25,.07)}
 .c.hit::before{content:"";position:absolute;inset:6%;border-radius:6px;border:3px solid var(--bad)}
 .c.hit.good::before{border-color:var(--good);background:rgba(21,122,76,.14)}
 .c.hit.bad::before{border-color:var(--bad);background:rgba(200,53,42,.16)}
@@ -99,8 +98,13 @@ h1 span{color:var(--accent-text)}
 .hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
 .hint.alert{color:var(--bad)}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px 4px 2px}
-.card{appearance:none;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:5px 5px 7px;border:2px solid var(--ink);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;cursor:pointer;font:inherit;box-shadow:0 3px 8px rgba(16,50,74,.14);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s,opacity .25s}
-.card:nth-child(1){transform:rotate(-3deg)} .card:nth-child(3){transform:rotate(3deg)}
+.card{--rot:0deg;appearance:none;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:5px 5px 7px;border:2px solid var(--ink);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;cursor:pointer;font:inherit;box-shadow:0 3px 8px rgba(16,50,74,.14);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s,opacity .25s}
+.card{transform:rotate(var(--rot));animation:deal .5s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--dealt,0s) + var(--i,0)*140ms)}
+.card:nth-child(1){--rot:-3deg} .card:nth-child(3){--rot:3deg}
+@keyframes deal{0%{transform:translateY(28px) rotate(var(--rot)) scaleX(0);opacity:0}55%{transform:translateY(-4px) rotate(var(--rot)) scaleX(.15);opacity:1}100%{transform:rotate(var(--rot)) scaleX(1)}}
+.cards.locked .card[aria-disabled="true"]{cursor:not-allowed}
+.board.await>.c{opacity:.55}
+.board.await{cursor:default}
 .card:hover{transform:translateY(-3px) rotate(0)}
 .card .art{position:relative;display:grid;place-items:center;height:46px;border-radius:6px;background:var(--water);border:1.5px solid var(--ink)}
 .card.limit .art{background:var(--pen)}
@@ -114,7 +118,7 @@ h1 span{color:var(--accent-text)}
 .card[aria-pressed="true"] .rule{color:var(--ink)}
 .sp.arr{display:inline-block;width:.75em;height:.75em;vertical-align:-.05em;margin-right:1px}
 .icon-btn .sp{width:24px;height:24px;margin:auto}
-@media (prefers-reduced-motion:reduce){.card{transition:none}}
+@media (prefers-reduced-motion:reduce){.card{transition:none;animation:none}}
 .mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
 .hook{position:absolute;pointer-events:none;z-index:4;width:2px;background:var(--ink);transform:translateX(-1px)}
 .mark.blocked{border:3px solid var(--bad);border-radius:6px;animation:shake .35s ease-in-out,fade .6s .35s forwards}
@@ -387,7 +391,9 @@ function genNet(g,rng){
   const inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
   const nearBoat=(r,c)=>Math.abs(r-sr)+Math.abs(c-sc)<=2;
   const free=(r,c)=>inB(r,c)&&!G[r][c].rock&&!G[r][c].sp&&!nearBoat(r,c);
-  const put=(sp,r,c)=>{if(free(r,c)){G[r][c].sp=sp;return true}return false};
+  // The outer ring is open sea: nothing there can ever be enclosed, so an animal on it would only be noise.
+  const openSea=(r,c)=>r===0||c===0||r===g.rows-1||c===g.cols-1;
+  const put=(sp,r,c)=>{if(free(r,c)&&!openSea(r,c)){G[r][c].sp=sp;return true}return false};
   for(let f=0;f<5;f++){
     let r=ri(rng,0,g.rows-1), c=ri(rng,0,g.cols-1), d=ri(rng,0,3);
     for(let n=ri(rng,3,7);n>0;n--){
@@ -632,65 +638,65 @@ const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);ret
 
 // @net-ref-start
 const NET_REF = {
-  "2026-09-24":[18,-11,"1f1p202e2h2i2o2r2w2x2y343536","0r1b1c1d1l1p1v1y21252g2i2r2t"],"2026-09-25":[34,-11,"060g0i0j0q0v10161e1g2y353638","131d1f1o1y21292b2k2m2n2v3839"],
-  "2026-09-26":[25,-5,"0q10121e1q222e2h2q3034353637","0r10111315161e1o1y292h2k2u34"],"2026-09-27":[26,-18,"0607080g0k0u101a1k1u262i2k2u","0e0g0h0i0j0o0v0y13161a1b1g1n"],
-  "2026-09-28":[12,-17,"141j1n1u1y252a2h2o2t2w2y3536","0f0p0r10121d1m1p1x292k2n2w2y"],"2026-09-29":[23,-8,"151f1h1m1s1y242e2j2o2v2y3738","1y1z232b2d2f2k2n2q2w3038393a"],
-  "2026-09-30":[23,-23,"0q0r0t10151a1e1h1k1q1t242c2d","0j0r0t12141d1g1p1r222d2l2m2n"],"2026-10-01":[18,-22,"03040d0g0x10111c1v25292h2i2j","0f0p0s0t0z151b1f1n1q222b2d2n"],
-  "2026-10-02":[38,-8,"03040d0g0t1h1t1w23262c2i2j2k","04050e0i0s131e1h1q1t21232835"],"2026-10-03":[22,-11,"04050e0h0i0o0u0y181d1k1w282a","060g0i0r0t10111a1l1w26292i2u"],
-  "2026-10-04":[21,-21,"0j0l0t0w171i1r1t242a2f2m2o2p","0h0k0n0s0v161h1o1s232b2e2m2o"],"2026-10-05":[27,-14,"05060p0z141a1g1m1x272a2j2o2v","0p0r1013151c1g1o1r1y21292b2l"],
-  "2026-10-06":[18,-17,"0203040506070c0x181k1w272j2k","1a1c1k1n1u1x262b2i2n2u2v2w2x"],"2026-10-07":[37,-12,"1m1w23262g2n2o2s2t2y35363738","090l0w171i1n1t1x21242b2m2o2y"],
-  "2026-10-08":[17,-15,"0i0s121c1m1w2021262m2n2r2w36","1b1c1l1o1p1q1x26272a2b2c2k2r"],"2026-10-09":[20,-27,"0v0y0z1015171i1j1u25272a2h3b","0f0g0o0p0s0y121b1k1m1v262a2d"],
-  "2026-10-10":[16,-16,"050f0h0p0t0z141g1l1q1x20282a","0i0j0s0v13151g1j1m1q1v20282a"],"2026-10-11":[29,-9,"0e0o0r0y1a1l222f2k2p2w2z3839","02030c0m0p0x0z181b1j1m1v262v"],
-  "2026-10-12":[25,-14,"0s0t12151c1f1q1v222b2c2j2r2t","0p0y0z11181c1j1u27282q2r2t2u"],"2026-10-13":[20,-11,"10141g1s242b2f2p2u2x3036393a","1f1y20222a2c2e2q2u2y2z303638"],
-  "2026-10-14":[18,-12,"0g0h0i0q0u1013161h242f2p2y2z","0s12141h1x21242e2q2z30373839"],"2026-10-15":[18,-12,"0j0l0s0t0u0w171h1r232b2e2n2p","080i0l0s0v1415181j1u262b2i2l"],
-  "2026-10-16":[26,-9,"0u0v131d1i1p1t1z232f2m2q2y30","080i0v121e1f1h1r2d2n2p2x313b"],"2026-10-17":[26,-9,"1k1q1u2022252e2h2q3135363739","060g0i0r0t151g1k1p1r1z222c2l"],
-  "2026-10-18":[11,-10,"0q0r10131b1f1l1p1v1y252l2r2t","1d1e1n1q1v1w1x252a2f2q2r2t2y"],"2026-10-19":[7,-14,"010e0n0p0x191b1k1o1w20282a2k","0c0e0n0p0y1a1m1q1y1z212a2c2m"],
-  "2026-10-20":[17,-11,"0k0s0u0w0z1112191h1s1v272j2v","0u161f1r242b2d2f2q2u2x2y303a"],"2026-10-21":[28,-16,"10111a1d1h1p1u272x3334353637","0o0p0q0y12181b1e1n1o1u1x282i"],
-  "2026-10-22":[20,-11,"0d0i0n0u151g1w22282e2m2o2w2y","1e22242b2c2d2f2l2q2x31393a3b"],"2026-10-23":[33,-17,"080s111l1o1q1v24262e2i2k2o2u","0t11151e1n1p1r1y1z212k2l2m"],
-  "2026-10-24":[25,-14,"0i0s151c1e1o2j2o2y3035363738","131c1f1l1n1p1v20262b2h2l2v35"],"2026-10-25":[33,-12,"0g0i0p0s0u0z16191i1k1v22232c","0k0u0w1415171i242e2k2n2o2w2x"],
-  "2026-10-26":[15,-14,"06070g111i1n1s1x22292d2l2n2x","131i1p1q1r1t21242b2c2e2o2x2z"],"2026-10-27":[18,-18,"080h101b1i1t20242a2l2p2x2z39","0102030405060b0j0t0z1b1c1d1g"],
-  "2026-10-28":[32,-11,"07080h0w17191e1i1k1y2a2f2m2p","0607080g0t0v151b1d1f1n1p27"],"2026-10-29":[17,-16,"0v161g1s1w1y22272c2k2l2m2t2u","1415161i1q1r1s1w2026292a2j2t"],
-  "2026-10-30":[38,-4,"0o0u15191j1r1u25272g2r2v2x37","080k0n0w1113171d1o1q1t20232d"],"2026-10-31":[24,-12,"0i0s1c1m1p1t1w24262e2i2l2u2v","131c1f1g1o1s20242c2d2f2q313b"],
-  "2026-11-01":[35,-14,"0f0p0u11171b1h1r232d2n2u2w2x","25292a2b2c2g2o2s2x2z34353739"],"2026-11-02":[18,-20,"0q10121a1e1k1u1y202527282a2h","0i0s0u131e1g1s20222b2e2m2o2y"],
-  "2026-11-03":[38,-19,"0o0t10151a1h1k1r1u23262i2j37","1g1q1s2124272b2c2h2j2l2s3537"],"2026-11-04":[29,-17,"0c0e0m0q111314191d1h1l1s1v24","030c0f0m0r0s1014181a1c1e1k1o"],
-  "2026-11-05":[22,-16,"0o0p0t0y1116191i1l1s1x2c2w36","0o0q0t0z1b1c1o1q1z2b2e2q2z30"],"2026-11-06":[11,-17,"04050h0k0w161b1i1n1q1s22292j","1e1f1n1o1r1v1w22252h2i2m2v2w"],
-  "2026-11-07":[24,-20,"0f0p0r0s0z14191c1j1s1v1z2j2v","0b0f0g0n0s0z121b1e1n1q1x2j2k"],"2026-11-08":[39,-23,"030r0z13181j1m1u25292b2h2j2t","050h0t12141b1c1l1x292k2v2x37"],
-  "2026-11-09":[13,-17,"111213171b1f1l1o1r1y2127282b","0q0z1012191e1j1m1n1q1w212c2m"],"2026-11-10":[37,-7,"05060f0i0o0p0y111u2a2h2k2t2u","030d0f0o0q0z121a1c1n1u1x272h"],
-  "2026-11-11":[19,-14,"0s141d1g1o1s242f2q303738393a","030f0n0q0z1a1e1f1g1h1m1t2223"],"2026-11-12":[30,-15,"181a1j1q1u1y21252c2m2u2x3637","0o0p0q0s13181g1k1n1w1z232829"],
-  "2026-11-13":[16,-13,"0c0d0e0f0m0y1014181k1p1r1u26","0203040c0n0p0y1112141a1b1q20"],"2026-11-14":[24,-14,"040506070e0k0o0w0y171a1c1e1g","0z1011191e1k1v1y20262i2l2u2v"],
-  "2026-11-15":[24,-14,"060708090c0d0m0x181j1m1v2227","01020b0m0x181e1k1l1r1x2023"],"2026-11-16":[19,-19,"0k0w13171i1q1t232a2f2m2p2y30","141g1p1r23292b2d2l2o2x3039"],
-  "2026-11-17":[13,-14,"10121b1e1m1x21292d2k2m2o2w2y","10121b1d1l1w1y22272b2c2j2l2v"],"2026-11-18":[29,-16,"0204050h0t15181e1h1k1n1r1w1y","0d0f0o0r0s10141c1f1m1p1x1z"],
-  "2026-11-19":[25,-16,"1214151l1w282k2q2w3138393a3b","0u141f1s1x1z22272h2l2m2t2v35"],"2026-11-20":[12,-11,"0s121d1n1x1z272i2o3036373839","111b1d1m1p27282h2o2v30373839"],
-  "2026-11-21":[29,-16,"06070j0v171f1t21242f2n2p2z39","1415161e1r1t2022232b2d2m2o2y"],"2026-11-22":[17,-2,"0p1d1p1v21272j2p2v313738393a","2a2j2k2m2n2q2t3135363738393a"],
-  "2026-11-23":[33,-18,"0g0h0i0q0u12161i1m1r2f2l2p31","101a1g1k1o1q1w202e2k2n2o2q31"]
+  "2026-09-24":[6,-14,"0p0z11191c1k1n1u1y252g2j2r2t","0f1c1d1k1l1m1p1u1z252g2j2r2t"],"2026-09-25":[24,-14,"0h0r0t11151c1e1h1m2135363839","0o0p0y11131d1f1n1y2c2m2x3536"],
+  "2026-09-26":[23,-10,"0r11131b1e1q21292b2h2l2v3435","1x1y1z202c2d2h2k2l2p2u2w3034"],"2026-09-27":[25,-19,"0p10121b1l1v252h2t3536373839","0b0e0n0r0s0z1a1c1m202j2k37"],
+  "2026-09-28":[17,-23,"1j1n1p1u1y252a2h2o2t2y353637","0e0f0o0r10121e1n1x292k2n2w2y"],"2026-09-29":[26,-11,"1g1m1q1s1w24292f2l2o2q2x2y30","0u0v1014171a1h1l1r1w1z202129"],
+  "2026-09-30":[28,-21,"0p0q0r0t0u0z17191e1i1j1q1s22","0r0t11151d1h1p1t232k2m2n2o2w"],"2026-10-01":[27,-10,"0o0p0x11131f1r1w21272b2j2l2v","0d0e0f0z10131c1f1q222b2e2n2o"],
+  "2026-10-02":[41,-8,"050f0i0p0r161i1t1v2327282c2k","040e0g0h0q12131e1g1r20222n2s"],"2026-10-03":[21,-9,"0o0p0q0r0y131a1c1l1w282l2m2n","050f0h0q0s10111a1k1w262a2i2u"],
+  "2026-10-04":[17,-13,"0h0k0r0w11171i1q1t242b2e2m2o","2627292c2g2j2l2o2s3435363738"],"2026-10-05":[26,-10,"05060p0z15191h1j1v272a2j2k2o","0p0r1012141b1e1g1m1x21292l2o"],
+  "2026-10-06":[20,-11,"06070g0q1a1k1u262i2k2t2w3536","0z191c1k1m1u1y25272h2j2l2n2v"],"2026-10-07":[23,-17,"191a1j1p1u232627292j2l2m2o2y","161i1n1o1t1x24282a2k2m2n2o2r"],
+  "2026-10-08":[22,-15,"0h0i0r111b1m1w21262n2r2x3637","0c0d0p0z1a1b1j1n1u1x25272i2s"],"2026-10-09":[29,-18,"02030c0f0o0r0y13151h1k1w262d","0d0g0n0p0q0s0x141b1j1l1u2627"],
+  "2026-10-10":[29,-13,"0i0s0u13161i1k1p1t1w282d2l2n","0q0s1012141f1j1m1q1v1z20282a"],"2026-10-11":[36,-8,"0g0o0p0y191l2d2f2l2m2p2v2y2z","02030c0m0p0x0z181a1j1m1q1v1w"],
+  "2026-10-12":[30,-13,"0r0s11141c1g1q1v222c2j2m2r2t","0p0y0z11181c1j1u27282i2r3435"],"2026-10-13":[30,-12,"10141g1n1s242f2p2t2z35363839","0p141b1d1f1m1p1x1z2b2n2u2x36"],
+  "2026-10-14":[26,-12,"060g0i0q0u1113161i242f2p2y2z","0s12141p1s21232c2e2q2x2z3039"],"2026-10-15":[11,-19,"080i0l0s0w161e1g1r21292c2m2w","080i0l0s0v151f1q222b2e2n2q30"],
+  "2026-10-16":[22,-7,"0607080g0w0z191e1h1k1n1q1u20","0u0v111c1d1h1m1q1y202t2y3336"],"2026-10-17":[27,-9,"191j1q1u22252e2g2o2r2u2y3637","0h0r0t151g1n1r1x212c2j2w3536"],
+  "2026-10-18":[24,-11,"0p0z11121a1e1k1n1o1u252r2t2w","0o0y10191c1l1o1v252a2r2v3435"],"2026-10-19":[21,-1,"03050c0f0o0y1a1m1r1y222a2b2c","010e0m0p0y1a1m1o1x20292c2l2m"],
+  "2026-10-20":[34,-11,"04050607080k0w0z191v1w1x2329","151e1h1q1y242f2m2n2p3038393a"],"2026-10-21":[27,-8,"0f0g0p0s0z14191g1s1u2a2k2t2u","030c0d0f0m0q0x0z10181b1n1w1x"],
+  "2026-10-22":[24,-12,"0d0g0n0s141g1w23282e2o2y3738","0f0h0q0s0t0u11161d1i1p212224"],"2026-10-23":[35,-16,"08111l1o1q1v24262e2i2k2o2u34","0n0p0x12191a1e1f1n1r1z2021"],
+  "2026-10-24":[34,-15,"070h0u11131b1p2b2c2d2i2l2v35","0j0s0t1c1o1r1y212c2i2m2w3536"],"2026-10-25":[19,-23,"0g0n0p0s0t0x15181h1j1v22232c","0i0s0u13161h232e2k2n2w2x2z3b"],
+  "2026-10-26":[25,-18,"10111a1k1p1u21262b2i2k2m2u2w","0r0z131a1h1m1n1p1s21222o2v2y"],"2026-10-27":[32,-18,"080h151i1t1x23272d2j2n2v2x37","03040506080d0z121a1g1l1w1y28"],
+  "2026-10-28":[28,-15,"07080h0w17191e1i1k292d2l2m2p","07080h0v151b1h1n1o1q202c2e2o"],"2026-10-29":[27,-4,"0v171i1t1w23262d2n2t2w2x3536","0k0w161f1h1p1r1w20262a2k2t2u"],
+  "2026-10-30":[34,-11,"0m0t151a1k1r1w262g2l2m2r2t2v","111415191d1e1l1m1r1y2a2h2l2x"],"2026-10-31":[34,-8,"0i0s1c1m1r1t1w24262e2i2u2v2w","0c0d0e0m0q0y0z1b1c1j252r3334"],
+  "2026-11-01":[35,-13,"02030c0t0y171i1o1s222c2m2u2w","0i0s0u13161d1g1n1q202a2l2u2w"],"2026-11-02":[21,-20,"030506070d0f0n0z10131c1e1g1o","0q0s0t121e1h1t20242a2d2e2m2n"],
+  "2026-11-03":[35,-25,"0m0x10181f1j1o1r1v23272e2j37","1d1g1n1p1q1s1x2124282a2b2j37"],"2026-11-04":[42,-16,"03040c0g0i0m0s11191h1k1r1u22","0c0e0n0p0q1012181e1k1m1n1o1w"],
+  "2026-11-05":[20,-20,"0p0t0z191j1q1u1x252c2h2t2w36","0n0x0z181b1d1e1k1n1q1w2c2k2w"],"2026-11-06":[20,-15,"0405060l0w11171b1i1n1s1v2429","11121c27292h2l2p2y303637383a"],
+  "2026-11-07":[20,-26,"0b0f0m0r0x13181c1e1j1o1v1x1y","0f0g0r0z11121b1e1n1q1x202j2v"],"2026-11-08":[34,-14,"050e0h0j0t0v17191i1l1m1n1p1s","060g0i0u1113141c1m1w27292b2j"],
+  "2026-11-09":[17,-14,"111213161b1i1l1s2122272b2j2v","0f0i0p0r10141a1c1e1k1p272829"],"2026-11-10":[23,-16,"0406070e0g0o0y141u28292a2h2i","050f0h0i0q0z10131u27292a2h2j"],
+  "2026-11-11":[21,-15,"0s141c1g1m1s242f2q2w3038393a","0c0m0p0y11131a1f1g1h1m1t232d"],"2026-11-12":[30,-15,"030d0f0l0n0v171a1i1q1t22242e","040e0o0p0r12181k1o1w1x20292a"],
+  "2026-11-13":[23,-19,"03040c0d0m0y1015181e1k1q1u26","010203040c0o0p0r0s0z141b1q20"],"2026-11-14":[26,-8,"0h0t0v171t24282k2l2p2x393a3b","0i0s0u13151g1z2227292m2y2z30"],
+  "2026-11-15":[29,-10,"0608090c0i0m0o0x181j1u262i","070d0h0j0n0u0x15181j1q1v2027"],"2026-11-16":[18,-18,"0k0w14171i1p1t232a2f2m2q2y30","151f1r1s20242c2e2n2q2y30"],
+  "2026-11-17":[21,-14,"10121a1e1l1n1v20252b2i2l2u2v","10121b1d1m1x2226292a2b2d2n2t"],"2026-11-18":[23,-18,"05060d0f0i0q0u0v17191h1l1r1x","020f0r11191b1j1m1r1u1v1y2627"],
+  "2026-11-19":[34,-16,"0g0h0q0t151l1w282b2k2l2o2q30","1x1z202627292g2m2s2t2w3536"],"2026-11-20":[23,-9,"0f0g0p0s0z1a1e1m2l2o2w303839","0f131d1n20232d2f2k2q2w303839"],
+  "2026-11-21":[30,-21,"06070j0v171f1t21242f2n2p2z39","0k0u0w14171e1q1t20232d2m2o2y"],"2026-11-22":[13,0,"0p1d1p1v21272j2q2v313738393a","070j0t151c1h1o1t20242c2q2z31"],
+  "2026-11-23":[34,-10,"060g0i0q0u12161i1m2f2m2q2z31","0z10191j1o1v20262b2h2n2o2t30"]
 };
 // @net-ref-end
 // @card-ref-start
 const CARD_REF = {
-  "carta:0":[["curta",17,-11,"0e0f0r10131b1d1o1y262h2j2k","0y10181b1j1n1q1u1x25292g2i2x"],["golfinho",31,-6,"0405060e0t10151a1f1p1v252h2k","0y10191c1d1e1q1x22282c2j2m2y"],["soltura",32,-11,"040e0g0s10141a1f1p21262g2k32","0y10181b1j1n1u1x252h2i2j2m2y"]],
-  "carta:1":[["golfinho",36,-10,"0405070j0v0z161d1e1i1t1y242e","0f0r0t0y1214181c1f1o1p1r1v23"],["barbatana",26,-19,"04050708090l0w10171e1i1s1y22","0r0t12141d1f1o1r1s20242e2p"],["soltura",32,-23,"0405070j0v0z171d1e1i1s1y2223","0r0t0u12141c1f1o1q1r1s1z242e"]],
-  "carta:10":[["mare",10,-4,"020304060c0g0i0t0y0z131b1d1n","0203040c0g0q0v0y101a2m2o2x2y"],["barbatana",27,0,"060c0f0g0i0o0p0u0x16181h1t23","020c0e0q0t0u0v0y0z11161b1c1g"],["soltura",28,-4,"020304060c0g0i0u0x0z16181h1s","020304050c0h0q0r0y101a1c1u26"]],
-  "carta:11":[["isca",9,-32,"0i0j0r0s0w11171d1e1f1h2v38","0d0e0f0n0r0x13181f1j212w3536"],["mare",11,-9,"080i0k0r0s0w11171d1h1p1z21","1e1f1o1z212a2c2d2l2p2x2y303a"],["curta",11,-9,"0i0j0r0s0w11171d1e1h1q222d2n","0i0j0n0v0y1621232c2e2q2y303a"]],
-  "carta:12":[["mare",16,-8,"020c0e0m0q0x12181c1o1v1w1y28","0e0x191l1o1u1x25282h2k2s2u34"],["curta",16,-8,"020c0e0m0q0y11191a1c1v1w2n","0j0t0v1011121316191a1g1n1v1x"],["golfinho",17,-9,"01020b0e0f0m0r0x13181d1v1w2m","03040d0g0i0j0p0s0v0z10191h1v"]],
-  "carta:13":[["mare",17,-4,"03040c0g0o0s0z13191e1l1n1o1x","030c0f0m0q0x10181a1j1m1v1x27"],["barbatana",34,-6,"03040506070c0m0x181j1u1y2n2t","030c0f0o0r10131c1n1x27282n34"],["soltura",37,-9,"03040c0g0n0s0t0z191l1w1y2n2t","0c0e0n0q0y121a1c1l1v282l2n34"]],
-  "carta:14":[["curta",17,-19,"020c0e0n0z111a1d1m1p20282a2k","1m1y1z2027292c2i2m2s2v2w3435"],["golfinho",35,-11,"020c0e0m0x181k23282b2d2k2l2n","1b1m1n1z20272c2j2l2m2v30"],["soltura",36,-19,"020c0e0m0y181v22282a2b2c2k2t","1m1y1z2027292c2i2m2s2v2w3435"]],
-  "carta:15":[["isca",10,-26,"0d0n0p0r1113191f1r23292e2k2o","0e0n0o0q1214181e1g1s22252c2h"],["golfinho",22,-9,"0d0n0p0r1113191f1r23292e2j2o","0d0f0i0n0p0r0z1217181c1i1s30"],["barbatana",24,-7,"030d0f0n0r1113181f1r23292d2j","0n0o0q1012181e1f1g1s22292a2c"]],
-  "carta:16":[["curta",7,-3,"0n1l1w26292c2i2j2l2p2x31393a","0p0r121y292b2c2j2v2w2x31393a"],["barbatana",18,-2,"191b1j1u262c2i2j2v313738393a","191c1k1v27282b2c2k2w3138393a"],["soltura",21,-5,"060r0s1b1x292c2k2v313738393a","191c1k1v272b2c2j2v2w2x31393a"]],
-  "carta:17":[["mare",8,-5,"08090i0s0w12171e1i1q1t21232d","090j0t0w14161c1e1h1k1p1r2134"],["golfinho",24,-5,"090j0t0w15171f1i1q2e2o2y3738","090i0j0r0t0w13161e1g1r212h2j"],["soltura",22,-8,"090j0t0w15171f1i1q2e2o2w2y38","090j0t0w13161d1i222b2c2m2x37"]],
-  "carta:18":[["mare",17,-17,"0506070f0j0r13171f1i1q1t2223","0h0i0j0r1214171c1g1h1n1p1q1z"],["golfinho",27,-12,"070h0j171b1f1h1l1t1w26292i2j","0i0j12151b1g1l1m1o1q1v272829"],["barbatana",26,-16,"0506070j171a1f1i1k1n1o1t1w1x","0u121314171c1h1l1m1r1v272829"]],
-  "carta:19":[["isca",14,-25,"0e0g0h0r0t0z15191d1g1l1m1n1q","030g0n0s0x1014181e1k1o1w1x1y"],["mare",15,-18,"0e0g0h0p0t0z13191d1j1m1n1v1w","0d0e0g0n0s0x1014181a1c1e1k1o"],["curta",17,-15,"0e0g0r0z12191c1j1n1v1w282a2k","0e0g0n0s0x14181a1b1c1e1k1o2u"]],
-  "carta:2":[["isca",8,-22,"0304050c0o10131a1f1m1q1y1z20","01030f0x181j1p212c2m2w343536"],["mare",11,-5,"030c0f0o0r10131a1f1m1q1y1z20","030c0f0g0o0s1011141c1e1n1p1z"],["curta",12,-2,"04050c0e0z10131b1f1m1q1y1z20","0c0e0q0y191c1l1n1o1w2028292a"]],
-  "carta:20":[["mare",12,-13,"0q0r10131a1d1k1o1u1y25282h2j","0z1011191d1l1m1o1w1z26292h2j"],["golfinho",28,-6,"0q0r10131a1f1k1q1v262h2j2k2l","0y0z181b1j1l1u1w25272j2r3337"],["soltura",25,-13,"0q10121a1e1k1q1u1y252h2w3536","0y0z181b1j1l1n1u1w1z25292h2j"]],
-  "carta:21":[["mare",15,-13,"10191a1c1j1o1v1z252a2k2s2u34","1d1k1l1m1n1p1u202528292a2i2s"],["barbatana",26,-13,"0d0o0s0y181j1v252k2l2m2s2u34","1k1l1m1n1p1u202528292a2i2j2s"],["soltura",27,-17,"0p0z11191j1o1v252a2k2m2s2u34","1b1k1l1n1p1u202528292b2i2l2s"]],
-  "carta:22":[["mare",16,-10,"1p1q1r1s1z24292f2j2o2p2v2y38","1a1b1c1d1k1p1w1z282b2j2m2v2x"],["barbatana",31,-6,"101a1k1o1s1u24262f2i2q2u3638","101d1p1r2021282b2j2n2v2x"],["soltura",34,-10,"02101l1o1s24252a2f2k2q2v3638","1a1b1d1k1p1w20272b2j2n2v2x35"]],
-  "carta:23":[["isca",16,-37,"14161g1i1p1t2022242a2e2l2x39","030f0m0r0x13181j1q202a2k2t2u"],["golfinho",38,-8,"14161i1o1t1y24282e2j2l2v2x39","0h0j0k0t0w14171b1i1q1r1s1x2n"],["soltura",35,-21,"0u14161i1o1t1z22242a2e2l2x39","1h1o1q1r1y23282b2c2e2k2m2w"]],
-  "carta:3":[["isca",13,-26,"1b1d1k1n1p1q1u22292d2l2m2p2y","0405060e0i1r1x212b2k2n2w3839"],["mare",15,-8,"1d1n1p1q1x22292e2l2p2v373839","0u0v14171f1h1q1t21242c2f2n2p"],["curta",16,-11,"1p1q1z22292c2h2o2t2u2v2x3739","121c1o1x1z2a2b2j2n2u2w363839"]],
-  "carta:4":[["golfinho",27,-11,"0f0r0s0y14181f1j1r262i2p2u36","0e0f0g0s101213141b1d1g1q1z20"],["barbatana",31,-13,"0f0r0s0y14181g1j1q262i2p2u36","0g0q0s10131a1e1f1l1r1x1z2b2c"],["soltura",30,-20,"0f0p0r0y13181f1j1q262i2k2p2u","0e0f0g0s1012141b1e1g1s1z2021"]],
-  "carta:5":[["mare",14,-12,"0n0o0x10181c1j1o1u1y25282g2i","11121b1e1n1p1x20272a2h2k2u34"],["golfinho",27,-11,"02030c0g191c1g1k1v1y25282g2i","0e111b1d1m1x1z272a2h2l2v3435"],["soltura",30,-13,"02030c0g181c1g1j1u1y25282g2i","1s1y24282b2d2f2i2l2n2p2v3435"]],
-  "carta:6":[["isca",10,-27,"0s0t121a1b1e1k1n1w272j2k2x2y","030f0r0y13191f1l1x2k3038393a"],["mare",14,-12,"0s12141c1g1m1q1w22272c2j2m2v","15161f1i1p1s21242b2e2l2o2y38"],["curta",13,-13,"0s1112141b1j1m1q1w272j2k2m2y","1k1l1u1x262a2i2n2u303638393a"]],
-  "carta:7":[["isca",5,-40,"0k0w131d1p1z222a2m2o2w2z3839","0203040c0g0m0x242o2x2y353637"],["mare",11,-8,"131d1f1n1r1x22272j2o2v2w2y38","161g1i1q1t20242a2k2o2v2x2y37"],["curta",10,-10,"1p1x1y1z2122272j2k2o2w2z3839","1q1z2124292b2k2p2t2v2x2y2z37"]],
-  "carta:8":[["mare",16,-10,"1g1i1q1t20242c2e2m2q2y2z313b","1g1i1p1r1t1z2122242b2f2n2p2z"],["golfinho",27,-11,"0i0s0u131d1i2c2e2q2w2z31393b","1g1i1r202122292f2j2n2o2p2u2y"],["barbatana",27,-10,"0i0s0u121d1i2c2e2q2w31393a3b","151f1i1r2021222f2m2n2o2p"]],
-  "carta:9":[["isca",19,-35,"0304050h0u0v1b1m20282m2p2y2z","060g0n0p0r0x11181c1g1k21282b"],["mare",19,-16,"0304050d0h0o0t0z13191d1k1m1n","0n0x0z15181b1k1n1z282b2j2l2v"],["curta",19,-16,"0304050h0q1013191d1k1m1n2d2g","0n0r0x181b1k1m1q1y262i2l2u2v"]]
+  "carta:0":[["curta",16,-20,"0r0y101314181c1d1g1k1q202829","0e0q0y1112131a1e1m1o1x272j"],["golfinho",33,-12,"0y101314191c1d1g1q1v20252g2k","0e0n0q0s12191b1e1m1o1x24282j"],["soltura",35,-20,"0n10181c1d1e1j1q1u2025282g2k","0e0f0r0y131a1b1f1m1p1x23272j"]],
+  "carta:1":[["golfinho",42,-10,"0405070j0v0x17181d1e1i1t1y23","0q0r0t0y1214181c1f1o1p1r1v23"],["barbatana",30,-13,"0405070j0v0y171a1e1i1s1y22","050f0t0y1214181c1d1f1o1r2023"],["soltura",38,-17,"0405070j0v0x17191d1e1i1s1y22","050f0t0y1214181c1f1o1r1t2023"]],
+  "carta:10":[["mare",14,-16,"020c0e0f0h0r0t0y141a1b1d1e1n","0203040c0g0p0q0x0z181a1k2p"],["barbatana",30,-16,"02060c0e0f0g0i0u0x15191h1t23","0203040c0g0p0q0x0z181a1r2b"],["soltura",34,-20,"020305060c0f0i0u0x15191h1q1s","0203040c0g0p0q0r0y1013181f1r"]],
+  "carta:11":[["isca",19,-23,"0j0s0t0w12171d1h1n1q1y292k2w","0q10121a1e1f1m232e2l2o2v2y35"],["mare",18,-12,"0s0t12151d1f1n1z21292c2k2m2w","1c1e1f1m1o1x21292a2c2l2o2x2y"],["curta",21,-12,"0s0t12151b1d1f1l1n2128292k2w","0q1012131b1f1m1o1y23282d2o2y"]],
+  "carta:12":[["isca",29,-21,"02030c0f0g0m0p0s0x1114191f1v","04050e0h0o0s1014191a1d1g1v1x"],["golfinho",44,-5,"0203040c0g0h0m0p0t0x14181f1v","04050e0h0o0s101114191a1g1v1x"],["soltura",45,-16,"0203040c0g0m0p0s0x1114181f1v","050e0f0h0o0s1014191a1d1g1v1x"]],
+  "carta:13":[["mare",15,-14,"030405060c0i0o0p0u1013141c1d","0c0e0n0q0z111a1d1m1p1y212a2b"],["barbatana",34,-15,"0506070c0e0f0n0p0x181k1w2n2t","0c0e0m0q0x1112191k1r1u2c2m34"],["soltura",36,-15,"0c0e0f0m0p0r0y13181k1w202n2t","0c0e0m0q0y111a1d1l1r1v2m2n34"]],
+  "carta:14":[["curta",16,-10,"111c1e1f1m1p1z272a2i2k2t2v35","1m1n1o1p2128292a2c2j2n2v2w2x"],["golfinho",26,-10,"101a1l21262b2g2k2l2r2v333435","161m1n1o202128292b2j2n2v2w2x"],["barbatana",26,-6,"101c1m2021262a2g2k2r2v333435","1m1n1o1q202228292c2j2m2v2x37"]],
+  "carta:15":[["isca",17,-31,"0d0n0p1112191e1n1p20252c2g2s","03040506070d0n0t13181f1p1z29"],["golfinho",33,-12,"0d0n0p1112181e1n1q22252e2h2o","060g0i0n0o0p0q0t13191b1d1o1y"],["barbatana",33,-19,"0d0n0p11181d1p1q1r23252d2g2s","040506070e0n0o0r0t13181b1c1d"]],
+  "carta:16":[["curta",13,-7,"1l1v1z272b2j2k2n2p2w3138393a","1q1s222a2b2c2k2u2x313637393a"],["barbatana",30,-7,"1i1s1w24262h2j2k2t2w3138393a","0q121a292a2c2j2u2w2x3136393a"],["soltura",29,-13,"1f1h1l1t1v23272j2v313738393a","1i1q1s232a2d2k2u2x313637393a"]],
+  "carta:17":[["isca",13,-17,"090j0s0t0w12161e1h1q20232c2d","08090i0s0v12151c1g2d2e2n2x37"],["mare",14,-8,"090j0t0w14171e1h1q1t20232c2d","08090i0s0v1213151c1g1o1r2021"],["curta",16,-9,"090j0s0t0w12161e1h1q20232c2d","0708090h0s0u0v1213151c1g1r21"]],
+  "carta:18":[["mare",15,-8,"06070g0j0q11171d1f1h1p1s2122","0h0i0j0r111214151b1g1n1q1z20"],["golfinho",36,-10,"020c0i0j0m0x17191f1h1l1t1x29","0j0t0z1116191g1k1m1n1q1v1x27"],["barbatana",36,-3,"020c0n0t0u0x17191f1i1l1t1x29","0j0t13161e1g1q2f2k2q2w313839"]],
+  "carta:19":[["isca",24,-15,"060e0g0i0u0z141a1d1g1m1n1r21","03050h0s0t0u11161b1e1f1g1n1o"],["golfinho",40,-3,"0305060i0m0u0x14191g1l1q1x29","03050607080k0s0t0v111214161g"],["soltura",38,-9,"03050h0m0t0x15191d1g1l1q1x29","030g0s0t0u101213161b1g1n1p1q"]],
+  "carta:2":[["isca",20,-25,"04050c0e0p0x191j1o202a2i2j2k","01030f0i0u0z161b1g1m1q1y1z20"],["golfinho",28,-14,"010e0f0p0x181j1p212b2i2j2k2l","010e0i0q0u0z151b1f1m1q1y1z20"],["barbatana",30,-6,"010e0f0p0x181e1j1q202a2i2j2k","0c0e0q0z101e1p1q1r20222c2e2o"]],
+  "carta:20":[["isca",5,-29,"121c1e1l1m1n1p1v2528292a2h2j","0r0s11141b1g1l1q1w262s2w3536"],["mare",10,-9,"0q10121a1e1l1p1v2025292a2h2j","13141d1g1o1q1y21282b2i2l2v35"],["curta",9,-16,"0z10191c1d1l1p1v2528292a2h2j","0r0s11141d1g1n1q1y282i2l2v35"]],
+  "carta:21":[["mare",14,-11,"101a1c1k1o1v20262b2l2s2v3435","121b1c1d1k1l1p1u1y1z25282i2s"],["barbatana",26,-14,"0d0o0s0z1a1k1v252m2s2w343536","1k1l1m1n1u2528292i2l2o2s2x2y"],["soltura",28,-14,"0e111b1l1o1v252n2s2w2x343536","1k1l1m1n1u2528292i2l2o2s2x2y"]],
+  "carta:22":[["mare",10,-8,"1f1g1p1s1z242a2f2l2p2v2z3839","1v1x2527292g2i2l2r2x33343536"],["barbatana",32,-13,"0p0z191j1o1s1v24272f2j2p2v38","1d1p1v1w1x20252b2h2i2j2n2v38"],["soltura",32,-13,"0c0d10151o1s2426282f2j2q2v2x","1d1m1p1v1w20252b2h2i2j2n2v38"]],
+  "carta:23":[["curta",21,-13,"1n1o1q1x2122292b2e2j2v2w2x39","0f0g0p0s11131b1n1q1z212a2c2m"],["golfinho",31,-9,"141h1n1o1t1x24292b2f2l2q2x39","1011121a1l1n1q1w1y21282a2c2m"],["barbatana",30,-13,"1c1l1m1o1q222b2e2t2v35373839","0f0g0p0s11141b1n1q1z212a2c2m"]],
+  "carta:3":[["isca",20,-24,"0s121c1m1r1v232c2e2k2m2n2p2w","0r11131n1r1x1z232b2f2l2p2x39"],["mare",19,-10,"1n1o1x20282c2i2m2n2u36373839","0p212b2d2l2p2x39"],["curta",20,-14,"1d1n1p1x202c2i2m2n2u2v373839","0k0u0w171h1q1t2122242b2f2n2p"]],
+  "carta:4":[["golfinho",43,-8,"0f0r0y13191f1j1r272h2j2k2q30","050m0x0z181b1e1k1w1x212b2l2p"],["barbatana",31,-18,"0f0r0y13181f1j1r20272h2j2k2p","12141c1e1g1s1y212a2c2j2l2q30"],["soltura",39,-19,"0f0r0y13191f1j1r20272h2j2k2p","0m0x0z181b1k1p1w1z21282k2q30"]],
+  "carta:5":[["isca",12,-29,"0n0o10191b1j1n1v1y25282g2i3a","0g0q101a1f1m1x20272a2h2k2u34"],["barbatana",31,-17,"01050d0e16191g1j1u1y25282g2i","1n1x23272a2b2f2h2k2n2o2p2u34"],["soltura",31,-17,"0e0g0n0o11191g1j1u1y25282g2i","1n1x23272a2b2c2f2h2k2o2p2u34"]],
+  "carta:6":[["mare",16,-11,"1b1c1l1o1w20262c2g2m2s343536","101112131a1f1m1p1x1z282b2k2m"],["golfinho",40,-11,"040507080e0h0z1b1l1w282c2k2m","0y10191c1k1m1u1x262h2l2t2u36"],["soltura",38,-17,"0407080e0g0h0z1b1e1l1x2k2y38","0x10111213191f1k1u1x26272k2m"]],
+  "carta:7":[["golfinho",56,-5,"0d0f0g0n0p0x1f242o2y35363738","02030c0f0o0r10141c1o20232c2o"],["barbatana",42,-16,"0d0f0g0n0p0x1m20242a2c2k2o2u","1a1b1d1n1p1w212328292a2m2n2o"],["soltura",49,-17,"0d0f0g0p0z1f1m20242a2c2d2k2u","0e0o0q0r0z141l1n1x1z222b2n2o"]],
+  "carta:8":[["mare",14,-12,"1f1g1i1p1t20242c2e2m2q2y2z30","1g1i1r1t2122242b2f2n2p2y303a"],["golfinho",25,-13,"05060i0o0u0z1b1i1n2c2e2o2w2y","1g1i1r21222b2f2n2o2q2y313a3b"],["barbatana",27,-10,"0u141e1h1y282c2e2j2q2u2y303a","0o151f1i1p1r21222f2m2n2o2p2s"]],
+  "carta:9":[["isca",14,-36,"030405060p0s111c1f1m20282c2o","0e0h0q0r15191e1j1u21262b2i2j"],["golfinho",34,-10,"030405060s0u0v1a1m20282m2o2y","0g0h0p0q13191d1g1k1m1p1y212b"],["soltura",34,-18,"03040g0p0s0u0v1a1m20282c2o2v","0e0g0h0q131a1c1d1k1p1x212b2m"]]
 };
 // @card-ref-end
 
@@ -736,7 +742,7 @@ const STR = {
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'+3 per protected animal under a buoy',
     card_extra:'Card', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
-    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to haul',
+    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to haul', new_map:'New map', playtest:'playtest', help_cards_title:'Rule cards', help_intro_test:'A fishing puzzle. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. It locks when you drop the first buoy; clear the net to change it. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Clear the net to change cards',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
     not_played:'not played yet',
@@ -779,7 +785,7 @@ const STR = {
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'+3 por protegido sob boia',
     card_extra:'Carta', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
-    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para puxar',
+    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para puxar', new_map:'Novo mapa', playtest:'teste', help_cards_title:'Cartas de regra', help_intro_test:'Um quebra-cabeça de pesca. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. Ela trava quando você solta a primeira boia; limpe a rede para trocar. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'Limpe a rede para trocar de carta',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
     not_played:'ainda não jogado',
@@ -814,7 +820,9 @@ const STR = {
   },
 };
 // Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
-let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
+// Playtest build: only the purse net with rule cards; the other modes stay in the code, hidden.
+const PLAYTEST=true;
+let TOURNEY=!PLAYTEST&&(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
   const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
   return v==='1'})();
 const frozen=rec=>!!(rec.revealed||rec.locked);
@@ -829,7 +837,10 @@ function applyText(){
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
-  document.getElementById('help-body').innerHTML=`<p>${t('help_intro')}</p>
+  document.getElementById('help-body').innerHTML=PLAYTEST?`<p>${t('help_intro_test')}</p>
+    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
+    <h3>${sprite('buoy')}${t('help_cards_title')}</h3><p>${t('help_cards')}</p>
+    <p>${t('help_points')}</p>`:`<p>${t('help_intro')}</p>
     <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
     <h3>${sprite('hook')}${t('game_linha')}</h3><p>${t('help_linha')}</p>
     <h3>${sprite('hook')}${t('game_fundo')}</h3><p>${t('help_fundo')}</p>
@@ -841,7 +852,7 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
-  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;setCard(g,k);g.showing=null;render(g)});
+  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card&&g.marks.size){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);g.blocked=null;g.showing=null;render(g)});
   g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -921,7 +932,7 @@ function paint(g,[r,c]){
   const k=key(r,c);
   if(isStart(g,r,c)||g.kind==='line'&&r<1||g.paint===g.marks.has(k)) return;
   const cost=g.grid[r][c].sp?2:1;
-  const why=!g.paint?null:g.buoy?(g.grid[r][c].rock?'rockwall':g.marks.size>=g.maxBuoys?'buoys':null)
+  const why=!g.paint?null:g.cards&&!g.card?'card':g.buoy?(g.grid[r][c].rock?'rockwall':g.marks.size>=g.maxBuoys?'buoys':null)
     :g.grid[r][c].rock?'rock':lineCost(g)+cost>g.maxLen?'budget':null;
   if(why){if(g.blocked!==k+why){g.blocked=k+why;g.blockReason=why;spawn(g,r,c,'blocked')}return}
   g.paint?g.marks.add(k):g.marks.delete(k); g.history.push([g.paint,k]); g.blocked=null;
@@ -933,7 +944,7 @@ function toggleTraining(g){
   if(g.training){
     g.trainRec={best:null,worst:null,tries:0};
     const n=Object.keys(CARD_REF).length;
-    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.cards=CARD_REF['carta:'+i].map(x=>x[0]);newMap(g,'carta:'+i)}
+    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.cards=CARD_REF['carta:'+i].map(x=>x[0]);g.dealtAt=performance.now();newMap(g,'carta:'+i)}
     else newMap(g,'treino:'+Math.random());
   }
   else newMap(g,DATE+':'+g.key);
@@ -954,10 +965,10 @@ function newMap(g,seed){
   if(g.kind==='drop'){
     g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
     syncDrop(g);
-    setTimeout(()=>{const r=solveDrop(g.cells0,g.lances);if(g.seed!==seed)return;g.par=r.best;render(g)});
+    setTimeout(()=>{const r=solveDrop(g.cells0,g.lances);if(g.seed!==seed)return;g.par=r.best;if(seed===DATE+':'+g.key)g.dailyBest=r.best;render(g)});
     return;
   }
-  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;render(g)}));
+  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;if(seed===DATE+':'+g.key&&ref.exact)g.dailyBest=ref.best;render(g)}));
 }
 
 const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
@@ -1048,9 +1059,9 @@ function renderDrop(g){
   g.el.hint.classList.toggle('alert',!!g.blocked);
   g.bubble.hidden=true;
   g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
-  g.el.train.hidden=!g.training;
+  g.el.train.hidden=!g.training||PLAYTEST;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
+  if(g===current()) document.getElementById('train-btn').textContent=t(PLAYTEST?'new_map':g.training?'practice_off':'practice_on');
   renderResult(g);
 }
 
@@ -1102,14 +1113,15 @@ function render(g){
   g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
   if(g.buoy){g.closedAt=inside?.size?g.closedAt??performance.now():null;g.board.style.setProperty('--since',g.closedAt?`${g.closedAt-performance.now()}ms`:'0s');g.board.classList.toggle('started',g.marks.size>0)}
   g.board.innerHTML=html+svg;
-  const why=g.buoy?(hits?(g.cards&&!g.card?'card':overArea(g,inside)?'area':null):g.marks.size?'go':'start'):lineChain(g).why;
+  const why=g.buoy?(g.cards&&!g.card?'card':hits?(overArea(g,inside)?'area':null):g.marks.size?'go':'start'):lineChain(g).why;
   g.board.classList.toggle('spot',!!spotlight);
 
   g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`:`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
   const now=hits&&scoreOf(g,hits,inside);
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(now):'');
-  if(g.el.card){g.el.card.hidden=!g.cards;if(g.cards)g.el.card.innerHTML=g.cards.map(k=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card)}
+  if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!(g.card&&g.marks.size);if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
+  g.board.classList.toggle('await',!!(g.cards&&!g.card));
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
     :g.blocked?t(`block_${g.blockReason}_${g.key}`)
     :t(`hint_${g.key}_${why||'ready'}`);
@@ -1130,9 +1142,9 @@ function render(g){
   }
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.marks.size;
-  g.el.train.hidden=!g.training;
+  g.el.train.hidden=!g.training||PLAYTEST;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)} ${arr('down')}${fmt(g.rec.worst)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
+  if(g===current()) document.getElementById('train-btn').textContent=t(PLAYTEST?'new_map':g.training?'practice_off':'practice_on');
   renderResult(g);
 }
 
@@ -1149,14 +1161,14 @@ function renderResult(g){
       <div class="recs"><span>${t('your_best')} <b class="big-good">${arr('up')}${fmt(rec.best)}</b></span></div>
       ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
       ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:''}
-      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training&&!PLAYTEST?' disabled':''}>${t('share')}</button></div>
       <p class="note" aria-live="polite"></p>`;
     return;
   }
   const chips=(Object.entries(L.count).sort((a,b)=>pts(g,b[0])-pts(g,a[0])).map(([k,n])=>{const p=pts(g,k)*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')
     +(L.extra?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
-  const pct=g.card&&g.ref?.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
-    +(g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
+  const pct=(g.card||!g.training)&&g.ref?.exact&&g.ref.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
+    +(g.card&&g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
   g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
     <div class="verdict">${verdict(L.score)}</div>
     ${pct}
@@ -1165,7 +1177,7 @@ function renderResult(g){
     ${rangeHTML(g,rec)}
     ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
     ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
-    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training&&!PLAYTEST?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
 }
 
@@ -1208,11 +1220,13 @@ function commit(g){
 }
 
 function shareText(){
+  if(PLAYTEST){const g=games.rede,L=g.last;return L?`Good Catch · ${t('playtest')}\n🕸️ ${g.seed} · ${t('cardname_'+g.cardKey)} · ${fmt(L.score)}${g.ref?.best>0?` (${Math.round(100*L.score/g.ref.best)}%)`:''}\ngoodcatch.fish`:''}
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games)){
     const r=g.rec;
     if(!r.tries){ s+=`${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`; continue; }
-    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}\n` : `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)} ▼${fmt(r.worst)}\n`;
+    const pct=g.dailyBest>0?` (${Math.round(100*r.best/g.dailyBest)}%)`:'';
+    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
   }
   return s+'goodcatch.fish';
 }
@@ -1246,7 +1260,7 @@ function showTab(k){
   render(current());
 }
 for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
-document.getElementById('train-btn').addEventListener('click',()=>{toggleTraining(current());document.getElementById('menu').hidePopover()});
+document.getElementById('train-btn').addEventListener('click',()=>{const g=current();if(PLAYTEST)g.training=false;toggleTraining(g);document.getElementById('menu').hidePopover()});
 document.getElementById('tourney-btn').addEventListener('click',()=>{
   TOURNEY=!TOURNEY; try{localStorage.setItem('goodcatch:torneio',TOURNEY?'1':'0')}catch(e){}
   applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
@@ -1256,12 +1270,14 @@ document.getElementById('lang-btn').addEventListener('click',()=>{
   applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
 });
 const help=document.getElementById('help');
+for(const d of document.querySelectorAll('dialog')) d.addEventListener('click',e=>{const b=d.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)d.close()});
 document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
 applyText();
 for(const g of Object.values(games)) setup(g);
 let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
-showTab(saved in games?saved:'rede');
+if(PLAYTEST){document.querySelector('.switch').hidden=true;document.getElementById('tourney-btn').hidden=true;showTab('rede');toggleTraining(games.rede)}
+else showTab(saved in games?saved:'rede');
 for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
 if(!seen){help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
