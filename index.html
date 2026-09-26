@@ -89,6 +89,12 @@ h1 span{color:var(--buoy)}
 .badge{font:400 18px var(--pixel);color:var(--abyss);background:var(--buoy);padding:1px 7px;border-radius:5px}
 .hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
 .hint.alert{color:var(--bad)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.card{appearance:none;display:flex;flex-direction:column;gap:2px;padding:6px 8px;border:1px solid var(--edge);border-radius:8px;background:var(--deep);color:var(--foam);text-align:left;cursor:pointer;font:inherit}
+.card b{font:400 20px var(--pixel);line-height:1}
+.card span{font-size:13px;line-height:1.3;color:var(--muted)}
+.card[aria-pressed="true"]{border-color:var(--buoy);background:var(--sea2)}
+.card[aria-pressed="true"] b{color:var(--buoy)}
 .mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
 .hook{position:absolute;pointer-events:none;z-index:4;width:2px;background:var(--buoy);transform:translateX(-1px)}
 .mark.blocked{border:3px solid var(--bad);animation:shake .35s ease-in-out,fade .6s .35s forwards}
@@ -161,6 +167,7 @@ dialog .btn{width:100%;margin-top:14px}
   </nav>
 
   <section class="game" id="game-rede">
+    <div class="cards" data-k="card" hidden></div>
     <div class="stage"><div class="board net" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
     <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
     <p class="hint" data-k="hint" aria-live="polite"></p>
@@ -312,6 +319,19 @@ const SP = {
   tartaruga:{p:-6},
   golfinho:{p:-8},
 };
+
+// Practice-net rule cards. Each must stay linear so tools/solve-net.mjs can solve the map exactly.
+const CARDS = {
+  isca:{empty:-1},
+  mare:{noRocks:true},
+  curta:{maxArea:12},
+  golfinho:{set:{golfinho:8}},
+  barbatana:{set:{tubarao:4}},
+  soltura:{release:3},
+};
+const pts=(g,sp)=>g.card?.set?.[sp]??SP[sp].p;
+function applyCard(g){if(g.card?.noRocks) for(const row of g.grid) for(const x of row) x.rock=false}
+const overArea=(g,inside)=>!!(g.card?.maxArea&&inside&&inside.size>g.card.maxArea);
 
 // ---------- deterministic randomness ----------
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
@@ -534,7 +554,13 @@ function evaluate(g){
   for(const [r,c] of path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
   return {hits,inside:null,onP};
 }
-const scoreOf=(g,hits)=>hits.reduce((s,[r,c])=>s+SP[g.grid[r][c].sp].p,0);
+function scoreOf(g,hits,inside){
+  let s=hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0);
+  const cd=g.card||{}, at=k=>g.grid[Math.floor(k/100)][k%100];
+  if(cd.empty) for(const k of inside) if(!at(k).sp) s+=cd.empty;
+  if(cd.release) for(const k of g.marks){const sp=at(k).sp;if(sp&&SP[sp].p<0) s+=cd.release}
+  return s;
+}
 // Self-contained: it is stringified into a Web Worker. Every species has non-zero points, so v !== 0 means "an animal is here".
 function solveLine(m){
   const R=m.rows, C=m.cols, D=[[1,0],[-1,0],[0,1],[0,-1]], on=new Uint8Array(R*C), path=[m.start];
@@ -560,7 +586,8 @@ function solveLine(m){
   return {best,worst,bestPath,worstPath,complete:true};
 }
 const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,maxBuoys:g.maxBuoys,
-  v:g.grid.map(row=>row.map(x=>x.sp?SP[x.sp].p:0)), rock:g.grid.map(row=>row.map(x=>x.rock))});
+  v:g.grid.map(row=>row.map(x=>x.sp?pts(g,x.sp):0)), rock:g.grid.map(row=>row.map(x=>x.rock)),
+  card:g.card||{}, prot:g.grid.map(row=>row.map(x=>!!x.sp&&SP[x.sp].p<0))});
 const packCells=(g,cells)=>cells.map(([r,c])=>(r*g.cols+c).toString(36).padStart(2,'0')).join('');
 const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);return key(Math.floor(n/g.cols),n%g.cols)});
 // @gen-end
@@ -600,6 +627,34 @@ const NET_REF = {
   "2026-11-23":[33,-18,"0g0h0i0q0u12161i1m1r2f2l2p31","101a1g1k1o1q1w202e2k2n2o2q31"]
 };
 // @net-ref-end
+// @card-ref-start
+const CARD_REF = {
+  "carta:0":[["curta",17,-11,"0e0f0r10131b1d1o1y262h2j2k","0y10181b1j1n1q1u1x25292g2i2x"],["golfinho",31,-6,"0405060e0t10151a1f1p1v252h2k","0y10191c1d1e1q1x22282c2j2m2y"],["soltura",32,-11,"040e0g0s10141a1f1p21262g2k32","0y10181b1j1n1u1x252h2i2j2m2y"]],
+  "carta:1":[["golfinho",36,-10,"0405070j0v0z161d1e1i1t1y242e","0f0r0t0y1214181c1f1o1p1r1v23"],["barbatana",26,-19,"04050708090l0w10171e1i1s1y22","0r0t12141d1f1o1r1s20242e2p"],["soltura",32,-23,"0405070j0v0z171d1e1i1s1y2223","0r0t0u12141c1f1o1q1r1s1z242e"]],
+  "carta:10":[["mare",10,-4,"020304060c0g0i0t0y0z131b1d1n","0203040c0g0q0v0y101a2m2o2x2y"],["barbatana",27,0,"060c0f0g0i0o0p0u0x16181h1t23","020c0e0q0t0u0v0y0z11161b1c1g"],["soltura",28,-4,"020304060c0g0i0u0x0z16181h1s","020304050c0h0q0r0y101a1c1u26"]],
+  "carta:11":[["isca",9,-32,"0i0j0r0s0w11171d1e1f1h2v38","0d0e0f0n0r0x13181f1j212w3536"],["mare",11,-9,"080i0k0r0s0w11171d1h1p1z21","1e1f1o1z212a2c2d2l2p2x2y303a"],["curta",11,-9,"0i0j0r0s0w11171d1e1h1q222d2n","0i0j0n0v0y1621232c2e2q2y303a"]],
+  "carta:12":[["mare",16,-8,"020c0e0m0q0x12181c1o1v1w1y28","0e0x191l1o1u1x25282h2k2s2u34"],["curta",16,-8,"020c0e0m0q0y11191a1c1v1w2n","0j0t0v1011121316191a1g1n1v1x"],["golfinho",17,-9,"01020b0e0f0m0r0x13181d1v1w2m","03040d0g0i0j0p0s0v0z10191h1v"]],
+  "carta:13":[["mare",17,-4,"03040c0g0o0s0z13191e1l1n1o1x","030c0f0m0q0x10181a1j1m1v1x27"],["barbatana",34,-6,"03040506070c0m0x181j1u1y2n2t","030c0f0o0r10131c1n1x27282n34"],["soltura",37,-9,"03040c0g0n0s0t0z191l1w1y2n2t","0c0e0n0q0y121a1c1l1v282l2n34"]],
+  "carta:14":[["curta",17,-19,"020c0e0n0z111a1d1m1p20282a2k","1m1y1z2027292c2i2m2s2v2w3435"],["golfinho",35,-11,"020c0e0m0x181k23282b2d2k2l2n","1b1m1n1z20272c2j2l2m2v30"],["soltura",36,-19,"020c0e0m0y181v22282a2b2c2k2t","1m1y1z2027292c2i2m2s2v2w3435"]],
+  "carta:15":[["isca",10,-26,"0d0n0p0r1113191f1r23292e2k2o","0e0n0o0q1214181e1g1s22252c2h"],["golfinho",22,-9,"0d0n0p0r1113191f1r23292e2j2o","0d0f0i0n0p0r0z1217181c1i1s30"],["barbatana",24,-7,"030d0f0n0r1113181f1r23292d2j","0n0o0q1012181e1f1g1s22292a2c"]],
+  "carta:16":[["curta",7,-3,"0n1l1w26292c2i2j2l2p2x31393a","0p0r121y292b2c2j2v2w2x31393a"],["barbatana",18,-2,"191b1j1u262c2i2j2v313738393a","191c1k1v27282b2c2k2w3138393a"],["soltura",21,-5,"060r0s1b1x292c2k2v313738393a","191c1k1v272b2c2j2v2w2x31393a"]],
+  "carta:17":[["mare",8,-5,"08090i0s0w12171e1i1q1t21232d","090j0t0w14161c1e1h1k1p1r2134"],["golfinho",24,-5,"090j0t0w15171f1i1q2e2o2y3738","090i0j0r0t0w13161e1g1r212h2j"],["soltura",22,-8,"090j0t0w15171f1i1q2e2o2w2y38","090j0t0w13161d1i222b2c2m2x37"]],
+  "carta:18":[["mare",17,-17,"0506070f0j0r13171f1i1q1t2223","0h0i0j0r1214171c1g1h1n1p1q1z"],["golfinho",27,-12,"070h0j171b1f1h1l1t1w26292i2j","0i0j12151b1g1l1m1o1q1v272829"],["barbatana",26,-16,"0506070j171a1f1i1k1n1o1t1w1x","0u121314171c1h1l1m1r1v272829"]],
+  "carta:19":[["isca",14,-25,"0e0g0h0r0t0z15191d1g1l1m1n1q","030g0n0s0x1014181e1k1o1w1x1y"],["mare",15,-18,"0e0g0h0p0t0z13191d1j1m1n1v1w","0d0e0g0n0s0x1014181a1c1e1k1o"],["curta",17,-15,"0e0g0r0z12191c1j1n1v1w282a2k","0e0g0n0s0x14181a1b1c1e1k1o2u"]],
+  "carta:2":[["isca",8,-22,"0304050c0o10131a1f1m1q1y1z20","01030f0x181j1p212c2m2w343536"],["mare",11,-5,"030c0f0o0r10131a1f1m1q1y1z20","030c0f0g0o0s1011141c1e1n1p1z"],["curta",12,-2,"04050c0e0z10131b1f1m1q1y1z20","0c0e0q0y191c1l1n1o1w2028292a"]],
+  "carta:20":[["mare",12,-13,"0q0r10131a1d1k1o1u1y25282h2j","0z1011191d1l1m1o1w1z26292h2j"],["golfinho",28,-6,"0q0r10131a1f1k1q1v262h2j2k2l","0y0z181b1j1l1u1w25272j2r3337"],["soltura",25,-13,"0q10121a1e1k1q1u1y252h2w3536","0y0z181b1j1l1n1u1w1z25292h2j"]],
+  "carta:21":[["mare",15,-13,"10191a1c1j1o1v1z252a2k2s2u34","1d1k1l1m1n1p1u202528292a2i2s"],["barbatana",26,-13,"0d0o0s0y181j1v252k2l2m2s2u34","1k1l1m1n1p1u202528292a2i2j2s"],["soltura",27,-17,"0p0z11191j1o1v252a2k2m2s2u34","1b1k1l1n1p1u202528292b2i2l2s"]],
+  "carta:22":[["mare",16,-10,"1p1q1r1s1z24292f2j2o2p2v2y38","1a1b1c1d1k1p1w1z282b2j2m2v2x"],["barbatana",31,-6,"101a1k1o1s1u24262f2i2q2u3638","101d1p1r2021282b2j2n2v2x"],["soltura",34,-10,"02101l1o1s24252a2f2k2q2v3638","1a1b1d1k1p1w20272b2j2n2v2x35"]],
+  "carta:23":[["isca",16,-37,"14161g1i1p1t2022242a2e2l2x39","030f0m0r0x13181j1q202a2k2t2u"],["golfinho",38,-8,"14161i1o1t1y24282e2j2l2v2x39","0h0j0k0t0w14171b1i1q1r1s1x2n"],["soltura",35,-21,"0u14161i1o1t1z22242a2e2l2x39","1h1o1q1r1y23282b2c2e2k2m2w"]],
+  "carta:3":[["isca",13,-26,"1b1d1k1n1p1q1u22292d2l2m2p2y","0405060e0i1r1x212b2k2n2w3839"],["mare",15,-8,"1d1n1p1q1x22292e2l2p2v373839","0u0v14171f1h1q1t21242c2f2n2p"],["curta",16,-11,"1p1q1z22292c2h2o2t2u2v2x3739","121c1o1x1z2a2b2j2n2u2w363839"]],
+  "carta:4":[["golfinho",27,-11,"0f0r0s0y14181f1j1r262i2p2u36","0e0f0g0s101213141b1d1g1q1z20"],["barbatana",31,-13,"0f0r0s0y14181g1j1q262i2p2u36","0g0q0s10131a1e1f1l1r1x1z2b2c"],["soltura",30,-20,"0f0p0r0y13181f1j1q262i2k2p2u","0e0f0g0s1012141b1e1g1s1z2021"]],
+  "carta:5":[["mare",14,-12,"0n0o0x10181c1j1o1u1y25282g2i","11121b1e1n1p1x20272a2h2k2u34"],["golfinho",27,-11,"02030c0g191c1g1k1v1y25282g2i","0e111b1d1m1x1z272a2h2l2v3435"],["soltura",30,-13,"02030c0g181c1g1j1u1y25282g2i","1s1y24282b2d2f2i2l2n2p2v3435"]],
+  "carta:6":[["isca",10,-27,"0s0t121a1b1e1k1n1w272j2k2x2y","030f0r0y13191f1l1x2k3038393a"],["mare",14,-12,"0s12141c1g1m1q1w22272c2j2m2v","15161f1i1p1s21242b2e2l2o2y38"],["curta",13,-13,"0s1112141b1j1m1q1w272j2k2m2y","1k1l1u1x262a2i2n2u303638393a"]],
+  "carta:7":[["isca",5,-40,"0k0w131d1p1z222a2m2o2w2z3839","0203040c0g0m0x242o2x2y353637"],["mare",11,-8,"131d1f1n1r1x22272j2o2v2w2y38","161g1i1q1t20242a2k2o2v2x2y37"],["curta",10,-10,"1p1x1y1z2122272j2k2o2w2z3839","1q1z2124292b2k2p2t2v2x2y2z37"]],
+  "carta:8":[["mare",16,-10,"1g1i1q1t20242c2e2m2q2y2z313b","1g1i1p1r1t1z2122242b2f2n2p2z"],["golfinho",27,-11,"0i0s0u131d1i2c2e2q2w2z31393b","1g1i1r202122292f2j2n2o2p2u2y"],["barbatana",27,-10,"0i0s0u121d1i2c2e2q2w31393a3b","151f1i1r2021222f2m2n2o2p"]],
+  "carta:9":[["isca",19,-35,"0304050h0u0v1b1m20282m2p2y2z","060g0n0p0r0x11181c1g1k21282b"],["mare",19,-16,"0304050d0h0o0t0z13191d1k1m1n","0n0x0z15181b1k1n1z282b2j2l2v"],["curta",19,-16,"0304050h0q1013191d1k1m1n2d2g","0n0r0x181b1k1m1q1y262i2l2u2v"]]
+};
+// @card-ref-end
 
 // ---------- storage ----------
 function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
@@ -610,6 +665,12 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function dailyReference(g,done){
   if(g.kind==='drop') return;
   if(g.kind==='net'){
+    const cs=g.training&&CARD_REF[g.seed];
+    if(cs){
+      const hi=cs.reduce((a,b)=>b[1]>a[1]?b:a), lo=cs.reduce((a,b)=>b[2]<a[2]?b:a);
+      done({best:hi[1],worst:lo[2],exact:true,bestBuoys:unpackCells(g,hi[3]),worstBuoys:unpackCells(g,lo[4]),bestCard:hi[0],worstCard:lo[0]});
+      return;
+    }
     const row=!g.training&&NET_REF[DATE];
     if(row) done({best:row[0],worst:row[1],exact:true,bestBuoys:unpackCells(g,row[2]),worstBuoys:unpackCells(g,row[3])});
     return;
@@ -633,6 +694,11 @@ const STR = {
     left_linha:'Line left', catch:'Catch', lances:'Casts left', par:'Best',
     undo:'Undo', clear:'Clear', go_rede:'Haul net', go_linha:'Reel in',
     practice:'Practice', practice_on:'Practice on another map', practice_off:'Back to today’s map',
+    cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
+    cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
+    cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'+3 per protected animal under a buoy',
+    card_extra:'Card', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to haul',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
     not_played:'not played yet',
@@ -671,6 +737,11 @@ const STR = {
     left_linha:'Linha restante', catch:'Pesca', lances:'Lances', par:'Melhor',
     undo:'Desfazer', clear:'Limpar', go_rede:'Puxar rede', go_linha:'Recolher',
     practice:'Treino', practice_on:'Treinar em outro mapa', practice_off:'Voltar ao mapa de hoje',
+    cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
+    cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
+    cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'+3 por protegido sob boia',
+    card_extra:'Carta', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para puxar',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
     not_played:'ainda não jogado',
@@ -732,6 +803,7 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
+  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;setCard(g,k);g.showing=null;render(g)});
   g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -802,6 +874,7 @@ function reveal(g,which){
     return d.showModal();
   }
   g.last=null; g.blocked=null; g.showing=which;
+  const ck=g.ref[which+'Card']; if(ck&&ck!==g.cardKey) setCard(g,ck);
   g.marks=new Set(g.buoy?g.ref[which+'Buoys']:g.ref[which+'Path'].slice(1).map(([r,c])=>key(r,c))); g.history=[];
   render(g);
 }
@@ -818,13 +891,26 @@ function paint(g,[r,c]){
 }
 function toggleTraining(g){
   g.training=!g.training;
-  if(g.training){g.trainRec={best:null,worst:null,tries:0};newMap(g,'treino:'+Math.random())}
+  g.card=g.cardKey=g.cards=null;
+  if(g.training){
+    g.trainRec={best:null,worst:null,tries:0};
+    const n=Object.keys(CARD_REF).length;
+    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.cards=CARD_REF['carta:'+i].map(x=>x[0]);newMap(g,'carta:'+i)}
+    else newMap(g,'treino:'+Math.random());
+  }
   else newMap(g,DATE+':'+g.key);
   g.last=null; render(g);
 }
 
+// High tide removes the rocks, so a card switch rebuilds the grid from the seed and drops buoys that would sit on rock.
+function setCard(g,k){
+  g.card=CARDS[k]; g.cardKey=k;
+  g.grid=g.gen(g,mulberry(seedFrom(g.seed))); applyCard(g);
+  for(const m of [...g.marks]) if(g.grid[Math.floor(m/100)][m%100].rock){g.marks.delete(m);g.history=[]}
+}
+
 function newMap(g,seed){
-  g.grid=g.gen(g,mulberry(seedFrom(seed)));
+  g.grid=g.gen(g,mulberry(seedFrom(seed))); applyCard(g);
   g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
   if(g.kind==='drop'){
     g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
@@ -891,7 +977,7 @@ function dropAnimate(g,c,targetRow,res){
   },200);
 }
 
-const ready=g=>!!evaluate(g).hits;
+const ready=g=>{const e=evaluate(g);return !!e.hits&&!(g.cards&&!g.card)&&!overArea(g,e.inside)};
 const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
 const cls=s=>s>0?'good':s<0?'bad':'zero';
 
@@ -940,11 +1026,11 @@ function render(g){
     if(cell.rock) inner=sprite('rock');
     if(isStart(g,r,c)){inner=sprite('boat');cl.push('boat')}
     else if(cell.sp){
-      const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
-      if(hitSet.has(k)) cl.push('hit', s.p>0?'good':'bad');
+      const p=pts(g,cell.sp); if(p<0) cl.push('neg');
+      if(hitSet.has(k)) cl.push('hit', p>0?'good':'bad');
       if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
       if(cell.sp===spotlight) cl.push('lit');
-      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
+      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(p)}"`);
     }
     if(g.buoy&&g.marks.has(k)) inner+=sprite('buoy');
     html+=`<div class="${cl.join(' ')}">${inner}</div>`;
@@ -967,17 +1053,19 @@ function render(g){
   // innerHTML rebuilds every sprite on each render; a negative delay pinned to the page clock keeps the animations from restarting.
   g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
   g.board.innerHTML=html+svg;
-  const why=g.buoy?(hits?null:g.marks.size?'go':'start'):lineChain(g).why;
+  const why=g.buoy?(hits?(g.cards&&!g.card?'card':overArea(g,inside)?'area':null):g.marks.size?'go':'start'):lineChain(g).why;
   g.board.classList.toggle('spot',!!spotlight);
 
   g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`:`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
-  g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(scoreOf(g,hits))}">${fmt(scoreOf(g,hits))}</b>`:`${t('catch')}: <b>—</b>`;
-  g.el.pv.className='pv '+(hits?cls(scoreOf(g,hits)):'');
+  const now=hits&&scoreOf(g,hits,inside);
+  g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
+  g.el.pv.className='pv '+(hits?cls(now):'');
+  if(g.el.card){g.el.card.hidden=!g.cards;if(g.cards)g.el.card.innerHTML=g.cards.map(k=>`<button class="card" data-card="${k}" aria-pressed="${k===g.cardKey}"><b>${t('cardname_'+k)}</b><span>${t('cardrule_'+k)}</span></button>`).join('')}
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
     :g.blocked?t(`block_${g.blockReason}_${g.key}`)
     :t(`hint_${g.key}_${why||'ready'}`);
   g.el.hint.classList.toggle('alert',!!g.blocked);
-  const say=(g.blocked||!why||why==='self')&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
+  const say=(g.blocked||!why||why==='self'||why==='area'||why==='card')&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
   g.bubble.hidden=!say;
   if(!say) delete g.bubble.dataset.k;
   if(say){
@@ -1016,9 +1104,13 @@ function renderResult(g){
       <p class="note" aria-live="polite"></p>`;
     return;
   }
-  const chips=Object.entries(L.count).sort((a,b)=>SP[b[0]].p-SP[a[0]].p).map(([k,n])=>{const p=SP[k].p*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')||`<span>${t('nothing')}</span>`;
+  const chips=(Object.entries(L.count).sort((a,b)=>pts(g,b[0])-pts(g,a[0])).map(([k,n])=>{const p=pts(g,k)*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')
+    +(L.extra?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
+  const pct=g.card&&g.ref?.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
+    +(g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
   g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div>
     <div class="verdict">${verdict(L.score)}</div>
+    ${pct}
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">▲${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">▼${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}
@@ -1055,9 +1147,9 @@ function commit(g){
     return render(g);
   }
   if(!ready(g)) return;
-  const {hits}=evaluate(g); const score=scoreOf(g,hits);
+  const {hits,inside}=evaluate(g); const score=scoreOf(g,hits,inside);
   const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
-  g.last={score,count};
+  g.last={score,count,extra:score-hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0)};
   const rec=g.training?g.trainRec:g.rec;
   if(frozen(rec)) return render(g);
   rec.tries++; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
