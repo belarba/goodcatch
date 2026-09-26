@@ -16,7 +16,7 @@ colors:
   shallow-water: "#9EDFE4"
   open-sea-ring: "#6CC4D2"
   pen-sand: "#F7E6B0"
-  reserve-red: "#9E2419"
+  protect-glow: "rgba(214,60,45,.42)"
   sprite-outline: "#051019"
 typography:
   display:
@@ -138,7 +138,7 @@ Good Catch is the category-standard daily-puzzle board, done with care: a seafoa
 
 The board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.
 
-The world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and the protected animals carry their own darker reserve red.
+The world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.
 
 **Key Characteristics:**
 - Daylight: light page, white surfaces, navy ink as the single outline colour.
@@ -158,7 +158,7 @@ A daylight sea palette: pale seafoam and white carry the page, navy ink draws ev
 ### Secondary
 - **Kelp Green** (`kelp-green`): positive points and good hits (catch squares tinted at 14%, the "▲" arrow sprite, best-score tab labels, positive result numbers).
 - **Signal Red** (`signal-red`): negative only. Penalties, bad hits (tinted at 16%), blocked-move marks, the "▼" arrow sprite, alert hints, negative result numbers.
-- **Reserve Red** (`reserve-red`): the dashed "marine protected area" square (2px dashed, 7% fill) under turtle, dolphin, shark and coral. Reads 5.19:1 on shallow water and 3.85:1 on the open-sea ring.
+- **Protected Glow** (`protect-glow`, rgba(214,60,45,.42)): a radial red glow behind every protected animal (turtle, dolphin, shark, coral), drawn as a background image so it layers over the pen's sand. It follows the card: an animal a card turns positive loses the glow.
 
 ### Tertiary
 - **Shallow Water** (`shallow-water`): the net board's water and the art window of boon rule cards.
@@ -251,7 +251,7 @@ Face-up playing cards offered on practice purse-net maps.
 - **Motion:** 0.25s ease-out (`cubic-bezier(.16,1,.3,1)`) on transform and shadow; none under reduced motion.
 
 ### Board
-The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen sand with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a dashed reserve-red square. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. Buoys are white with a navy band and an orange cap. The boat carries a soft white halo and an orange ping until the first mark.
+The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen sand with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. Buoys are white with a navy band and an orange cap. The boat carries a soft white halo and an orange ping until the first mark.
 
 ### Result Panel
 Laid over the board: 96% white, 2px navy outline, 14px radius, 18px padding, floated with the panel shadow. It stacks the 72px score, a 28px verdict, catch chips with sprites, a range bar (foam track, slate border, red-to-green fill) with the day's exact worst and best at its ends, and the player's records.
@@ -272,12 +272,12 @@ The boat's voice for blocked moves: white, 2px navy outline, 10px radius, Jersey
 - **Do** draw the pen's rope on the true perimeter of the enclosed cells, exactly what the 4-directional flood fill catches.
 - **Do** outline every interactive surface in navy ink at 2px and fill the primary action with buoy orange under navy text.
 - **Do** set every number and control label in Jersey 10 and every sentence in Figtree.
-- **Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, reserve red on the open-sea ring 3.85:1).
+- **Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, sprite outline #051019 against every water tone at least 7.2:1).
 - **Do** draw new icons as 12×12 sprites in the shared palette.
 - **Do** honour `prefers-reduced-motion`: sweeps, pings, sprite frames and card transitions stop.
 
 ### Don't:
-- **Don't** use green or red for anything but points gained and lost; protected status uses reserve red, and nothing else wears it.
+- **Don't** use green or red for anything but points gained and lost; protected status is the red glow, and it follows the card's values.
 - **Don't** return to the dark teal game grid this world replaced.
 - **Don't** put orange text on light surfaces; use rust text.
 - **Don't** give the lobster or any species the buoy's orange-and-white; the lobster is blue so the buoy stays unique.

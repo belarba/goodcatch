@@ -214,21 +214,6 @@
           "#FDF8E8"
         ]
       },
-      "reserve-red": {
-        "role": "secondary",
-        "displayName": "Reserve Red",
-        "canonical": "#9E2419",
-        "tonalRamp": [
-          "#420F0A",
-          "#721A12",
-          "#A3251A",
-          "#D33021",
-          "#E2574A",
-          "#EA847B",
-          "#F2B5B0",
-          "#FCEBE9"
-        ]
-      },
       "sprite-outline": {
         "role": "neutral",
         "displayName": "Sprite Outline",
@@ -243,6 +228,11 @@
           "#B2D4F0",
           "#EAF3FB"
         ]
+      },
+      "protect-glow": {
+        "value": "rgba(214,60,45,.42)",
+        "displayName": "Protected Glow",
+        "role": "radial glow behind protected animals; follows card values"
       }
     },
     "typographyMeta": {
@@ -427,7 +417,7 @@
   ],
   "narrative": {
     "northStar": "The Daylight Harbour Board",
-    "overview": "**Creative North Star: \"The Daylight Harbour Board\"**\n\nGood Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.\n\nThe board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.\n\nThe world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and the protected animals carry their own darker reserve red.",
+    "overview": "**Creative North Star: \"The Daylight Harbour Board\"**\n\nGood Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.\n\nThe board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.\n\nThe world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.",
     "keyCharacteristics": [
       "Daylight: light page, white surfaces, navy ink as the single outline colour.",
       "2px navy outlines on every interactive surface; depth comes from outline, not shadow.",
@@ -472,12 +462,12 @@
       "**Do** draw the pen's rope on the true perimeter of the enclosed cells, exactly what the 4-directional flood fill catches.",
       "**Do** outline every interactive surface in navy ink at 2px and fill the primary action with buoy orange under navy text.",
       "**Do** set every number and control label in Jersey 10 and every sentence in Figtree.",
-      "**Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, reserve red on the open-sea ring 3.85:1).",
+      "**Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, sprite outline #051019 against every water tone at least 7.2:1).",
       "**Do** draw new icons as 12×12 sprites in the shared palette.",
       "**Do** honour `prefers-reduced-motion`: sweeps, pings, sprite frames and card transitions stop."
     ],
     "donts": [
-      "**Don't** use green or red for anything but points gained and lost; protected status uses reserve red, and nothing else wears it.",
+      "**Don't** use green or red for anything but points gained and lost; protected status is the red glow, and it follows the card's values.",
       "**Don't** return to the dark teal game grid this world replaced.",
       "**Don't** put orange text on light surfaces; use rust text.",
       "**Don't** give the lobster or any species the buoy's orange-and-white; the lobster is blue so the buoy stays unique.",
