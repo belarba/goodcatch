@@ -8,7 +8,7 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
 - Protected animals (turtle, dolphin, shark, coral) have negative points. Catching them is how "lowest score" players play.
 
 ## Modes
-- **Purse net** (11x11 top view): tap or paint squares to drop up to 14 buoys. Buoys, rocks and the boat are fence; the board edge is open sea. The catch is every square the open sea cannot reach (4-directional) in the pen(s) touching the boat. Animals under a buoy escape. Rocks come in reef formations so they do real fencing work. No animal spawns on the outer ring: it is open sea and could never be caught.
+- **Purse net** (11x11 top view): tap or paint squares to drop up to 14 buoys. Buoys, rocks and the boat are fence; the board edge is open sea. The catch is every square the open sea cannot reach (4-directional) in the pen(s) touching the boat, at a side or a corner. Animals under a buoy escape. Rocks come in reef formations so they do real fencing work. No animal spawns on the outer ring: it is open sea and could never be caught.
 - **Bottom line** (9x12 side view): tap or paint squares to lay the line from the boat (row 0) to the seabed (last row), with a budget of 20. The marks must form one chain that never touches itself (`lineChain`).
   - Animals orthogonally adjacent to the line bite.
   - A regular fish under the line is scared off (no points) and costs 2 squares.
@@ -37,9 +37,19 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
 - Changing generation logic changes every past and future map and invalidates `NET_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
 ## Roadmap ideas
-1. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
-2. Tune difficulty so both extremes are hard. Test with the practice map.
-3. Optional: a global daily leaderboard (would need a backend). Plug it in through `dailyReference`.
+Waiting on playtest feedback (Sep 2026) before picking what to do next. Yardstick used so far, a judgment and not a measurement: enclose.horse ~8.3/10, Good Catch ~7.4 as a daily with cards, ~6.9 for the random-map playtest build (no daily, no fairness).
+
+1. **Backend on Railway** (existing project, Hobby plan). Node + TypeScript (Hono or Fastify) + Railway Postgres; estimated US$2–3/month, inside the plan's included US$5. Node because the server can run the `@gen` block like `tools/solve-net.mjs` does, so it recomputes scores from submitted buoys instead of trusting them. Site stays static on GitHub Pages; API on a subdomain, CORS limited to goodcatch.fish; anonymous player UUID in localStorage, no personal data. Order:
+   1. `events` table (jsonb) + `POST /events`: playtest telemetry (card picked, time to first buoy, retries, "see best" opened).
+   2. `plays` table + `POST /plays`: server-verified score, % of best, map, card, buoys.
+   3. `GET /daily/:date/stats`: score distribution, to show "how everyone did today" (the main gap to enclose.horse). Plug in through `dailyReference`.
+2. **Cards on the daily map**: the same three cards for everyone, the day's best solved offline. Brings back fairness and daily novelty; `PLAYTEST` goes away.
+3. **Bonus must be reachable**: only keep card trios where the animal a card boosts (dolphin +8, shark +4) is actually in that card's optimal pen.
+4. **Limit cards lose to boon cards** (costly bait, high tide, short net score 5–19 vs 17–38): give them a price, e.g. short net = at most 12 squares but the catch counts double.
+5. **Measure the net's depth**: how far a naive player lands from the optimum, like `genDrop` already checks for the sea floor.
+6. Decide whether the bottom line and sea floor come back or go (hidden by `PLAYTEST`).
+7. The "?" help button is still a font glyph; every other icon is a 12×12 sprite.
+8. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
 
 ## Conventions
 - UI in English and Portuguese: default from `navigator.language`, switchable in the menu.
