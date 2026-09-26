@@ -4,6 +4,7 @@
 //
 //   (cd tools && npm install)
 //   node tools/solve-net.mjs [days=60] [from=today]
+//   node tools/solve-net.mjs cards [maps=24]     → CARD_REF, practice maps offering three rule cards each
 //
 // Game logic is read from index.html (@gen markers), never duplicated here.
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -21,7 +22,7 @@ const between = (a, b) => {
   return [i + a.length, j];
 };
 const [gs, ge] = between('// @gen-start', '// @gen-end');
-const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells};`)();
+const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, CARDS, applyCard, overArea};`)();
 
 function localDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -32,8 +33,9 @@ function map(key, date) {
   return g;
 }
 function score(g) {
-  const { hits } = G.evaluate(g);
-  return hits ? G.scoreOf(g, hits) : null;
+  const { hits, inside } = G.evaluate(g);
+  if (G.overArea(g, inside)) throw new Error(`net: ${inside.size} squares in the pen > ${g.card.maxArea}`);
+  return hits ? G.scoreOf(g, hits, inside) : null;
 }
 function checkLine(g, path, expected) {
   g.marks = new Set(path.slice(1).map(([r, c]) => r * 100 + c));
@@ -48,6 +50,7 @@ function checkNet(g, sol) {
 
 function solveBuoys(m, sense) {
   const { rows: R, cols: C, start: [sr, sc], maxBuoys, v, rock } = m;
+  const card = m.card ?? {};
   const D = [[1, 0], [-1, 0], [0, 1], [0, -1]];
   const inB = (r, c) => r >= 0 && c >= 0 && r < R && c < C;
   const free = (r, c) => inB(r, c) && !rock[r][c] && !(r === sr && c === sc);
@@ -63,7 +66,9 @@ function solveBuoys(m, sense) {
   for (const [r, c] of cells) {
     const i = id(r, c);
     bin.push(`w_${i}`, `x_${i}`, `y_${i}`);
-    if (v[r][c]) obj.push(`${v[r][c] > 0 ? '+' : '-'} ${Math.abs(v[r][c])} x_${i}`);
+    const val = v[r][c] || (card.empty ?? 0);
+    if (val) obj.push(`${val > 0 ? '+' : '-'} ${Math.abs(val)} x_${i}`);
+    if (card.release && m.prot[r][c]) obj.push(`+ ${card.release} w_${i}`);
     st.push(`w_${i} + x_${i} + y_${i} <= 1`);
     if (edge(r, c)) {
       st.push(`x_${i} = 0`);
@@ -98,6 +103,7 @@ function solveBuoys(m, sense) {
   }
   st.push(cells.map(([r, c]) => `w_${id(r, c)}`).join(' + ') + ` <= ${maxBuoys}`);
   st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ' >= 1');
+  if (card.maxArea) st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ` <= ${card.maxArea}`);
 
   const lp = [
     sense === 'max' ? 'Maximize' : 'Minimize',
@@ -124,9 +130,51 @@ function solveBuoys(m, sense) {
   if (got[0] !== -3 || got[1] !== -3) throw new Error(`self-check: two pens gave ${got}, expected -3,-3`);
 }
 
-const [rs, re] = between('// @net-ref-start', '// @net-ref-end');
-const table = JSON.parse(html.slice(rs, re).match(/NET_REF\s*=\s*(\{[\s\S]*?\});/)[1]);
+function readTable(name) {
+  const [rs, re] = between(`// @${name}-start`, `// @${name}-end`);
+  return JSON.parse(html.slice(rs, re).match(/=\s*(\{[\s\S]*?\});/)[1]);
+}
+function writeTable(name, constName, table) {
+  const keys = Object.keys(table).sort();
+  const body = keys.map(k => `"${k}":${JSON.stringify(table[k])}`).reduce((rows, e) => {
+    if (!rows.length || rows[rows.length - 1].length > 90) rows.push(e); else rows[rows.length - 1] += ',' + e;
+    return rows;
+  }, []).join(',\n  ');
+  html = readFileSync(FILE, 'utf8');
+  const [ws, we] = between(`// @${name}-start`, `// @${name}-end`);
+  html = html.slice(0, ws) + `\nconst ${constName} = {\n  ${body}\n};\n` + html.slice(we);
+  writeFileSync(FILE, html);
+  console.log(`${constName}: ${keys.length} entries, ${keys[0]} → ${keys[keys.length - 1]}`);
+}
 
+// A trio is offered only if its best two cards finish within CLOSE of each other, so no card is an obvious pick.
+const CLOSE = 0.10;
+if (process.argv[2] === 'cards') {
+  const n = Number(process.argv[3] ?? 24), table = {}, keys = Object.keys(G.CARDS);
+  const trios = keys.flatMap((a, x) => keys.slice(x + 1).flatMap((b, y) => keys.slice(x + y + 2).map(c => [a, b, c])));
+  const netFor = (seed, k) => {
+    const net = { ...G.games.rede, card: G.CARDS[k] };
+    net.grid = net.gen(net, G.mulberry(G.seedFrom(seed)));
+    G.applyCard(net);
+    return net;
+  };
+  for (let i = 0; i < n; i++) {
+    const t0 = Date.now(), seed = `carta:${i}`, hi = {};
+    for (const k of keys) hi[k] = solveBuoys(G.boardModel(netFor(seed, k)), 'max');
+    const rng = G.mulberry(G.seedFrom(`${seed}:trio`)), order = trios.map(t => [rng(), t]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+    const gap = t => { const s = t.map(k => hi[k].score).sort((a, b) => b - a); return (s[0] - s[1]) / Math.max(1, Math.abs(s[0])); };
+    const trio = order.find(t => gap(t) <= CLOSE) ?? order.reduce((a, b) => gap(b) < gap(a) ? b : a);
+    table[seed] = trio.map(k => {
+      const net = netFor(seed, k), lo = solveBuoys(G.boardModel(net), 'min');
+      return [k, hi[k].score, lo.score, checkNet(net, hi[k]), checkNet(net, lo)];
+    });
+    console.log(`${seed.padEnd(9)} ${table[seed].map(([k, b, w]) => `${k} ${b}/${w}`).join('  ').padEnd(58)} gap ${Math.round(100 * gap(trio))}%  ${Date.now() - t0}ms`);
+  }
+  writeTable('card-ref', 'CARD_REF', table);
+  process.exit(0);
+}
+
+const table = readTable('net-ref');
 const start = new Date(`${from}T12:00:00`);
 for (let i = 0; i < days; i++) {
   const date = localDate(new Date(start.getTime() + i * 864e5));
@@ -142,13 +190,4 @@ for (let i = 0; i < days; i++) {
   console.log(`${date}  net ${hi.score}/${lo.score} (${hi.buoys.length}/${lo.buoys.length} buoys)  line ${l.best}/${l.worst}  ${Date.now() - t0}ms`);
 }
 
-const keys = Object.keys(table).sort();
-const body = keys.map(k => `"${k}":${JSON.stringify(table[k])}`).reduce((rows, e) => {
-  if (!rows.length || rows[rows.length - 1].length > 90) rows.push(e); else rows[rows.length - 1] += ',' + e;
-  return rows;
-}, []).join(',\n  ');
-html = readFileSync(FILE, 'utf8');
-const [ws, we] = between('// @net-ref-start', '// @net-ref-end');
-html = html.slice(0, ws) + `\nconst NET_REF = {\n  ${body}\n};\n` + html.slice(we);
-writeFileSync(FILE, html);
-console.log(`NET_REF: ${keys.length} days, ${keys[0]} → ${keys[keys.length - 1]}`);
+writeTable('net-ref', 'NET_REF', table);

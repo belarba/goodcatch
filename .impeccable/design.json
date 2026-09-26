@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-26T13:24:11+00:00",
+  "title": "Design System: Good Catch",
+  "extensions": {
+    "colorMeta": {
+      "seafoam-page": {
+        "role": "neutral",
+        "displayName": "Seafoam Page",
+        "canonical": "#E4F4F2",
+        "tonalRamp": [
+          "#163632",
+          "#265E57",
+          "#37867C",
+          "#47AEA1",
+          "#6AC2B7",
+          "#92D3CB",
+          "#BEE4E0",
+          "#EDF8F6"
+        ]
+      },
+      "white-stock": {
+        "role": "neutral",
+        "displayName": "White Stock",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ]
+      },
+      "foam-tint": {
+        "role": "neutral",
+        "displayName": "Foam Tint",
+        "canonical": "#EEF7F6",
+        "tonalRamp": [
+          "#183431",
+          "#2A5A55",
+          "#3C8079",
+          "#4EA69D",
+          "#71BCB4",
+          "#97CEC8",
+          "#C1E2DE",
+          "#EEF7F6"
+        ]
+      },
+      "harbour-slate": {
+        "role": "neutral",
+        "displayName": "Harbour Slate",
+        "canonical": "#5F8A92",
+        "tonalRamp": [
+          "#1E2C2E",
+          "#344C50",
+          "#4A6C72",
+          "#608C94",
+          "#80A6AD",
+          "#A2BEC3",
+          "#C7D8DB",
+          "#F0F4F5"
+        ]
+      },
+      "navy-ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "canonical": "#10324A",
+        "tonalRamp": [
+          "#0E2A3F",
+          "#184A6D",
+          "#22699B",
+          "#2C88C9",
+          "#53A2DA",
+          "#81BBE4",
+          "#B4D6EF",
+          "#EAF4FA"
+        ]
+      },
+      "tide-grey": {
+        "role": "neutral",
+        "displayName": "Tide Grey",
+        "canonical": "#48656F",
+        "tonalRamp": [
+          "#1E2A2E",
+          "#344950",
+          "#4A6872",
+          "#608794",
+          "#80A1AD",
+          "#A2BAC3",
+          "#C7D6DB",
+          "#F0F4F5"
+        ]
+      },
+      "buoy-orange": {
+        "role": "primary",
+        "displayName": "Buoy Orange",
+        "canonical": "#F08A24",
+        "tonalRamp": [
+          "#482605",
+          "#7C4208",
+          "#B15E0C",
+          "#E57A10",
+          "#F2963B",
+          "#F5B270",
+          "#F9D1A9",
+          "#FDF2E7"
+        ]
+      },
+      "rust-text": {
+        "role": "primary",
+        "displayName": "Rust Text",
+        "canonical": "#A04C08",
+        "tonalRamp": [
+          "#492304",
+          "#7E3C06",
+          "#B45509",
+          "#E96F0C",
+          "#F58C38",
+          "#F8AB6D",
+          "#FBCDA8",
+          "#FEF1E7"
+        ]
+      },
+      "seabed-sand": {
+        "role": "tertiary",
+        "displayName": "Seabed Sand",
+        "canonical": "#E8C77E",
+        "tonalRamp": [
+          "#41300C",
+          "#715414",
+          "#A0771D",
+          "#D09B25",
+          "#DFB24E",
+          "#E8C77D",
+          "#F1DDB1",
+          "#FBF6E9"
+        ]
+      },
+      "kelp-green": {
+        "role": "secondary",
+        "displayName": "Kelp Green",
+        "canonical": "#157A4C",
+        "tonalRamp": [
+          "#0B4129",
+          "#137146",
+          "#1CA164",
+          "#24D182",
+          "#4DE09D",
+          "#7CE9B7",
+          "#B1F2D4",
+          "#E9FBF3"
+        ]
+      },
+      "signal-red": {
+        "role": "secondary",
+        "displayName": "Signal Red",
+        "canonical": "#C8352A",
+        "tonalRamp": [
+          "#3F110D",
+          "#6E1D17",
+          "#9C2921",
+          "#CA362A",
+          "#DB5C52",
+          "#E48881",
+          "#EFB7B3",
+          "#FBEBEA"
+        ]
+      },
+      "shallow-water": {
+        "role": "tertiary",
+        "displayName": "Shallow Water",
+        "canonical": "#9EDFE4",
+        "tonalRamp": [
+          "#11393C",
+          "#1D6268",
+          "#298C94",
+          "#35B6BF",
+          "#5BC9D1",
+          "#87D8DE",
+          "#B7E7EB",
+          "#EBF8F9"
+        ]
+      },
+      "open-sea-ring": {
+        "role": "tertiary",
+        "displayName": "Open Sea Ring",
+        "canonical": "#6CC4D2",
+        "tonalRamp": [
+          "#12353B",
+          "#1F5C66",
+          "#2C8390",
+          "#39AABB",
+          "#5FBFCE",
+          "#8AD0DB",
+          "#B9E3E9",
+          "#EBF7F9"
+        ]
+      },
+      "pen-sand": {
+        "role": "tertiary",
+        "displayName": "Pen Sand",
+        "canonical": "#F7E6B0",
+        "tonalRamp": [
+          "#453707",
+          "#785E0C",
+          "#AB8611",
+          "#DEAE17",
+          "#ECC341",
+          "#F1D374",
+          "#F7E5AC",
+          "#FDF8E8"
+        ]
+      },
+      "sprite-outline": {
+        "role": "neutral",
+        "displayName": "Sprite Outline",
+        "canonical": "#051019",
+        "tonalRamp": [
+          "#0D2940",
+          "#16476E",
+          "#1F659D",
+          "#2983CC",
+          "#519DDC",
+          "#7FB8E6",
+          "#B2D4F0",
+          "#EAF3FB"
+        ]
+      },
+      "protect-glow": {
+        "value": "rgba(214,60,45,.42)",
+        "displayName": "Protected Glow",
+        "role": "radial glow behind protected animals; follows card values"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The Good Catch wordmark only."
+      },
+      "score": {
+        "displayName": "Score",
+        "purpose": "Final score on the result panel, coloured by sign."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Verdict and dialog titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Buttons, tabs, counts, records, chips."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Date, legend values, card names and ranks, badge, bubble."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Hints and help sentences."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Range label and notes."
+      }
+    },
+    "shadows": [
+      {
+        "name": "board-frame",
+        "value": "0 0 0 3px #10324A",
+        "purpose": "3px ink frame around the board."
+      },
+      {
+        "name": "card-rest",
+        "value": "0 3px 8px rgba(16,50,74,.14)",
+        "purpose": "Rule cards lying on the table."
+      },
+      {
+        "name": "card-picked",
+        "value": "0 0 0 3px #F08A24, 0 10px 18px rgba(16,50,74,.22)",
+        "purpose": "Chosen rule card, lifted with orange ring."
+      },
+      {
+        "name": "bubble",
+        "value": "0 4px 12px rgba(16,50,74,.22)",
+        "purpose": "Boat speech bubble."
+      },
+      {
+        "name": "menu",
+        "value": "0 8px 24px rgba(16,50,74,.18)",
+        "purpose": "Popover menu."
+      },
+      {
+        "name": "panel",
+        "value": "0 10px 30px rgba(16,50,74,.2)",
+        "purpose": "Result panel over the board."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Pen sweep, rope fade-in, card lift."
+      },
+      {
+        "name": "pen-sweep",
+        "value": "0.45s per cell, 45ms stagger by distance from the boat; rope +120ms",
+        "purpose": "Pen fills outward from the boat when it closes."
+      },
+      {
+        "name": "sprite-frames",
+        "value": "1.2s step-end, 2 frames, phase-locked via --clock",
+        "purpose": "Idle loop for every sprite."
+      },
+      {
+        "name": "card",
+        "value": "0.25s",
+        "purpose": "Card fan, hover lift, pick."
+      },
+      {
+        "name": "bubble-pop",
+        "value": "0.18s ease-out in, fade after 2.5s",
+        "purpose": "Boat speech bubble."
+      },
+      {
+        "name": "boat-ping",
+        "value": "1.6s ease-out infinite",
+        "purpose": "Orange ring on the boat until the first mark."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Stops sweeps, pings, sprite frames and card transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column",
+        "value": "540px max-width, phone-first at ~400px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Button",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Outlined secondary control (undo, clear, cancel).",
+      "html": "<button class=\"ds-btn\">Undo</button>",
+      "css": ".ds-btn{appearance:none;border:2px solid var(--ink,#10324A);background:var(--surface,#FFFFFF);color:var(--ink,#10324A);font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:22px;padding:10px 12px;border-radius:12px;cursor:pointer}.ds-btn:hover{background:var(--surface2,#EEF7F6)}.ds-btn:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The haul: one per screen, buoy orange under navy text.",
+      "html": "<button class=\"ds-btn-primary\">Haul the net</button>",
+      "css": ".ds-btn-primary{appearance:none;border:2px solid var(--ink,#10324A);background:var(--accent,#F08A24);color:var(--ink,#10324A);font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:22px;padding:10px 12px;border-radius:12px;cursor:pointer}.ds-btn-primary:hover{background:#F79B40}.ds-btn-primary:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}.ds-btn-primary:disabled{background:transparent;color:var(--edge,#5F8A92);border-color:var(--edge,#5F8A92);cursor:default}"
+    },
+    {
+      "name": "Disabled Button",
+      "kind": "button",
+      "refersTo": "button-disabled",
+      "description": "Inactive control: slate stroke and text, no fill.",
+      "html": "<button class=\"ds-btn-disabled\" disabled>Clear</button>",
+      "css": ".ds-btn-disabled{appearance:none;border:2px solid var(--edge,#5F8A92);background:transparent;color:var(--edge,#5F8A92);font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:22px;padding:10px 12px;border-radius:12px;cursor:default}"
+    },
+    {
+      "name": "Game Switcher",
+      "kind": "nav",
+      "refersTo": "switch-tab",
+      "description": "Three outlined mode tabs; selected fills buoy orange.",
+      "html": "<nav class=\"ds-switch\"><button class=\"ds-tab\" aria-selected=\"true\">Purse net<small>+14</small></button><button class=\"ds-tab\">Bottom line<small>+9</small></button><button class=\"ds-tab ds-wide\">Sea floor<small></small></button></nav>",
+      "css": ".ds-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-width:400px}.ds-wide{grid-column:1/-1}.ds-tab{appearance:none;border:2px solid var(--ink,#10324A);background:var(--surface,#FFFFFF);color:var(--ink,#10324A);font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:22px;line-height:1;padding:6px;border-radius:12px;min-height:52px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center}.ds-tab small{font-size:18px;color:var(--good,#157A4C)}.ds-tab small:empty{display:none}.ds-tab:hover{background:var(--surface2,#EEF7F6)}.ds-tab[aria-selected=true]{background:var(--accent,#F08A24)}.ds-tab[aria-selected=true] small{color:var(--ink,#10324A)}.ds-tab:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}"
+    },
+    {
+      "name": "Rule Cards",
+      "kind": "card",
+      "refersTo": "rule-card",
+      "description": "Face-up playing cards fanned -3/0/3deg, dealt one after another; neutral art window at full opacity; the picked card lifts with an orange ring and is final for the map.",
+      "html": "<div class=\"ds-cards\"><button class=\"ds-card\"><span class=\"ds-art\"><span class=\"ds-rank\">+8</span></span><b>Dolphin</b><span class=\"ds-rule\">Dolphins count +8</span></button><button class=\"ds-card ds-limit\" aria-pressed=\"true\"><span class=\"ds-art\"></span><b>Low tide</b><span class=\"ds-rule\">One more rock</span></button><button class=\"ds-card ds-limit\"><span class=\"ds-art\"></span><b>Short net</b><span class=\"ds-rule\">Two fewer buoys</span></button></div>",
+      "css": ".ds-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px 4px;max-width:380px}.ds-card{appearance:none;position:relative;display:flex;flex-direction:column;gap:3px;padding:5px 5px 7px;border:2px solid var(--ink,#10324A);border-radius:10px;background:var(--surface,#FFFFFF);color:var(--ink,#10324A);text-align:center;cursor:pointer;font-family:Figtree,system-ui,sans-serif;box-shadow:0 3px 8px rgba(16,50,74,.14);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s}.ds-card:nth-child(1){transform:rotate(-3deg)}.ds-card:nth-child(3){transform:rotate(3deg)}.ds-card:hover{transform:translateY(-3px) rotate(0)}.ds-card:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}.ds-art{position:relative;height:46px;border-radius:6px;background:var(--surface2,#EEF7F6);border:1.5px solid var(--ink,#10324A)}.ds-rank{position:absolute;top:1px;left:5px;font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px;line-height:1}.ds-card b{font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-weight:400;font-size:18px;line-height:1;margin-top:2px}.ds-rule{font-size:13px;line-height:1.25;color:var(--muted,#48656F)}.ds-card[aria-pressed=true]{transform:translateY(-6px) rotate(0);border-color:var(--accent-text,#A04C08);box-shadow:0 0 0 3px var(--accent,#F08A24),0 10px 18px rgba(16,50,74,.22)}.ds-card[aria-pressed=true] .ds-rule{color:var(--ink,#10324A)}"
+    },
+    {
+      "name": "Result Panel",
+      "kind": "card",
+      "refersTo": "result-panel",
+      "description": "Floats over the board: signed 72px score, verdict, red-to-green range bar with the day's exact worst and best.",
+      "html": "<div class=\"ds-panel\"><div class=\"ds-big\">+23</div><div class=\"ds-verdict\">Good catch!</div><div class=\"ds-bar\"><i></i></div><div class=\"ds-ends\"><span>-31</span><span>+27</span></div></div>",
+      "css": ".ds-panel{width:320px;background:rgba(255,255,255,.96);border:2px solid var(--ink,#10324A);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(16,50,74,.2);color:var(--ink,#10324A)}.ds-big{font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:72px;line-height:1;color:var(--good,#157A4C)}.ds-verdict{font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:28px}.ds-bar{position:relative;height:10px;background:var(--surface2,#EEF7F6);border:1px solid var(--edge,#5F8A92);border-radius:5px}.ds-bar i{position:absolute;top:0;bottom:0;left:0;right:12%;background:linear-gradient(90deg,var(--bad,#C8352A),var(--good,#157A4C));border-radius:4px}.ds-ends{display:flex;justify-content:space-between;font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px}"
+    },
+    {
+      "name": "Speech Bubble",
+      "kind": "custom",
+      "refersTo": "speech-bubble",
+      "description": "The boat explains a blocked move.",
+      "html": "<div class=\"ds-bubble\">Rocks can't hold line</div>",
+      "css": ".ds-bubble{position:relative;display:inline-block;margin-bottom:12px;padding:6px 10px;background:var(--surface,#FFFFFF);color:var(--ink,#10324A);font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px;line-height:1.1;border:2px solid var(--ink,#10324A);border-radius:10px;box-shadow:0 4px 12px rgba(16,50,74,.22)}.ds-bubble::before,.ds-bubble::after{content:'';position:absolute;left:24px;top:100%;border:solid transparent}.ds-bubble::before{margin-left:-9px;border-width:9px;border-top-color:var(--ink,#10324A)}.ds-bubble::after{margin-left:-6px;border-width:6px;border-top-color:var(--surface,#FFFFFF)}"
+    },
+    {
+      "name": "Practice Badge",
+      "kind": "chip",
+      "refersTo": "practice-badge",
+      "description": "Status tag in the meta row (practice, tournament).",
+      "html": "<span class=\"ds-badge\">Practice</span>",
+      "css": ".ds-badge{font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px;color:var(--ink,#10324A);background:var(--pen,#F7E6B0);border:2px solid var(--ink,#10324A);padding:0 7px;border-radius:6px}"
+    },
+    {
+      "name": "Legend",
+      "kind": "custom",
+      "refersTo": "legend",
+      "description": "Species strip; values in green or red; press spotlights the species.",
+      "html": "<div class=\"ds-legend\"><button><span class=\"ds-pos\">+1</span></button><button aria-pressed=\"true\"><span class=\"ds-pos\">+5</span></button><button><span class=\"ds-neg\">-6</span></button><button><span class=\"ds-neg\">-8</span></button></div>",
+      "css": ".ds-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;max-width:220px;background:var(--surface,#FFFFFF);border:2px solid var(--ink,#10324A);border-radius:12px;padding:6px 4px}.ds-legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;cursor:pointer;font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px}.ds-legend button:hover{background:var(--surface2,#EEF7F6)}.ds-legend button[aria-pressed=true]{background:var(--pen,#F7E6B0)}.ds-legend button:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}.ds-pos{color:var(--good,#157A4C)}.ds-neg{color:var(--bad,#C8352A)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Daylight Harbour Board",
+    "overview": "**Creative North Star: \"The Daylight Harbour Board\"**\n\nGood Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.\n\nThe board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.\n\nThe world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.",
+    "keyCharacteristics": [
+      "Daylight: light page, white surfaces, navy ink as the single outline colour.",
+      "2px navy outlines on every interactive surface; depth comes from outline, not shadow.",
+      "Two voices of type: Jersey 10 for every number and label, Figtree for sentences.",
+      "Pixel sprites are the fun: 12×12, 1px near-black outline, two-frame idle loop.",
+      "Board layer order is fence > pen > animals > water, and it is enforced."
+    ],
+    "rules": [
+      {
+        "name": "The Score Owns Red And Green Rule",
+        "body": "Green means points gained and red means points lost. Neither appears for decoration, branding or generic \"error\" chrome; a red element on screen is always a cost.",
+        "section": "colors"
+      },
+      {
+        "name": "The Navy Edge Rule",
+        "body": "There is one outline colour, navy ink, at 2px on controls and 3px on the board frame and rope. Grey borders only mean \"inactive\".",
+        "section": "colors"
+      },
+      {
+        "name": "The Orange Is Action Rule",
+        "body": "Buoy orange marks where the player acts next (primary button, selected tab, focus, picked card, boat ping). Text in orange uses rust text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Digits Must Read Rule",
+        "body": "Any face that carries a number must keep 2/8, 5/S and 0/O distinct at 18px. Pixelify Sans failed that test and is out.",
+        "section": "typography"
+      },
+      {
+        "name": "The Pixel Speaks, The Sans Explains Rule",
+        "body": "Jersey 10 for anything a player scans (numbers, labels, controls); Figtree for anything a player reads as a sentence. Never set a sentence paragraph in Jersey 10.",
+        "section": "typography"
+      },
+      {
+        "name": "The Floaters Only Rule",
+        "body": "Buttons, tabs and the legend are flat and outlined. A shadow means the element sits above something else (panel, menu, bubble) or is a card you can pick up. All shadows are soft and navy-tinted; there are no hard offset shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the board layer order fence > pen > animals > water: rocks stay the highest-contrast element on the board, water the lowest.",
+      "**Do** draw the pen's rope on the true perimeter of the enclosed cells, exactly what the 4-directional flood fill catches.",
+      "**Do** outline every interactive surface in navy ink at 2px and fill the primary action with buoy orange under navy text.",
+      "**Do** set every number and control label in Jersey 10 and every sentence in Figtree.",
+      "**Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, sprite outline #051019 against every water tone at least 7.2:1).",
+      "**Do** draw new icons as 12×12 sprites in the shared palette.",
+      "**Do** honour `prefers-reduced-motion`: sweeps, pings, sprite frames and card transitions stop."
+    ],
+    "donts": [
+      "**Don't** use green or red for anything but points gained and lost; protected status is the red glow, and it follows the card's values.",
+      "**Don't** return to the dark teal game grid this world replaced.",
+      "**Don't** put orange text on light surfaces; use rust text.",
+      "**Don't** give the lobster or any species the buoy's orange-and-white; the lobster is blue so the buoy stays unique.",
+      "**Don't** add shadows to flat controls or use hard offset shadows; shadows are soft, navy-tinted, and only for floating elements and cards.",
+      "**Don't** set a score in a face whose 2/8, 5/S or 0/O can be confused (Pixelify Sans is rejected)."
+    ]
+  }
+}
