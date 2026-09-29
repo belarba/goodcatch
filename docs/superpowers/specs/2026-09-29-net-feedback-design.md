@@ -27,9 +27,11 @@ takes to the boat, animated as a current, and outline the gap it goes through.
   cell 8-adjacent to the boat (the pen touches the boat at a side or a corner). The path is the
   list of cell keys from the ring to that cell. Ties break by BFS order, so the same board always
   draws the same path.
-- `gap`: walking `path` from the sea side, the first cell that closes the pen if a buoy were put
-  there (`evaluate` with that cell added to `g.marks` returns non-null `hits`). `null` when no single
-  buoy closes it (two or more holes).
+- `gap`: among the cells of `path` that close the pen if a buoy were put there (`evaluate` with that
+  cell added to `g.marks` returns non-null `hits`), the one with the most fence neighbours (buoy, rock,
+  boat), first from the sea side on a tie. Blocking the path in open water before the net also closes
+  it (a bigger pen), so "first closing cell" would outline a square outside the net; the flanked one is
+  the hole the player sees. `null` when no single buoy closes it (two or more holes).
 - Render: a dashed navy polyline through the path cell centres in the existing `.ov` SVG, with a
   CSS dash-offset animation toward the boat; the gap cell gets a solid `navy-ink` square outline
   (the current is dashed, so the two read apart). `navy-ink` measures 8.96:1 on `shallow-water` and

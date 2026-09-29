@@ -575,6 +575,27 @@ function evaluateBuoys(g){
   for(const k of inside){const r=Math.floor(k/100),c=k%100;if(g.grid[r][c].sp)hits.push([r,c])}
   return {hits:inside.size?hits:null,inside,onP:g.marks,out};
 }
+function leakPath(g){
+  if(!g.buoy||!g.marks.size) return null;
+  const e=evaluateBuoys(g); if(e.hits) return null;
+  const [sr,sc]=g.start, rc=k=>[Math.floor(k/100),k%100];
+  const edge=([r,c])=>r===0||c===0||r===g.rows-1||c===g.cols-1, near=([r,c])=>Math.max(Math.abs(r-sr),Math.abs(c-sc))===1;
+  const prev=new Map(), q=[];
+  for(const k of e.out) if(edge(rc(k))){prev.set(k,null);q.push(k)}
+  let end=null;
+  for(let i=0;i<q.length;i++){
+    const k=q[i],[r,c]=rc(k); if(near([r,c])){end=k;break}
+    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const n=key(r+dr,c+dc);if(e.out.has(n)&&!prev.has(n)){prev.set(n,k);q.push(n)}}
+  }
+  if(end===null) return null;
+  const path=[]; for(let k=end;k!==null;k=prev.get(k)) path.unshift(k);
+  // Blocking the path before the net closes it too (a bigger pen); the hole the player sees is the closing square flanked by fence.
+  const wall=([r,c])=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||g.grid[r][c].rock||r===sr&&c===sc);
+  const flank=k=>{const [r,c]=rc(k);return [[1,0],[-1,0],[0,1],[0,-1]].filter(([dr,dc])=>wall([r+dr,c+dc])).length};
+  let gap=null;
+  for(const k of path){g.marks.add(k);const shut=!!evaluateBuoys(g).hits;g.marks.delete(k);if(shut&&(gap===null||flank(k)>flank(gap)))gap=k}
+  return {path,gap};
+}
 // The marks must form one chain from the boat to the seabed: a single end, no branch, never touching itself
 // (every marked square has at most two marked neighbours, counting the boat).
 function lineChain(g){
