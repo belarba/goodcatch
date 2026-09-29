@@ -59,15 +59,16 @@ const rows = [];
 for (const seed of Object.keys(REF).filter(k => k.startsWith(prefix)).slice(0, Number(limit))) {
   for (const [k, best] of REF[seed]) {
     const row = { seed, k, best }, m = G.boardModel(netFor(seed, k));
-    for (const [name, f] of Object.entries(NAIVE)) row[name] = realScore(netFor(seed, k), solveBuoys(f(m), 'max').buoys);
+    // High tide already removes the reef, so the no-reef player would just be playing the real game.
+    for (const [name, f] of Object.entries(NAIVE)) row[name] = name === 'noReef' && G.CARDS[k].noRocks ? null : realScore(netFor(seed, k), solveBuoys(f(m), 'max').buoys);
     if (Object.keys(NAIVE).some(n => row[n] > best)) throw new Error(`${seed} ${k}: a naive player beat the optimum ${JSON.stringify(row)}`);
     rows.push(row);
-    const pct = x => best > 0 ? `${Math.round(100 * x / best)}%` : '—';
+    const pct = x => best > 0 && x !== null ? `${Math.round(100 * x / best)}%` : '—';
     console.log(`${seed.padEnd(16)} ${k.padEnd(9)} best ${String(best).padStart(3)}  greedy ${pct(row.greedy).padStart(4)}  near ${pct(row.near).padStart(4)}  noReef ${pct(row.noReef).padStart(4)}`);
   }
 }
 const med = a => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
 const scored = rows.filter(r => r.best > 0);
-for (const n of Object.keys(NAIVE)) console.log(`${n}: median ${Math.round(100 * med(scored.map(r => r[n] / r.best)))}% of best`);
-const trivial = scored.filter(r => Object.keys(NAIVE).some(n => r[n] / r.best >= 0.9));
+for (const n of Object.keys(NAIVE)) console.log(`${n}: median ${Math.round(100 * med(scored.filter(r => r[n] !== null).map(r => r[n] / r.best)))}% of best`);
+const trivial = scored.filter(r => Object.keys(NAIVE).some(n => r[n] !== null && r[n] / r.best >= 0.9));
 console.log(`${trivial.length} of ${scored.length} map/card pairs have a naive player at >= 90% of best (trivial)`);
