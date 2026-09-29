@@ -139,6 +139,12 @@ h1 span{color:var(--accent-text)}
 @keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 .mark.cost.up{color:var(--good)}
+.cards.orders{grid-template-columns:repeat(3,1fr)}
+.order{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:2px solid var(--edge);border-radius:10px;background:var(--surface)}
+.order.met{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
+.order .want{display:flex;align-items:center;gap:4px;font:400 22px var(--pixel);color:var(--ink)}
+.order .bonus{font:400 18px var(--pixel);color:var(--accent-text)}
+.order.met .bonus::after{content:' ✓';color:var(--good)}
 .clue{margin:8px 0 2px;color:var(--ink);font-weight:600}
 .stars{font:400 28px var(--pixel);color:var(--accent-text);letter-spacing:4px;line-height:1}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
@@ -790,6 +796,13 @@ const CARD_REF = {
   "carta:9":{"c":[["isca",6,-36,"08090l0r0v11131b1l1o1p1q1x1y","0e0h0q0r15191e1j1u21262b2i2j"],["mare",11,-14,"12131c1f1m1p1z262a2g2k2s2u34","101c1m1o1p21282b2k2m2u2x3637"],["curta",11,-18,"12131c1f1j1m1p1z262g2k2s2u34","0e0f0g0h1012131b1d1l1p1x212b"]]}
 };
 // @card-ref-end
+// @order-ref-start
+const ORDER_REF = {
+  "2026-09-29":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":38,"w":-8,"bb":"1o1q1r1s1y1z242f2k2p2w2z3839","wb":"292a2c2d2j2m2n2p2v303738393a"},
+  "2026-09-30":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":35,"w":-21,"bb":"05070f0j0p0z1315191d1f1j1o1q","wb":"0r0t12141d1g1p1r222d2k2n2w2x"},
+  "2026-10-01":{"o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":51,"w":-10,"bb":"0t1113151b1h1r1w21272b2j2l2v","wb":"0d0e0f0z10131c1f1q222b2e2n2o"}
+};
+// @order-ref-end
 
 // ---------- storage ----------
 function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
@@ -800,6 +813,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function dailyReference(g,done){
   if(g.kind==='drop') return;
   if(g.kind==='net'){
+    if(MODE){const r=ORDER_REF[DATE];if(r) done({best:r.b,worst:r.w,exact:true,bestBuoys:unpackCells(g,r.bb),worstBuoys:unpackCells(g,r.wb)});return}
     const cs=CARD_REF[g.seed]?.c;
     if(cs){
       const hi=cs.reduce((a,b)=>b[1]>a[1]?b:a), lo=cs.reduce((a,b)=>b[2]<a[2]?b:a);
@@ -830,7 +844,7 @@ const STR = {
     cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    card_extra:'Card', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
     hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
@@ -873,7 +887,7 @@ const STR = {
     cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    card_extra:'Carta', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
     hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
@@ -911,6 +925,7 @@ const STR = {
 // Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
 // The daily is the purse net with rule cards; the line and sea floor stay in the code, hidden (roadmap: keep or drop them).
 const NET_ONLY=true;
+const MODE=new URLSearchParams(location.search).get('modo')==='encomenda'?'encomenda':null;
 let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
   const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
   return v==='1'})();
@@ -920,13 +935,16 @@ const t=k=>STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
   document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(TOURNEY?` · ${t('tourney_badge')}`:'');
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(MODE?` · ${t('mode_orders')}`:'')+(TOURNEY?` · ${t('tourney_badge')}`:'');
   document.getElementById('lang-btn').textContent=t('other_lang');
   document.getElementById('tourney-btn').textContent=t(TOURNEY?'tourney_disable':'tourney_enable');
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
-  document.getElementById('help-body').innerHTML=NET_ONLY?`<p>${t('help_intro_cards')}</p>
+  document.getElementById('help-body').innerHTML=MODE?`<p>${t('help_intro_orders')}</p>
+    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
+    <h3>${sprite('lontra')}${t('help_orders_title')}</h3><p>${t('help_orders')}</p>
+    <p>${t('help_points')}</p>`:NET_ONLY?`<p>${t('help_intro_cards')}</p>
     <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
     <h3>${sprite('buoy')}${t('help_cards_title')}</h3><p>${t('help_cards')}</p>
     <p>${t('help_points')}</p>`:`<p>${t('help_intro')}</p>
@@ -947,7 +965,7 @@ function setup(g){
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
   new ResizeObserver(()=>{const cell=g.board.clientWidth/g.cols;g.board.style.setProperty('--spx',14*Math.max(1,Math.floor(cell*.9/14))+'px')}).observe(g.board);
   g.training=false;
-  g.storeKey=`goodcatch:${DATE}:${g.key}`;
+  g.storeKey=`goodcatch:${DATE}:${MODE&&g.buoy?MODE:g.key}`;
   g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
   g.trainRec={best:null,worst:null,tries:0};
   g.last=null;
@@ -1048,6 +1066,7 @@ function toggleTraining(g){
   g.last=null; render(g);
 }
 
+const VILLAGER={dourada:'lontra',sardinha:'pelicano',lula:'guaxinim',lagosta:'vovo'}, ORDER_ICON={dourada:'🦦',sardinha:'🐦',lula:'🦝',lagosta:'👵'};
 const CARD_ART={isca:['hook','','limit'],mare:['rock','','limit'],curta:['buoy','','limit'],golfinho:['golfinho','+8','boon'],barbatana:['tubarao','+4','boon'],soltura:['tartaruga','+3','boon']};
 // High tide removes the rocks, so a card switch rebuilds the grid from the seed and drops buoys that would sit on rock.
 function setCard(g,k){
@@ -1057,9 +1076,10 @@ function setCard(g,k){
 }
 
 function newMap(g,seed){
-  const row=CARD_REF[seed];
-  g.card=g.cardKey=null; g.cards=g.buoy&&row?.c.map(x=>x[0])||null; g.genSeed=row?.s??seed;
+  const orders=MODE&&g.buoy, row=orders?ORDER_REF[DATE]:CARD_REF[seed];
+  g.card=g.cardKey=null; g.cards=!orders&&g.buoy&&row?.c.map(x=>x[0])||null; g.genSeed=row?.s??seed;
   g.grid=g.gen(g,mulberry(seedFrom(g.genSeed))); applyCard(g);
+  if(orders) g.orders=row?.o??genOrders(g,mulberry(seedFrom(DATE+':pedido')));
   g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
   if(!g.training&&g.cards?.includes(g.rec.card)) setCard(g,g.rec.card);
   if(g.kind==='drop'){
@@ -1260,7 +1280,8 @@ function render(g){
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(now):'');
   if(g.buoy&&now!==g.pvShown){if(g.pvShown!==undefined&&hits){void g.el.pv.offsetWidth;g.el.pv.classList.add('bump')}g.pvShown=now}
-  if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!g.card;if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
+  if(g.el.card&&g.orders){g.el.card.hidden=false;g.el.card.classList.add('orders');g.el.card.innerHTML=orderStatus(g,hits).map(o=>`<div class="order${o.met?' met':''}" title="${t('villager_'+o.sp)}">${sprite(VILLAGER[o.sp])}<span class="want">${sprite(o.sp)}<b>${o.have}/${o.q}</b></span><span class="bonus">+${o.b}</span></div>`).join('')}
+  else if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!g.card;if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
   g.board.classList.toggle('await',!!(g.cards&&!g.card));
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
     :g.blocked?t(`block_${g.blockReason}_${g.key}`)
@@ -1306,11 +1327,12 @@ function renderResult(g){
     return;
   }
   const chips=(Object.entries(L.count).sort((a,b)=>pts(g,b[0])-pts(g,a[0])).map(([k,n])=>{const p=pts(g,k)*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')
-    +(L.extra?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
+    +(g.orders?g.orders.filter(o=>(L.count[o.sp]||0)>=o.q).map(o=>`<span>${sprite(VILLAGER[o.sp])} <span class="pos">+${o.b}</span></span>`).join(''):'')
+    +(L.extra&&!g.orders?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
   const pct=L.counted&&(g.card||!g.training)&&g.ref?.exact&&g.ref.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
     +(g.card&&g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
   const st=L.counted&&(g.card||!g.training)&&g.ref?.exact?stars(L.score,g.ref.best):null;
-  const mine=!L.shown&&CARD_REF[g.seed]?.c.find(x=>x[0]===g.cardKey), cl=mine&&L.score<mine[1]&&clueFor(g,new Set(unpackCells(g,mine[3])));
+  const mine=!L.shown&&(MODE?(r=>r&&[null,r.b,r.w,r.bb])(ORDER_REF[DATE]):CARD_REF[g.seed]?.c.find(x=>x[0]===g.cardKey)), cl=mine&&L.score<mine[1]&&clueFor(g,new Set(unpackCells(g,mine[3])));
   const clue=cl?`<p class="clue">${t('clue_'+cl.k).replace('{a}',cl.sp&&spName(cl.sp)).replace('{d}',cl.dir&&t('dir_'+cl.dir)).replace('{n}',cl.n).replace('{m}',cl.m)}</p>`:'';
   g.el.result.innerHTML=`<div class="big ${L.counted?cls(L.score):'zero'}">${fmt(L.score)}</div>
     ${st!==null?`<div class="stars" role="img" aria-label="${t('stars_label').replace('{n}',st)}">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`:''}
@@ -1359,12 +1381,15 @@ function commit(g){
   g.last={score,count,extra:score-hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0),counted:!frozen(rec),shown:g.showing};
   if(!g.last.counted) return render(g);
   rec.tries++; rec.card=g.cardKey; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
+  if(g.orders&&score===rec.best) rec.met=orderStatus(g,hits).map(o=>o.met);
   if(TOURNEY&&!g.training) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
   render(g);
 }
 
 function shareText(){
+  if(MODE){const g=games.rede,r=g.rec;if(!r.tries)return '';const st=stars(r.best,g.dailyBest);
+    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish/?modo=encomenda`}
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
     const r=g.rec;
@@ -1421,6 +1446,7 @@ applyText();
 for(const g of Object.values(games)) setup(g);
 let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
 if(NET_ONLY){document.querySelector('.switch').hidden=true;showTab('rede')}
+if(MODE) document.getElementById('train-btn').hidden=true;
 else showTab(saved in games?saved:'rede');
 for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}

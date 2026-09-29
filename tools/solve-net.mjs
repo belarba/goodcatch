@@ -5,6 +5,7 @@
 //
 //   (cd tools && npm install)
 //   node tools/solve-net.mjs [days=60] [from=today]   → CARD_REF["<date>:rede"], the daily maps (+ line self-check)
+//   node tools/solve-net.mjs orders [days=60] [from]    → ORDER_REF["<date>"], the Encomenda maps and orders
 //   node tools/solve-net.mjs cards [maps=24] [first=0] → CARD_REF["carta:<i>"], the practice maps first..maps-1
 //
 // Game logic is read from index.html (@gen markers), never duplicated here.
@@ -67,6 +68,30 @@ function curate(key) {
   }
   console.log(`${key} → variant ${pick.v}, depth ${Math.round(100 * pick.d)}%${pick.d < DEEP ? '' : '  SHALLOW'}`);
   return pick.row;
+}
+
+// Encomenda: per day, a map variant and an order roll whose best catch meets exactly two of the three orders.
+if (process.argv[2] === 'orders') {
+  const n = Number(process.argv[3] ?? 60), start = new Date(`${process.argv[4] ?? localDate(new Date())}T12:00:00`), ref = readTable('order-ref');
+  for (let i = 0; i < n; i++) {
+    const date = localDate(new Date(start.getTime() + i * 864e5)), key = `${date}:rede`, t0 = Date.now();
+    let pick = null;
+    for (let v = 0; v < 5 && pick?.met !== 2; v++) for (let k = 0; k < 10; k++) {
+      const gen = v ? `${key}:${v}` : key, net = { ...G.games.rede };
+      net.grid = net.gen(net, G.mulberry(G.seedFrom(gen)));
+      net.orders = G.genOrders(net, G.mulberry(G.seedFrom(k ? `${date}:pedido:${k}` : `${date}:pedido`)));
+      if (net.orders.length < 3) continue;
+      const hi = solveBuoys(G.boardModel(net), 'max'), bb = checkNet(net, hi);
+      const met = G.orderStatus(net, G.evaluate(net).hits).filter(o => o.met).length;
+      if (!pick || Math.abs(met - 2) < Math.abs(pick.met - 2)) pick = { gen, net, hi, bb, met, k };
+      if (met === 2) break;
+    }
+    const lo = solveBuoys(G.boardModel(pick.net), 'min');
+    ref[date] = { ...(pick.gen !== key && { s: pick.gen }), o: pick.net.orders, b: pick.hi.score, w: lo.score, bb: pick.bb, wb: checkNet(pick.net, lo) };
+    console.log(`${date} ${pick.gen} roll ${pick.k}: ${pick.net.orders.map(o => `${o.sp}x${o.q}+${o.b}`).join(' ')}  best ${pick.hi.score} meets ${pick.met}${pick.met === 2 ? '' : '  NOT-TWO'}  ${Date.now() - t0}ms`);
+  }
+  writeTable('order-ref', 'ORDER_REF', ref);
+  process.exit(0);
 }
 
 const table = readTable('card-ref');
