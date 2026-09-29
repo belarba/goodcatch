@@ -22,7 +22,7 @@ const between = (a, b) => {
   return [i + a.length, j];
 };
 const [gs, ge] = between('// @gen-start', '// @gen-end');
-const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, CARDS, applyCard, overArea};`)();
+const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, CARDS, applyCard, overArea, SP};`)();
 
 function localDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -147,8 +147,16 @@ function writeTable(name, constName, table) {
   console.log(`${constName}: ${keys.length} entries, ${keys[0]} → ${keys[keys.length - 1]}`);
 }
 
-// A trio is offered only if its best two cards finish within CLOSE of each other, so no card is an obvious pick.
+// A trio is offered only if its best two cards finish within CLOSE of each other, so no card is an obvious pick,
+// and every boon card in it is used by its own optimum, so the bonus it promises is reachable.
 const CLOSE = 0.10;
+const boonUsed = (net, sol) => {
+  const cd = net.card;
+  if (!cd.set && !cd.release) return true;
+  net.marks = new Set(sol.buoys.map(([r, c]) => r * 100 + c));
+  return cd.set ? G.evaluate(net).hits.some(([r, c]) => net.grid[r][c].sp in cd.set)
+    : sol.buoys.some(([r, c]) => G.SP[net.grid[r][c].sp]?.p < 0);
+};
 if (process.argv[2] === 'cards') {
   const n = Number(process.argv[3] ?? 24), table = {}, keys = Object.keys(G.CARDS);
   const trios = keys.flatMap((a, x) => keys.slice(x + 1).flatMap((b, y) => keys.slice(x + y + 2).map(c => [a, b, c])));
@@ -159,16 +167,17 @@ if (process.argv[2] === 'cards') {
     return net;
   };
   for (let i = 0; i < n; i++) {
-    const t0 = Date.now(), seed = `carta:${i}`, hi = {};
-    for (const k of keys) hi[k] = solveBuoys(G.boardModel(netFor(seed, k)), 'max');
+    const t0 = Date.now(), seed = `carta:${i}`, hi = {}, used = {};
+    for (const k of keys) { const net = netFor(seed, k); hi[k] = solveBuoys(G.boardModel(net), 'max'); used[k] = boonUsed(net, hi[k]); }
     const rng = G.mulberry(G.seedFrom(`${seed}:trio`)), order = trios.map(t => [rng(), t]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
     const gap = t => { const s = t.map(k => hi[k].score).sort((a, b) => b - a); return (s[0] - s[1]) / Math.max(1, Math.abs(s[0])); };
-    const trio = order.find(t => gap(t) <= CLOSE) ?? order.reduce((a, b) => gap(b) < gap(a) ? b : a);
+    const fair = order.filter(t => t.every(k => used[k])), pool = fair.length ? fair : order;
+    const trio = pool.find(t => gap(t) <= CLOSE) ?? pool.reduce((a, b) => gap(b) < gap(a) ? b : a);
     table[seed] = trio.map(k => {
       const net = netFor(seed, k), lo = solveBuoys(G.boardModel(net), 'min');
       return [k, hi[k].score, lo.score, checkNet(net, hi[k]), checkNet(net, lo)];
     });
-    console.log(`${seed.padEnd(9)} ${table[seed].map(([k, b, w]) => `${k} ${b}/${w}`).join('  ').padEnd(58)} gap ${Math.round(100 * gap(trio))}%  ${Date.now() - t0}ms`);
+    console.log(`${seed.padEnd(9)} ${table[seed].map(([k, b, w]) => `${k} ${b}/${w}`).join('  ').padEnd(58)} gap ${Math.round(100 * gap(trio))}%${fair.length ? '' : '  UNFAIR: no trio uses every boon'}  ${Date.now() - t0}ms`);
   }
   writeTable('card-ref', 'CARD_REF', table);
   process.exit(0);

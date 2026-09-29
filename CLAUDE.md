@@ -27,7 +27,7 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - `lineChain`: turns the line's marks into the ordered path `evaluate` scores, or says why it can't (`start`, `go`, `self`). `solveLine` enforces the same no-touch rule, and `tools/solve-net.mjs` fails if any optimum breaks `lineChain`.
   - `evaluate`: what gets caught (`evaluateBuoys` flood fill for the net, adjacency for the line). The sea floor keeps its state in `g.cells` (`genDrop`, `dropFish`, `solveDrop`, all pure) and mirrors it into `g.grid[..].sp` through `syncDrop` so `render` stays shared; `dropAnimate` runs hook → haul → sink before committing the move.
   - `dailyReference`: the single seam for "today's best/worst". A future backend replaces this function only. `g.dailyBest` keeps today's exact best apart from practice refs; results and the share text show the score as a percentage of it.
-  - Rule cards (`CARDS`, practice purse net only for now): each practice map offers three face-up cards from `CARD_REF`, dealt when practice opens. The player must pick one before placing buoys; the pick is final for that map (New map deals again). Every card must stay linear so the net remains an integer program. `node tools/solve-net.mjs cards [maps]` solves every card per map, keeps a trio whose best two cards finish within 10%, checks each optimum against the page's scoring and writes `CARD_REF` (`// @card-ref-start` … `// @card-ref-end`).
+  - Rule cards (`CARDS`, practice purse net only for now): each practice map offers three face-up cards from `CARD_REF`, dealt when practice opens. The player must pick one before placing buoys; the pick is final for that map (New map deals again). Every card must stay linear so the net remains an integer program. `node tools/solve-net.mjs cards [maps]` solves every card per map, keeps a trio whose best two cards finish within 10% and whose boon cards all use their bonus in their own optimum (the boosted animal in the pen, or a protected animal under a buoy for Release; falls back to the smallest gap among such trios), checks each optimum against the page's scoring and writes `CARD_REF` (`// @card-ref-start` … `// @card-ref-end`).
   - `NET_REF` (`// @net-ref-start` … `// @net-ref-end`): exact net best/worst per date plus the buoys of each (`packCells`), written by `node tools/solve-net.mjs [days] [from]` after `(cd tools && npm install)`. The tool solves an integer program with HiGHS (dev dependency only), checks every optimum against `evaluate` and self-checks a two-pen case before writing. A date missing from the table shows no range; keep it generated well ahead. The line's range is solved live in a Web Worker.
   - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs. `FRAME2` derives a second frame per species (`shift` moves a region by a pixel); the pair becomes a 2-frame sheet animated in CSS, kept in phase across re-renders by `--clock`.
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
@@ -44,12 +44,11 @@ Waiting on playtest feedback (Sep 2026) before picking what to do next. Yardstic
    2. `plays` table + `POST /plays`: server-verified score, % of best, map, card, buoys.
    3. `GET /daily/:date/stats`: score distribution, to show "how everyone did today" (the main gap to enclose.horse). Plug in through `dailyReference`.
 2. **Cards on the daily map**: the same three cards for everyone, the day's best solved offline. Brings back fairness and daily novelty; `PLAYTEST` goes away.
-3. **Bonus must be reachable**: only keep card trios where the animal a card boosts (dolphin +8, shark +4) is actually in that card's optimal pen.
-4. **Limit cards lose to boon cards** (costly bait, high tide, short net score 5–19 vs 17–38): give them a price, e.g. short net = at most 12 squares but the catch counts double.
-5. **Measure the net's depth**: how far a naive player lands from the optimum, like `genDrop` already checks for the sea floor.
-6. Decide whether the bottom line and sea floor come back or go (hidden by `PLAYTEST`).
-7. The "?" help button is still a font glyph; every other icon is a 12×12 sprite.
-8. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
+3. **Limit cards lose to boon cards** (costly bait, high tide, short net score 5–19 vs 17–38): give them a price, e.g. short net = at most 12 squares but the catch counts double.
+4. **Measure the net's depth**: how far a naive player lands from the optimum, like `genDrop` already checks for the sea floor.
+5. Decide whether the bottom line and sea floor come back or go (hidden by `PLAYTEST`).
+6. The "?" help button is still a font glyph; every other icon is a 12×12 sprite.
+7. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
 
 ## Conventions
 - UI in English and Portuguese: default from `navigator.language`, switchable in the menu.
