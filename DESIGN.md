@@ -17,6 +17,7 @@ colors:
   open-sea-ring: "#6CC4D2"
   pen-sand: "#F7E6B0"
   pen-lagoon: "#E2F6F7"
+  net-tile: "#F4F1E8"
   stone: "#57636A"
   stone-top: "#8C969B"
   protect-glow: "rgba(214,60,45,.42)"
@@ -167,6 +168,7 @@ A daylight sea palette: pale seafoam and white carry the page, navy ink draws ev
 - **Shallow Water** (`shallow-water`): the net board's water.
 - **Open Sea Ring** (`open-sea-ring`): the outermost ring of net cells, deeper than the water with white wave ticks, meaning "the sea reaches here". Line boards instead grade from `#D6F1F3` surface row down through an HSL depth ramp (hue 186→194, darker with depth).
 - **Pen Lagoon** (`pen-lagoon`): the enclosed pen fill, the lightest water on the board: open-sea ring darkest, water in between, the protected pen lightest. The navy rope carries the edge (the fill alone is 1.33:1 on water).
+- **Net Tile** (`net-tile`): the fill of a buoy's square under the navy mesh; warm off-white so it never reads as the lagoon pen or the water.
 - **Stone** (`stone`, `stone-top`): the reef blocks, a dark grey body with a lighter top edge; 4.16:1 on water and 3.08:1 on the open-sea ring (the earlier brown was 3.50:1 and 2.59:1).
 - **Pen Sand** (`pen-sand`): the practice badge, the pressed legend item, icon-button hover and text selection.
 - **Seabed Sand** (`seabed-sand`): the 8px seabed strip under the line and sea-floor boards.
@@ -256,7 +258,7 @@ Face-up playing cards offered on practice purse-net maps.
 - **Motion:** 0.25s ease-out (`cubic-bezier(.16,1,.3,1)`) on transform and shadow; none under reduced motion.
 
 ### Board
-The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen lagoon with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. A buoy square is a net tile: the whole cell turns light (#F4F1E8) under a navy diagonal mesh with a 2px navy inset edge, and the buoy (white, navy band, orange cap) sits still in the middle. Barriers never animate, like the rocks: a full-cell, static tile reads as fence, while the animals are bobbing sprites. While the pen is open, a solid 3px navy rope links every buoy to its neighbours and to the boat, diagonals included: the sea only flows 4-directionally, so two buoys meeting at a corner already seal. The boat carries a soft white halo and an orange ping until the first mark.
+The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen lagoon with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. A buoy square is a net tile: the whole cell turns net tile (`net-tile`) under a navy diagonal mesh with a 2px navy inset edge, and the buoy (white, navy band, orange cap) sits still in the middle. Barriers never animate, like the rocks: a full-cell, static tile reads as fence, while the animals are bobbing sprites. While the pen is open, a solid 3px navy rope links every buoy to its neighbours and to the boat, diagonals included: the sea only flows 4-directionally, so two buoys meeting at a corner already seal. The boat carries a soft white halo and an orange ping until the first mark.
 
 ### Result Panel
 Laid over the board: 96% white, 2px navy outline, 14px radius, 18px padding, floated with the panel shadow. It stacks the 72px score, a 28px verdict, catch chips with sprites, a range bar (foam track, slate border, red-to-green fill) with the day's exact worst and best at its ends, and the player's records.
