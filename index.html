@@ -66,6 +66,8 @@ h1 span{color:var(--accent-text)}
 @keyframes ropein{from{opacity:0}}
 .ov .leak{animation:flow .7s linear infinite}
 @keyframes flow{to{stroke-dashoffset:-12}}
+.board.haul .ov .rope{transition:opacity .25s;opacity:0}
+.board.haul .c.in{transition:background-color .25s;background-color:transparent}
 .board.started .c.boat::after{animation:none;opacity:0}
 .c.rock .s-rock{width:100%;height:100%}
 .board.spot .c.rock:not(.lit) .sp.s-rock{opacity:1}
@@ -920,7 +922,7 @@ function setup(g){
   let drawing=false;
   const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
   g.board.addEventListener('pointerdown',e=>{
-    const cell=cellAt(e);if(!cell)return;
+    const cell=cellAt(e);if(!cell||g.hauling)return;
     if(g.kind==='drop'){
       if(g.last||g.busy) return;
       const c=cell[1], targetRow=dropTarget(g.cells,c), res=dropFish(g.cells,c);
@@ -967,7 +969,7 @@ function setup(g){
     if(g.kind==='drop'){g.cells=g.cells0.map(row=>row.slice());g.moves=0;g.score=0;g.history=[];g.blocked=null;syncDrop(g);render(g);return}
     g.marks.clear();g.history=[];g.blocked=null;g.showing=null;render(g);
   });
-  g.el.go.addEventListener('click',()=>commit(g));
+  g.el.go.addEventListener('click',()=>g.buoy?haulAnimate(g):commit(g));
   g.el.result.addEventListener('click',e=>{
     const a=e.target.closest('[data-act]')?.dataset.act;
     if(a==='again'){g.last=null;g.blocked=null;render(g)}
@@ -1090,6 +1092,39 @@ function dropAnimate(g,c,targetRow,res){
 }
 
 const scoreNow=g=>{const e=evaluate(g);return e.hits?scoreOf(g,e.hits,e.inside):null};
+function haulAnimate(g){
+  if(!ready(g)) return;
+  const {hits}=evaluate(g);
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return commit(g);
+  // commit first: the record is final before anything moves, so skipping the animation can never change it.
+  g.hauling=true; commit(g);
+  const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, cell=(r,c)=>b.children[r*g.cols+c];
+  const ring=([r,c])=>Math.max(Math.abs(r-br),Math.abs(c-bc));
+  const steps=hits.map(([r,c])=>({r,c,p:pts(g,g.grid[r][c].sp)})).sort((a,x)=>ring([a.r,a.c])-ring([x.r,x.c]));
+  const freed=g.card?.release?[...g.marks].map(k=>[Math.floor(k/100),k%100]).filter(([r,c])=>g.grid[r][c].sp&&SP[g.grid[r][c].sp].p<0):[];
+  const extra=g.last.extra-freed.length*(g.card?.release??0);
+  const n=steps.length+freed.length+(extra?1:0), step=Math.min(100,1000/Math.max(1,n)), timers=[];
+  const shown=g.el.pv.querySelector('b'); let total=0;
+  const add=v=>{total+=v;if(shown){shown.textContent=fmt(total);shown.className=cls(total)}};
+  if(shown) shown.textContent=fmt(0);
+  const done=()=>{if(!g.hauling)return;timers.forEach(clearTimeout);document.removeEventListener('pointerdown',done,true);b.classList.remove('haul');g.hauling=false;render(g)};
+  b.classList.add('haul');
+  steps.forEach(({r,c,p},i)=>timers.push(setTimeout(()=>{
+    const sp=cell(r,c)?.querySelector('.sp');
+    if(sp){sp.style.transition='transform .3s ease-in, opacity .3s';sp.style.transform=`translate(${(bc-c)*cw}px,${(br-r)*ch}px)`;sp.style.opacity='0'}
+    if(p<0) cell(r,c)?.classList.add('hit','bad');
+    spawn(g,r,c,'cost'+(p>0?' up':''),fmt(p)); add(p);
+  },250+i*step)));
+  freed.forEach(([r,c],i)=>timers.push(setTimeout(()=>{
+    const sp=cell(r,c)?.querySelector('.sp'), dr=r<g.rows/2?-r-1:g.rows-r, dc=c<g.cols/2?-c-1:g.cols-c;
+    if(sp){sp.style.transition='transform .4s ease-in, opacity .4s';sp.style.transform=Math.abs(dr)<Math.abs(dc)?`translateY(${dr*ch}px)`:`translateX(${dc*cw}px)`;sp.style.opacity='0'}
+    spawn(g,r,c,'cost up',fmt(g.card.release)); add(g.card.release);
+  },250+(steps.length+i)*step)));
+  if(extra) timers.push(setTimeout(()=>{spawn(g,br,bc,'cost'+(extra>0?' up':''),fmt(extra));add(extra)},250+(n-1)*step));
+  timers.push(setTimeout(done,250+n*step+250));
+  document.addEventListener('pointerdown',done,true);
+}
+
 const ready=g=>{const e=evaluate(g);return !!e.hits&&!(g.cards&&!g.card)&&!overArea(g,e.inside)};
 const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
 const cls=s=>s>0?'good':s<0?'bad':'zero';
@@ -1220,7 +1255,7 @@ function render(g){
 function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5':'v6')}
 
 function renderResult(g){
-  const L=g.last; g.el.result.hidden=!L; g.el.board.closest('.game').classList.toggle('done',!!L); if(!L) return;
+  const L=g.last; g.el.result.hidden=!L||!!g.hauling; g.el.board.closest('.game').classList.toggle('done',!!L&&!g.hauling); if(!L||g.hauling) return;
   g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());
   const rec=g.training?g.trainRec:g.rec;
   if(g.kind==='drop'){
