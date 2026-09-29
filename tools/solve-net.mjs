@@ -5,10 +5,10 @@
 //
 //   (cd tools && npm install)
 //   node tools/solve-net.mjs [days=60] [from=today]   → CARD_REF["<date>:rede"], the daily maps (+ line self-check)
-//   node tools/solve-net.mjs cards [maps=24]           → CARD_REF["carta:<i>"], the practice maps
+//   node tools/solve-net.mjs cards [maps=24] [first=0] → CARD_REF["carta:<i>"], the practice maps first..maps-1
 //
 // Game logic is read from index.html (@gen markers), never duplicated here.
-import { G, localDate, map, checkNet, checkLine, solveBuoys, readTable, writeTable, netFor } from './net-lib.mjs';
+import { G, localDate, map, checkNet, checkLine, solveBuoys, readTable, writeTable, netFor, realScore, NAIVE } from './net-lib.mjs';
 
 const days = Number(process.argv[2] ?? 60);
 const from = process.argv[3] ?? localDate(new Date());
@@ -40,16 +40,45 @@ function deal(seed, gen = seed) {
   return { ...(gen !== seed && { s: gen }), c: row };
 }
 
+// A map is deep when, on its median dealt card, no naive player reaches DEEP of the best; variants of the key are tried
+// until one is. Median, 0.8 and 10 variants come from a calibration on 8 days x 5 variants (Sep 2026): the median
+// passed 5 of 8 days within 5 variants, requiring every card passed 2 of 8 at any cut.
+const MAX_VARIANTS = Number(process.env.MAXV ?? 10), DEEP = Number(process.env.DEEP ?? 0.8);
+function depthOf(gen, cards) {
+  const per = [];
+  for (const [k, best] of cards) {
+    if (best <= 0) continue;
+    const m = G.boardModel(netFor(gen, k)), r = {};
+    for (const [name, f] of Object.entries(NAIVE))
+      if (!(name === 'noReef' && G.CARDS[k].noRocks)) r[name] = realScore(netFor(gen, k), solveBuoys(f(m), 'max').buoys) / best;
+    per.push({ k, max: Math.max(...Object.values(r)), ...r });
+  }
+  console.log(`    ${per.map(p => `${p.k} ${Object.entries(p).filter(([n]) => n !== 'k' && n !== 'max').map(([n, v]) => `${{ greedy: 'g', near: 'n', noReef: 'r' }[n]}${Math.round(100 * v)}`).join('/')}`).join('  ')}`);
+  const sorted = per.map(p => p.max).sort((a, b) => a - b);
+  return sorted.length ? sorted[Math.floor((sorted.length - 1) / 2)] : 1;
+}
+function curate(key) {
+  let pick = null;
+  for (let v = 0; v < MAX_VARIANTS; v++) {
+    const gen = v ? `${key}:${v}` : key, row = deal(key, gen), d = depthOf(gen, row.c);
+    console.log(`  ${gen} depth ${Math.round(100 * d)}%`);
+    if (!pick || d < pick.d) pick = { row, d, v };
+    if (d < DEEP) break;
+  }
+  console.log(`${key} → variant ${pick.v}, depth ${Math.round(100 * pick.d)}%${pick.d < DEEP ? '' : '  SHALLOW'}`);
+  return pick.row;
+}
+
 const table = readTable('card-ref');
 if (process.argv[2] === 'cards') {
-  const n = Number(process.argv[3] ?? 24);
-  for (const k of Object.keys(table)) if (k.startsWith('carta:')) delete table[k];
-  for (let i = 0; i < n; i++) table[`carta:${i}`] = deal(`carta:${i}`);
+  const n = Number(process.argv[3] ?? 24), first = Number(process.argv[4] ?? 0);
+  if (!first) for (const k of Object.keys(table)) if (k.startsWith('carta:')) delete table[k];
+  for (let i = first; i < n; i++) table[`carta:${i}`] = curate(`carta:${i}`);
 } else {
   const start = new Date(`${from}T12:00:00`);
   for (let i = 0; i < days; i++) {
     const date = localDate(new Date(start.getTime() + i * 864e5));
-    table[`${date}:rede`] = deal(`${date}:rede`);
+    table[`${date}:rede`] = curate(`${date}:rede`);
     const line = map('linha', date), l = G.solveLine(G.boardModel(line));
     checkLine(line, l.bestPath, l.best);
     checkLine(line, l.worstPath, l.worst);
