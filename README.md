@@ -28,17 +28,18 @@ Open `index.html` in a browser, or `python3 -m http.server` and visit http://loc
 - Species and points: `SP` object.
 - Board sizes and line/net length: `games` object.
 
-## Daily best/worst (NET_REF)
+## Daily cards and best/worst (CARD_REF)
 
-The result panel compares the player with the day's best and worst possible score.
-The bottom line is solved in the page. The purse net search is too slow for a phone,
-so its results ship as the `NET_REF` table inside `index.html`, generated with:
+Every purse-net map deals three rule cards, and the result panel compares the player
+with the map's best and worst possible score. The bottom line is solved in the page.
+The purse net search is too slow for a phone, so each map's cards and results ship as
+the `CARD_REF` table inside `index.html`, generated with:
 
 ```bash
 node tools/solve-net.mjs 60
 ```
 
-That fills 60 days from today (pass a start date as the second argument). Run it
-again before the table runs out; days missing from it fall back to a 2-second search
-in the browser, shown as "best known". Changing `genNet`, `SP` or the net rules
-invalidates the table: regenerate it.
+That fills 60 daily maps from today (pass a start date as the second argument);
+`node tools/solve-net.mjs cards 24` refills the practice maps. Run it again before the
+daily entries run out: a day missing from the table deals no cards and shows no range.
+Changing `genNet`, `SP`, `CARDS` or the net rules invalidates the table: regenerate it.

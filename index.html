@@ -176,7 +176,7 @@ dialog .btn{width:100%;margin-top:14px}
 THESIS: the daylight daily-puzzle board of the category, done with care; the net's first rule (rock fences) is the loudest thing on screen. Refuses the dark teal game grid it replaces.
 OWN-WORLD: seafoam page, white surfaces, navy ink outlines; flat turquoise water with a faint grid and a deeper wavy ring for open sea; rocks as Mario-style pixel blocks; sand pen swept in from the boat with a navy rope on its true perimeter; white buoys with a navy band; dashed protected-area square on protected animals; rule cards as playing cards; 12x12 pixel sprites kept as the fun.
 STORY: the player reads the fence in a glance, closes a pen, sees exactly what it holds, hauls.
-FIRST VIEWPORT: title, game switcher, (practice: three rule cards), the board full width, buoys left and catch, controls, legend.
+FIRST VIEWPORT: title, three rule cards, the board full width, buoys left and catch, controls, legend.
 FORM: canon (category standard), bar set by enclose.horse and Puzzmo; seed d74d21b0.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->
@@ -638,43 +638,68 @@ const packCells=(g,cells)=>cells.map(([r,c])=>(r*g.cols+c).toString(36).padStart
 const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);return key(Math.floor(n/g.cols),n%g.cols)});
 // @gen-end
 
-// @net-ref-start
-const NET_REF = {
-  "2026-09-24":[12,-14,"141e1o1y2e2i2o2s2y3435363738","0k101a1c1d1k1p1v1z262g2j2r2t"],"2026-09-25":[24,-14,"0h0r0t12151c1e1h1m2135363839","0o0p0y11131d1f1n1y2c2m2w3536"],
-  "2026-09-26":[23,-10,"0r11131b1e1q21292b2i2l2v3435","1x1y1z202c2d2h2k2l2p2u2w3034"],"2026-09-27":[25,-19,"0s10121b1l1v252h2t3536373839","0b0f0n0r0s0z1a1c1m202t3637"],
-  "2026-09-28":[17,-23,"1c1j1o1u1y252a2h2o2t2y353637","0e0f0o0r10121e1n1x292k2n2w2y"],"2026-09-29":[26,-11,"1f1g1m1s1x24292f2l2o2q2x2y30","0u0v1014171a1h1l1r1w1y1z2021"],
-  "2026-09-30":[28,-21,"05070f0j0p0z16191e1i1j1q1s22","0r0t12151d1h1p1t232d2k2m2n2w"],"2026-10-01":[27,-10,"0p0z11131f1p1u262b2h2l2t2v35","0d0e0f0z10131c1f1q222b2e2n2o"],
-  "2026-10-02":[41,-8,"050f0i0p0r161i1t1v2327282c2k","0e0f0g0h0q12131e1h1q1s212334"],"2026-10-03":[21,-9,"0n0o0p0q0x12191c1l1w282l2n2x","050f0h0q0t10111a1l1w262a2i2u"],
-  "2026-10-04":[17,-13,"0h0k0r0w11171i1p1t242b2e2m2o","1x2627292d2g2l2o2s3435363738"],"2026-10-05":[26,-10,"05060p0z15191f1h1j1v272j2k2o","0p0r1012141b1e1g1n1y21292l2o"],
-  "2026-10-06":[20,-11,"06070g0q1a1l1w262i2k2t2w3536","0z191c1k1m1u1y25272h2j2l2n2v"],"2026-10-07":[23,-17,"191a1j1p1u232627292j2l2n2o2x","161i1n1t1x24282a2b2c2d2k2l2m"],
-  "2026-10-08":[22,-15,"0h0i0r111b1m1w21262m2n2r2w36","010d0p101a1b1j1n1u1x25272j2r"],"2026-10-09":[29,-18,"02030c0f0o0r0y13151h1k1w272o","0d0e0g0n0q0s0x141b1j1l1u2627"],
-  "2026-10-10":[29,-13,"0i0s0u13161i1l1p1s1w282l2o2y","0s12141f1j1m1q1v1z202b2j2m2w"],"2026-10-11":[36,-8,"0g0o0p0y191l2d2e2l2p2v2x2y2z","02030c0m0p0x0z181a1j1m1v1w2e"],
-  "2026-10-12":[30,-13,"0r0s11141c1g1q1v222c2j2m2r2t","0o0p0y11181b1j1u27282i2r3435"],"2026-10-13":[30,-12,"10141g1n1s242f2p2t2z35363839","0p141b1d1f1m1p1x1z2b2n2u2x36"],
-  "2026-10-14":[26,-12,"060g0i0q0u1113151h242f2p2y2z","0s12141h1p21232c2e2q2x2z3039"],"2026-10-15":[11,-19,"080i0l0s0w161e1g1r21292c2m2w","080i0l0s0v151f1q222b2e2n2q30"],
-  "2026-10-16":[22,-7,"0j0w0z191e1i1k1n1t1u22232c2m","0u0w11131c1h1m1p1q1y20232e2n"],"2026-10-17":[27,-9,"191j1q1u22252e2g2n2o2r2u3637","0h0r0t151g1o1r1y212b2j2w3536"],
-  "2026-10-18":[24,-11,"0p0z11121a1e1k1n1o1v252r2t2w","0o0y10191c1l1o1v252a2r2v3435"],"2026-10-19":[21,-1,"010304050n0z1a1m1r1y222a2b2c","010e0n0q0z1a1m1o1x20292c2l2m"],
-  "2026-10-20":[34,-11,"04050607080k0w0z191s1v1w1x29","0s151f1h1q242f2m2n2p3038393a"],"2026-10-21":[27,-8,"0f0p0r0s0z14191g1s1u2k2l2t2u","0u101a1b1c1o1u1x27292j2u2w36"],
-  "2026-10-22":[24,-12,"0d0g0i0n0u151h1w23282d2n2x37","0f0h0q0s0t0u11161d1i1p1q1x22"],"2026-10-23":[35,-16,"08111l1o1q1v24262e2i2k2o2u","0n0p0x12191a1e1f1n1r1z20212m"],
-  "2026-10-24":[34,-15,"070h0u11131b1p2b2c2d2i2l2v35","0j0s0t1c1o1r1y212c2i2m2w3536"],"2026-10-25":[19,-23,"0g0n0p0s0t0y15181h1j1q1v2223","0i0s0u13161i242e2k2n2w2x2z3b"],
-  "2026-10-26":[25,-18,"101a1c1k1p1u21262b2i2k2m2u2w","0r0s0z1b1g1m1s1y2021222a37"],"2026-10-27":[32,-18,"080h151i1t1x23272d2j2n2v2x37","030405060d0j0z121a1g1l1w1y28"],
-  "2026-10-28":[28,-15,"07080h0u16191e1g1k292d2l2m2p","07080h0v151b1h1n1o1q202c2e2o"],"2026-10-29":[27,-4,"0v171i1t1w23262d2n2t2x353637","0k0w14161h1r1w2126292b2j2l2t"],
-  "2026-10-30":[34,-11,"0m0u161a1k1r1w262g2l2m2r2t2v","111415191d1e1k1l1r1x1y292l2x"],"2026-10-31":[34,-8,"0i0s1c1m1r1t1w24262e2i2u2v2w","020c0e0m0q0y181c1j1l1m1v2g2r"],
-  "2026-11-01":[35,-13,"02030c0t0y171i1o1s222c2m2u2w","0i0s0u13161d1g1n1q202a2l2u2w"],"2026-11-02":[21,-20,"0506070d0e0f0n0z10131c1f1o20","0s0t121e1h1t20242a2d2e2m2n"],
-  "2026-11-03":[35,-25,"0m0y10181f1j1o1r1v23272e2j37","1d1g1n1p1q1s1x202124282a2j37"],"2026-11-04":[42,-16,"030405060c0i0m11191h1j1r1u22","0c0e0n0p0q1012181e1k1m1n1o1w"],
-  "2026-11-05":[20,-20,"0p0t0z191j1r1u1x1y252a2c2h2t","0n0x0z181b1d1e1k1n1r1w292a2c"],"2026-11-06":[20,-15,"0405060l0v11171b1h1i1n1s2429","0r1c1q1y272h2l2p30363738393a"],
-  "2026-11-07":[20,-26,"0d0f0n0r0x13181c1e1k1o1v1y28","0e0q11121b1e1n1q1x202j2v"],"2026-11-08":[34,-14,"05090e0h0j0t17191i1l1m1p1s1y","060g0i0r0u12141c1m1p1w27292j"],
-  "2026-11-09":[17,-14,"0p0z111a1d1l1p252g2r2u333436","040e0h0o0p0r0y12181b1c1f1j1l"],"2026-11-10":[23,-16,"0406070e0g0o0y141u1y1z282h2i","050f0h0i0q10131a1u27292a2h2j"],
-  "2026-11-11":[21,-15,"1314151c1h1n1s242f2m2q2y303a","0c0m0p0q0y131a1f1g1h1m1t232d"],"2026-11-12":[30,-15,"030d0f0l0n0v0z171h1q1t22242e","040e0o0p0r12181k1o1w1x20292a"],
-  "2026-11-13":[23,-19,"0c0d0e0f0m0y1015181e1f1k1u26","0203040c0n0p0s0y11141a1b1q20"],"2026-11-14":[26,-8,"0h0t0v171t24282k2p2w38393a3b","0i0s0u1113151b1t1z232m2y303a"],
-  "2026-11-15":[29,-10,"020608090c0i0m0o0x181j1u262i","070d0h0j0n0u0x14181j1q1v1w20"],"2026-11-16":[18,-18,"0k0w14171i1p1t232a2e2m2p2y30","0b151f1r1s20242c2f2n2q2y313b"],
-  "2026-11-17":[21,-14,"10121a1e1l1n1v20252b2i2l2u2v","10121a1d1m1x1z21282d2k2l2m2n"],"2026-11-18":[23,-18,"0204060g0i0q0u16181g1k1l1r1x","020f0r11191b1j1m1v1y272d2y2z"],
-  "2026-11-19":[34,-16,"0g0h0q0t151l1w282b2k2l2o2q30","1x1z212627292g2m2s2t2v2x3537"],"2026-11-20":[27,-9,"060g0i0q0u101a1e1m2l2w2z3839","13161d1n20232d2f2l2q2w303839"],
-  "2026-11-21":[30,-21,"06070j0v171f1t21242f2n2p2z39","0k0u0w14171e1q1t20232d2m2o2y"],"2026-11-22":[18,-2,"0p0s131f1r1w21282k2w3038393a","141e1g1n1o1r1x22292l2x30393a"],
-  "2026-11-23":[34,-10,"060g0i0q0u12161i1n2f2m2q2z31","0z191b1j1o1v20262b2h2n2o2t30"]
-};
-// @net-ref-end
 // @card-ref-start
 const CARD_REF = {
+  "2026-09-28:rede":[["mare",15,-21,"191a1j1m1u1y262a2i2m2u2y3637","1e1f1n1o1r1s1x24292e2l2o2w2y"],["golfinho",26,-11,"0g0q0s11141e1y272j2o2u2y3637","0e0f0o0r10121e282a2j2m2v2x37"],["soltura",28,-23,"0e0p0q1n1y23272a2i2o2u2y3637","0e0f0o0r10121e1n1x292k2n2w2y"]],
+  "2026-09-29:rede":[["isca",21,-27,"1g1m1q1s1y242d2f2k2l2o2p2x2y","0d0n0p111a1p1z2b2m2w33343536"],["golfinho",34,-11,"1g1m1q1s1w24292f2l2q2x2z3039","0t0u0v10171a1h1l1r1y1z202127"],["soltura",34,-11,"0s161f1g1m1s1x24292e2l2o2x2y","0j0t0v10171a1h1l1r1y1z20212i"]],
+  "2026-09-30:rede":[["isca",21,-32,"0q0r0t0u0z1016191e1i1j1q1s22","0r0t11141d1g1h1p1t232k2w2x39"],["mare",16,-15,"0p0q0r0t0z14191e1j1o1v1w1y28","0r0t11141d1g1h1p1t1z232b2d2n"],["curta",20,-21,"0g0p0q0s0z1013191b1d1e1j1q1w","0r0t11141d1g1p1r232d2k2m2n2w"]],
+  "2026-10-01:rede":[["golfinho",35,-6,"0p0z11131f1p1u252b2h2l2t2v35","0d0e0f0z10112728292a2i2k2n"],["barbatana",30,-10,"0f0p0z121d1v262b2g2l2s2v3435","0d0e0f0z10131c1f1q222b2e2n2o"],["soltura",36,-10,"0e0f0o0x111c1w262b2h2l2t2v35","0d0e0f0z10131c1f1q222b2e2n2o"]],
+  "2026-10-02:rede":[["isca",35,-25,"0g0i0r11161c1i1t1v2327282c2k","040e0g0h0s1g1s20242f2q30393a"],["mare",23,-7,"0t13151d1h1n1t1x2123282a2b2k","06070g0j0q0t12141d1g1p1s2123"],["curta",29,-8,"0v14171e1i1r1s1v2227282b2c2k","0f0g0h0p1112131e1h1q1s20232c"]],
+  "2026-10-03:rede":[["isca",17,-21,"0o0p0q0y121a1c1l1v27282l2m2n","050f0h0p0t0z11191j1u262a2i2u"],["mare",16,-12,"0n0o0p0q0x12191c1l1o1w20282a","111b1d1f1m1p1r1w1x20262a2i2j"],["curta",19,-8,"0o0p0q0y121a1c1l1w282l2m2n2s","0z1011191d1k1m1v1x262a2i2j"]],
+  "2026-10-04:rede":[["isca",12,-26,"151k1l1o1u2527282b2h2k2n2w2x","1m1r1w262d2g2l2o2s3435363738"],["mare",14,-8,"1b1l1n1v1z252b2h2i2n2u2v3738","252627282g2k2l2m2s3435363738"],["curta",15,-13,"1l1o1r1v25282b2c2h2i2k2o2w2x","1x2627292c2g2l2n2s2t35363738"]],
+  "2026-10-05:rede":[["isca",15,-31,"0g0h0j0q0v11171d1f1h1o20222c","0e0g0o0s0y14191b1g1l1x292l2p"],["mare",18,-12,"0p0r0z13191f1j1q1v1z2027292j","050607080k0q0s0u11141d1g1p1q"],["curta",16,-9,"0p0r0z13191c1d1j1m1v1y27292j","0g0q0s11141d1g1n1q1x21292b2l"]],
+  "2026-10-06:rede":[["isca",14,-24,"060g0i0q1b1m1w262i2k2t2w3536","0o0x11181j1n1u1y25272h2j2l2v"],["mare",19,-11,"06070g0j0q0v171c1i1o1s20222c","0z191c1k1m1u1y25272a2h2j2l2v"],["curta",13,-11,"060g0i0q131b1m1x272c2j2k2n35","0z191c1j1m1u1y25272h2j2l2v30"]],
+  "2026-10-07:rede":[["isca",14,-35,"191a1j1p1u1w1x2326292b2c2d2l","161i1l1n1t1w24282k2p2w2z3839"],["golfinho",36,-9,"191a1j1p1u23262i2n2o2u2x3637","090l0w161i1o1t1z242b2c2d2t33"],["soltura",29,-17,"1a1k1p1u2326292i2o2u2y363738","161i1n1t1x2224282a2k2m2o2y33"]],
+  "2026-10-08:rede":[["mare",13,-14,"1d1m1n1p1w20262c2m2s2u2w3436","0d0n0p0x10181b1k1n1u1x25272h"],["golfinho",30,-10,"0d0n0p11121e1j1q1u20252a2k2r","1o1p1q1y262728292b2c2m2r2v2w"],["soltura",31,-15,"0i0s121c1m1w2021262m2n2r2w36","010d0p0z1a1b1j1n1u1x25282k2r"]],
+  "2026-10-09:rede":[["isca",18,-30,"02030c0f0o0q0y121k1q1w22272c","040d0e0g0n0s0x141b1j1l1u2628"],["golfinho",37,-12,"0304050d0h0o0t0y151h1k1w272d","060d0n0p0r0x101b1j1l1o1u2628"],["soltura",41,-18,"030d0f0h0o0r0t0y151h1k1w272d","0d0g0n0p0q0s0x131b1j1l1u2627"]],
+  "2026-10-10:rede":[["isca",23,-26,"0u1314161i1l1p1s1w22282a2c2m","1e1j1o1q1r1v1z2h2p2z35363739"],["mare",22,-14,"0r1113141b1g1l1p1r1w21282a2b","0r0s11141b1e1l1q1v1z20272a2j"],["curta",24,-13,"0t0u13161g1n1p1s1y22292c2l2m","0s12141f1l1m1q1v1z20282b2n2w"]],
+  "2026-10-11:rede":[["mare",19,-8,"0p0r0z13191f1l1r1x22292b2c2l","02030c0m0p0x0z181a1j1m1v1x27"],["golfinho",39,-8,"0g0p0z191l222c2e2m2s2w343536","02030c0m0p0x0z12181a1j1m1v1w"],["barbatana",42,-6,"030d0g0n0x191l2b2e2l2n2p2v2z","0p0r10121b1m1o1z2a2l2t2w3536"]],
+  "2026-10-12:rede":[["curta",22,-13,"0h1n1o1p1v212a2c2h2j2m2s3435","0p0y0z11181c1j1u27282i2r3435"],["golfinho",33,-8,"0f0p0r0z13191f1q1v212b2j2r2t","0d1b1j1k1n1p1u1z27282i2r3435"],["barbatana",36,-8,"0r11131c1f1k1r1u212c2j2m2r2t","0p0q0z121b1e1o1z27292i2s3435"]],
+  "2026-10-13:rede":[["isca",17,-29,"1g1q1s20232a2f2m2p2w3038393a","0p141b1d1f1m1p1x212b2n2u2x36"],["barbatana",38,-8,"0p141g1n1s242f2p2t2z35363839","1c1d1m1p1r1x1z2b2d2n2u2y3638"],["soltura",41,-12,"10141e1g1n1s242f2p2u2z363839","10141b1d1f1m1p1x1z2b2k2n2v2x"]],
+  "2026-10-14:rede":[["curta",19,-12,"060g0i0r0u13151e1r232f2n2o2p","0s12141p1s21232c2e2q2x2z3039"],["golfinho",30,-12,"1e1f1h1v24272f2j2p303738393a","0s12141h1p21232c2e2q2x2z3039"],["barbatana",28,-9,"060g0i0r0u13161i242f2q2y303a","0s12141h1p1x21232e2o2x2z3739"]],
+  "2026-10-15:rede":[["isca",5,-31,"06080g0i0k0q0v13161e1g1p1r21","080i0l0s0w171i1q1t242b2c2e2o"],["mare",10,-14,"0607080g0k0q0u12161e1g1p1r21","0j0l0t0w13161d1g1n1q1z222b2c"],["curta",11,-17,"0j0l0u0w14171e1h1r21292c2m2w","080i0k0s0v151f1q1y22282c2l2m"]],
+  "2026-10-16:rede":[["isca",12,-39,"161i1q1t20232d2g2n2s2t2x3536","0u0w101a1i1m1s1y242f2l2q2v30"],["barbatana",27,-3,"080i0w0z191i1k1n1t1u20212223","0u0w111c1e1h1m1p1q1y1z2m2n36"],["soltura",30,-7,"080i0w0y16191e1k1n1q1u202s2t","0j0u0w121c1h1m1q1y202h2m2r36"]],
+  "2026-10-17:rede":[["curta",19,-9,"02191j1o1q1v1x22272a2b2e2n2o","0h0r0t151g1o1r1y21282b2l2v35"],["barbatana",31,-5,"191j1q1u22252e2g2n2o2r353637","0f0g0h0p0t11151g1n1r1y20212a"],["soltura",34,-9,"0s0y0z181j1q1u22262d2n2u3637","0h0r0t151g1m1r1w21272c2w3536"]],
+  "2026-10-18:rede":[["curta",18,-11,"121b1c1e1n1p1v1w1x252r2t2w","1b1c1k1l1o1u1y2527282r2v3435"],["golfinho",30,-8,"11121b1e1l1n1p1v252r2w343536","0o0y10191c1k1l1o1u1y25282r2t"],["soltura",30,-11,"0p0z1112191e1k1n1p1u252r2t2w","0o0y10191c1l1o1v252l2r2v3435"]],
+  "2026-10-19:rede":[["isca",15,-18,"03050d0f0o0z1a1m1r1y222a2b2c","010e0m0q0x181j1n1u1x25282i2s"],["mare",14,-5,"03040506070d0j0p0s0v11121415","03040607080d0g0k0p0t0u111213"],["curta",16,-1,"0304050d0o0q0z1a1m1q1y20222a","010e0n0q0z1a1m1o1x20292c2l2m"]],
+  "2026-10-20:rede":[["isca",21,-27,"0z111213191f1q1x252h2i2t2v35","0406070g0j0v1c1p242f2p2y2z38"],["mare",21,-12,"050f0h0p0s0z191e1l1q1x1z2029","1e1g1p1r20232b2d2l2p2w2y2z38"],["curta",22,-11,"04050h0r0z1213191f1m1n1q1v1w","1e1g1h1m1p242f2m2n2p3038393a"]],
+  "2026-10-21:rede":[["mare",19,-8,"0p0z11191d1p1u1z25292h2k2t2u","030c0d0f0m0q0x0z10181b1f1l2x"],["golfinho",35,-8,"0f0g0p0s0z14191g1s1u2t2w3536","0u11121314161a1b1h1o1r1w1x1y"],["soltura",33,-8,"0f0p0r0s0z14191g1s1u2t2v2w35","0r0u111314161a1b1h1o1r1w1x1y"]],
+  "2026-10-22:rede":[["isca",17,-37,"11121b1e1f1g1n1x222c2n2y3738","0d0i0n0u161d1i1v1x1z22272b2c"],["mare",18,-12,"0h0r0t11151b1g1n1x22292c2l2m","050f0h0p0s0t0u11161d1i1p2122"],["curta",17,-12,"0h0i0j0r0v11151b1h1n1o1q1r20","0f0h0q0s0t0u0v11171d1f1i1p1r"]],
+  "2026-10-23:rede":[["golfinho",46,-6,"08111l1q1v23252e2g2k2o2s2u34","0n0x10191c1f1l1o1p1r1x22292v"],["barbatana",36,-12,"08111l1o1q1v23272e2j2m2o2v2w","0810121e1f1n1r1z20212q2x3138"],["soltura",44,-16,"080y111l1o1q1v24262e2i2k2o2u","0n0x1012191a1e1f1n1r1z2021"]],
+  "2026-10-24:rede":[["curta",22,-12,"111b1d1g1p1q1y2b2c2d2i2l2u2v","0s141d1f1o1q1y212c2i2m2v2w35"],["golfinho",45,-8,"070h0u11131b1p2d2j2n2x353637","0j0s0t1c1g1o1q1y212b2i2l2v35"],["barbatana",41,-12,"070h0u111b1p2b2d2i2n2x353637","0j0t141e1o1r1y212c2i2m2w3536"]],
+  "2026-10-25:rede":[["mare",9,-13,"1q1r1s20242a2e2l2o2w3038393a","0e0g0k1h1r21242d2f2n2q2z313b"],["golfinho",26,-8,"0i0s0u13161i242f2l2w2y30383a","1h1q1r242b2d2f2k2o2w2x2z393b"],["barbatana",25,-23,"0g0n0s0t0y15181h1j1v232d2m2n","0i0s0u13151h242e2k2n2w2x2z3b"]],
+  "2026-10-26:rede":[["isca",20,-33,"1a1b1k1n1p1u21262b2i2k2m2u2w","0g0o0s0y191h1l1m1s1y2021222a"],["mare",25,-18,"101a1c1k1p1u21262c2i2m2u2w36","0p0z1113141a1g1m1s1y2021222a"],["curta",23,-18,"1a1c1k1m1o1u1z262b2i2k2m2u2w","0z111a1e1g1m1s1y1z2021222x"]],
+  "2026-10-27:rede":[["isca",21,-28,"0h0j151h1s1x23272d2j2n2v2x37","03040506080d0z1a1c1g1l1w1y28"],["mare",12,-12,"0h0j0r0v11151b1f1l1p1x20292a","060e0f0g0j0o0v1011121314161g"],["curta",19,-13,"0h0j0u151h1s1x23292a2b2d2n2x","030405060d0j0z111a1c1f1g1m3b"]],
+  "2026-10-28:rede":[["isca",19,-30,"0u0w14171d1e1h1n1r21292c2l2m","07080h0w171b1i1n1o1q202c2e2o"],["mare",21,-12,"0u0w14171e1h1o1r1y21292c2l2m","0607080g0q0t0u10141b1d1f1n1p"],["curta",22,-14,"0u0w14171e1h1n1o1r21292c2l2m","0j0t0w1315171d1i1p1q212c2e2o"]],
+  "2026-10-29:rede":[["isca",9,-27,"0v171g1i1s1w202226292a2c2i2j","0k0w161h1r1w21262c2m2t2w3536"],["golfinho",35,-4,"0w171i1t1w23262d2n2t2x353637","13151f1h1s1w2122262b2i2k2l2u"],["soltura",34,-4,"0v161g1s1w23262d2n2t2x353637","0k0w14161h1r1w21262b2i2l2u2v"]],
+  "2026-10-30:rede":[["mare",15,-8,"1f1p1r1t1z242a2f2m2q2x30393a","14151e1p1s20222b2d2j2l2o2x2y"],["golfinho",43,-5,"0m0t151a1k1r1w262g2r2t2v2x37","1415191b1c1d1e1k1r1w1x1y1z20"],["barbatana",39,-11,"0m0u151a1k1r1u252h2m2r2v2x37","1114191d1e1g1l1m1s1y22292l2x"]],
+  "2026-10-31:rede":[["isca",25,-25,"141c1e1m1r1t1x2123272d2j2v2w","02030c0f0m0r0x181d1j1n1v1x27"],["mare",24,-8,"14151c1e1h1m1r1x21272b2j2l2v","020c0e0m0q0y0z1b1c1m2a"],["curta",23,-8,"13141d1h1n1o1r1x21282b2j2v2w","01020c0m0o0p0q0x191c1l1m2k33"]],
+  "2026-11-01:rede":[["mare",14,-8,"1m1w1y1z262b2g2n2s2y34353738","1c1d1l1m1p1v1z27292i2l2t2v35"],["golfinho",45,-4,"02030c0t0y171i1t232d2n2v2x37","0d0e0i0n0u10141e1o202a2l2u2w"],["soltura",44,-13,"0102030t0y171i1o1s222c2m2u2w","0i0s0u13161d1g1n1q202a2l2u2w"]],
+  "2026-11-02:rede":[["isca",17,-33,"0506070d0e0f0n0z10131c1e1g1o","0s0t121d1h1n1t1y242a2d2e2m2n"],["mare",15,-20,"03050d0f0h0n0t0z131b1f1n1p1z","0s12141d1g1n1s1y242a2c2d2e2m"],["curta",17,-20,"0d0e0g0h0i0n0q0z131b1c1d1e1g","0s0t121e1h1t20242a2d2e2m2n"]],
+  "2026-11-03:rede":[["isca",22,-42,"0o101a1f1k1o1r1v22272c2j2l2m","141d1g1n1q1s1x202124282a2j37"],["golfinho",52,-10,"0o0t10151a1h1k1o1s1v23272j37","0p0z111a1d1l1n1p1w20282a2j2l"],["soltura",50,-25,"0m0x10181f1j1o1r1v23272e2j37","1d1g1n1p1q1s1x2124282a2b2j37"]],
+  "2026-11-04:rede":[["isca",29,-24,"040c0e0g0i0m0s11191h1l1r1v22","0c0e0n0q0z12181e1j1n1o1u1w1z"],["barbatana",46,-16,"03040506070c0m11191h1j1r1u22","0c0e0n0p0q1012181e1k1l1m1n1o"],["soltura",51,-16,"030405060c0i0m11191h1j1r1v22","0c0e0n0p0q1012181e1k1l1m1n1o"]],
+  "2026-11-05:rede":[["isca",12,-40,"0i0p0r0u1012141a1m1o1q1y2a2c","0d0n0s0x13181c1e1k1r1w2d2w36"],["mare",14,-13,"0h0i0r0u11161b1i1m1o1p1s1y21","1d1e1f1m1n1r1w28292a2b2e2n2o"],["curta",15,-20,"0i0r0u1112141b1m1o1q1y2a2c2o","0n0x0z181b1d1k1n1p1q1w292a2c"]],
+  "2026-11-06:rede":[["curta",16,-15,"131d1f1n1o1q1r1s24282j2m2w36","0q191b27292h2l2p2y303637383a"],["barbatana",25,-11,"04060g0l0v17181i1j1l1t1v2429","0405061n1z272h2l2p2y2z363738"],["soltura",27,-15,"0h0j0r0v11171a1h1m1t24292i2o","121c1f27292h2l2p30363738393a"]],
+  "2026-11-07:rede":[["isca",15,-36,"0d0f0n0r0x13181c1e1k1o1w1y28","111a1b1d1e1k1q1u21252h2t2v35"],["mare",18,-27,"0e0f0n0o0r0x12181c1j1o1v1y28","11121b1e1n1q1x1y202b2j2l2v"],["curta",17,-26,"0e0f0n0o0r0x12191c1l1o1w1y28","11121b1e1m1n1q1x202j2v"]],
+  "2026-11-08:rede":[["isca",27,-29,"050h0j0p0t0v0z161a1i1m1n1p1s","121b1c1e1l1w272h2t2v2y353738"],["golfinho",42,-7,"050e0h0t15181j1u262i2u2x3637","060g0i0u111314161c1e1h1n1p"],["soltura",44,-14,"03050h0t15181j1u1y26282b2i30","060g0i0r0u12141c1m1p1w27292j"]],
+  "2026-11-09:rede":[["isca",10,-32,"1112141b1e1g1l1s202122272j2v","0f0k0o0p0y15181c1f1j1p27292j"],["mare",14,-14,"111213141b1g1l1q21272b2j2l2v","0e0f0p0r0z12191c1j1n1p1x272c"],["curta",15,-14,"111b1d1l1m1p27282h2r2u2v3334","0e0f0p0r0z12191c1j1n1q1x2027"]],
+  "2026-11-10:rede":[["isca",13,-37,"0406070e0g0o0y141u1x1y1z2627","050f0h0p0t0z1u2h2m2t2u2w2y36"],["mare",13,-8,"030d0f0n0r0x12181c1j1m1u1w26","1a1b1e1k1n1u1y292g2k2r2u3334"],["curta",15,-13,"03040d0g0n0r0y111b1m1u1x2627","1a1m1n1o1u27292h2j2l2m2o2u2y"]],
+  "2026-11-11:rede":[["isca",20,-40,"1314151d1h1p1s242f2m2q2y303a","0c0f0g0m0p0s0x14181f1j1q1u25"],["mare",18,-12,"1c1e1m1q1x22292e2l2q2x30393a","0c0m0o0x0z1011181d1k1l1n1x3b"],["curta",18,-12,"1314151d1h1p1s232e2m2q2y2z30","0c0m0p0x0z11181e1g1j1l1o1v1x"]],
+  "2026-11-12:rede":[["isca",21,-27,"030d0f0j0n0r0s0v0z10171g1h1q","040e0o0p0s12181j1q1v2027282a"],["golfinho",38,-9,"03040d0l0n0v0z171i1q1t22242e","0h0j0o0p1114191k1o1w1x20292a"],["soltura",40,-15,"030d0f0l0o0v171a1h1q1r1y1z2p","040e0o0p0s12181k1o1w1x20292a"]],
+  "2026-11-13:rede":[["isca",16,-31,"0c0d0e0f0m0y1015181e1f1k1w27","0203040c0j0n0s0z171b1i1t232d"],["mare",12,-20,"0g0q0s0z1014191k1p1q1w1z2829","020c0e0n0q0z1213141b1n1o1q20"],["curta",17,-19,"0c0d0e0f0m0u0y1015191b1e1f1l","020c0e0n0p0q0r0s0y141a1b1q20"]],
+  "2026-11-14:rede":[["mare",22,-18,"0o0p0q0y12191c1e1k1w20282a2k","0y11181a1b1d1e1j1v1y1z202728"],["barbatana",33,-4,"0f0p0z191c1k1p1u21262i2j2k2l","1z2022272h2l2t2x2y2z30353637"],["soltura",34,-8,"0h0t0v17191c1t1w2124282k2l2p","0i0s0u0v13151s1z23272m2y2z30"]],
+  "2026-11-15:rede":[["isca",18,-32,"08090i0t151g1l1m1o1p1q1v262i","070d0h0j0n0u0x16181j1n1v2027"],["mare",14,-12,"0k0u0w14171i1p1t1z242b2c2e2o","0d0n0p0x10111213191l1m1n1o1p"],["curta",18,-10,"0k0u141e1g1h1l1o1q1r1v21262i","0d0n0p0x10181d1e1j1n1q1v1w20"]],
+  "2026-11-16:rede":[["isca",12,-32,"0v14171i1p1t1z232b2d2m2p2y30","151f1r1s24282f2k2n2q2w303839"],["mare",12,-13,"15161f1i1p1t1z232a2f2m2q2y30","171e1f1o1r1s20242c2f2n2q2y30"],["curta",13,-18,"14161e1i1q1t20232b2d2m2p2y30","151f1r1s20242a2c2e2n2q2y3038"]],
+  "2026-11-17:rede":[["isca",16,-26,"090i0j0l0r0s0w1114161c1i2k2u","0e0o0y12191d1l1x22292a2d2m2n"],["mare",16,-16,"10121a1d1k1n1u1z262b2i2l2u2v","0r10131b1d1e1m1q1y1z222b2d2n"],["curta",18,-14,"090g0i0j0l0r0s0w1114161c1i37","10121b1d1m1x1z21282d2k2l2m2n"]],
+  "2026-11-18:rede":[["mare",15,-18,"0405060e0i0q0u10141a1e1m1o1y","0d0f0n0r0y11191b1j1m1v1y2728"],["golfinho",28,-11,"020e0g0h0q0t15181h1j1l1r1v1x","04050607080e0k0p0r0s0t0v1115"],["barbatana",28,-14,"0204060g0i0q0u0v17181h1k1r1w","020f0r1116191b1e1j1m1v1w2o"]],
+  "2026-11-19:rede":[["isca",26,-28,"0g0h0q0t151g1l1w2223282a2b2k","1x1z212627292g2n2s2x34353637"],["mare",24,-16,"0h0r0t11151b1g1l1s1x2022292a","1f1x1z202627292g2m2s2t2u2v2w"],["curta",23,-16,"0g0h0q0t0u1l1w2122282a2b2e2k","1x1z212627292g2m2s2u2x343637"]],
+  "2026-11-20:rede":[["isca",19,-28,"060g0i0q0u101a1e1m2l2w2z3839","131b1d1l1n1v20252g2z36373839"],["mare",11,-10,"151c1f1h1p1t1z242b2e2m2q2y30","131d1f1o1r20232a2f2m2q2y313b"],["curta",18,-8,"0i0j0k0s0w15171i1t232e2p2y30","0x131d1o22232a2f2l2p2w303839"]],
+  "2026-11-21:rede":[["golfinho",40,-15,"0607080k0v171f1t21242f2p2z39","0k0u0w1415171e1p1r1s20222c2m"],["barbatana",36,-16,"0607080k0v171f1t242f2n2p2z39","0k0u0w1415171e1r1s212c2o2x2y"],["soltura",42,-21,"06070j0v171f1t21242f2n2p2z39","0k0u0w14171e1q1t20232d2m2o2y"]],
+  "2026-11-22:rede":[["mare",10,-6,"1x1y1z20272c2j2o2v303738393a","14151e1h1q1t22242c2f2o2q2z31"],["barbatana",26,-1,"0p0s131f1r1w21282k2w2x30393a","14151e1h1q1s20232a2m2x30393a"],["soltura",24,-2,"0p0s131f1r1w22282k2w3038393a","141e1g1n1o1r1x23292l2x30393a"]],
+  "2026-11-23:rede":[["mare",15,-10,"1a1b1k1o1u20262c2i2j2m2v2x37","191a1b1j1n1v1z27292b2h2k2t2u"],["barbatana",38,-4,"060g0i0r0u12161i1n1y2f2q2z31","1a1b1k1n1v262c2h2m2o2t2w2y30"],["soltura",41,-10,"0t0u13161d1i1k1n2f2i2m2q2z31","191a1b1j1o1v20262b2h2n2o2t30"]],
+  "2026-11-24:rede":[["isca",10,-35,"1z20292c2k2l2o2u30363738393a","0u1b1t1v242f2j2q2v2x2z303739"],["barbatana",24,-17,"080l0w101t1x232a2f2m2q2y303a","03040d0g0n0z1d1w202b2j2k2m2w"],["soltura",26,-17,"0o0r10151m22292e2l2p2x30393a","030d0f0g0n0z1d1m21292b2k2m2w"]],
+  "2026-11-25:rede":[["isca",18,-19,"101c1m1w21272h2l2n2s2u2v2x34","101a1k1n1w262c2g2m2r2v2w3435"],["mare",16,-13,"191c1j1l1m1o1u1z25292g2j2r2t","10111a1d1k1n1v1x25282g2i2r2t"],["curta",16,-13,"191a1c1j1m1o1u1z26292g2j2r2t","10111a1d1k1n1v1x25282g2i2r2t"]],
+  "2026-11-26:rede":[["isca",13,-21,"0r11131f1n1r1y23292d2l2o2z39","14161e1g1i1o1t1z21242e2q3039"],["barbatana",27,-5,"11121e1l1q222d2p303435363739","16171g1i1q1t21232e2p2q2y313b"],["soltura",27,-10,"0r0t1113151h1n1t1z232f2p2z39","1415161g1i1q1t2122242f2p3039"]],
   "carta:0":[["curta",16,-20,"0p0y1113141a1c1d1g1q20282k","0e0q0y121a1b1e1m1p1x272e2j30"],["golfinho",33,-12,"0n101314191c1d1g1q1v20252g2k","03040d0g0r10121b1e1m1o1x282j"],["soltura",35,-20,"0y10181c1d1e1j1q1u2025282g2k","0e0n0q12191a1b1e1m1p1x272j30"]],
   "carta:1":[["golfinho",42,-10,"0405070j0v0x17181d1e1i1t1y23","0g0q0t0x1214181c1f1o1p1r1v23"],["barbatana",30,-13,"0405070j0v0y171a1e1i1s1y222u","04050t0y1214181d1f1n1o1r2023"],["soltura",38,-17,"0405070j0v0x17191d1e1i1s1y22","04050q0t0y1214181f1n1o1r2023"]],
   "carta:10":[["mare",14,-16,"02030c0f0g0h0t0y141a1d1e1m1n","0203040c0g0p0q0r0x0z181a1k23"],["barbatana",30,-16,"05060c0e0f0i0o0u0x16191i1t23","0203040c0g0p0q0x10181b2d2n2x"],["soltura",34,-20,"060e0f0g0i0n0o0u0x15191h1q1s","0203040c0g0p0q0s0x1013181f1r"]],
@@ -711,14 +736,12 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function dailyReference(g,done){
   if(g.kind==='drop') return;
   if(g.kind==='net'){
-    const cs=g.training&&CARD_REF[g.seed];
+    const cs=CARD_REF[g.seed];
     if(cs){
       const hi=cs.reduce((a,b)=>b[1]>a[1]?b:a), lo=cs.reduce((a,b)=>b[2]<a[2]?b:a);
       done({best:hi[1],worst:lo[2],exact:true,bestBuoys:unpackCells(g,hi[3]),worstBuoys:unpackCells(g,lo[4]),bestCard:hi[0],worstCard:lo[0]});
       return;
     }
-    const row=!g.training&&NET_REF[DATE];
-    if(row) done({best:row[0],worst:row[1],exact:true,bestBuoys:unpackCells(g,row[2]),worstBuoys:unpackCells(g,row[3])});
     return;
   }
   solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete,bestPath:r.complete&&r.bestPath,worstPath:r.complete&&r.worstPath}));
@@ -744,7 +767,7 @@ const STR = {
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'+3 per protected animal under a buoy',
     card_extra:'Card', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
-    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', new_map:'New map', playtest:'playtest', help_cards_title:'Rule cards', help_intro_test:'A fishing puzzle. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for this map; New map in the menu deals fresh cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map. New map deals new cards.',
+    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
     not_played:'not played yet',
@@ -787,7 +810,7 @@ const STR = {
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'+3 por protegido sob boia',
     card_extra:'Carta', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
-    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', new_map:'Novo mapa', playtest:'teste', help_cards_title:'Cartas de regra', help_intro_test:'Um quebra-cabeça de pesca. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; Novo mapa, no menu, distribui outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo. Novo mapa distribui outras.',
+    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
     not_played:'ainda não jogado',
@@ -822,9 +845,9 @@ const STR = {
   },
 };
 // Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
-// Playtest build: only the purse net with rule cards; the other modes stay in the code, hidden.
-const PLAYTEST=true;
-let TOURNEY=!PLAYTEST&&(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
+// The daily is the purse net with rule cards; the line and sea floor stay in the code, hidden (roadmap: keep or drop them).
+const NET_ONLY=true;
+let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
   const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
   return v==='1'})();
 const frozen=rec=>!!(rec.revealed||rec.locked);
@@ -839,7 +862,7 @@ function applyText(){
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
-  document.getElementById('help-body').innerHTML=PLAYTEST?`<p>${t('help_intro_test')}</p>
+  document.getElementById('help-body').innerHTML=NET_ONLY?`<p>${t('help_intro_cards')}</p>
     <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
     <h3>${sprite('buoy')}${t('help_cards_title')}</h3><p>${t('help_cards')}</p>
     <p>${t('help_points')}</p>`:`<p>${t('help_intro')}</p>
@@ -854,7 +877,7 @@ function setup(g){
   g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
-  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);g.blocked=null;g.showing=null;render(g)});
+  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);if(!g.training){g.rec.card=k;save(g.storeKey,g.rec)}g.blocked=null;g.showing=null;render(g)});
   g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -943,11 +966,10 @@ function paint(g,[r,c]){
 }
 function toggleTraining(g){
   g.training=!g.training;
-  g.card=g.cardKey=g.cards=null;
   if(g.training){
     g.trainRec={best:null,worst:null,tries:0};
-    const n=Object.keys(CARD_REF).length;
-    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.cards=CARD_REF['carta:'+i].map(x=>x[0]);g.dealtAt=performance.now();newMap(g,'carta:'+i)}
+    const n=Object.keys(CARD_REF).filter(k=>k.startsWith('carta:')).length;
+    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.dealtAt=performance.now();newMap(g,'carta:'+i)}
     else newMap(g,'treino:'+Math.random());
   }
   else newMap(g,DATE+':'+g.key);
@@ -963,8 +985,10 @@ function setCard(g,k){
 }
 
 function newMap(g,seed){
+  g.card=g.cardKey=null; g.cards=g.buoy&&CARD_REF[seed]?.map(x=>x[0])||null;
   g.grid=g.gen(g,mulberry(seedFrom(seed))); applyCard(g);
   g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
+  if(!g.training&&g.cards?.includes(g.rec.card)) setCard(g,g.rec.card);
   if(g.kind==='drop'){
     g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
     syncDrop(g);
@@ -1062,9 +1086,9 @@ function renderDrop(g){
   g.el.hint.classList.toggle('alert',!!g.blocked);
   g.bubble.hidden=true;
   g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
-  g.el.train.hidden=!g.training||PLAYTEST;
+  g.el.train.hidden=!g.training;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(PLAYTEST?'new_map':g.training?'practice_off':'practice_on');
+  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
 }
 
@@ -1144,9 +1168,9 @@ function render(g){
   }
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.marks.size;
-  g.el.train.hidden=!g.training||PLAYTEST;
+  g.el.train.hidden=!g.training;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)} ${arr('down')}${fmt(g.rec.worst)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(PLAYTEST?'new_map':g.training?'practice_off':'practice_on');
+  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
 }
 
@@ -1163,7 +1187,7 @@ function renderResult(g){
       <div class="recs"><span>${t('your_best')} <b class="big-good">${arr('up')}${fmt(rec.best)}</b></span></div>
       ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
       ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:''}
-      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training&&!PLAYTEST?' disabled':''}>${t('share')}</button></div>
+      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
       <p class="note" aria-live="polite"></p>`;
     return;
   }
@@ -1179,7 +1203,7 @@ function renderResult(g){
     ${rangeHTML(g,rec)}
     ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
     ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
-    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training&&!PLAYTEST?' disabled':''}>${t('share')}</button></div>
+    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
 }
 
@@ -1222,13 +1246,12 @@ function commit(g){
 }
 
 function shareText(){
-  if(PLAYTEST){const g=games.rede,r=g.trainRec;return r.tries?`Good Catch · ${t('playtest')}\n🕸️ ${g.seed} · ${t('cardname_'+r.card)} · ${fmt(r.best)}${g.ref?.best>0?` (${Math.round(100*r.best/g.ref.best)}%)`:''}\ngoodcatch.fish`:''}
   let s=`Good Catch #${DAYNUM}\n`;
-  for(const g of Object.values(games)){
+  for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
     const r=g.rec;
     if(!r.tries){ s+=`${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`; continue; }
     const pct=g.dailyBest>0?` (${Math.round(100*r.best/g.dailyBest)}%)`:'';
-    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
+    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)}${r.card?` · ${t('cardname_'+r.card)}`:''} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
   }
   return s+'goodcatch.fish';
 }
@@ -1262,7 +1285,7 @@ function showTab(k){
   render(current());
 }
 for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
-document.getElementById('train-btn').addEventListener('click',()=>{const g=current();if(PLAYTEST)g.training=false;toggleTraining(g);document.getElementById('menu').hidePopover()});
+document.getElementById('train-btn').addEventListener('click',()=>{const g=current();toggleTraining(g);document.getElementById('menu').hidePopover()});
 document.getElementById('tourney-btn').addEventListener('click',()=>{
   TOURNEY=!TOURNEY; try{localStorage.setItem('goodcatch:torneio',TOURNEY?'1':'0')}catch(e){}
   applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
@@ -1278,7 +1301,7 @@ document.getElementById('help-btn').addEventListener('click',()=>help.showModal(
 applyText();
 for(const g of Object.values(games)) setup(g);
 let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
-if(PLAYTEST){document.querySelector('.switch').hidden=true;document.getElementById('tourney-btn').hidden=true;showTab('rede');toggleTraining(games.rede)}
+if(NET_ONLY){document.querySelector('.switch').hidden=true;showTab('rede')}
 else showTab(saved in games?saved:'rede');
 for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
