@@ -140,6 +140,11 @@ h1 span{color:var(--accent-text)}
 @keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 .mark.cost.up{color:var(--good)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0 4px}
+.day{display:flex;flex-direction:column;align-items:center;padding:3px 0;border:2px solid var(--edge);border-radius:8px;font:400 16px var(--pixel);color:var(--accent-text)}
+.day small{font:400 13px var(--pixel);color:var(--muted)}
+.day.today{border-color:var(--ink)}
+.streak{margin:4px 0 0;font-weight:600;color:var(--ink)}
 .cards.orders{grid-template-columns:repeat(3,1fr)}
 .order{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:2px solid var(--edge);border-radius:10px;background:var(--surface)}
 .order.met{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
@@ -205,7 +210,6 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </header>
   <div id="menu" class="menu" popover>
     <button id="train-btn"></button>
-    <button id="tourney-btn"></button>
     <button id="lang-btn"></button>
   </div>
 
@@ -938,7 +942,7 @@ const STR = {
     see_best:'Show top catch', see_worst:'Show lowest catch', cancel:'Cancel', reveal_go:'Show solution',
     reveal_confirm:'See today’s solution? After that, your plays no longer count toward today’s records.',
     revealed:'Solution seen: new plays don’t count today.', uncounted:'Free play: this one doesn’t count.',
-    locked:'Tournament: only your first haul counted today.', tourney_enable:'Tournament: first haul counts', tourney_disable:'Leave tournament (unlimited tries)', tourney_badge:'Tournament',
+    locked:'All three hauls are in. A new sea tomorrow.', hauls:'Hauls', come_back:'Back in {t}', streak:'🔥 {n}-day streak', streak_best:'best {n}', week:'This week',
     showing_best:'Top catch on this map: {n}.', showing_worst:'Lowest catch on this map: {n}.',
   },
   pt:{
@@ -981,26 +985,23 @@ const STR = {
     see_best:'Ver a maior', see_worst:'Ver a menor', cancel:'Cancelar', reveal_go:'Ver solução',
     reveal_confirm:'Ver a solução de hoje? Depois disso, suas jogadas não contam mais para os recordes do dia.',
     revealed:'Solução vista: novas jogadas não contam hoje.', uncounted:'Jogada livre: esta não conta.',
-    locked:'Torneio: só a primeira puxada valeu hoje.', tourney_enable:'Torneio: só a primeira puxada vale', tourney_disable:'Sair do torneio (tentativas livres)', tourney_badge:'Torneio',
+    locked:'As três puxadas já foram. Mar novo amanhã.', hauls:'Puxadas', come_back:'Volte em {t}', streak:'🔥 {n} dias seguidos', streak_best:'recorde {n}', week:'Esta semana',
     showing_best:'Maior pesca deste mapa: {n}.', showing_worst:'Menor pesca deste mapa: {n}.',
   },
 };
-// Tournament: the first haul of the day is the one that counts (rec.locked), like a single submission.
+// Three counted hauls a day, the best one stands; the third sets rec.locked, like a submission.
 // The daily is the purse net with rule cards; the line and sea floor stay in the code, hidden (roadmap: keep or drop them).
 const NET_ONLY=true;
 const MODE=new URLSearchParams(location.search).get('modo')==='cartas'?null:'encomenda';
-let TOURNEY=(()=>{let v=null;try{v=localStorage.getItem('goodcatch:torneio')}catch(e){}
-  const q=new URLSearchParams(location.search);if(q.has('torneio')||q.has('tournament')){v=q.get('torneio')==='0'||q.get('tournament')==='0'?'0':'1';try{localStorage.setItem('goodcatch:torneio',v)}catch(e){}}
-  return v==='1'})();
+const MAX_HAULS=3;
 const frozen=rec=>!!(rec.revealed||rec.locked);
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
 const t=k=>(MODE&&STR[LANG]['cat_'+k])??STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
   document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(MODE?` · ${t('mode_orders')}`:'')+(TOURNEY?` · ${t('tourney_badge')}`:'');
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(MODE?` · ${t('mode_orders')}`:'');
   document.getElementById('lang-btn').textContent=t('other_lang');
-  document.getElementById('tourney-btn').textContent=t(TOURNEY?'tourney_disable':'tourney_enable');
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
   document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
@@ -1339,7 +1340,7 @@ function render(g){
   const why=g.buoy?(g.cards&&!g.card?'card':hits?(overArea(g,inside)?'area':null):far.size?'far':g.marks.size?'go':'start'):lineChain(g).why;
   g.board.classList.toggle('spot',!!spotlight);
 
-  g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`:`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
+  g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`+(g.training?'':` · ${t('hauls')} <b>${Math.min(g.rec.tries,MAX_HAULS)}/${MAX_HAULS}</b>`):`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
   const now=hits&&scoreOf(g,hits,inside);
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(now):'');
@@ -1408,8 +1409,28 @@ function renderResult(g){
     ${rangeHTML(g,rec)}
     ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
     ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
-    <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
+    ${g.training?'':weekHTML(g)}
+    <div class="controls">${!g.training&&rec.locked?`<button class="btn" disabled>${t('come_back').replace('{t}',untilTomorrow())}</button>`:`<button class="btn" data-act="again">${t('try_again')}</button>`}<button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
     <p class="note" aria-live="polite"></p>`;
+}
+
+const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const playedOn=(g,d)=>(load(`goodcatch:${d}:${g.storeKey.split(':')[2]}`)?.tries||0)>0;
+// Today not played yet keeps yesterday's streak alive until midnight.
+function streakOf(g){let d=playedOn(g,DATE)?DATE:dayShift(DATE,-1),n=0;while(playedOn(g,d)){n++;d=dayShift(d,-1)}return n}
+function bestStreak(g){
+  const suffix=':'+g.storeKey.split(':')[2], days=[];
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goodcatch:')&&k.endsWith(suffix)&&playedOn(g,k.split(':')[1]))days.push(k.split(':')[1])}}catch(e){}
+  days.sort(); let best=0,run=0,prev=null;
+  for(const d of days){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}
+  return best;
+}
+function untilTomorrow(){const x=new Date(DATE+'T00:00:00');x.setDate(x.getDate()+1);const m=Math.max(0,Math.round((x-new Date())/6e4));return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`}
+function weekHTML(g){
+  const n=streakOf(g), best=bestStreak(g), days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
+  const cells=days.map(d=>{const r=load(`goodcatch:${d}:${g.storeKey.split(':')[2]}`), ref=MODE?ORDER_REF[d]?.b:null, st=r?.tries?stars(r.best,ref??0):null;
+    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(document.documentElement.lang,{weekday:'narrow'}).format(new Date(d+'T12:00:00'))}</small><b>${!r?.tries?'·':st===null?'✓':'★'.repeat(st)||'☆'}</b></span>`}).join('');
+  return `<div class="week" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t('streak').replace('{n}',n)}${best>n?` · ${t('streak_best').replace('{n}',best)}`:''}</p>`:''}`;
 }
 
 function rangeHTML(g,rec){
@@ -1434,7 +1455,7 @@ function commit(g){
     g.last={score:g.score,count:{},counted:!frozen(rec)};
     if(!g.last.counted) return render(g);
     rec.tries++; rec.best=rec.best===null?g.score:Math.max(rec.best,g.score);
-    if(TOURNEY&&!g.training) rec.locked=true;
+    if(!g.training&&rec.tries>=MAX_HAULS) rec.locked=true;
     if(!g.training) save(g.storeKey,rec);
     return render(g);
   }
@@ -1446,14 +1467,15 @@ function commit(g){
   if(!g.last.counted) return render(g);
   rec.tries++; rec.card=g.cardKey; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
   if(g.orders&&score===rec.best) rec.met=orderStatus(g,hits).map(o=>o.met);
-  if(TOURNEY&&!g.training) rec.locked=true;
+  if(!g.training&&rec.tries>=MAX_HAULS) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
   render(g);
 }
 
 function shareText(){
   if(MODE){const g=games.rede,r=g.rec;if(!r.tries)return '';const st=stars(r.best,g.dailyBest);
-    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish`}
+    const fire=streakOf(g);
+    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')}${fire>1?` 🔥${fire}`:''} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish`}
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
     const r=g.rec;
@@ -1494,10 +1516,6 @@ function showTab(k){
 }
 for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
 document.getElementById('train-btn').addEventListener('click',()=>{const g=current();toggleTraining(g);document.getElementById('menu').hidePopover()});
-document.getElementById('tourney-btn').addEventListener('click',()=>{
-  TOURNEY=!TOURNEY; try{localStorage.setItem('goodcatch:torneio',TOURNEY?'1':'0')}catch(e){}
-  applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
-});
 document.getElementById('lang-btn').addEventListener('click',()=>{
   LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
   applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();

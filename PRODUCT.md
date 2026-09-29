@@ -19,7 +19,7 @@ Each mode has an exact, solver-computed best (and worst) for the day, so a playe
 - Played at phone width (~400 px) first, desktop second.
 - One static `index.html`, no build, no runtime dependencies; hosted on GitHub Pages at goodcatch.fish.
 - UI in English and Portuguese; default from `navigator.language`, switchable in the menu.
-- Optional tournament mode: the first haul of the day is the one that counts.
+- Three counted hauls a day; the best one stands. A streak counts the days in a row with at least one haul.
 - Practice maps (purse net) offer three face-up rule cards; the player picks one (prototype on branch `prototype/cards`).
 
 ## Capabilities and Constraints

@@ -36,8 +36,8 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - `SPRITES` / `PAL`: 12×12 pixel sprites as strings, rendered once to data URLs. `FRAME2` derives a second frame per species (`shift` moves a region by a pixel); the pair becomes a 2-frame sheet animated in CSS, kept in phase across re-renders by `--clock`.
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
   - `EPOCH`: the date of puzzle #1 (2026-09-25).
-- Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records (`best`, `worst`, `tries`, `revealed`, `locked`, `card`), `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`, `goodcatch:torneio`.
-- Tournament (`TOURNEY`, menu toggle or `?torneio=1`): the first haul of the day sets `rec.locked`; `frozen(rec)` (locked or solution revealed) stops later plays from touching records, like a single submission. Practice maps never lock.
+- Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records (`best`, `worst`, `tries`, `revealed`, `locked`, `card`, `met`), `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
+- Hauls (`MAX_HAULS` = 3): each counted haul spends one; the third sets `rec.locked`, and `frozen(rec)` (locked or solution revealed) stops later plays from touching records. The result panel then offers "Back in 7h52" instead of Try again. The streak (`streakOf`, `bestStreak`) and the week strip (`weekHTML`, stars from `ORDER_REF[date].b`) are derived from the daily records in localStorage, nothing new is stored. The tournament toggle is gone. Practice maps never lock.
 - Changing generation logic changes every past and future map and invalidates `CARD_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
 ## Roadmap ideas
@@ -51,8 +51,7 @@ Waiting on playtest feedback (Sep 2026) before picking what to do next. Yardstic
 3. **Measure the net's depth**: how far a naive player lands from the optimum, like `genDrop` already checks for the sea floor.
 4. Decide whether the bottom line and sea floor come back or go (hidden by `NET_ONLY`).
 5. The "?" help button is still a font glyph; every other icon is a 12×12 sprite.
-6. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
-7. Buoys on the corners between squares instead of on squares (owner's idea, Sep 2026): a real fence line, closer to a net; the risk is tapping a thin target on a phone (maybe tap a square and drag toward the side to close). To elaborate after phase A.
+6. Buoys on the corners between squares instead of on squares (owner's idea, Sep 2026): a real fence line, closer to a net; the risk is tapping a thin target on a phone (maybe tap a square and drag toward the side to close). To elaborate after phase A.
 
 ## Conventions
 - UI in English and Portuguese: default from `navigator.language`, switchable in the menu.
