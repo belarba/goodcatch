@@ -23,10 +23,12 @@ takes to the boat, animated as a current, and outline the gap it goes through.
 
 - `leakPath(g)` in `@gen` (pure, no DOM), purse net only. Returns `null` when the pen is closed
   (`evaluate(g).hits` is non-null) or no buoy is placed; otherwise `{path, gap}`.
-- `path`: BFS over free cells (not rock, buoy or boat), from the ring cells of `out` to any free
-  cell 8-adjacent to the boat (the pen touches the boat at a side or a corner). The path is the
-  list of cell keys from the ring to that cell. Ties break by BFS order, so the same board always
-  draws the same path.
+- `path`: BFS over free cells (not rock, buoy or boat) from the ring cells of `out`, ending at the
+  free cell 8-adjacent to the boat (the pen touches the boat at a side or a corner) that the sea
+  reaches **last**: that is the square the player is fencing in, while the nearest one is usually
+  plain open water on the boat's other side (found in the browser: a one-square pen above the boat
+  drew its current to the square below it). The path is the list of cell keys from the ring to
+  that cell. Ties break by BFS order, so the same board always draws the same path.
 - `gap`: among the cells of `path` that close the pen if a buoy were put there (`evaluate` with that
   cell added to `g.marks` returns non-null `hits`), the one with the most fence neighbours (buoy, rock,
   boat), first from the sea side on a tie. Blocking the path in open water before the net also closes
