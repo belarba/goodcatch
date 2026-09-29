@@ -656,7 +656,20 @@ function scoreOf(g,hits,inside){
   const cd=g.card||{}, at=k=>g.grid[Math.floor(k/100)][k%100];
   if(cd.empty) for(const k of inside) if(!at(k).sp) s+=cd.empty;
   if(cd.release) for(const k of g.marks){const sp=at(k).sp;if(sp&&SP[sp].p<0) s+=cd.release}
+  for(const o of orderStatus(g,hits)) if(o.met) s+=o.b;
   return s;
+}
+const ORDER_SP={dourada:4,sardinha:4,lula:4,lagosta:8};
+function genOrders(g,rng){
+  const have={}; for(const row of g.grid) for(const x of row) if(x.sp in ORDER_SP) have[x.sp]=(have[x.sp]||0)+1;
+  const pool=Object.keys(ORDER_SP).filter(sp=>have[sp]>=(sp==='lagosta'?1:2)), pick=[];
+  while(pick.length<3&&pool.length) pick.push(pool.splice(Math.floor(rng()*pool.length),1)[0]);
+  return pick.map(sp=>{const lo=sp==='lagosta'?1:2,hi=Math.min(sp==='lagosta'?2:4,have[sp]),q=lo+Math.floor(rng()*(hi-lo+1));return {sp,q,b:ORDER_SP[sp]*q}});
+}
+function orderStatus(g,hits){
+  if(!g.orders) return [];
+  const n={}; for(const [r,c] of hits||[]){const sp=g.grid[r][c].sp;n[sp]=(n[sp]||0)+1}
+  return g.orders.map(o=>({...o,have:n[o.sp]||0,met:(n[o.sp]||0)>=o.q}));
 }
 // Self-contained: it is stringified into a Web Worker. Every species has non-zero points, so v !== 0 means "an animal is here".
 function solveLine(m){
@@ -684,7 +697,7 @@ function solveLine(m){
 }
 const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,maxBuoys:g.maxBuoys,
   v:g.grid.map(row=>row.map(x=>x.sp?pts(g,x.sp):0)), rock:g.grid.map(row=>row.map(x=>x.rock)),
-  card:g.card||{}, prot:g.grid.map(row=>row.map(x=>!!x.sp&&SP[x.sp].p<0))});
+  card:g.card||{}, prot:g.grid.map(row=>row.map(x=>!!x.sp&&SP[x.sp].p<0)), orders:g.orders||[], species:g.grid.map(row=>row.map(x=>x.sp))});
 const packCells=(g,cells)=>cells.map(([r,c])=>(r*g.cols+c).toString(36).padStart(2,'0')).join('');
 const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);return key(Math.floor(n/g.cols),n%g.cols)});
 // @gen-end

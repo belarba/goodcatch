@@ -76,6 +76,19 @@ function checkClue() {
   g = board(); g.grid[6][5].sp = 'sardinha'; g.marks = fence(g, [[6, 5]]); expect('same', G.clueFor(g, fence(g, [[6, 5]])), null);
 }
 checkClue();
+function checkOrders() {
+  if (!G.orderStatus || !G.genOrders) throw new Error('orders missing from @gen');
+  const g = { ...G.games.rede, start: [5, 5], marks: new Set(), card: null, orders: [{ sp: 'sardinha', q: 2, b: 8 }, { sp: 'sardinha', q: 3, b: 12 }],
+    grid: Array.from({ length: 11 }, () => Array.from({ length: 11 }, () => ({ sp: null, rock: false }))) };
+  g.grid[6][5].sp = g.grid[7][5].sp = 'sardinha';
+  const st = G.orderStatus(g, [[6, 5], [7, 5]]).map(o => o.met);
+  if (JSON.stringify(st) !== '[true,false]') throw new Error(`orders: met ${JSON.stringify(st)}`);
+  if (G.scoreOf(g, [[6, 5], [7, 5]], new Set([605, 705])) !== 2 * G.SP.sardinha.p + 8) throw new Error('orders: bonus not in score');
+  const a = { ...G.games.rede }; a.grid = a.gen(a, G.mulberry(G.seedFrom('2026-10-01:rede')));
+  const o1 = G.genOrders(a, G.mulberry(G.seedFrom('2026-10-01:pedido'))), o2 = G.genOrders(a, G.mulberry(G.seedFrom('2026-10-01:pedido')));
+  if (JSON.stringify(o1) !== JSON.stringify(o2) || o1.length !== 3) throw new Error(`genOrders must be deterministic and give 3 orders, got ${JSON.stringify(o1)}`);
+}
+checkOrders();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();

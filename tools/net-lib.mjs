@@ -13,7 +13,7 @@ const between = (a, b) => {
   return [i + a.length, j];
 };
 const [gs, ge] = between('// @gen-start', '// @gen-end');
-export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null, canBuoy: typeof canBuoy === 'function' ? canBuoy : null, stars: typeof stars === 'function' ? stars : null, clueFor: typeof clueFor === 'function' ? clueFor : null};`)();
+export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null, canBuoy: typeof canBuoy === 'function' ? canBuoy : null, stars: typeof stars === 'function' ? stars : null, genOrders: typeof genOrders === 'function' ? genOrders : null, orderStatus: typeof orderStatus === 'function' ? orderStatus : null, clueFor: typeof clueFor === 'function' ? clueFor : null};`)();
 
 export function localDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -94,6 +94,13 @@ export function solveBuoys(m, sense) {
       else st.push(`${k}_${i} = 0`);
     }
   }
+  // o_j is 1 exactly when the order's count is reached (both lines), or the worst-catch solve would just decline the bonus.
+  (m.orders ?? []).forEach((o, j) => {
+    const xs = cells.filter(([r, c]) => m.species?.[r][c] === o.sp).map(([r, c]) => `x_${id(r, c)}`);
+    bin.push(`o_${j}`); obj.push(`+ ${o.b} o_${j}`);
+    if (!xs.length) { st.push(`o_${j} = 0`); return; }
+    st.push(`${o.q} o_${j} - ${xs.join(' - ')} <= 0`, `${xs.join(' + ')} - ${o.q} o_${j} <= ${o.q - 1}`);
+  });
   st.push(cells.map(([r, c]) => `w_${id(r, c)}`).join(' + ') + ` <= ${maxBuoys}`);
   st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ' >= 1');
   if (card.maxArea) st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ` <= ${card.maxArea}`);
@@ -131,6 +138,17 @@ export function solveBuoys(m, sense) {
   const m = { rows: 5, cols: 5, start: [2, 2], maxBuoys: 1, v, rock, prot };
   const plain = solveBuoys(m, 'max').score, freed = solveBuoys({ ...m, card: { release: 3 } }, 'max').score;
   if (plain !== 1 || freed !== 8) throw new Error(`self-check: protected mouth gave ${plain}/${freed}, expected 1/8`);
+}
+// Pen A (a sardine, 3) beats pen B (a squid, 5) only with the sardine order; with B walled off, the worst catch must still collect it.
+{
+  const grid = () => Array.from({ length: 5 }, () => Array(5).fill(false));
+  const rock = grid(), v = Array.from({ length: 5 }, () => Array(5).fill(0)), prot = grid(), species = Array.from({ length: 5 }, () => Array(5).fill(null));
+  for (const [r, c] of [[1, 1], [3, 1], [1, 3], [3, 3], [1, 2], [3, 2]]) rock[r][c] = true;
+  v[2][1] = 3; species[2][1] = 'sardinha'; v[2][3] = 5; species[2][3] = 'lula';
+  const m = { rows: 5, cols: 5, start: [2, 2], maxBuoys: 1, v, rock, prot, species, orders: [{ sp: 'sardinha', q: 1, b: 4 }] };
+  const withOrder = solveBuoys(m, 'max').score, without = solveBuoys({ ...m, orders: [] }, 'max').score;
+  const onlyA = solveBuoys({ ...m, rock: m.rock.map((row, r) => row.map((x, c) => x || (r === 2 && c === 3))) }, 'min').score;
+  if (withOrder !== 7 || without !== 5 || onlyA !== 7) throw new Error(`self-check: orders gave ${withOrder}/${without}/${onlyA}, expected 7/5/7`);
 }
 
 export function readTable(name) {
