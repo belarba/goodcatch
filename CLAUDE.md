@@ -48,6 +48,7 @@ Waiting on playtest feedback (Sep 2026) before picking what to do next. Yardstic
 4. Decide whether the bottom line and sea floor come back or go (hidden by `NET_ONLY`).
 5. The "?" help button is still a font glyph; every other icon is a 12×12 sprite.
 6. Decide whether tournament mode (first haul counts) becomes the default. Today it is opt-in.
+7. Buoys on the corners between squares instead of on squares (owner's idea, Sep 2026): a real fence line, closer to a net; the risk is tapping a thin target on a phone (maybe tap a square and drag toward the side to close). To elaborate after phase A.
 
 ## Conventions
 - UI in English and Portuguese: default from `navigator.language`, switchable in the menu.
