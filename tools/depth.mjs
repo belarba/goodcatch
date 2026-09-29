@@ -89,6 +89,19 @@ function checkOrders() {
   if (JSON.stringify(o1) !== JSON.stringify(o2) || o1.length !== 3) throw new Error(`genOrders must be deterministic and give 3 orders, got ${JSON.stringify(o1)}`);
 }
 checkOrders();
+function checkShark() {
+  if (!G.crazyTide || !G.CARDS.faminto) throw new Error('Hungry shark missing from @gen');
+  if (G.crazyTide('2026-10-03') !== 'faminto' || G.crazyTide('2026-10-04') !== 'faminto' || G.crazyTide('2026-10-05') !== null)
+    throw new Error('crazyTide: weekends carry the shark, weekdays nothing');
+  const g = { ...G.games.rede, start: [5, 5], marks: new Set(), card: G.CARDS.faminto, orders: [{ sp: 'sardinha', q: 1, b: 4 }],
+    grid: Array.from({ length: 11 }, () => Array.from({ length: 11 }, () => ({ sp: null, rock: false }))) };
+  g.grid[6][5].sp = 'sardinha'; g.grid[6][6].sp = 'tartaruga'; g.grid[7][5].sp = 'tubarao';
+  const withShark = G.scoreOf(g, [[6, 5], [6, 6], [7, 5]], new Set([605, 606, 705]));
+  if (withShark !== G.SP.tubarao.p) throw new Error(`shark in: expected only the shark's ${G.SP.tubarao.p}, got ${withShark}`);
+  const without = G.scoreOf(g, [[6, 5], [6, 6]], new Set([605, 606]));
+  if (without !== G.SP.sardinha.p + G.SP.tartaruga.p + 4) throw new Error(`no shark: expected sardine + turtle + order, got ${without}`);
+}
+checkShark();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();

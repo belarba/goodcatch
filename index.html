@@ -396,6 +396,7 @@ const CARDS = {
   golfinho:{set:{golfinho:8}},
   barbatana:{set:{tubarao:4}},
   soltura:{release:3},
+  faminto:{hungry:true},
 };
 const pts=(g,sp)=>g.card?.set?.[sp]??SP[sp].p;
 function applyCard(g){if(g.card?.noRocks) for(const row of g.grid) for(const x of row) x.rock=false}
@@ -607,7 +608,7 @@ function clueFor(g,bestMarks){
   const mine=evaluateBuoys(g); if(!mine.hits) return null;
   const saved=g.marks; g.marks=bestMarks; const best=evaluateBuoys(g); g.marks=saved;
   if(!best.hits) return null;
-  const count=hits=>{const m={};for(const [r,c] of hits){const sp=g.grid[r][c].sp;m[sp]=(m[sp]||0)+1}return m};
+  const count=hits=>{const gone=eaten(g,hits),m={};for(const [r,c] of hits){if(gone.has(key(r,c)))continue;const sp=g.grid[r][c].sp;m[sp]=(m[sp]||0)+1}return m};
   const cm=count(mine.hits), cb=count(best.hits), [sr,sc]=g.start;
   const dir=cells=>{let dr=0,dc=0;for(const k of cells){dr+=Math.floor(k/100)-sr;dc+=k%100-sc}return Math.abs(dr)>=Math.abs(dc)?(dr<0?'n':'s'):(dc<0?'w':'e')};
   for(const sp in cm) if(pts(g,sp)<0&&!cb[sp]) return {k:'prot',sp};
@@ -667,8 +668,13 @@ function evaluate(g){
   for(const [r,c] of path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
   return {hits,inside:null,onP};
 }
+const crazyTide=date=>{const d=new Date(date+'T12:00:00').getDay();return d===0||d===6?'faminto':null};
+const FLEE=new Set(['sardinha','tartaruga','golfinho']);
+// With a shark in the pen (Hungry shark), these hits neither score nor fill orders.
+const eaten=(g,hits)=>g.card?.hungry&&(hits||[]).some(([r,c])=>g.grid[r][c].sp==='tubarao')?new Set((hits||[]).filter(([r,c])=>FLEE.has(g.grid[r][c].sp)).map(([r,c])=>key(r,c))):new Set();
 function scoreOf(g,hits,inside){
-  let s=hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0);
+  const gone=eaten(g,hits);
+  let s=hits.reduce((s,[r,c])=>s+(gone.has(key(r,c))?0:pts(g,g.grid[r][c].sp)),0);
   const cd=g.card||{}, at=k=>g.grid[Math.floor(k/100)][k%100];
   if(cd.empty) for(const k of inside) if(!at(k).sp) s+=cd.empty;
   if(cd.release) for(const k of g.marks){const sp=at(k).sp;if(sp&&SP[sp].p<0) s+=cd.release}
@@ -684,7 +690,7 @@ function genOrders(g,rng){
 }
 function orderStatus(g,hits){
   if(!g.orders) return [];
-  const n={}; for(const [r,c] of hits||[]){const sp=g.grid[r][c].sp;n[sp]=(n[sp]||0)+1}
+  const gone=eaten(g,hits), n={}; for(const [r,c] of hits||[]){if(gone.has(key(r,c)))continue;const sp=g.grid[r][c].sp;n[sp]=(n[sp]||0)+1}
   return g.orders.map(o=>({...o,have:n[o.sp]||0,met:(n[o.sp]||0)>=o.q}));
 }
 // Self-contained: it is stringified into a Web Worker. Every species has non-zero points, so v !== 0 means "an animal is here".

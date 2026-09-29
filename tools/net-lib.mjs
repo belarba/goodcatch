@@ -13,7 +13,7 @@ const between = (a, b) => {
   return [i + a.length, j];
 };
 const [gs, ge] = between('// @gen-start', '// @gen-end');
-export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null, canBuoy: typeof canBuoy === 'function' ? canBuoy : null, stars: typeof stars === 'function' ? stars : null, genOrders: typeof genOrders === 'function' ? genOrders : null, orderStatus: typeof orderStatus === 'function' ? orderStatus : null, clueFor: typeof clueFor === 'function' ? clueFor : null};`)();
+export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null, canBuoy: typeof canBuoy === 'function' ? canBuoy : null, stars: typeof stars === 'function' ? stars : null, genOrders: typeof genOrders === 'function' ? genOrders : null, crazyTide: typeof crazyTide === 'function' ? crazyTide : null, orderStatus: typeof orderStatus === 'function' ? orderStatus : null, clueFor: typeof clueFor === 'function' ? clueFor : null};`)();
 
 export function localDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -50,6 +50,9 @@ export function solveBuoys(m, sense) {
   const cells = [];
   for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (free(r, c)) cells.push([r, c]);
   const M = cells.length;
+  const FLEE = ['sardinha', 'tartaruga', 'golfinho'];
+  const hungry = !!card.hungry && cells.some(([r, c]) => m.species?.[r][c] === 'tubarao');
+  const scoreVar = (r, c) => hungry && FLEE.includes(m.species?.[r][c]) ? `s_${id(r, c)}` : `x_${id(r, c)}`;
   const obj = [], st = [], bounds = [], bin = [];
   const inflow = new Map(cells.map(([r, c]) => [id(r, c), { x: [], y: [] }]));
   const out = new Map(cells.map(([r, c]) => [id(r, c), { x: [], y: [] }]));
@@ -60,7 +63,7 @@ export function solveBuoys(m, sense) {
     if (m.maxDist != null && Math.max(Math.abs(r - sr), Math.abs(c - sc)) > m.maxDist) st.push(`x_${i} = 0`);
     bin.push(`w_${i}`, `x_${i}`, `y_${i}`);
     const val = v[r][c] || (card.empty ?? 0);
-    if (val) obj.push(`${val > 0 ? '+' : '-'} ${Math.abs(val)} x_${i}`);
+    if (val) obj.push(`${val > 0 ? '+' : '-'} ${Math.abs(val)} ${scoreVar(r, c)}`);
     if (card.release && m.prot[r][c]) obj.push(`+ ${card.release} w_${i}`);
     st.push(`w_${i} + x_${i} + y_${i} <= 1`);
     if (edge(r, c)) {
@@ -96,11 +99,20 @@ export function solveBuoys(m, sense) {
   }
   // o_j is 1 exactly when the order's count is reached (both lines), or the worst-catch solve would just decline the bonus.
   (m.orders ?? []).forEach((o, j) => {
-    const xs = cells.filter(([r, c]) => m.species?.[r][c] === o.sp).map(([r, c]) => `x_${id(r, c)}`);
+    const xs = cells.filter(([r, c]) => m.species?.[r][c] === o.sp).map(([r, c]) => scoreVar(r, c));
     bin.push(`o_${j}`); obj.push(`+ ${o.b} o_${j}`);
     if (!xs.length) { st.push(`o_${j} = 0`); return; }
     st.push(`${o.q} o_${j} - ${xs.join(' - ')} <= 0`, `${xs.join(' + ')} - ${o.q} o_${j} <= ${o.q - 1}`);
   });
+  // Hungry shark: z is 1 exactly when a shark is in the pen; each fleeing cell scores through s = x AND NOT z.
+  if (hungry) {
+    const sharks = cells.filter(([r, c]) => m.species?.[r][c] === 'tubarao').map(([r, c]) => `x_${id(r, c)}`);
+    bin.push('z'); sharks.forEach(x => st.push(`z - ${x} >= 0`)); st.push(`z - ${sharks.join(' - ')} <= 0`);
+    for (const [r, c] of cells.filter(([r, c]) => FLEE.includes(m.species?.[r][c]))) {
+      const i = id(r, c); bin.push(`s_${i}`);
+      st.push(`s_${i} - x_${i} <= 0`, `s_${i} + z <= 1`, `s_${i} - x_${i} + z >= 0`);
+    }
+  }
   st.push(cells.map(([r, c]) => `w_${id(r, c)}`).join(' + ') + ` <= ${maxBuoys}`);
   st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ' >= 1');
   if (card.maxArea) st.push(cells.map(([r, c]) => `x_${id(r, c)}`).join(' + ') + ` <= ${card.maxArea}`);
@@ -149,6 +161,19 @@ export function solveBuoys(m, sense) {
   const withOrder = solveBuoys(m, 'max').score, without = solveBuoys({ ...m, orders: [] }, 'max').score;
   const onlyA = solveBuoys({ ...m, rock: m.rock.map((row, r) => row.map((x, c) => x || (r === 2 && c === 3))) }, 'min').score;
   if (withOrder !== 7 || without !== 5 || onlyA !== 7) throw new Error(`self-check: orders gave ${withOrder}/${without}/${onlyA}, expected 7/5/7`);
+}
+// Hungry shark, forced pen [1,1],[2,1]: (a) the shark zeroes the turtle beside it; (b) with the only shark out at sea, the pen's sardine still counts in the worst catch.
+{
+  const forced = (a, b) => {
+    const open = [[1, 1], [2, 1], [2, 2], [4, 4]];
+    const rock = Array.from({ length: 5 }, (_, r) => Array.from({ length: 5 }, (_, c) => !open.some(([x, y]) => x === r && y === c)));
+    const v = Array.from({ length: 5 }, () => Array(5).fill(0)), prot = Array.from({ length: 5 }, () => Array(5).fill(false)), species = Array.from({ length: 5 }, () => Array(5).fill(null));
+    for (const [[r, c], sp, val, p] of [a, b].filter(Boolean)) { species[r][c] = sp; v[r][c] = val; prot[r][c] = p; }
+    return { rows: 5, cols: 5, start: [2, 2], maxBuoys: 0, v, rock, prot, species, card: { hungry: true } };
+  };
+  const a = forced([[1, 1], 'tartaruga', -6, true], [[2, 1], 'tubarao', -4, true]), b = forced([[1, 1], 'sardinha', 1, false], [[4, 4], 'tubarao', -4, true]);
+  const got = [solveBuoys(a, 'max').score, solveBuoys(a, 'min').score, solveBuoys(b, 'min').score];
+  if (got.join() !== '-4,-4,1') throw new Error(`self-check: hungry shark gave ${got}, expected -4,-4,1`);
 }
 
 export function readTable(name) {
