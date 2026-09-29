@@ -139,6 +139,7 @@ h1 span{color:var(--accent-text)}
 @keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 .mark.cost.up{color:var(--good)}
+.stars{font:400 28px var(--pixel);color:var(--accent-text);letter-spacing:4px;line-height:1}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes fade{to{opacity:0}}
 @keyframes rise{from{transform:translateY(0)}to{transform:translateY(-70%);opacity:0}}
@@ -381,6 +382,7 @@ const CARDS = {
 };
 const pts=(g,sp)=>g.card?.set?.[sp]??SP[sp].p;
 function applyCard(g){if(g.card?.noRocks) for(const row of g.grid) for(const x of row) x.rock=false}
+const stars=(s,best)=>best>0?(s>=best?3:s>=.85*best?2:s>=.7*best?1:0):null;
 const canBuoy=(g,r,c)=>{const sp=g.grid[r][c].sp;return !sp||SP[sp].p>=0||!!g.card?.release};
 const overArea=(g,inside)=>!!(g.card?.maxArea&&inside&&inside.size>g.card.maxArea);
 
@@ -796,7 +798,7 @@ const STR = {
     cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    card_extra:'Card', stars_label:'{n} of 3 stars', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
     hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
@@ -839,7 +841,7 @@ const STR = {
     cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    card_extra:'Carta', stars_label:'{n} de 3 estrelas', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
     hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
@@ -1275,7 +1277,9 @@ function renderResult(g){
     +(L.extra?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
   const pct=L.counted&&(g.card||!g.training)&&g.ref?.exact&&g.ref.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
     +(g.card&&g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
+  const st=L.counted&&(g.card||!g.training)&&g.ref?.exact?stars(L.score,g.ref.best):null;
   g.el.result.innerHTML=`<div class="big ${L.counted?cls(L.score):'zero'}">${fmt(L.score)}</div>
+    ${st!==null?`<div class="stars" role="img" aria-label="${t('stars_label').replace('{n}',st)}">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`:''}
     <div class="verdict">${L.counted?verdict(L.score):L.shown?t('showing_'+L.shown).replace('{n}',fmt(L.score)):t('uncounted')}</div>
     ${pct}
     <div class="chips">${chips}</div>
@@ -1330,8 +1334,8 @@ function shareText(){
   for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
     const r=g.rec;
     if(!r.tries){ s+=`${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`; continue; }
-    const pct=g.dailyBest>0?` (${Math.round(100*r.best/g.dailyBest)}%)`:'';
-    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)}${r.card?` · ${t('cardname_'+r.card)}`:''} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
+    const pct=g.dailyBest>0?` (${Math.round(100*r.best/g.dailyBest)}%)`:'', st=stars(r.best,g.dailyBest);
+    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)}${r.card?` · ${t('cardname_'+r.card)}`:''}${st!==null&&g.buoy?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
   }
   return s+'goodcatch.fish';
 }

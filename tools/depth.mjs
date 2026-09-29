@@ -45,6 +45,12 @@ function checkProtected() {
   if (!G.canBuoy(g, 3, 3)) throw new Error('Release must allow a buoy on a turtle');
 }
 checkProtected();
+function checkStars() {
+  if (!G.stars) throw new Error('stars missing from @gen');
+  const got = [[69, 100], [70, 100], [84, 100], [85, 100], [99, 100], [100, 100], [5, 0]].map(([x, b]) => G.stars(x, b));
+  if (JSON.stringify(got) !== JSON.stringify([0, 1, 1, 2, 2, 3, null])) throw new Error(`stars: got ${JSON.stringify(got)}`);
+}
+checkStars();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();
