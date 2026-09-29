@@ -43,3 +43,16 @@ That fills 60 daily maps from today (pass a start date as the second argument);
 `node tools/solve-net.mjs cards 24` refills the practice maps. Run it again before the
 daily entries run out: a day missing from the table deals no cards and shows no range.
 Changing `genNet`, `SP`, `CARDS` or the net rules invalidates the table: regenerate it.
+
+## Map depth
+
+```bash
+node tools/depth.mjs 2026-10
+```
+
+For every `CARD_REF` map whose key starts with the prefix, solves three naive players
+exactly (one ignores protected animals' penalties, one keeps the pen within 3 squares
+of the boat, one ignores the reef) and prints each as a % of the card's best, then the
+medians and how many map/card pairs a naive player solves to within 90% (trivial ones).
+`node tools/depth.mjs check` only runs the self-checks, including `leakPath`'s.
+
