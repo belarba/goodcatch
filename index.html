@@ -1101,7 +1101,7 @@ function setup(g){
   g.el.result.addEventListener('click',e=>{
     const a=e.target.closest('[data-act]')?.dataset.act;
     if(a==='again'){g.last=null;g.blocked=null;render(g)}
-    if(a==='share') share(g.el.result.querySelector('.note'));
+    if(a==='share'){share(g.el.result.querySelector('.note'));track('share',true)}
     if(a==='best'||a==='worst') reveal(g,a);
   });
 }
@@ -1429,12 +1429,22 @@ const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);
 const playedOn=(g,d)=>(load(`goodcatch:${d}:${g.storeKey.split(':')[2]}`)?.tries||0)>0;
 // Today not played yet keeps yesterday's streak alive until midnight.
 function streakOf(g){let d=playedOn(g,DATE)?DATE:dayShift(DATE,-1),n=0;while(playedOn(g,d)){n++;d=dayShift(d,-1)}return n}
-function bestStreak(g){
+function playedDays(g){
   const suffix=':'+g.storeKey.split(':')[2], days=[];
   try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goodcatch:')&&k.endsWith(suffix)&&playedOn(g,k.split(':')[1]))days.push(k.split(':')[1])}}catch(e){}
-  days.sort(); let best=0,run=0,prev=null;
+  return days.sort();
+}
+function bestStreak(g){
+  const days=playedDays(g); let best=0,run=0,prev=null;
   for(const d of days){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}
   return best;
+}
+// GoatCounter through its /count pixel: no script, no cookies, nothing personal. Returns are measured from what this browser
+// already knows (days played, streak), sent as anonymous events; an empty GC_CODE switches counting off.
+const GC_CODE='belarba';
+function track(path,event){
+  if(!GC_CODE||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
+  try{new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent(event?path:document.title)}${event?'&e=true':`&r=${encodeURIComponent(document.referrer)}&s=${screen.width},${screen.height},${devicePixelRatio}`}&rnd=${Math.random()}`}catch(e){}
 }
 function untilTomorrow(){const x=new Date(DATE+'T00:00:00');x.setDate(x.getDate()+1);const m=Math.max(0,Math.round((x-new Date())/6e4));return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`}
 function weekHTML(g){
@@ -1476,7 +1486,8 @@ function commit(g){
   const rec=g.training?g.trainRec:g.rec;
   g.last={score,count,extra:score-hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0),counted:!frozen(rec),shown:g.showing};
   if(!g.last.counted) return render(g);
-  rec.tries++; rec.card=g.cardKey; rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
+  rec.tries++; rec.card=g.cardKey;
+  if(!g.training&&rec.tries===1){const n=playedDays(g).length+1;track(`haul/day-${Math.min(n,30)}`,true);track(`haul/streak-${Math.min(streakOf(g)+1,30)}`,true)} rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
   if(g.orders&&score===rec.best) rec.met=orderStatus(g,hits).map(o=>o.met);
   if(!g.training&&rec.tries>=MAX_HAULS) rec.locked=true;
   if(!g.training) save(g.storeKey,rec);
@@ -1537,6 +1548,7 @@ document.getElementById('help-btn').addEventListener('click',()=>help.showModal(
 
 applyText();
 for(const g of Object.values(games)) setup(g);
+track(MODE?'/':'/?modo=cartas');
 let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
 if(NET_ONLY){document.querySelector('.switch').hidden=true;showTab('rede')}
 if(MODE) document.getElementById('train-btn').hidden=true;

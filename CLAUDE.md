@@ -37,6 +37,7 @@ A daily fishing puzzle played in the browser. Live at https://goodcatch.fish (Gi
   - `STR.en` / `STR.pt`: every UI string. Add a key to both.
   - `EPOCH`: the date of puzzle #1 (2026-09-25).
 - Storage (`localStorage`, always in try/catch): `goodcatch:<date>:<game>` records (`best`, `worst`, `tries`, `revealed`, `locked`, `card`, `met`), `goodcatch:tab`, `goodcatch:lang`, `goodcatch:seenHelp`.
+- Analytics: GoatCounter (`GC_CODE` = `belarba`, dashboard at belarba.goatcounter.com) through its `/count` pixel, no script and no cookies, skipped on localhost. `track` sends the page view, and on the day's first counted haul two anonymous events, `haul/day-N` (days this browser has played, capped at 30) and `haul/streak-N`; `share` on the share button. Returning players = events with day ≥ 2 against `haul/day-1`, counted per browser.
 - Hauls (`MAX_HAULS` = 3): each counted haul spends one; the third sets `rec.locked`, and `frozen(rec)` (locked or solution revealed) stops later plays from touching records. The result panel then offers "Back in 7h52" instead of Try again. The streak (`streakOf`, `bestStreak`) and the week strip (`weekHTML`, stars from `ORDER_REF[date].b`) are derived from the daily records in localStorage, nothing new is stored. The tournament toggle is gone. Practice maps never lock.
 - Changing generation logic changes every past and future map and invalidates `CARD_REF`. That's fine before launch, but bump a version in the seed afterwards and regenerate the table.
 
