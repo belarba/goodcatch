@@ -34,6 +34,17 @@ function checkLeak() {
   if (!two || two.gap !== null || !two.path.length) throw new Error(`two holes: expected a path and no gap, got ${JSON.stringify(two)}`);
 }
 checkLeak();
+function checkProtected() {
+  if (!G.canBuoy) throw new Error('canBuoy missing from @gen');
+  const g = { ...G.games.rede, start: [5, 5], marks: new Set(), card: null,
+    grid: Array.from({ length: 11 }, () => Array.from({ length: 11 }, () => ({ sp: null, rock: false }))) };
+  g.grid[3][3].sp = 'tartaruga'; g.grid[4][4].sp = 'sardinha';
+  if (G.canBuoy(g, 3, 3)) throw new Error('a buoy on a turtle must be refused');
+  if (!G.canBuoy(g, 4, 4) || !G.canBuoy(g, 6, 6)) throw new Error('fish and water must take a buoy');
+  g.card = G.CARDS.soltura;
+  if (!G.canBuoy(g, 3, 3)) throw new Error('Release must allow a buoy on a turtle');
+}
+checkProtected();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();

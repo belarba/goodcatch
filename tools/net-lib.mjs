@@ -13,7 +13,7 @@ const between = (a, b) => {
   return [i + a.length, j];
 };
 const [gs, ge] = between('// @gen-start', '// @gen-end');
-export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null};`)();
+export const G = new Function(`${html.slice(gs, ge)}; return {games, seedFrom, mulberry, evaluate, scoreOf, solveLine, boardModel, packCells, unpackCells, CARDS, applyCard, overArea, SP, key, leakPath: typeof leakPath === 'function' ? leakPath : null, canBuoy: typeof canBuoy === 'function' ? canBuoy : null};`)();
 
 export function localDate(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -56,6 +56,7 @@ export function solveBuoys(m, sense) {
 
   for (const [r, c] of cells) {
     const i = id(r, c);
+    if (m.prot?.[r][c] && !card.release) st.push(`w_${i} = 0`);
     if (m.maxDist != null && Math.max(Math.abs(r - sr), Math.abs(c - sc)) > m.maxDist) st.push(`x_${i} = 0`);
     bin.push(`w_${i}`, `x_${i}`, `y_${i}`);
     const val = v[r][c] || (card.empty ?? 0);
@@ -120,6 +121,16 @@ export function solveBuoys(m, sense) {
   const m = { rows: 5, cols: 5, start: [2, 2], maxBuoys: 0, v, rock };
   const got = [solveBuoys(m, 'max').score, solveBuoys(m, 'min').score];
   if (got[0] !== -3 || got[1] !== -3) throw new Error(`self-check: two pens gave ${got}, expected -3,-3`);
+}
+// Pen A (5) closes only with a buoy on the turtle at its mouth; pen B (1) closes with a plain buoy. One buoy.
+{
+  const rock = Array.from({ length: 5 }, () => Array(5).fill(false)), v = Array.from({ length: 5 }, () => Array(5).fill(0));
+  const prot = Array.from({ length: 5 }, () => Array(5).fill(false));
+  for (const [r, c] of [[1, 1], [3, 1], [1, 3], [3, 3], [1, 2], [3, 2]]) rock[r][c] = true;
+  v[2][1] = 5; v[2][3] = 1; v[2][0] = -6; prot[2][0] = true;
+  const m = { rows: 5, cols: 5, start: [2, 2], maxBuoys: 1, v, rock, prot };
+  const plain = solveBuoys(m, 'max').score, freed = solveBuoys({ ...m, card: { release: 3 } }, 'max').score;
+  if (plain !== 1 || freed !== 8) throw new Error(`self-check: protected mouth gave ${plain}/${freed}, expected 1/8`);
 }
 
 export function readTable(name) {
