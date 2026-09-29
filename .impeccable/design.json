@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-26T13:24:11+00:00",
+  "generatedAt": "2026-09-29T14:20:12+00:00",
   "title": "Design System: Good Catch",
   "extensions": {
     "colorMeta": {
@@ -233,6 +233,66 @@
         "value": "rgba(214,60,45,.42)",
         "displayName": "Protected Glow",
         "role": "radial glow behind protected animals; follows card values"
+      },
+      "pen-lagoon": {
+        "role": "tertiary",
+        "displayName": "Pen Lagoon",
+        "canonical": "#E2F6F7",
+        "tonalRamp": [
+          "#040D0E",
+          "#1A2829",
+          "#354646",
+          "#546566",
+          "#748687",
+          "#97A9AA",
+          "#BBCDCE",
+          "#E2F2F3"
+        ]
+      },
+      "net-tile": {
+        "role": "tertiary",
+        "displayName": "Net Tile",
+        "canonical": "#F4F1E8",
+        "tonalRamp": [
+          "#0D0B07",
+          "#27251F",
+          "#44423B",
+          "#646159",
+          "#85827A",
+          "#A8A59C",
+          "#CCC9C1",
+          "#F1EEE7"
+        ]
+      },
+      "stone": {
+        "role": "tertiary",
+        "displayName": "Stone",
+        "canonical": "#57636A",
+        "tonalRamp": [
+          "#050C10",
+          "#1D272C",
+          "#39444A",
+          "#57636A",
+          "#78848C",
+          "#9AA7AF",
+          "#BFCBD3",
+          "#E5F0F7"
+        ]
+      },
+      "stone-top": {
+        "role": "tertiary",
+        "displayName": "Stone Top",
+        "canonical": "#8C969B",
+        "tonalRamp": [
+          "#070C0F",
+          "#1F262A",
+          "#3B4448",
+          "#5A6368",
+          "#7A8489",
+          "#9DA7AC",
+          "#C1CBD0",
+          "#E7F0F4"
+        ]
       }
     },
     "typographyMeta": {
@@ -413,11 +473,19 @@
       "description": "Species strip; values in green or red; press spotlights the species.",
       "html": "<div class=\"ds-legend\"><button><span class=\"ds-pos\">+1</span></button><button aria-pressed=\"true\"><span class=\"ds-pos\">+5</span></button><button><span class=\"ds-neg\">-6</span></button><button><span class=\"ds-neg\">-8</span></button></div>",
       "css": ".ds-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;max-width:220px;background:var(--surface,#FFFFFF);border:2px solid var(--ink,#10324A);border-radius:12px;padding:6px 4px}.ds-legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;cursor:pointer;font-family:'Jersey 10',ui-rounded,system-ui,sans-serif;font-size:18px}.ds-legend button:hover{background:var(--surface2,#EEF7F6)}.ds-legend button[aria-pressed=true]{background:var(--pen,#F7E6B0)}.ds-legend button:focus-visible{outline:3px solid var(--accent,#F08A24);outline-offset:2px}.ds-pos{color:var(--good,#157A4C)}.ds-neg{color:var(--bad,#C8352A)}"
+    },
+    {
+      "name": "Board Cells",
+      "kind": "custom",
+      "refersTo": "board",
+      "description": "The board stack: water, the lagoon pen with its navy rope, a still net tile holding a buoy, and grey stone.",
+      "html": "<div class=\"ds-cells\"><span class=\"ds-cell ds-water\"></span><span class=\"ds-cell ds-pen\"></span><span class=\"ds-cell ds-net\"><i class=\"ds-buoy\"></i></span><span class=\"ds-cell ds-stone\"></span></div>",
+      "css": ".ds-cells{display:flex;gap:0;padding:12px;background:var(--water,#9EDFE4);border:3px solid var(--ink,#10324A);border-radius:14px;width:max-content}.ds-cell{width:44px;height:44px;display:grid;place-items:center}.ds-water{background:var(--water,#9EDFE4)}.ds-pen{background:var(--lagoon,#E2F6F7);box-shadow:inset 0 0 0 3px var(--ink,#10324A)}.ds-net{background-color:var(--net,#F4F1E8);background-image:repeating-linear-gradient(45deg,rgba(16,50,74,.5) 0 1.5px,transparent 1.5px 7px),repeating-linear-gradient(-45deg,rgba(16,50,74,.5) 0 1.5px,transparent 1.5px 7px);box-shadow:inset 0 0 0 2px var(--ink,#10324A)}.ds-buoy{width:20px;height:22px;border-radius:10px 10px 7px 7px;background:linear-gradient(#F39A36 0 30%,#EDEAE0 30% 55%,#10324A 55% 65%,#EDEAE0 65%);outline:1.5px solid #051019}.ds-stone{background:linear-gradient(#8C969B 0 14%,#57636A 14% 88%,#3A4347 88%);box-shadow:inset 0 0 0 1.5px var(--ink,#10324A);border-radius:3px}"
     }
   ],
   "narrative": {
     "northStar": "The Daylight Harbour Board",
-    "overview": "**Creative North Star: \"The Daylight Harbour Board\"**\n\nGood Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.\n\nThe board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.\n\nThe world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.",
+    "overview": "**Creative North Star: \"The Daylight Harbour Board\"**\n\nGood Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.\n\nThe board is a strict stack of meaning. The fence (12×12 grey stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: lagoon fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.\n\nThe world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.",
     "keyCharacteristics": [
       "Daylight: light page, white surfaces, navy ink as the single outline colour.",
       "2px navy outlines on every interactive surface; depth comes from outline, not shadow.",
