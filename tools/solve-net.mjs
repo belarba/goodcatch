@@ -80,6 +80,7 @@ if (process.argv[2] === 'orders') {
       const gen = v ? `${key}:${v}` : key, net = { ...G.games.rede };
       net.grid = net.gen(net, G.mulberry(G.seedFrom(gen)));
       net.orders = G.genOrders(net, G.mulberry(G.seedFrom(k ? `${date}:pedido:${k}` : `${date}:pedido`)));
+      net.card = G.CARDS[G.crazyTide(date)] ?? null;
       if (net.orders.length < 3) continue;
       const hi = solveBuoys(G.boardModel(net), 'max'), bb = checkNet(net, hi);
       const met = G.orderStatus(net, G.evaluate(net).hits).filter(o => o.met).length;
@@ -87,7 +88,7 @@ if (process.argv[2] === 'orders') {
       if (met === 2) break;
     }
     const lo = solveBuoys(G.boardModel(pick.net), 'min');
-    ref[date] = { ...(pick.gen !== key && { s: pick.gen }), o: pick.net.orders, b: pick.hi.score, w: lo.score, bb: pick.bb, wb: checkNet(pick.net, lo) };
+    ref[date] = { ...(pick.gen !== key && { s: pick.gen }), ...(pick.net.card && { k: G.crazyTide(date) }), o: pick.net.orders, b: pick.hi.score, w: lo.score, bb: pick.bb, wb: checkNet(pick.net, lo) };
     console.log(`${date} ${pick.gen} roll ${pick.k}: ${pick.net.orders.map(o => `${o.sp}x${o.q}+${o.b}`).join(' ')}  best ${pick.hi.score} meets ${pick.met}${pick.met === 2 ? '' : '  NOT-TWO'}  ${Date.now() - t0}ms`);
   }
   writeTable('order-ref', 'ORDER_REF', ref);

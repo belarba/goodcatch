@@ -146,6 +146,9 @@ h1 span{color:var(--accent-text)}
 .day.today{border-color:var(--ink)}
 .streak{margin:4px 0 0;font-weight:600;color:var(--ink)}
 .cards.orders{grid-template-columns:repeat(3,1fr)}
+.tide{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid var(--ink);border-radius:10px;background:var(--surface);color:var(--ink)}
+.tide b{font:400 20px var(--pixel)}
+.tide span{font-size:13px;line-height:1.25}
 .order{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:2px solid var(--edge);border-radius:10px;background:var(--surface)}
 .order.met{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
 .order .want{display:flex;align-items:center;gap:4px;font:400 22px var(--pixel);color:var(--ink)}
@@ -372,7 +375,9 @@ function seaURL(g){
 // ---------- daily date ----------
 const EPOCH = '2026-09-25';
 const now = new Date();
-const DATE = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+// ?dia= previews another day, only on a local server: on the live site it would reveal future maps.
+const DAY_PARAM=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('dia');
+const DATE = DAY_PARAM||`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
 
 // @gen-start
@@ -819,57 +824,57 @@ const ORDER_REF = {
   "2026-09-30":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":35,"w":-21,"bb":"05070f0j0p0z1315191d1f1j1o1q","wb":"0r0t12141d1g1p1r222d2k2n2w2x"},
   "2026-10-01":{"o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":51,"w":-10,"bb":"0t1113151b1h1r1w21272b2j2l2v","wb":"0d0e0f0z10131c1f1q222b2e2n2o"},
   "2026-10-02":{"s":"2026-10-02:rede:1","o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":43,"w":-14,"bb":"040e0g0o0s0y14181d1f1p262i2j","wb":"0c0m0o0x191c1l1z272i2m2s2x37"},
-  "2026-10-03":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":41,"w":-9,"bb":"0n0o0p0q0x12181e1k1w282m2n2w","wb":"050f0h0q0s10111a1l1w262a2i2u"},
-  "2026-10-04":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":38,"w":-13,"bb":"0u161h1l1s1v22272a2j2m2v3738","wb":"1x2627292d2g2l2n2s2t35363738"},
+  "2026-10-03":{"k":"faminto","o":[{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":41,"w":-8,"bb":"0n0o0p0q0x12181e1k1w282n2w2x","wb":"0h0z1011191d1j1m1u1x26292i2u"},
+  "2026-10-04":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":38,"w":-13,"bb":"0u161h1l1s1v22272a2j2m2v3738","wb":"2627292c2g2j2l2n2s3435363738"},
   "2026-10-05":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":3,"b":12}],"b":45,"w":-10,"bb":"05060q10151a1h1k1u2k2o2u3334","wb":"0p0r1012141b1e1g1n1z21292l2o"},
   "2026-10-06":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16}],"b":39,"w":-11,"bb":"06070g0q1a1l1w272c2j2n2v2x37","wb":"0z191c1j1n1u1y25272c2h2j2l2v"},
   "2026-10-07":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":40,"w":-17,"bb":"191a1j1u23252c2d2h2m2t2w3536","wb":"161i1n1t1x24282a2b2c2d2k2l"},
   "2026-10-08":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":38,"w":-15,"bb":"0t131d1n1x26272n2r2w2z363839","wb":"1b1c1l1o1p1q1v1x252b2c2l2r2v"},
   "2026-10-09":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":41,"w":-18,"bb":"0d0e0n0v0x0z1015171i1k1l272d","wb":"0d0e0f0g0n0s0x121b1j1l1u2627"},
-  "2026-10-10":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16}],"b":35,"w":-13,"bb":"07141e1g1h1k1t1u252d2g2j2n2w","wb":"0h0q0s12141f1k1m1q1v1z20292j"},
-  "2026-10-11":{"s":"2026-10-11:rede:1","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8}],"b":42,"w":-10,"bb":"0304050607080d0p1b1l1w282k2w","wb":"070810191c1j1m1u1w25272a2h"},
+  "2026-10-10":{"k":"faminto","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16}],"b":35,"w":-13,"bb":"0h0i0r0u12141g1l1s1x292l2o2y","wb":"0s1112141f1k1m1q1v1z2026282a"},
+  "2026-10-11":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8}],"b":45,"w":-6,"bb":"0g0p101a1m1p22272b2c2e2l2v","wb":"0g0p10121b1m1o1z2a2l2t2w3536"},
   "2026-10-12":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":4,"b":16}],"b":55,"w":-13,"bb":"0r0s11141c1f1p21262c2m2r3435","wb":"0p0y0z11181c1j1u27282i2r3435"},
   "2026-10-13":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":48,"w":-12,"bb":"0t10151h1r232e2o2t2z35363839","wb":"0p141b1d1f1m1p1x1z2b2j2n2v2x"},
   "2026-10-14":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":32,"w":-7,"bb":"06070g0j0s0v14171e1i242e2n2o","wb":"0s12141h1p1z21232c2e2n2q2z30"},
   "2026-10-15":{"s":"2026-10-15:rede:1","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":28,"w":-16,"bb":"0c0d0e0q111b1m1u1w25282h2j2t","wb":"0j0s0t11121b1l1o1p1w27292i2k"},
   "2026-10-16":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":40,"w":-7,"bb":"0j0w0z191i1l1t1v232d2k2n2w2x","wb":"0u0w121c1h1m1q1y202h2l2r2v"},
-  "2026-10-17":{"o":[{"sp":"sardinha","q":2,"b":8},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":50,"w":-9,"bb":"0g191j1q1u22252d2g2j2n2r2v37","wb":"0h0r0t151g1m1r1x21272c2w3536"},
-  "2026-10-18":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":37,"w":-11,"bb":"0e0o0q0y12181e1j1o1u252r2t2w","wb":"1b1c1k1l1o1u1y2527282r2v3435"},
+  "2026-10-17":{"k":"faminto","o":[{"sp":"dourada","q":3,"b":12},{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":3,"b":12}],"b":35,"w":-5,"bb":"0n0o0p0q0x181j1q1u22262c2j2l","wb":"060g0i0r0t151g1o1p1r1y222a2c"},
+  "2026-10-18":{"k":"faminto","o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":37,"w":-11,"bb":"0e0o0q0y12181e1k1o1u252r2t2w","wb":"0o0y10191c1l1o1v252a2r2v3435"},
   "2026-10-19":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":2,"b":8}],"b":40,"w":0,"bb":"010304050m0y1a1l1q1w20282a2k","wb":"010e0m0p0x181j1l1n1u1x26272e"},
   "2026-10-20":{"s":"2026-10-20:rede:2","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":3,"b":12}],"b":38,"w":-14,"bb":"020304050c0h0o0v0z1k1u252h2l","wb":"030405060c0d0i0m0q0u0y101314"},
   "2026-10-21":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":43,"w":-8,"bb":"080i0k0q0s10121a1i1t1w1z2829","wb":"080y0z181b1c1o1w1x282j2u2w36"},
   "2026-10-22":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":35,"w":-12,"bb":"0h0r0t12141c1g1n1z232d2n2x37","wb":"0d0h0p0s0t0u10161c1d1e1i1q1r"},
   "2026-10-23":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":29,"w":-16,"bb":"0u101d1f1g1l1n1p1v1y2126282i","wb":"0n0x1012191a1e1f1n1r1z202124"},
-  "2026-10-24":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":3,"b":12}],"b":44,"w":-11,"bb":"0i0s11141b1e202a2c2d2i2l2v35","wb":"1k1u1w2025292a2c2h2n2w2x3536"},
-  "2026-10-25":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":29,"w":-21,"bb":"060g0i0n0u0z16191i1j1q1v2223","wb":"0i0o0s0u13151h242c2d2f2n2z3b"},
+  "2026-10-24":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16}],"b":46,"w":-11,"bb":"0h0i111b1w262d2g2n2s2x353637","wb":"1e1o1q1z21292a2c2i2n2w2x3536"},
+  "2026-10-25":{"k":"faminto","o":[{"sp":"dourada","q":3,"b":12},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":25,"w":-21,"bb":"0z101f1g1h1m242d2e2n2y363738","wb":"0i0s0u1316191h21242d2f2n2z3b"},
   "2026-10-26":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":45,"w":-18,"bb":"111a1b1k1p1u2122262a2b2i2k2u","wb":"0z12131b1c1g1p1s21222u2v2x37"},
   "2026-10-27":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"lula","q":4,"b":16}],"b":45,"w":-13,"bb":"080h1h1s1y24292j2o2p2v2y3738","wb":"030405060d0j0z11181a1c1g1m1w"},
   "2026-10-28":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":46,"w":-15,"bb":"0i0s0u0w17191i1k22292c2j2l2m","wb":"07080h0v151b1h1n1o1q202c2e2o"},
   "2026-10-29":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":28,"w":-4,"bb":"0u161i1s1w2226292a2b2d2i2j2n","wb":"14151f1h1s1w2122262b2l2t2v35"},
   "2026-10-30":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"lagosta","q":1,"b":8}],"b":34,"w":-11,"bb":"0m0r0t1213151b1m1t1y1z232b2d","wb":"111415191d1e1l1m1r1y2a2i2l2x"},
-  "2026-10-31":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":50,"w":-8,"bb":"0708090h0l0s1c1m1t1x24292a2e","wb":"020c0e0m0q0x0z191a1c1g1m1p28"},
-  "2026-11-01":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":39,"w":-13,"bb":"0f0p0z171b1g1i1q1s202b2l2u2w","wb":"0i0s0u13161d1g1n1q202a2l2u2w"},
+  "2026-10-31":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":50,"w":-8,"bb":"0708090h0l0s1d1n1t1x24292e2l","wb":"0c0m0o0q0x1013191f1l1n1p1x1z"},
+  "2026-11-01":{"k":"faminto","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":39,"w":-13,"bb":"0f0p0z171b1g1i1q1s202b2l2u2w","wb":"0i0s0u13161d1g1n1q202a2l2u2w"},
   "2026-11-02":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"lula","q":3,"b":12}],"b":44,"w":-20,"bb":"0106070d0e0g0q0y1a1c1f1m1o1p","wb":"0s0t121e1h1t20242a2d2e2m2n"},
   "2026-11-03":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":48,"w":-25,"bb":"0n0x191c1e1l1q1v22272d2j2p37","wb":"1d1g1n1p1q1s1x202124282a2j37"},
   "2026-11-04":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":56,"w":-16,"bb":"04050c0e0h0n0t0y1a1h1l1r1v22","wb":"0c0e0n0p0q1012181e1k1l1m1n1o"},
   "2026-11-05":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lula","q":4,"b":16},{"sp":"dourada","q":2,"b":8}],"b":37,"w":-20,"bb":"0o0t0z1a1l1r1v1y252a2d2h2s34","wb":"0n0x0z181b1d1k1n1p1r1w292c2l"},
   "2026-11-06":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":1,"b":8}],"b":33,"w":-15,"bb":"12131c1f1g1n1s24282j2m2w36","wb":"0f1c1y272h2l2p2y303637383a"},
-  "2026-11-07":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":2,"b":8}],"b":29,"w":-26,"bb":"070h0j0q0r0v10171a1l1q1w292j","wb":"11121b1e1n1q1x212b2j2v"},
-  "2026-11-08":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":4,"b":16}],"b":55,"w":-14,"bb":"0e0i0s0u1216181h1j1v1x1y272b","wb":"060g0i0r0u12141c1m1p1w27292j"},
+  "2026-11-07":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":2,"b":8}],"b":32,"w":-26,"bb":"040b0g0h0n0t0x14191j1q1v1x29","wb":"0b0c11121b1e1j1l1n1q1x202j2v"},
+  "2026-11-08":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":3,"b":12}],"b":48,"w":-10,"bb":"030s121415181j1m1n1p1u1w26","wb":"05060i0s11131c1e1m1w27292b2j"},
   "2026-11-09":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"dourada","q":3,"b":12}],"b":23,"w":-14,"bb":"040e0h0o0y15181g1j1q20272j2v","wb":"0f0o0p0r0y12181c1j1o1y26282i"},
   "2026-11-10":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":38,"w":-13,"bb":"0d0e0n0q0z12131v2a2h2k2t2v35","wb":"0s1m1n1o1u1w292h2i2j2l2m2o2y"},
   "2026-11-11":{"o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":43,"w":-12,"bb":"0s0t151e1h1p1t242f2m2q2y303a","wb":"0c0m0p0q0x0z181e1j1l1m1o1v25"},
   "2026-11-12":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12}],"b":49,"w":-15,"bb":"03040d0i0o0u161a1h1q1t22242e","wb":"040e0o0p0r12181k1o1w1x20292a"},
   "2026-11-13":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":39,"w":-18,"bb":"080c0k0m0o0p0q0x16191e1f1l2g","wb":"0203040c0n0p0y1112151a1b1q20"},
-  "2026-11-14":{"o":[{"sp":"lula","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":46,"w":-8,"bb":"0f0o0p0y181k1p1u21262i2j2k2l","wb":"0i0s0u13151t1z2327292m2y303a"},
-  "2026-11-15":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":50,"w":-10,"bb":"01020b0k0m0u0x15181e1j1v262i","wb":"0d0n0p0x1013181j1n1p1v1w202t"},
+  "2026-11-14":{"k":"faminto","o":[{"sp":"lula","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":57,"w":-4,"bb":"0f0o0p0y181j1p1u21262a2i2j2k","wb":"0405070h0m0u0x0z16181e1l1r"},
+  "2026-11-15":{"k":"faminto","o":[{"sp":"lula","q":4,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":50,"w":-10,"bb":"01020b0h0j0k0n0t0x181j1v262i","wb":"070d0h0j0n0u0x15181j1q1v1w20"},
   "2026-11-16":{"o":[{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":21,"w":-13,"bb":"1h1q1r1t20242f2j2q2v2y303738","wb":"1e1f1g1s2021242d2f2o2q2z313b"},
   "2026-11-17":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":32,"w":-14,"bb":"07090g0j0l0w10171a1c1g1h1k1m","wb":"10121b1d1m1x1z21282d2k2l2m2n"},
   "2026-11-18":{"o":[{"sp":"sardinha","q":2,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":2,"b":16}],"b":31,"w":-18,"bb":"02070f0h0r0t15191f1l1m1r1y2f","wb":"0d0f0r11191b1j1m1u1y26"},
   "2026-11-19":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":53,"w":-16,"bb":"0g0h0j0q0t14161g1x292d2e2l2m","wb":"1x1z20232627292g2m2s2t2v2w35"},
   "2026-11-20":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":46,"w":-9,"bb":"060f0g0i0p0u0z1b1n2l2w2z3839","wb":"131d1n1r20232f2k2q2w3138393b"},
-  "2026-11-21":{"o":[{"sp":"sardinha","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":2,"b":8}],"b":24,"w":-15,"bb":"07080h0k0w14171e1g1q1t22242e","wb":"0k0u0w1415171e1p1r1s20222c2m"},
-  "2026-11-22":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"lula","q":2,"b":8}],"b":27,"w":-1,"bb":"0r131b1e1l1p1x21292l2x30393a","wb":"14151e1h1q1t20232a2l2x30393a"},
+  "2026-11-21":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":1,"b":8}],"b":39,"w":-12,"bb":"07080h0k0u161q1t2022242d2f2p","wb":"0k0u0w1415171e1q1r1s202o2y2z"},
+  "2026-11-22":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":29,"w":0,"bb":"0r131c1e1n1q1z21292l2x30393a","wb":"01020b0e0m0o1a1c1l1n1x2y303a"},
   "2026-11-23":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8}],"b":49,"w":-8,"bb":"060g0i0r0u12161i1n2b2d2l2n2x","wb":"191a1b1d1j1p1v1z26292h2l2t2x"},
   "2026-11-24":{"o":[{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":40,"w":-12,"bb":"0p0z1k1u2226282a2e2m2q2y303a","wb":"101d1n22292b2e2k2m2q2w2y2z30"},
   "2026-11-25":{"s":"2026-11-25:rede:1","o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":1,"b":8}],"b":39,"w":-13,"bb":"10191a1c1j1u24252f2h2i2q2y3b","wb":"1h2d2e2h2i2q2r3334353637383b"},
@@ -917,7 +922,7 @@ const STR = {
     cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', cat_hint_rede_start:'Mrrow. Run the net from my boat and back. Rocks help.', cat_hint_rede_go:'Almost… bring it back to the boat, I’m hungry.', cat_hint_rede_ready:'Closed! Pull, pull, pull!', cat_hint_rede_far:'Nice pen, but it’s far from my paws. It has to touch the boat.', cat_block_protected_rede:'Hey, that’s my neighbour! No gear on them.', cat_v1:'Purrfect catch!', cat_v2:'A proper feast', cat_v3:'Enough for a nap', cat_v4:'Not even a whisker', cat_v5:'The neighbours are upset', cat_v6:'Shame on this cat', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    card_extra:'Card', tide_faminto:'Hungry shark', tiderule_faminto:'A shark in the net eats the sardines and scares the turtles and dolphins away.', cat_hint_rede_start:'Mrrow. Run the net from my boat and back. Rocks help.', cat_hint_rede_go:'Almost… bring it back to the boat, I’m hungry.', cat_hint_rede_ready:'Closed! Pull, pull, pull!', cat_hint_rede_far:'Nice pen, but it’s far from my paws. It has to touch the boat.', cat_block_protected_rede:'Hey, that’s my neighbour! No gear on them.', cat_v1:'Purrfect catch!', cat_v2:'A proper feast', cat_v3:'Enough for a nap', cat_v4:'Not even a whisker', cat_v5:'The neighbours are upset', cat_v6:'Shame on this cat', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
     hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
@@ -960,7 +965,7 @@ const STR = {
     cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', cat_hint_rede_start:'Miau. Leva a rede do meu barco e traz de volta. Pedra ajuda.', cat_hint_rede_go:'Quase… traz de volta pro barco, tô com fome.', cat_hint_rede_ready:'Fechou! Puxa, puxa, puxa!', cat_hint_rede_far:'Bonito cerco, mas longe da minha pata. Tem que encostar no barco.', cat_block_protected_rede:'Ei, é meu vizinho! Nada de equipamento nele.', cat_v1:'Pesca de ronronar!', cat_v2:'Um banquete', cat_v3:'Dá pra um cochilo', cat_v4:'Nem um bigode', cat_v5:'Os vizinhos ficaram chateados', cat_v6:'Que vergonha, gato', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    card_extra:'Carta', tide_faminto:'Tubarão faminto', tiderule_faminto:'Tubarão no cerco come as sardinhas e espanta tartarugas e golfinhos.', cat_hint_rede_start:'Miau. Leva a rede do meu barco e traz de volta. Pedra ajuda.', cat_hint_rede_go:'Quase… traz de volta pro barco, tô com fome.', cat_hint_rede_ready:'Fechou! Puxa, puxa, puxa!', cat_hint_rede_far:'Bonito cerco, mas longe da minha pata. Tem que encostar no barco.', cat_block_protected_rede:'Ei, é meu vizinho! Nada de equipamento nele.', cat_v1:'Pesca de ronronar!', cat_v2:'Um banquete', cat_v3:'Dá pra um cochilo', cat_v4:'Nem um bigode', cat_v5:'Os vizinhos ficaram chateados', cat_v6:'Que vergonha, gato', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
     hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
@@ -1006,7 +1011,7 @@ const t=k=>(MODE&&STR[LANG]['cat_'+k])??STR[LANG][k]??STR.en[k]??k;
 const spName=k=>t('sp_'+k);
 function applyText(){
   document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(now)}`+(MODE?` · ${t('mode_orders')}`:'');
+  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(new Date(DATE+'T12:00:00'))}`+(MODE?` · ${t('mode_orders')}`:'');
   document.getElementById('lang-btn').textContent=t('other_lang');
   renderLegend();
   document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
@@ -1149,7 +1154,7 @@ function newMap(g,seed){
   const orders=MODE&&g.buoy, row=orders?ORDER_REF[DATE]:CARD_REF[seed];
   g.card=g.cardKey=null; g.cards=!orders&&g.buoy&&row?.c.map(x=>x[0])||null; g.genSeed=row?.s??seed;
   g.grid=g.gen(g,mulberry(seedFrom(g.genSeed))); applyCard(g);
-  if(orders) g.orders=row?.o??genOrders(g,mulberry(seedFrom(DATE+':pedido')));
+  if(orders){g.orders=row?.o??genOrders(g,mulberry(seedFrom(DATE+':pedido')));g.card=CARDS[row?.k??crazyTide(DATE)]||null}
   g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
   if(!g.training&&g.cards?.includes(g.rec.card)) setCard(g,g.rec.card);
   if(g.kind==='drop'){
@@ -1343,7 +1348,7 @@ function render(g){
   g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
   if(g.buoy){g.closedAt=inside?.size?g.closedAt??performance.now():null;g.board.style.setProperty('--since',g.closedAt?`${g.closedAt-performance.now()}ms`:'0s');g.board.classList.toggle('started',g.marks.size>0)}
   g.board.innerHTML=html+svg;
-  const why=g.buoy?(g.cards&&!g.card?'card':hits?(overArea(g,inside)?'area':null):far.size?'far':g.marks.size?'go':'start'):lineChain(g).why;
+  const why=g.buoy?(g.cards&&!g.card?'card':hits?(overArea(g,inside)?'area':null):far.size&&g.marks.size?'far':g.marks.size?'go':'start'):lineChain(g).why;
   g.board.classList.toggle('spot',!!spotlight);
 
   g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`+(g.training?'':` · ${t('hauls')} <b>${Math.min(g.rec.tries,MAX_HAULS)}/${MAX_HAULS}</b>`):`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
@@ -1351,7 +1356,7 @@ function render(g){
   g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
   g.el.pv.className='pv '+(hits?cls(now):'');
   if(g.buoy&&now!==g.pvShown){if(g.pvShown!==undefined&&hits){void g.el.pv.offsetWidth;g.el.pv.classList.add('bump')}g.pvShown=now}
-  if(g.el.card&&g.orders){g.el.card.hidden=false;g.el.card.classList.add('orders');g.el.card.innerHTML=orderStatus(g,hits).map(o=>`<div class="order${o.met?' met':''}" title="${t('villager_'+o.sp)}">${sprite(VILLAGER[o.sp])}<span class="want">${sprite(o.sp)}<b>${o.have}/${o.q}</b></span><span class="bonus">+${o.b}</span></div>`).join('')}
+  if(g.el.card&&g.orders){g.el.card.hidden=false;g.el.card.classList.add('orders');g.el.card.innerHTML=(g.card?.hungry?`<div class="tide">${sprite('tubarao')}<b>${t('tide_faminto')}</b><span>${t('tiderule_faminto')}</span></div>`:'')+orderStatus(g,hits).map(o=>`<div class="order${o.met?' met':''}" title="${t('villager_'+o.sp)}">${sprite(VILLAGER[o.sp])}<span class="want">${sprite(o.sp)}<b>${o.have}/${o.q}</b></span><span class="bonus">+${o.b}</span></div>`).join('')}
   else if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!g.card;if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
   g.board.classList.toggle('await',!!(g.cards&&!g.card));
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
@@ -1481,7 +1486,7 @@ function commit(g){
 function shareText(){
   if(MODE){const g=games.rede,r=g.rec;if(!r.tries)return '';const st=stars(r.best,g.dailyBest);
     const fire=streakOf(g);
-    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')}${fire>1?` 🔥${fire}`:''} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish`}
+    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')}${g.card?.hungry?' 🦈':''}${fire>1?` 🔥${fire}`:''} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish`}
   let s=`Good Catch #${DAYNUM}\n`;
   for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
     const r=g.rec;
