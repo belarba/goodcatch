@@ -16,6 +16,9 @@ colors:
   shallow-water: "#9EDFE4"
   open-sea-ring: "#6CC4D2"
   pen-sand: "#F7E6B0"
+  pen-lagoon: "#E2F6F7"
+  stone: "#57636A"
+  stone-top: "#8C969B"
   protect-glow: "rgba(214,60,45,.42)"
   sprite-outline: "#051019"
 typography:
@@ -136,7 +139,7 @@ components:
 
 Good Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.
 
-The board is a strict stack of meaning. The fence (12×12 warm stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: sand fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.
+The board is a strict stack of meaning. The fence (12×12 grey stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: lagoon fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.
 
 The world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.
 
@@ -163,7 +166,9 @@ A daylight sea palette: pale seafoam and white carry the page, navy ink draws ev
 ### Tertiary
 - **Shallow Water** (`shallow-water`): the net board's water.
 - **Open Sea Ring** (`open-sea-ring`): the outermost ring of net cells, deeper than the water with white wave ticks, meaning "the sea reaches here". Line boards instead grade from `#D6F1F3` surface row down through an HSL depth ramp (hue 186→194, darker with depth).
-- **Pen Sand** (`pen-sand`): the enclosed pen fill, the practice badge, the pressed legend item, icon-button hover and text selection.
+- **Pen Lagoon** (`pen-lagoon`): the enclosed pen fill, the lightest water on the board: open-sea ring darkest, water in between, the protected pen lightest. The navy rope carries the edge (the fill alone is 1.33:1 on water).
+- **Stone** (`stone`, `stone-top`): the reef blocks, a dark grey body with a lighter top edge; 4.16:1 on water and 3.08:1 on the open-sea ring (the earlier brown was 3.50:1 and 2.59:1).
+- **Pen Sand** (`pen-sand`): the practice badge, the pressed legend item, icon-button hover and text selection.
 - **Seabed Sand** (`seabed-sand`): the 8px seabed strip under the line and sea-floor boards.
 
 ### Neutral
@@ -251,7 +256,7 @@ Face-up playing cards offered on practice purse-net maps.
 - **Motion:** 0.25s ease-out (`cubic-bezier(.16,1,.3,1)`) on transform and shadow; none under reduced motion.
 
 ### Board
-The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen sand with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. Buoys are white with a navy band and an orange cap. The boat carries a soft white halo and an orange ping until the first mark.
+The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen lagoon with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. Buoys are orange floats with a navy band, the only orange on the board, so the net reads apart from the fish. While the pen is open, a solid 3px navy rope links every buoy to its neighbours and to the boat, diagonals included: the sea only flows 4-directionally, so two buoys meeting at a corner already seal. The boat carries a soft white halo and an orange ping until the first mark.
 
 ### Result Panel
 Laid over the board: 96% white, 2px navy outline, 14px radius, 18px padding, floated with the panel shadow. It stacks the 72px score, a 28px verdict, catch chips with sprites, a range bar (foam track, slate border, red-to-green fill) with the day's exact worst and best at its ends, and the player's records.
