@@ -139,6 +139,7 @@ h1 span{color:var(--accent-text)}
 @keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 .mark.cost.up{color:var(--good)}
+.clue{margin:8px 0 2px;color:var(--ink);font-weight:600}
 .stars{font:400 28px var(--pixel);color:var(--accent-text);letter-spacing:4px;line-height:1}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes fade{to{opacity:0}}
@@ -585,6 +586,24 @@ function evaluateBuoys(g){
   for(const k of inside){const r=Math.floor(k/100),c=k%100;if(g.grid[r][c].sp)hits.push([r,c])}
   return {hits:inside.size?hits:null,inside,onP:g.marks,out};
 }
+// After a haul: the first idea the player's pen missed against the best pen of the same card, without giving the pen away.
+function clueFor(g,bestMarks){
+  const mine=evaluateBuoys(g); if(!mine.hits) return null;
+  const saved=g.marks; g.marks=bestMarks; const best=evaluateBuoys(g); g.marks=saved;
+  if(!best.hits) return null;
+  const count=hits=>{const m={};for(const [r,c] of hits){const sp=g.grid[r][c].sp;m[sp]=(m[sp]||0)+1}return m};
+  const cm=count(mine.hits), cb=count(best.hits), [sr,sc]=g.start;
+  const dir=cells=>{let dr=0,dc=0;for(const k of cells){dr+=Math.floor(k/100)-sr;dc+=k%100-sc}return Math.abs(dr)>=Math.abs(dc)?(dr<0?'n':'s'):(dc<0?'w':'e')};
+  for(const sp in cm) if(pts(g,sp)<0&&!cb[sp]) return {k:'prot',sp};
+  const reef=inside=>{const s=new Set();for(const k of inside){const r=Math.floor(k/100),c=k%100;for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(nr>=0&&nc>=0&&nr<g.rows&&nc<g.cols&&g.grid[nr][nc].rock)s.add(key(nr,nc))}}return s};
+  const rb=reef(best.inside), rm=reef(mine.inside);
+  if(rb.size&&(!rm.size||dir(rm)!==dir(rb))) return {k:'reef',dir:dir(rb)};
+  let top=null;
+  for(const sp in cb){const miss=cb[sp]-(cm[sp]||0);if(pts(g,sp)>0&&miss>0&&(!top||miss>top.n-top.m))top={k:'species',sp,n:cb[sp],m:cm[sp]||0}}
+  if(top) return top;
+  const db=dir(best.inside);
+  return dir(mine.inside)!==db?{k:'side',dir:db}:null;
+}
 function leakPath(g){
   if(!g.buoy||!g.marks.size) return null;
   const e=evaluateBuoys(g); if(e.hits) return null;
@@ -798,7 +817,7 @@ const STR = {
     cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', stars_label:'{n} of 3 stars', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    card_extra:'Card', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
     hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
@@ -841,7 +860,7 @@ const STR = {
     cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', stars_label:'{n} de 3 estrelas', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    card_extra:'Carta', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
     hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
@@ -1278,10 +1297,13 @@ function renderResult(g){
   const pct=L.counted&&(g.card||!g.training)&&g.ref?.exact&&g.ref.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
     +(g.card&&g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
   const st=L.counted&&(g.card||!g.training)&&g.ref?.exact?stars(L.score,g.ref.best):null;
+  const mine=!L.shown&&CARD_REF[g.seed]?.c.find(x=>x[0]===g.cardKey), cl=mine&&L.score<mine[1]&&clueFor(g,new Set(unpackCells(g,mine[3])));
+  const clue=cl?`<p class="clue">${t('clue_'+cl.k).replace('{a}',cl.sp&&spName(cl.sp)).replace('{d}',cl.dir&&t('dir_'+cl.dir)).replace('{n}',cl.n).replace('{m}',cl.m)}</p>`:'';
   g.el.result.innerHTML=`<div class="big ${L.counted?cls(L.score):'zero'}">${fmt(L.score)}</div>
     ${st!==null?`<div class="stars" role="img" aria-label="${t('stars_label').replace('{n}',st)}">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`:''}
     <div class="verdict">${L.counted?verdict(L.score):L.shown?t('showing_'+L.shown).replace('{n}',fmt(L.score)):t('uncounted')}</div>
     ${pct}
+    ${clue}
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">${arr('up')}${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">${arr('down')}${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}

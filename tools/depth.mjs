@@ -51,6 +51,31 @@ function checkStars() {
   if (JSON.stringify(got) !== JSON.stringify([0, 1, 1, 2, 2, 3, null])) throw new Error(`stars: got ${JSON.stringify(got)}`);
 }
 checkStars();
+function checkClue() {
+  if (!G.clueFor) throw new Error('clueFor missing from @gen');
+  // Boat at (5,5); a pen is the squares listed, fenced by buoys on every free neighbour.
+  const board = () => ({ ...G.games.rede, start: [5, 5], marks: new Set(), card: null,
+    grid: Array.from({ length: 11 }, () => Array.from({ length: 11 }, () => ({ sp: null, rock: false }))) });
+  const fence = (g, cells) => {
+    const inside = new Set(cells.map(([r, c]) => G.key(r, c))), m = new Set();
+    for (const [r, c] of cells) for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const k = G.key(r + dr, c + dc);
+      if (!inside.has(k) && !(r + dr === 5 && c + dc === 5) && !g.grid[r + dr][c + dc].rock) m.add(k);
+    }
+    return m;
+  };
+  const expect = (name, got, want) => { if (JSON.stringify(got) !== JSON.stringify(want)) throw new Error(`clue ${name}: expected ${JSON.stringify(want)}, got ${JSON.stringify(got)}`); };
+  let g = board(); g.grid[4][5].sp = 'tartaruga'; g.grid[6][5].sp = 'sardinha';
+  g.marks = fence(g, [[4, 5]]); expect('prot', G.clueFor(g, fence(g, [[6, 5]])), { k: 'prot', sp: 'tartaruga' });
+  g = board(); g.grid[3][5].rock = true; g.grid[4][5].sp = 'sardinha'; g.grid[6][5].sp = 'sardinha';
+  g.marks = fence(g, [[6, 5]]); expect('reef', G.clueFor(g, fence(g, [[4, 5]])), { k: 'reef', dir: 'n' });
+  g = board(); for (const [r, c] of [[6, 5], [7, 5], [8, 5]]) g.grid[r][c].sp = 'sardinha';
+  g.marks = fence(g, [[6, 5]]); expect('species', G.clueFor(g, fence(g, [[6, 5], [7, 5], [8, 5]])), { k: 'species', sp: 'sardinha', n: 3, m: 1 });
+  g = board(); g.grid[4][5].sp = 'sardinha'; g.grid[6][5].sp = 'sardinha';
+  g.marks = fence(g, [[4, 5]]); expect('side', G.clueFor(g, fence(g, [[6, 5]])), { k: 'side', dir: 's' });
+  g = board(); g.grid[6][5].sp = 'sardinha'; g.marks = fence(g, [[6, 5]]); expect('same', G.clueFor(g, fence(g, [[6, 5]])), null);
+}
+checkClue();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();
