@@ -150,3 +150,21 @@ export function writeTable(name, constName, table) {
   console.log(`${constName}: ${keys.length} entries, ${keys[0]} → ${keys[keys.length - 1]}`);
 }
 export const cardRef = () => readTable('card-ref');
+
+export const netFor = (genSeed, k) => {
+  const net = { ...G.games.rede, card: G.CARDS[k] };
+  net.grid = net.gen(net, G.mulberry(G.seedFrom(genSeed)));
+  G.applyCard(net);
+  return net;
+};
+export const realScore = (net, buoys) => {
+  net.marks = new Set(buoys.filter(([r, c]) => !net.grid[r][c].rock).map(([r, c]) => G.key(r, c)));
+  const e = G.evaluate(net);
+  return e.hits && !G.overArea(net, e.inside) ? G.scoreOf(net, e.hits, e.inside) : 0;
+};
+// Three naive players, each an exact optimum of a simplified game, later scored on the real board.
+export const NAIVE = {
+  greedy: m => ({ ...m, v: m.v.map((row, r) => row.map((x, c) => m.prot[r][c] ? 0 : x)) }),
+  near: m => ({ ...m, maxDist: 3 }),
+  noReef: m => ({ ...m, rock: m.rock.map(row => row.map(() => false)) }),
+};

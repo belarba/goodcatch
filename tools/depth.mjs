@@ -3,7 +3,7 @@
 //
 //   node tools/depth.mjs check              → self-checks only
 //   node tools/depth.mjs [prefix] [limit]   → maps whose key starts with prefix (e.g. 2026-10, carta:)
-import { G, solveBuoys, cardRef } from './net-lib.mjs';
+import { G, solveBuoys, cardRef, netFor, realScore, NAIVE } from './net-lib.mjs';
 
 function checkLeak() {
   if (!G.leakPath) throw new Error('leakPath missing from @gen');
@@ -48,30 +48,15 @@ checkProtected();
 if (process.argv[2] === 'check') { console.log('depth self-checks ok'); process.exit(0); }
 
 const REF = cardRef();
-const netFor = (seed, k) => {
-  const net = { ...G.games.rede, card: G.CARDS[k] };
-  net.grid = net.gen(net, G.mulberry(G.seedFrom(seed)));
-  G.applyCard(net);
-  return net;
-};
-const realScore = (net, buoys) => {
-  net.marks = new Set(buoys.filter(([r, c]) => !net.grid[r][c].rock).map(([r, c]) => G.key(r, c)));
-  const e = G.evaluate(net);
-  return e.hits && !G.overArea(net, e.inside) ? G.scoreOf(net, e.hits, e.inside) : 0;
-};
-const NAIVE = {
-  greedy: m => ({ ...m, v: m.v.map((row, r) => row.map((x, c) => m.prot[r][c] ? 0 : x)) }),
-  near: m => ({ ...m, maxDist: 3 }),
-  noReef: m => ({ ...m, rock: m.rock.map(row => row.map(() => false)) }),
-};
 
 const [prefix = '', limit = Infinity] = process.argv.slice(2);
 const rows = [];
 for (const seed of Object.keys(REF).filter(k => k.startsWith(prefix)).slice(0, Number(limit))) {
-  for (const [k, best] of REF[seed]) {
-    const row = { seed, k, best }, m = G.boardModel(netFor(seed, k));
+  const gen = REF[seed].s ?? seed;
+  for (const [k, best] of REF[seed].c) {
+    const row = { seed, k, best }, m = G.boardModel(netFor(gen, k));
     // High tide already removes the reef, so the no-reef player would just be playing the real game.
-    for (const [name, f] of Object.entries(NAIVE)) row[name] = name === 'noReef' && G.CARDS[k].noRocks ? null : realScore(netFor(seed, k), solveBuoys(f(m), 'max').buoys);
+    for (const [name, f] of Object.entries(NAIVE)) row[name] = name === 'noReef' && G.CARDS[k].noRocks ? null : realScore(netFor(gen, k), solveBuoys(f(m), 'max').buoys);
     if (Object.keys(NAIVE).some(n => row[n] > best)) throw new Error(`${seed} ${k}: a naive player beat the optimum ${JSON.stringify(row)}`);
     rows.push(row);
     const pct = x => best > 0 && x !== null ? `${Math.round(100 * x / best)}%` : '—';

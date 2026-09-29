@@ -8,7 +8,7 @@
 //   node tools/solve-net.mjs cards [maps=24]           → CARD_REF["carta:<i>"], the practice maps
 //
 // Game logic is read from index.html (@gen markers), never duplicated here.
-import { G, localDate, map, checkNet, checkLine, solveBuoys, readTable, writeTable } from './net-lib.mjs';
+import { G, localDate, map, checkNet, checkLine, solveBuoys, readTable, writeTable, netFor } from './net-lib.mjs';
 
 const days = Number(process.argv[2] ?? 60);
 const from = process.argv[3] ?? localDate(new Date());
@@ -25,25 +25,19 @@ const boonUsed = (net, sol) => {
 };
 const keys = Object.keys(G.CARDS);
 const trios = keys.flatMap((a, x) => keys.slice(x + 1).flatMap((b, y) => keys.slice(x + y + 2).map(c => [a, b, c])));
-const netFor = (seed, k) => {
-  const net = { ...G.games.rede, card: G.CARDS[k] };
-  net.grid = net.gen(net, G.mulberry(G.seedFrom(seed)));
-  G.applyCard(net);
-  return net;
-};
-function deal(seed) {
+function deal(seed, gen = seed) {
   const t0 = Date.now(), hi = {}, used = {};
-  for (const k of keys) { const net = netFor(seed, k); hi[k] = solveBuoys(G.boardModel(net), 'max'); used[k] = boonUsed(net, hi[k]); }
+  for (const k of keys) { const net = netFor(gen, k); hi[k] = solveBuoys(G.boardModel(net), 'max'); used[k] = boonUsed(net, hi[k]); }
   const rng = G.mulberry(G.seedFrom(`${seed}:trio`)), order = trios.map(t => [rng(), t]).sort((a, b) => a[0] - b[0]).map(x => x[1]);
   const gap = t => { const s = t.map(k => hi[k].score).sort((a, b) => b - a); return (s[0] - s[1]) / Math.max(1, Math.abs(s[0])); };
   const fair = order.filter(t => t.every(k => used[k])), pool = fair.length ? fair : order;
   const trio = pool.find(t => gap(t) <= CLOSE) ?? pool.reduce((a, b) => gap(b) < gap(a) ? b : a);
   const row = trio.map(k => {
-    const net = netFor(seed, k), lo = solveBuoys(G.boardModel(net), 'min');
+    const net = netFor(gen, k), lo = solveBuoys(G.boardModel(net), 'min');
     return [k, hi[k].score, lo.score, checkNet(net, hi[k]), checkNet(net, lo)];
   });
   console.log(`${seed.padEnd(15)} ${row.map(([k, b, w]) => `${k} ${b}/${w}`).join('  ').padEnd(58)} gap ${Math.round(100 * gap(trio))}%${fair.length ? '' : '  UNFAIR: no trio uses every boon'}  ${Date.now() - t0}ms`);
-  return row;
+  return { ...(gen !== seed && { s: gen }), c: row };
 }
 
 const table = readTable('card-ref');
