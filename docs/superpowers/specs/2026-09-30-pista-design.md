@@ -70,6 +70,19 @@ A throwaway script (not committed) played the rule over the whole feature space:
   `#N` counts from `EPOCH`. The link in the share is `goodcatch.fish/novo-jogo/`.
 - `?dia=YYYY-MM-DD` on localhost only.
 
+## Species of the day and streak (added Sep 30, after the 6.9/10 review)
+
+- 12 species (`SPECIES` in `@gen`, pixel maps from 7 shapes plus stripes/spots): 8 common, 2
+  uncommon, 2 rare. Weekdays and Sunday take a per-week shuffle of the 10 non-rare, so a week never
+  repeats; Saturday is rare (lionfish and manta ray alternate by week). Flavour and collection only:
+  the species never changes the map or the habits. The cat names it at the start; the board and the
+  catch scene draw it.
+- Fish journal (`Diário de espécies · N/12`): silhouettes until caught, rare cards in gold, today
+  outlined. Derived from the daily records, nothing new stored.
+- Streak and week strip, ported from the main game: a streak counts days with at least one cast;
+  the last 7 days show the caught species' sprite, ✕ for a loss. Share adds 🔥N; GoatCounter gets
+  `pista/day-N` and `pista/streak-N` on the day's first cast.
+
 ## Help, strings, measurement
 
 - A three-line rule screen on the first visit (`goodcatch:pista:seenHelp`), reopened by "?".

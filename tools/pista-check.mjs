@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../novo-jogo/index.html', import.meta.url), 'utf8');
 const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end');
 if (a < 0 || b < a) throw new Error('@gen markers not found');
-const G = new Function(`${html.slice(a, b)}; return {genSea, combo, bites, stars, N};`)();
+const G = new Function(`${html.slice(a, b)}; return {genSea, combo, bites, stars, N, SPECIES: typeof SPECIES === 'undefined' ? null : SPECIES, speciesOf: typeof speciesOf === 'undefined' ? null : speciesOf, speciesMap: typeof speciesMap === 'undefined' ? null : speciesMap};`)();
 
 const F = [...Array(16).keys()].map(q => [...Array(16).keys()].map(s => G.bites(
   { b: q >> 2, d: (q >> 1) & 1, l: q & 1 }, { b: s >> 2, d: (s >> 1) & 1, l: s & 1 })));
@@ -23,6 +23,11 @@ function worst(S, memo = new Map()) {
 }
 if (G.bites({ b: 1, d: 1, l: 0 }, { b: 1, d: 0, l: 0 }) !== 2) throw new Error('bites: coral deep sun vs coral shallow sun must be 2');
 if (JSON.stringify([4, 5, 6].map(G.stars)) !== '[3,2,1]') throw new Error('stars: 4/5/6 casts must give 3/2/1');
+if (!G.speciesOf || !G.SPECIES) throw new Error('speciesOf / SPECIES missing from @gen');
+for (const s of G.SPECIES) {
+  const map = G.speciesMap(s), letters = new Set(map.join('').replace(/\./g, ''));
+  for (const ch of letters) if (!(ch in s.pal) && ch !== 'w' && ch !== 'e') throw new Error(`${s.id}: letter ${ch} has no colour`);
+}
 const tries = [];
 for (let i = 0; i < 90; i++) {
   const d = new Date(2026, 8, 30 + i), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -36,6 +41,13 @@ for (let i = 0; i < 90; i++) {
   const p = par(present, present), w = worst(present);
   if (p !== 4) throw new Error(`${date}: par ${p}, the stars assume 4`);
   if (w > 6) throw new Error(`${date}: a consistent player can need ${w} casts`);
+  const sp = G.speciesOf(date), wd = (d.getDay() + 6) % 7, rare = G.SPECIES.find(x => x.id === sp)?.rare === 2;
+  if (!G.SPECIES.some(x => x.id === sp) || sp !== G.speciesOf(date)) throw new Error(`${date}: species ${sp}`);
+  if (rare !== (wd === 5)) throw new Error(`${date}: rare species on Saturdays only, got ${sp}`);
+  if (wd === 6) {
+    const week = Array.from({ length: 7 }, (_, j) => { const x = new Date(d); x.setDate(d.getDate() - 6 + j); return G.speciesOf(`${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`); });
+    if (new Set(week).size !== 7) throw new Error(`week ending ${date} repeats a species: ${week}`);
+  }
   tries.push(s.tries);
 }
 tries.sort((x, y) => x - y);

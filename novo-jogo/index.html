@@ -25,7 +25,7 @@ body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixe
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--sun);outline-offset:3px}
 .wrap{max-width:480px;margin:0 auto;padding:14px 16px 40px;display:flex;flex-direction:column;gap:14px}
-.sp{display:block;background:center/100% no-repeat;image-rendering:pixelated}
+.sp{display:block;background:center/contain no-repeat;image-rendering:pixelated}
 
 .wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
 .parch{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:var(--ink);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
@@ -92,6 +92,17 @@ h1 span{color:var(--gold)}
 .pips{display:flex;gap:4px;align-items:center}
 .pips .sp{width:28px;height:28px}
 .pips .off{width:20px;height:20px;margin:4px;border-radius:50%;box-shadow:inset 0 0 0 3px #8A6A3A}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:20px;color:var(--ink-soft)}
+.day.today{border-image-source:var(--gold9);border-image-slice:4 fill}
+.day small{font-size:16px;line-height:1}
+.day .sp{width:28px;height:22px;background-size:contain}
+.streak{margin:0;font-size:22px;color:var(--ink)}
+.dex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mon{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:17px;line-height:1;text-align:center;color:var(--ink)}
+.mon.rare{border-image-source:var(--gold9);border-image-slice:4 fill}
+.mon.now{outline:3px solid var(--sun);outline-offset:1px}
+.mon .sp{width:40px;height:34px;background-size:contain}
 .keys{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
 .keys>div{display:flex;flex-wrap:wrap;gap:6px 12px}
 .keys>div:first-child{grid-column:1/-1}
@@ -134,6 +145,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   </div>
   <section class="result parch" id="result" hidden></section>
   <section class="book parch" id="logbox" hidden><h2 id="log-title"></h2><ol class="log" id="log"></ol></section>
+  <section class="book parch" id="journal"></section>
   <section class="book parch"><h2 id="key-title"></h2><div class="keys" id="legend"></div></section>
 </div>
 <dialog id="help"><div class="parch">
@@ -170,6 +182,45 @@ function genSea(date){
     if(present.length===12){const f=present[ri(12)];return {grid,shelf,clouds,fish:{b:f>>2,d:(f>>1)&1,l:f&1},present,tries}}
   }
 }
+const SHAPES={
+  oval:["......aaaaa.....","....aaaaaaaaa.ff","..aaaaaaaaaaaaff",".aweaaaaaaaaafff","aaaaaaaaaaaaafff",".acccccccccaaaff","..ccccccccccaaff","....cccccca...ff","......ff........"],
+  tall:["......ff......",".....fff......","....aaaa......","...aaaaaa.....","..aaaaaaaa..ff",".aweaaaaaaaaff","aaaaaaaaaaaaff",".aaaaaaaaaaaff","..cccccccc..ff","...cccccc.....","....cccc......",".....fff......","......ff......"],
+  round:[".....aaaa.....","...aaaaaaaa...","..aaaaaaaaaa.f",".aweaaaaaaaaff","aaaaaaaaaaaaaf","aaaaaaaaaaaaff",".acccccccccaaf","..cccccccccc..","...cccccccc...",".....cccc....."],
+  flat:["....aaaaaaaa....","..aaaaaaaaaaaa..",".aaewaaaaaaaaaff","aaaaaaaaaaaaaaff",".aaewaaaaaaaaaff","..aaaaaaaaaaaa..","....aaaaaaaa...."],
+  long:["...aaaaaaaaaa.f.",".awaaaaaaaaaaaff","aeaaaaaaaaaaaaff",".acccccccccccaff","...cccccccccc.f."],
+  seahorse:["...aaa...","..aaaaf..",".aewaaf..","aaa.aa...","....aaa..","...aaaaf.","...acaaf.","...acaa..","...acaa..","....aaa..",".....aa..","...a.aa..","...aa.a..","....aa..."],
+  ray:[".......aa.......","......aaaa......",".....aaaaaa.....","a...aaaaaaaa...a","aaaaaaaaaaaaaaaa",".aaaaawaawaaaaa.","..aaaaeaaeaaaa..","...aaaaaaaaaa...",".....aaaaaa.....",".......ff.......",".......ff.......","........f......."],
+};
+// rare: 1 uncommon, 2 rare (Saturdays only). Species is flavour and collection; it never changes the habits.
+const SPECIES=[
+  {id:'dourado',shape:'oval',pal:{a:'#F2C84B',b:'#C9962E',c:'#FFE9A0',f:'#E0A030'},spots:[[2,6],[4,9]]},
+  {id:'palhaco',shape:'oval',pal:{a:'#F28A30',b:'#FFFFFF',c:'#F9A850',f:'#1A1A1A'},stripes:[3,8,12]},
+  {id:'cirurgiao',shape:'oval',pal:{a:'#3E6FD8',b:'#14285A',c:'#2F58B8',f:'#F2C84B'},spots:[[2,6],[2,7],[2,8],[3,9],[3,10]]},
+  {id:'garoupa',shape:'oval',pal:{a:'#A0744A',b:'#5E3A1A',c:'#C9A070',f:'#7A5230'},spots:[[2,5],[3,9],[4,3],[5,7],[2,11],[4,12]]},
+  {id:'baiacu',shape:'round',pal:{a:'#D9B460',b:'#6B4A2A',c:'#F4E6BE',f:'#C79A40'},spots:[[1,5],[2,8],[3,11],[4,6],[2,3]]},
+  {id:'papagaio',shape:'oval',pal:{a:'#3FBF8F',b:'#F2A0C8',c:'#7FE0B8',f:'#2E8F6A'},stripes:[5,10]},
+  {id:'linguado',shape:'flat',pal:{a:'#C9A56A',b:'#8A6A40',f:'#A8844E'},spots:[[1,6],[3,9],[5,4],[5,11],[1,12]]},
+  {id:'sardinha',shape:'long',pal:{a:'#8FB8D8',b:'#4E7FA8',c:'#E4EEF4',f:'#6E98BA'},spots:[[0,4],[0,6],[0,8]]},
+  {id:'anjo',shape:'tall',rare:1,pal:{a:'#F2D24B',b:'#1A1A2A',c:'#FFE88A',f:'#3E6FD8'},stripes:[5,9]},
+  {id:'cavalo',shape:'seahorse',rare:1,pal:{a:'#F28A30',b:'#B24E22',c:'#FFC07A',f:'#FFD08A'},spots:[[4,5],[9,5]]},
+  {id:'leao',shape:'tall',rare:2,pal:{a:'#D8553A',b:'#FFFFFF',c:'#F4D8C8',f:'#E89080'},stripes:[3,6,9]},
+  {id:'manta',shape:'ray',rare:2,pal:{a:'#2A4A7A',b:'#1A2E50',f:'#2A4A7A'},spots:[[3,7],[3,8],[4,3],[4,12]]},
+];
+function speciesMap(s){
+  const m=SHAPES[s.shape].map(r=>[...r]);
+  for(const c of s.stripes||[])for(const row of m)if(/[ac]/.test(row[c]||''))row[c]='b';
+  for(const[r,c]of s.spots||[])if(/[ac]/.test(m[r]?.[c]||''))m[r][c]='b';
+  return m.map(r=>r.join(''));
+}
+// Weekdays and Sunday draw from a per-week shuffle of the ten common species, so a week never repeats; Saturday is rare.
+function speciesOf(date){
+  const d=new Date(date+'T12:00:00'), wd=(d.getDay()+6)%7, mon=new Date(d); mon.setDate(d.getDate()-wd);
+  const rare=SPECIES.filter(x=>x.rare===2), pool=SPECIES.filter(x=>x.rare!==2).map(x=>x.id);
+  if(wd===5) return rare[Math.round(mon.getTime()/6048e5)%rare.length].id;
+  const rng=mulberry(seedFrom(`${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}:especie`));
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  return pool[wd<5?wd:5];
+}
 // @gen-end
 
 const K='#2E1A0C';
@@ -190,15 +241,20 @@ const canvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height
 const dot=(x,c,a,b,w=1,h=1)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
 const hash=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
 const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
-function drawMap(x,map,X,Y,flipX=false){
+function drawMap(x,map,X,Y,flipX=false,pal=P){
   const h=map.length,w=Math.max(...map.map(r=>r.length));
   const at=(r,c)=>{const ch=map[r]?.[flipX?w-1-c:c];return ch&&ch!=='.'?ch:null};
   for(let r=-1;r<=h;r++)for(let c=-1;c<=w;c++)if(!at(r,c)&&(at(r-1,c)||at(r+1,c)||at(r,c-1)||at(r,c+1)))dot(x,K,X+c,Y+r);
-  for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,P[ch],X+c,Y+r)}
+  for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,pal[ch],X+c,Y+r)}
 }
 const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
 const URLS=Object.fromEntries(['boatcat','fish','bobber','star','starOff','help'].map(k=>[k,mapURL(M[k])]));
 const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
+const SP_BY=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
+const spPal=(s,dark)=>dark?Object.fromEntries('abcfwe'.split('').map(k=>[k,'#1E4A5A'])):{...s.pal,w:'#FFFFFF',e:'#0A1F2B'};
+const spURL=(id,dark)=>{const s=SP_BY[id],m=speciesMap(s),cv=canvas(Math.max(...m.map(r=>r.length))+2,m.length+2);drawMap(cv.getContext('2d'),m,1,1,false,spPal(s,dark));return cv.toDataURL()};
+const SP_URL=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id)])), SP_DARK=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id,true)]));
+const fishSprite=(id,cls='',dark)=>`<i class="sp ${cls}" style="background-image:url(${(dark?SP_DARK:SP_URL)[id]})"></i>`;
 
 // Pixel 9-slice frames for the UI: planks with nails, parchment, gold buttons. Corner pixel left empty for a stepped corner.
 function nine(kind){
@@ -346,6 +402,7 @@ function splash(x,at,age){for(let i=0;i<12;i++){const s=age/1000,vx=(hash(i,3)-.
 
 // ---------- the catch scene, 80x64, drawn in the foreground when the game ends ----------
 function cloud(x,a,b,c1,c2){dot(x,c1,a+2,b,6,1);dot(x,c1,a,b+1,10,2);dot(x,c2,a+1,b+3,8,1)}
+let BIG=null;const bigFish=()=>BIG||(BIG=(()=>{const one=canvas(TW+2,TH+2);drawMap(one.getContext('2d'),TMAP,1,1,true,TPAL);const big=canvas(one.width*2,one.height*2),bx=big.getContext('2d');bx.imageSmoothingEnabled=false;bx.drawImage(one,0,0,big.width,big.height);return big})());
 function scene(x,won,fi,t){
   const HZ=36;
   const sky=won?['#5CC8E6','#78D4EA','#96DFEE','#B4EAF2','#D2F4F5']:['#6F8799','#8198A8','#93A9B7','#A6B9C5','#B9C9D3'];
@@ -361,12 +418,12 @@ function scene(x,won,fi,t){
   const tip=won?{x:60,y:16}:{x:58,y:12};
   const n=30;for(let i=0;i<=n;i++){const s=i/n,cxp=won?60:46,cyp=won?34:24,a=(1-s)**2*44+2*(1-s)*s*cxp+s*s*tip.x,b=(1-s)**2*46+2*(1-s)*s*cyp+s*s*tip.y;dot(x,s<.5?'#6B4220':'#8B5A2B',Math.round(a),Math.round(b))}
   if(won){
-    const p=Math.min(1,fi/16),e=1-(1-p)**3,fy=Math.round(HZ-4-e*26+(fi>16?((t>>2)&1):0)),fx=27;
-    for(let i=0;i<=40;i++){const s=i/40;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+24-tip.x)*s),Math.round(tip.y+(fy+7-tip.y)*s+Math.sin(s*Math.PI)*2))}
+    const p=Math.min(1,fi/16),e=1-(1-p)**3,fw=TW*2,fh=TH*2,fx=40-(fw>>1),fy=Math.round(HZ-2-fh/2-e*(22-fh/4)+(fi>16?((t>>2)&1):0));
+    for(let i=0;i<=40;i++){const s=i/40;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+fw-tip.x)*s),Math.round(tip.y+(fy+(fh>>1)-tip.y)*s+Math.sin(s*Math.PI)*2))}
     if(fi<26)for(let i=0;i<14;i++){const s=fi/12,vx=(hash(i,5)-.5)*30,vy=-24-hash(5,i)*26,px=40+vx*s,py=HZ+vy*s+34*s*s;if(py<HZ+1)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,1)}
     if(fi<10)ring(x,{x:40,y:HZ+1},3+fi*1.4,1-fi/10);
-    drawMap(x,M.fishBig,fx,fy,true);
-    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0)dot(x,'#FFFFFF',[22,56,30,50][i],[fy-2,fy+2,fy+15,fy-4][i]);
+    x.drawImage(bigFish(),fx-2,fy-2);
+    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0)dot(x,'#FFFFFF',[fx-5,fx+fw+3,fx+4,fx+fw-4][i],[fy-2,fy+2,fy+fh+2,fy-4][i]);
   }else{
     for(let i=0;i<=12;i++)dot(x,'rgba(255,246,222,.9)',tip.x+Math.round(Math.sin(i*.6+t*.3)),tip.y+i);
     const dive=Math.min(1,fi/14);drawMap(x,M.tail,62,Math.round(HZ-8+dive*6));
@@ -391,10 +448,12 @@ const STR={
     got_it:'Got it',
     b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
-    intro:'Today’s fish has 3 habits: a bottom, a depth and a light. Each cast tells me how many a square has.',
+    intro:'There’s {a} {s} in these waters today! It has 3 habits: a bottom, a depth and a light. Each cast tells me how many a square has.',
+    sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
+    journal:'Fish journal · {n}/{m}',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak_best:'best {n}',
     pick:'Tap a square in the water',cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
-    caught:'Caught it in {n}! What a fish.',lost:'It got away. It liked {h}.',
+    caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
@@ -406,10 +465,12 @@ const STR={
     got_it:'Entendi',
     b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
-    intro:'O peixe de hoje tem 3 manias: um chão, uma profundidade e uma luz. Cada lance me diz quantas a casa tem.',
+    intro:'Tem {um} {s} nestas águas hoje! {Ele} tem 3 manias: um chão, uma profundidade e uma luz. Cada lance me diz quantas a casa tem.',
+    sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
+    journal:'Diário de espécies · {n}/{m}',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak_best:'recorde {n}',
     pick:'Toque uma casa na água',cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
-    caught:'Pescou em {n}! Que peixe.',lost:'Escapou. Ele gostava de {h}.',
+    caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
@@ -424,6 +485,10 @@ function track(path,event){
 }
 
 const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`, LAND=520;
+const TODAY=SP_BY[speciesOf(DATE)], TMAP=speciesMap(TODAY), TPAL=spPal(TODAY), TW=Math.max(...TMAP.map(r=>r.length)), TH=TMAP.length;
+const spName=id=>t('sp_'+id);
+const FEM=new Set(['garoupa','sardinha','manta']);
+const spVars=(id,v={})=>{const f=FEM.has(id),s=spName(id);return {...v,s,a:/^[aeiou]/i.test(s)?'an':'a',um:f?'uma':'um',o:f?'a':'o',O:f?'A':'O',Ele:f?'Ela':'Ele'}};
 const cellAt=k=>{const r=Math.floor(k/100),c=k%100;return Number.isInteger(k)&&r>=0&&r<N&&c>=0&&c<N?SEA.grid[r][c]:null};
 const bitesAt=k=>bites(cellAt(k),SEA.fish);
 const caught=()=>casts.some(k=>bitesAt(k)===3);
@@ -440,6 +505,24 @@ let casts=(()=>{try{
 }catch(e){return []}})();
 let sel=null, anim=null, sceneAt=0;
 const $=id=>document.getElementById(id);
+const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const castsOn=d=>{if(d===DATE)return casts;try{const a=JSON.parse(localStorage.getItem(`goodcatch:${d}:pista`)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}};
+const caughtOn=d=>{const a=castsOn(d);if(!a.length)return false;const sea=d===DATE?SEA:genSea(d);return a.some(k=>{const x=sea.grid[Math.floor(k/100)]?.[k%100];return x&&bites(x,sea.fish)===3})};
+// Today not played yet keeps yesterday's streak alive until midnight.
+function streakOf(){let d=castsOn(DATE).length?DATE:dayShift(DATE,-1),n=0;while(castsOn(d).length){n++;d=dayShift(d,-1)}return n}
+function playedDays(){const days=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^goodcatch:(\d{4}-\d\d-\d\d):pista$/.exec(k);if(m&&castsOn(m[1]).length)days.push(m[1])}}catch(e){}if(casts.length&&!days.includes(DATE))days.push(DATE);return days.sort()}
+function bestStreak(){let best=0,run=0,prev=null;for(const d of playedDays()){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}return best}
+function weekHTML(){
+  const n=streakOf(),best=bestStreak(),days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
+  const cells=days.map(d=>{const a=castsOn(d),won=caughtOn(d),fin=won||a.length>=MAX;
+    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${won?fishSprite(speciesOf(d)):`<b>${!a.length?'·':fin?'✕':'…'}</b>`}</span>`}).join('');
+  return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t('streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
+}
+function journalHTML(){
+  const got=new Set(playedDays().filter(caughtOn).map(speciesOf));
+  return `<h2>${t('journal',{n:got.size,m:SPECIES.length})}</h2><div class="dex">${SPECIES.map(s=>{const has=got.has(s.id),today=s.id===TODAY.id;
+    return `<span class="mon${s.rare===2?' rare':''}${today?' now':''}">${fishSprite(s.id,'',!has)}<small>${has||today?spName(s.id):t('unknown')}</small></span>`}).join('')}</div>`;
+}
 const fishCells=()=>SEA.grid.flatMap((row,r)=>row.map((x,c)=>combo(x)===combo(SEA.fish)?key(r,c):null)).filter(k=>k!==null);
 
 const bases=[0,1].map(f=>paintSeabed(SEA.grid,f).getContext('2d').getImageData(0,0,GW,GW));
@@ -463,8 +546,8 @@ function drawSea(now){
   if(lastK!==undefined){const p=anim&&anim.k===lastK?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(lastK),p)}
   if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n===3&&age>=0&&age<1300)splash(wx,c,age)}
   if(won){const k=casts.find(k=>bitesAt(k)===3),c=centre(k),age=anim&&anim.k===k?now-anim.start-LAND:1e4;
-    if(age>=0){const hop=age<900?Math.round(Math.sin(age/900*Math.PI)*14):0;drawMap(wx,M.fish,c.x-6,c.y-4-hop)}}
-  if(done&&!won)fishCells().forEach(k=>{const c=centre(k);drawMap(wx,M.fish,c.x-6,c.y-4)});
+    if(age>=0){const hop=age<900?Math.round(Math.sin(age/900*Math.PI)*14):0;drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1)-hop,false,TPAL)}}
+  if(done&&!won)fishCells().forEach(k=>{const c=centre(k);drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1),false,TPAL)});
   vx.imageSmoothingEnabled=false; vx.drawImage(work,0,0,view.width,view.height);
   document.querySelectorAll('canvas.scene').forEach(cv=>{
     const sx=cv.getContext('2d'), fi=cv.dataset.live?Math.floor((now-sceneAt)/70):40;
@@ -488,7 +571,7 @@ const starsHTML=st=>`<div class="stars" role="img" aria-label="${st}/3">${[0,1,2
 function resultHTML(live){
   const won=caught(), st=won?stars(casts.length):0;
   return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div>`
-    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`
+    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`+weekHTML()
     +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
 }
 function wireResult(el){
@@ -516,7 +599,7 @@ function render(){
     return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${tag}</button>`;
   }).join('')).join('');
   const lastN=casts.length&&!busy?bitesAt(casts.at(-1)):null;
-  $('say').textContent=done&&!busy?(won?t('caught',{n:casts.length}):t('lost',{h:feats(SEA.fish).join(', ')})):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro');
+  $('say').textContent=done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
   $('bar').hidden=done&&!busy;
   const sx=sel===null?null:cellAt(sel);
   $('feat').className='feat'+(sx?'':' hint');
@@ -525,13 +608,15 @@ function render(){
   $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
   $('cast').textContent=t('cast'); $('cast').disabled=sel===null||busy;
   $('logbox').hidden=!casts.length;
-  $('log').innerHTML=casts.map((k,i)=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?sprite('fish'):'<i class="off"></i>').join('')}</span></li>`}).join('');
+  $('journal').innerHTML=journalHTML();
+  $('log').innerHTML=casts.map((k,i)=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?fishSprite(TODAY.id):'<i class="off"></i>').join('')}</span></li>`}).join('');
   $('result').hidden=!done||busy;
   if(done&&!busy){$('result').innerHTML=resultHTML(false);wireResult($('result'))}
 }
 function shareText(){
   const won=caught(), st=won?stars(casts.length):0;
-  return `🎣 Good Catch · Pista #${DAYNUM}  ${won?casts.length:'X'}/${MAX}${won?' '+'★'.repeat(st)+'☆'.repeat(3-st):''}\n`
+  const fire=streakOf();
+  return `🎣 Good Catch · Pista #${DAYNUM}  ${won?casts.length:'X'}/${MAX}${won?' '+'★'.repeat(st)+'☆'.repeat(3-st):''}${fire>1?` 🔥${fire}`:''}\n`
     +casts.map(k=>fishes(bitesAt(k))).join('\n')+'\ngoodcatch.fish/novo-jogo/';
 }
 function share(note){
@@ -557,6 +642,7 @@ $('cast').onclick=()=>{
   const k=sel; casts.push(k); sel=null;
   try{localStorage.setItem(REC,JSON.stringify(casts))}catch(e){}
   anim={k,start:performance.now(),n:bitesAt(k)};
+  if(casts.length===1){track(`pista/day-${Math.min(playedDays().length,30)}`,true);track(`pista/streak-${Math.min(streakOf(),30)}`,true)}
   if(over()) track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);
   render();
   const end=over();
