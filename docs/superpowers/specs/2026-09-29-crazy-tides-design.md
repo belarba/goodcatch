@@ -1,6 +1,6 @@
 # Crazy tides: three absurd weekend rules in Encomenda
 
-Date: 2026-09-29. Status: approved in chat, awaiting spec review.
+Date: 2026-09-29. Status: Hungry shark shipped (on both weekend days until the others land, plan `docs/superpowers/plans/2026-09-29-hungry-shark.md`); Drunk captain and Inverted tide approved, not built.
 
 ## Why
 
