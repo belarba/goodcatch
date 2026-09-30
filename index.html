@@ -140,6 +140,12 @@ h1 span{color:var(--accent-text)}
 @keyframes bob{50%{translate:0 -4px}}
 .mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
 .mark.cost.up{color:var(--good)}
+.c.goal::after{content:"";position:absolute;inset:12%;border:3px dashed var(--accent-text);border-radius:6px;animation:goalpulse .9s ease-in-out infinite alternate}
+@keyframes goalpulse{to{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.c.goal::after{animation:none}}
+.skip{display:block;margin:2px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:14px;cursor:pointer}
+.tut{margin:10px 0 14px;color:var(--ink);line-height:1.45}
+.btn.wide{width:100%}
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0 4px}
 .day{display:flex;flex-direction:column;align-items:center;padding:3px 0;border:2px solid var(--edge);border-radius:8px;font:400 16px var(--pixel);color:var(--accent-text)}
 .day small{font:400 13px var(--pixel);color:var(--muted)}
@@ -922,7 +928,7 @@ const STR = {
     cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
     cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
     cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', tide_faminto:'Hungry shark', tiderule_faminto:'A shark in the net eats the sardines and scares the turtles and dolphins away.', cat_hint_rede_start:'Mrrow. Run the net from my boat and back. Rocks help.', cat_hint_rede_go:'Almost… bring it back to the boat, I’m hungry.', cat_hint_rede_ready:'Closed! Pull, pull, pull!', cat_hint_rede_far:'Nice pen, but it’s far from my paws. It has to touch the boat.', cat_block_protected_rede:'Hey, that’s my neighbour! No gear on them.', cat_v1:'Purrfect catch!', cat_v2:'A proper feast', cat_v3:'Enough for a nap', cat_v4:'Not even a whisker', cat_v5:'The neighbours are upset', cat_v6:'Shame on this cat', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
+    card_extra:'Card', see_best_day:'See today’s best catch', tut_fence:'Tap the glowing squares to drop buoys: the net goes around the fish and back to the boat.', tut_haul:'Closed! The light water is your catch. Pull the net.', tut_done:'That’s it. Protected animals (red glow) cost points and refuse buoys, so net around them. Every day three villagers order fish, and meeting an order adds a bonus. You get 3 hauls a day.', tut_play:'Play today’s sea', tut_skip:'Skip tutorial', tide_faminto:'Hungry shark', tiderule_faminto:'A shark in the net eats the sardines and scares the turtles and dolphins away.', cat_hint_rede_start:'Mrrow. Run the net from my boat and back. Rocks help.', cat_hint_rede_go:'Almost… bring it back to the boat, I’m hungry.', cat_hint_rede_ready:'Closed! Pull, pull, pull!', cat_hint_rede_far:'Nice pen, but it’s far from my paws. It has to touch the boat.', cat_block_protected_rede:'Hey, that’s my neighbour! No gear on them.', cat_v1:'Purrfect catch!', cat_v2:'A proper feast', cat_v3:'Enough for a nap', cat_v4:'Not even a whisker', cat_v5:'The neighbours are upset', cat_v6:'Shame on this cat', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
     hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
     try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
     your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
@@ -965,7 +971,7 @@ const STR = {
     cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
     cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
     cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', tide_faminto:'Tubarão faminto', tiderule_faminto:'Tubarão no cerco come as sardinhas e espanta tartarugas e golfinhos.', cat_hint_rede_start:'Miau. Leva a rede do meu barco e traz de volta. Pedra ajuda.', cat_hint_rede_go:'Quase… traz de volta pro barco, tô com fome.', cat_hint_rede_ready:'Fechou! Puxa, puxa, puxa!', cat_hint_rede_far:'Bonito cerco, mas longe da minha pata. Tem que encostar no barco.', cat_block_protected_rede:'Ei, é meu vizinho! Nada de equipamento nele.', cat_v1:'Pesca de ronronar!', cat_v2:'Um banquete', cat_v3:'Dá pra um cochilo', cat_v4:'Nem um bigode', cat_v5:'Os vizinhos ficaram chateados', cat_v6:'Que vergonha, gato', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
+    card_extra:'Carta', see_best_day:'Ver a melhor pescaria de hoje', tut_fence:'Toque nas casas brilhando para soltar boias: a rede contorna os peixes e volta ao barco.', tut_haul:'Fechou! A água clara é a sua pesca. Puxe a rede.', tut_done:'É isso. Animais protegidos (brilho vermelho) tiram pontos e não aceitam boia: contorne. Todo dia três moradores pedem peixes, e atender um pedido dá bônus. São 3 puxadas por dia.', tut_play:'Jogar o mar de hoje', tut_skip:'Pular tutorial', tide_faminto:'Tubarão faminto', tiderule_faminto:'Tubarão no cerco come as sardinhas e espanta tartarugas e golfinhos.', cat_hint_rede_start:'Miau. Leva a rede do meu barco e traz de volta. Pedra ajuda.', cat_hint_rede_go:'Quase… traz de volta pro barco, tô com fome.', cat_hint_rede_ready:'Fechou! Puxa, puxa, puxa!', cat_hint_rede_far:'Bonito cerco, mas longe da minha pata. Tem que encostar no barco.', cat_block_protected_rede:'Ei, é meu vizinho! Nada de equipamento nele.', cat_v1:'Pesca de ronronar!', cat_v2:'Um banquete', cat_v3:'Dá pra um cochilo', cat_v4:'Nem um bigode', cat_v5:'Os vizinhos ficaram chateados', cat_v6:'Que vergonha, gato', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
     hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
     try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
     your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
@@ -1035,6 +1041,7 @@ function setup(g){
   g.tab=document.getElementById('tab-'+g.key);
   g.board=g.el.board;
   g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);if(!g.training){g.rec.card=k;save(g.storeKey,g.rec)}g.blocked=null;g.showing=null;render(g)});
+  if(g.buoy){g.el.hint.insertAdjacentHTML('afterend',`<button class="skip" data-k="skip" hidden></button>`);g.el.skip=g.el.hint.nextElementSibling;g.el.skip.addEventListener('click',()=>endTutorial(g,'skip'))}
   g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
   g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
   g.board.style.backgroundImage=`url(${seaURL(g)})`;
@@ -1101,6 +1108,7 @@ function setup(g){
   g.el.result.addEventListener('click',e=>{
     const a=e.target.closest('[data-act]')?.dataset.act;
     if(a==='again'){g.last=null;g.blocked=null;render(g)}
+    if(a==='tut-done') endTutorial(g,'done');
     if(a==='share'){share(g.el.result.querySelector('.note'));track('share',true)}
     if(a==='best'||a==='worst') reveal(g,a);
   });
@@ -1288,7 +1296,7 @@ function renderDrop(g){
   g.el.hint.classList.toggle('alert',!!g.blocked);
   g.bubble.hidden=true;
   g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
-  g.el.train.hidden=!g.training;
+  g.el.train.hidden=!g.training||!!g.tutorial;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
@@ -1316,6 +1324,7 @@ function render(g){
       inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(p)}"`);
     }
     if(g.buoy&&g.marks.has(k)){inner+=sprite('buoy');cl.push('net')}
+    else if(g.tutorial&&TUT_GOAL.includes(k)) cl.push('goal');
     html+=`<div class="${cl.join(' ')}"${st}>${inner}</div>`;
   }
   let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
@@ -1362,8 +1371,10 @@ function render(g){
   g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
     :g.blocked?t(`block_${g.blockReason}_${g.key}`)
     :t(`hint_${g.key}_${why||'ready'}`);
+  if(g.tutorial&&!g.blocked) g.el.hint.textContent=t(hits?'tut_haul':'tut_fence');
   g.el.hint.classList.toggle('alert',!!g.blocked);
-  const say=(g.blocked||!why||why==='self'||why==='area'||why==='card'||why==='far')&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
+  if(g.el.skip){g.el.skip.hidden=!g.tutorial;g.el.skip.textContent=t('tut_skip')}
+  const say=(g.tutorial||g.blocked||!why||why==='self'||why==='area'||why==='card'||why==='far')&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
   g.bubble.hidden=!say;
   if(!say) delete g.bubble.dataset.k;
   if(say){
@@ -1379,7 +1390,7 @@ function render(g){
   }
   g.el.go.disabled=!ready(g);
   g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.marks.size;
-  g.el.train.hidden=!g.training;
+  g.el.train.hidden=!g.training||!!g.tutorial;
   g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)} ${arr('down')}${fmt(g.rec.worst)}`:'';
   if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
   renderResult(g);
@@ -1388,7 +1399,8 @@ function render(g){
 function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5':'v6')}
 
 function renderResult(g){
-  const L=g.last; g.el.result.hidden=!L||!!g.hauling; g.el.board.closest('.game').classList.toggle('done',!!L&&!g.hauling); if(!L||g.hauling) return;
+  const L=g.last; g.el.result.hidden=!L||!!g.hauling;
+  if(L&&!g.hauling&&g.tutorial){g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());g.el.board.closest('.game').classList.add('done');g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div><p class="tut">${t('tut_done')}</p><div class="controls"><button class="btn primary wide" data-act="tut-done">${t('tut_play')}</button></div>`;return} g.el.board.closest('.game').classList.toggle('done',!!L&&!g.hauling); if(!L||g.hauling) return;
   g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());
   const rec=g.training?g.trainRec:g.rec;
   if(g.kind==='drop'){
@@ -1418,7 +1430,7 @@ function renderResult(g){
     <div class="chips">${chips}</div>
     <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">${arr('up')}${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">${arr('down')}${fmt(rec.worst)}</b></span></div>
     ${rangeHTML(g,rec)}
-    ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`:''}
+    ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?(!g.training&&rec.locked&&!rec.revealed?`<div class="reveal"><button class="btn primary wide" data-act="best">${t('see_best_day')}</button></div>`:`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`):''}
     ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
     ${g.training?'':weekHTML(g)}
     <div class="controls">${!g.training&&rec.locked?`<button class="btn" disabled>${t('come_back').replace('{t}',untilTomorrow())}</button>`:`<button class="btn" data-act="again">${t('try_again')}</button>`}<button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
@@ -1445,6 +1457,18 @@ const GC_CODE='belarba';
 function track(path,event){
   if(!GC_CODE||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
   try{new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent(event?path:document.title)}${event?'&e=true':`&r=${encodeURIComponent(document.referrer)}&s=${screen.width},${screen.height},${devicePixelRatio}`}&rnd=${Math.random()}`}catch(e){}
+}
+const TUT_GOAL=[key(4,5),key(4,6),key(5,4),key(5,7),key(6,6)];
+function startTutorial(g){
+  g.training=true; g.tutorial=true; g.trainRec={best:null,worst:null,tries:0};
+  g.grid=emptyGrid(g.rows,g.cols); g.start=[6,5];
+  g.grid[5][5].sp='dourada'; g.grid[5][6].sp='sardinha'; g.grid[2][8].sp='tartaruga'; g.grid[8][2].sp='lula';
+  g.card=g.cardKey=g.cards=null; g.orders=null; g.ref=null; g.seed=g.genSeed='tutorial';
+  g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[]; g.last=null; render(g);
+}
+function endTutorial(g,how){
+  track('tutorial/'+how,true);
+  g.tutorial=false; g.training=false; g.last=null; newMap(g,DATE+':'+g.key); render(g);
 }
 function untilTomorrow(){const x=new Date(DATE+'T00:00:00');x.setDate(x.getDate()+1);const m=Math.max(0,Math.round((x-new Date())/6e4));return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`}
 function weekHTML(g){
@@ -1555,7 +1579,7 @@ if(MODE) document.getElementById('train-btn').hidden=true;
 else showTab(saved in games?saved:'rede');
 for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
-if(!seen){help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
+if(!seen){if(MODE)startTutorial(games.rede);else help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
 })();
 </script>
 </body>
