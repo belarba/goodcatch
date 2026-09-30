@@ -12,6 +12,9 @@ Casual daily-puzzle players, the Wordle / enclose.horse crowd: a few minutes on 
 ## Product Purpose
 Good Catch is a daily fishing puzzle. Every day everyone gets the same sea (seeded by the local date) in three modes: purse net, bottom line and sea floor. One score can go positive or negative; players chase the day's highest score, and some chase the lowest. Success is a player who comes back tomorrow and shares today's result.
 
+## Prototype: Pista (novo-jogo/)
+A deduction daily at goodcatch.fish/novo-jogo/: the fish of the day has three habits (bottom, depth, light) and each cast answers only how many a square has; six casts. Built after playtesters could not follow the purse net's enclosure rule. Owner references for its look: Animal Crossing / Stardew, Alto's / Monument Valley, rich pixel art (Celeste, Eastward).
+
 ## Positioning
 Each mode has an exact, solver-computed best (and worst) for the day, so a player always knows how far they were from the possible. Protected animals (turtle, dolphin, shark, coral) carry negative points, which is what makes the "lowest score" side of the challenge exist.
 

@@ -4,181 +4,375 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A daily fishing puzzle. Find the fish of the day in six casts.">
+<meta name="theme-color" content="#0B2233">
 <title>Good Catch · Pista</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Jersey+10&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
 <style>
 :root{
-  color-scheme:light;
-  --bg:#E4F4F2; --surface:#FFFFFF; --surface2:#EEF7F6; --edge:#5F8A92;
-  --ink:#10324A; --muted:#48656F; --accent:#F08A24; --accent-text:#A04C08; --sand:#E8C77E;
-  --good:#157A4C; --bad:#C8352A;
+  color-scheme:dark;
+  --abyss:#0B2233; --deep:#0E4A5C;
+  --bark:#2E1A0C; --parch:#F6E7C1; --ink:#3B2414; --ink-soft:#6B4A2A;
+  --gold:#F2B33D; --cream:#FFF1D0; --sun:#FFE27A;
   --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
-  --body:Figtree,system-ui,-apple-system,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0}
 [hidden]{display:none!important}
-html,body{background:var(--bg)}
-body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+html{background:var(--abyss)}
+body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixel);image-rendering:pixelated;
+  background:var(--sea-tile,none) 0 0/64px 64px,linear-gradient(180deg,#136A82 0,var(--deep) 34%,var(--abyss) 100%) fixed}
+::selection{background:var(--sun);color:var(--ink)}
 button{font:inherit;color:inherit}
-button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.wrap{max-width:540px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:10px}
-.top{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center}
-.icon-btn{appearance:none;width:40px;height:40px;border:2px solid var(--ink);background:var(--surface);border-radius:10px;font:400 22px var(--pixel);color:var(--ink);cursor:pointer}
-.icon-btn:hover{background:var(--surface2)}
-h1{font:400 clamp(36px,10vw,44px)/1 var(--pixel);margin:0}
-h1 span{color:var(--accent-text)}
-.date{font:400 18px var(--pixel);color:var(--muted);margin-top:2px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.wrap{max-width:480px;margin:0 auto;padding:14px 16px 40px;display:flex;flex-direction:column;gap:14px}
 .sp{display:block;background:center/100% no-repeat;image-rendering:pixelated}
-.say{display:flex;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:6px 10px;min-height:56px}
-.say .sp{width:36px;height:36px;flex:none}
-.say p{margin:0;font:400 18px/1.15 var(--pixel)}
-.board{display:grid;grid-template-columns:repeat(7,1fr);aspect-ratio:1;width:min(100%,420px);margin:0 auto;border-radius:12px;overflow:hidden;background:center/100% 100% no-repeat;box-shadow:0 0 0 3px var(--ink);image-rendering:pixelated;user-select:none;-webkit-user-select:none}
-.c{appearance:none;border:0;padding:0;background:transparent;position:relative;display:grid;place-items:center;cursor:pointer}
+
+.wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.parch{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:var(--ink);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.btn{appearance:none;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;padding:2px 14px 4px;font:400 28px/1 var(--pixel);color:var(--ink);cursor:pointer}
+.btn:active:not(:disabled){transform:translateY(2px)}
+.btn:disabled{border-image-source:var(--dull9);color:#4A3B26;cursor:default}
+
+.top{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;text-align:center;gap:6px}
+.icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:24px;line-height:1;cursor:pointer}
+.icon-btn .sp{width:24px;height:24px}
+.icon-btn:active{transform:translateY(2px)}
+h1{margin:0;font:400 clamp(46px,14vw,60px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;
+  text-shadow:3px 0 var(--bark),-3px 0 var(--bark),0 3px var(--bark),0 -3px var(--bark),3px 3px var(--bark),-3px 3px var(--bark),3px -3px var(--bark),-3px -3px var(--bark),0 7px 0 rgba(4,16,26,.45)}
+h1 span{color:var(--gold)}
+.date{margin-top:8px;font-size:20px;color:#BFE7E6}
+
+.talk{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;min-height:76px}
+.portrait{width:56px;height:56px;display:grid;place-items:center;background:#7FDCD6;box-shadow:0 0 0 2px var(--bark),inset 0 -20px 0 #3FC1C0}
+.portrait .sp{width:56px;height:56px}
+.talk p{margin:0;font-size:23px;line-height:1.08}
+
+.sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5))}
+.sea canvas{display:block;image-rendering:pixelated}
+.grid{position:absolute;left:0;top:0;right:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
 .c:disabled{cursor:default}
-.c.sel{box-shadow:inset 0 0 0 3px var(--accent)}
-.c.win{box-shadow:inset 0 0 0 3px var(--good);background:rgba(21,122,76,.18)}
-.c .sp{width:70%;height:70%}
-.c .bd{position:absolute;top:3px;right:3px;min-width:20px;height:20px;border-radius:10px;background:var(--ink);color:#fff;font:400 18px/20px var(--pixel);text-align:center;padding:0 5px}
-.c .bd.hit{background:var(--good)}
-.bar{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:8px}
-.feat{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;min-height:28px;align-items:center;font:400 22px/1 var(--pixel)}
-.feat.hint{color:var(--muted)}
-.feat span,.legend span{display:inline-flex;align-items:center;gap:5px}
-.feat img{width:24px;height:24px;image-rendering:pixelated;border:1px solid var(--ink);border-radius:4px}
-.btn{appearance:none;border:2px solid var(--ink);background:var(--surface);color:var(--ink);font:400 22px var(--pixel);padding:8px 12px;border-radius:12px;cursor:pointer}
-.btn:hover:not(:disabled){background:var(--surface2)}
-.btn.primary{background:var(--accent)}
-.btn.primary:hover:not(:disabled){background:#F79B40}
-.btn:disabled,.btn.primary:disabled{border-color:var(--edge);color:var(--edge);background:transparent;cursor:default}
-.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:10px 12px}
-.legend div{display:flex;flex-wrap:wrap;gap:4px 12px}
-.legend div:first-child{grid-column:1/-1}
-.legend b{flex-basis:100%;font:400 18px/1 var(--pixel);color:var(--muted)}
-.legend span{font-size:13px;line-height:1.1}
-.legend img{width:28px;height:28px;flex:none;image-rendering:pixelated;border:1px solid var(--edge);border-radius:4px}
-.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
-.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:5px 10px}
-.pips{display:flex;gap:4px}
-.pips i{width:22px;height:22px}
-.pips i.off{border:2px dashed var(--edge);border-radius:6px}
-.log li>span:first-child{font:400 18px var(--pixel);color:var(--muted)}
-.result{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:16px}
-.big{font:400 72px/1 var(--pixel)}
-.big.good{color:var(--good)} .big.bad{color:var(--bad)}
-.stars{font:400 28px var(--pixel);color:var(--accent-text);letter-spacing:4px;line-height:1}
-.result p{margin:0}
-.note{font-size:13px;color:var(--muted);min-height:1.2em}
-dialog{background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:20px;max-width:min(92vw,460px)}
-dialog::backdrop{background:rgba(16,50,74,.45)}
-dialog h2{font:400 28px var(--pixel);margin:0 0 8px}
-dialog ol{padding-left:20px;margin:0 0 14px}
-dialog li{margin:6px 0}
+@media (hover:hover){.c:not(:disabled):hover{background:rgba(255,244,194,.14)}}
+.c.sel{background:
+  linear-gradient(var(--sun),var(--sun)) 2px 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px 2px/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/4px 34% no-repeat,
+  rgba(255,226,122,.18);animation:pulse 1s steps(2) infinite}
+.c.win{box-shadow:inset 0 0 0 4px var(--sun);background:rgba(255,226,122,.22)}
+.c .tag{position:absolute;right:1px;bottom:1px;min-width:24px;padding:0 3px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;color:var(--ink);font:400 20px/14px var(--pixel);text-align:center}
+.c .tag.hit{border-image-source:var(--gold9);border-image-slice:4 fill}
+
+.cast{display:flex;flex-direction:column;gap:10px}
+.feat{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;min-height:44px;align-items:center}
+.feat.hint{color:#F3DDB4;font-size:24px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;padding:0 6px 0 0;color:var(--ink);font-size:22px}
+.chip img,.key img{width:32px;height:32px;image-rendering:pixelated}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.left{display:flex;gap:2px}
+.left i{width:28px;height:28px}
+.left i.used{opacity:.3;filter:grayscale(1)}
+
+.result,#catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.scene{display:block;image-rendering:pixelated;box-shadow:0 0 0 3px var(--bark)}
+.big{font:400 84px/.85 var(--pixel);color:var(--gold);
+  text-shadow:4px 0 var(--bark),-4px 0 var(--bark),0 4px var(--bark),0 -4px var(--bark),4px 4px var(--bark),-4px 4px var(--bark),4px -4px var(--bark),-4px -4px var(--bark)}
+.big.lost{color:#E8826A}
+.stars{display:flex;gap:6px}
+.stars .sp{width:36px;height:36px}
+.result p{margin:0;font-size:24px}
+.note{font-size:20px;color:var(--ink-soft)}
+.note:empty{display:none}
+
+.book h2{margin:0 0 6px;font:400 26px/1 var(--pixel);color:var(--ink)}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-top:2px dashed #D9BE84;font-size:22px}
+.log li:first-child{border-top:0}
+.log li>span:first-child{color:var(--ink-soft)}
+.pips{display:flex;gap:4px;align-items:center}
+.pips .sp{width:28px;height:28px}
+.pips .off{width:20px;height:20px;margin:4px;border-radius:50%;box-shadow:inset 0 0 0 3px #8A6A3A}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.keys>div{display:flex;flex-wrap:wrap;gap:6px 12px}
+.keys>div:first-child{grid-column:1/-1}
+.keys b{flex-basis:100%;font-weight:400;font-size:20px;color:var(--ink-soft)}
+.key{display:inline-flex;align-items:center;gap:6px;font-size:21px}
+
+dialog{padding:0;border:0;background:none;color:var(--ink);max-width:min(94vw,420px);overflow:visible}
+dialog::backdrop{background:rgba(6,20,32,.7)}
+dialog .parch{padding:4px 6px}
+dialog h2{margin:0 0 8px;font:400 34px/1 var(--pixel)}
+dialog ol{margin:0 0 14px;padding-left:24px;font-size:23px;line-height:1.1}
+dialog li{margin:8px 0}
+#catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:6px}
+#catch .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+@keyframes pulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
 </style>
 </head>
 <body>
+<!--
+THESIS: The sea is a window. You look down through clear water at a real seabed, and sun, shade and depth are light: caustics where the sun reaches, cloud shadow where it does not, a shelf where the water drops. Refuses the flat outlined grid board every daily puzzle ships.
+OWN-WORLD: Rich pixel art lagoon on a deep-teal page; seabed tiles that run across squares; a beach and a wooden pier along the bottom where the cat sits with a rod; UI as pixel-drawn wood planks and parchment (9-slice), gold pixel buttons; Jersey 10 everywhere; one integer pixel grid.
+STORY: The player reads the cat's line, looks into the water, taps a square to read its three habits, casts (the line arcs from the rod to a bobber), and deduces the fish in six casts; the catch takes the foreground as a pixel scene of the cat hauling the golden fish out of the water; then shares.
+FIRST VIEWPORT: Wordmark, the cat's dialogue box, then the lagoon with the beach and pier in a wooden frame at an integer scale; the cast plaque with bobbers left and the gold Cast button right under it.
+FORM: Água Clara, candidate 5 of 7 (rich pixel art seen from above), seed 9bbec2c1; owner steer: no island, the cat fishing from a pier, a foreground catch scene.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
 <div class="wrap">
   <header class="top">
-    <button class="icon-btn" id="help-btn" aria-label="Help">?</button>
+    <button class="icon-btn wood" id="help-btn" aria-label="Help"><i class="sp" id="help-icon"></i></button>
     <div><h1>Good <span>Catch</span></h1><div class="date" id="sub"></div></div>
-    <button class="icon-btn" id="lang"></button>
+    <button class="icon-btn wood" id="lang"></button>
   </header>
-  <div class="say"><i class="sp" id="cat"></i><p id="say" aria-live="polite"></p></div>
-  <div class="board" id="board"></div>
-  <div class="bar" id="bar"><div class="feat" id="feat"></div><button class="btn primary" id="cast"></button></div>
-  <section class="result" id="result" hidden></section>
-  <ol class="log" id="log"></ol>
-  <div class="legend" id="legend"></div>
+  <div class="talk parch"><div class="portrait"><i class="sp" id="cat"></i></div><p id="say" aria-live="polite"></p></div>
+  <div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div></div>
+  <div class="cast wood" id="bar">
+    <div class="feat" id="feat"></div>
+    <div class="row"><div class="left" id="left"></div><button class="btn" id="cast"></button></div>
+  </div>
+  <section class="result parch" id="result" hidden></section>
+  <section class="book parch" id="logbox" hidden><h2 id="log-title"></h2><ol class="log" id="log"></ol></section>
+  <section class="book parch"><h2 id="key-title"></h2><div class="keys" id="legend"></div></section>
 </div>
-<dialog id="help">
+<dialog id="help"><div class="parch">
   <h2 id="help-title"></h2>
   <ol id="help-body"></ol>
-  <form method="dialog"><button class="btn primary" id="got-it"></button></form>
-</dialog>
+  <form method="dialog"><button class="btn" id="got-it"></button></form>
+</div></dialog>
+<dialog id="catch"><div class="parch" id="catch-body"></div></dialog>
 <script>
 (function(){
 // @gen-start
-const N=7, BOTTOMS=['areia','coral','pedra','alga'], DIRS=[[-1,0],[0,1],[1,0],[0,-1]];
+const N=7, BOTTOMS=['areia','coral','pedra','alga'];
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const key=(r,c)=>r*100+c;
 const combo=x=>x.b*4+x.d*2+x.l;
 const bites=(x,f)=>(x.b===f.b)+(x.d===f.d)+(x.l===f.l);
 const stars=n=>n<=4?3:n===5?2:1;
+// The beach runs along the bottom edge: a square is shallow from its column's shelf row down to the shore.
+// Shade is the shadow of two clouds, a square's centre inside an ellipse.
 function genSea(date){
   for(let tries=1;;tries++){
     const rng=mulberry(seedFrom(`${date}:pista${tries>1?':'+tries:''}`)), ri=n=>Math.floor(rng()*n);
-    const r0=1+ri(4), c0=1+ri(4), sun=ri(4), [sr,sc]=DIRS[sun];
+    const shelf=[];let sh=3+ri(3);for(let c=0;c<N;c++){shelf.push(sh);sh=Math.min(5,Math.max(3,sh+ri(3)-1))}
+    const clouds=Array.from({length:2},()=>({r:rng()*N,c:rng()*N,rr:1.2+rng()*1.3,rc:1.5+rng()*1.5}));
     const pts=Array.from({length:6},(_,i)=>({r:rng()*N,c:rng()*N,b:i<4?i:ri(4)}));
     const grid=[];
     for(let r=0;r<N;r++){grid.push([]);for(let c=0;c<N;c++){
-      if(r>=r0&&r<=r0+1&&c>=c0&&c<=c0+1){grid[r].push({island:true});continue}
-      const dr=Math.max(r0-r,0,r-r0-1), dc=Math.max(c0-c,0,c-c0-1);
-      // Shade: behind the island, away from the sun, widening one square every two.
-      const along=sr?(sr<0?r-(r0+1):r0-r):(sc>0?c0-c:c-(c0+1)), across=sr?dc:dr;
       let b=0,bd=1e9;for(const p of pts){const q=(p.r-r-.5)**2+(p.c-c-.5)**2;if(q<bd){bd=q;b=p.b}}
-      grid[r].push({b,d:Math.max(dr,dc)<=2?0:1,l:along>0&&across<=Math.floor(along/2)?1:0});
+      const l=clouds.some(k=>((r+.5-k.r)/k.rr)**2+((c+.5-k.c)/k.rc)**2<=1)?1:0;
+      grid[r].push({b,d:r>=shelf[c]?0:1,l});
     }}
-    const present=[...new Set(grid.flat().filter(x=>!x.island).map(combo))].sort((x,y)=>x-y);
-    if(present.length===12){const f=present[ri(12)];return {grid,sun,fish:{b:f>>2,d:(f>>1)&1,l:f&1},present,tries}}
+    const present=[...new Set(grid.flat().map(combo))].sort((x,y)=>x-y);
+    if(present.length===12){const f=present[ri(12)];return {grid,shelf,clouds,fish:{b:f>>2,d:(f>>1)&1,l:f&1},present,tries}}
   }
 }
 // @gen-end
 
-const PAL={o:'#E0703A',O:'#B24E22',e:'#0A1F2B',w:'#EDEAE0',r:'#D8553A',m:'#6B4A2E',n:'#F39A36',N:'#C8741F',y:'#E9C25A',Y:'#C9962E'};
-const SPRITES={
+const K='#2E1A0C';
+const P={o:'#E0703A',O:'#B24E22',l:'#F4A56A',p:'#F2A0A8',w:'#F4EFE6',W:'#FFFFFF',e:'#0A1F2B',y:'#F2C84B',Y:'#C9962E',h:'#FFF1A8',
+  r:'#D8553A',R:'#A33A28',m:'#6B4220',n:'#F39A36',N:'#C8741F',q:'#D9C597',u:'#9C7F4A',c:'#FFF1D0'};
+const M={
   boatcat:["......rr....","......mrr...","......ww....","o...o.www...","ooooo.wwww..","oeoeo.wwwww.","ooOoo.wwwwww",".ooo..m.....","nnnnnnnnnnnn","nNNNNNNNNNNn",".nnnnnnnnnn.","............"],
-  dourada:["............","....yyyy....","...yyyyyy...","y.yyyyyyyy..","yyyYyyyyyey.","yyyYyyyyyyyy","yyyYyyyyyyy.","y.yyyyyyyy..","...yyyyyy...","....yyyy....","............","............"],
+  catBack:["..o........o..",".opo......opo.",".oppooooooppo.",".oooooooooooo.","ooOOooooooOOoo","oooooooooooooo",".oooooooooooo.","..oooooooooo..",".oooooooooooo.","ooOoooooooooOo","oooooooooooooo","ooOOooooooOOoo",".oooooooooooo.o","..oooooooooo.oo"],
+  fish:["...yyyy.....",".yyhhyyy..Y.","yweyyyyyyYY.","yyyyyyyyyYYY","ryyyyyyyyYY.",".yyyyyyy..Y.","...yYYy....."],
+  fishBig:["..........yyyyy...........",".......yyyyhhhyyy.........",".....yyyhhhhyyyyyyy....YY.","...yyyyyyyyyyyyyyyyy..YYY.","..yywyyyyyYyyyYyyyyyYYYY..",".yyekyyyyyYyyyYyyyyyYYY...","yyyyyyyyyyYyyyYyyyyyyYY...",".yrryyyyyyYyyyYyyyyyYYY...","..yyyyyyyyYyyyYyyyyYYYY...","...yyyyyyyyyyyyyyyyy..YYY.",".....YYyyyyyyyyyyy....YY..",".......YYYYyyyYYY.........","..........YYYYY..........."],
+  tail:["YY......YY","YYY....YYY",".YYY..YYY.","..YYYYYY..","...yyyy...","...yyyy...","..yyyyyy.."],
+  bobber:["...mm...","...mm...","..rrrr..",".rrWrrr.",".rrrrRr.",".wwwwww.",".wwwwwq.","..wwqq..","...mm..."],
+  star:[".....yy.....","....yhhy....","....yhhy....","yyyyyhhyyyyy",".yyyyhhyyyy.","..yyyyyyyy..","...yyyyyy...","..yyyyyyyy..","..yyyYYyyy..",".yyYY..YYyy.",".yY......Yy."],
+  help:["..cccccc..",".cccccccc.",".ccc..ccc.","......ccc.",".....ccc..","....ccc...","....cc....","....cc....","..........","....cc....","....cc...."],
 };
-function spriteURL(map){
-  const cv=document.createElement('canvas'); cv.width=14; cv.height=14; const x=cv.getContext('2d');
-  const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
-  for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
-    if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(c+1,r+1,1,1)}
-    else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(c+1,r+1,1,1)}
-  }
-  return cv.toDataURL();
+M.starOff=M.star.map(r=>r.replace(/[yh]/g,'q').replace(/Y/g,'u'));
+const canvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+const dot=(x,c,a,b,w=1,h=1)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
+const hash=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
+const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+function drawMap(x,map,X,Y,flipX=false){
+  const h=map.length,w=Math.max(...map.map(r=>r.length));
+  const at=(r,c)=>{const ch=map[r]?.[flipX?w-1-c:c];return ch&&ch!=='.'?ch:null};
+  for(let r=-1;r<=h;r++)for(let c=-1;c<=w;c++)if(!at(r,c)&&(at(r-1,c)||at(r+1,c)||at(r,c-1)||at(r,c+1)))dot(x,K,X+c,Y+r);
+  for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,P[ch],X+c,Y+r)}
 }
-const SPRITE_URL=Object.fromEntries(Object.entries(SPRITES).map(([k,m])=>[k,spriteURL(m)]));
-const sprite=k=>`<i class="sp" style="background-image:url(${SPRITE_URL[k]})"></i>`;
+const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
+const URLS=Object.fromEntries(['boatcat','fish','bobber','star','starOff','help'].map(k=>[k,mapURL(M[k])]));
+const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
 
-// One 14px tile. Shade is drawn under the bottom so the bottom stays readable in both lights.
-function drawCell(x,px,py,cell){
-  const f=(col,a,b,w=1,h=1)=>{x.fillStyle=col;x.fillRect(px+a,py+b,w,h)};
-  if(cell.island){f('#9EDFE4',0,0,14,14);return}
-  f(cell.d?'#4E9DBE':'#9EDFE4',0,0,14,14);
-  if(cell.l===1){f('rgba(16,50,74,.2)',0,0,14,14);for(let i=0;i<14;i++)for(let j=0;j<14;j++)if((i+j)%5===0)f('rgba(16,50,74,.38)',i,j)}
-  if(cell.l===0){f('#FFFFFF',1,2,2,1);f('#FFFFFF',3,1,2,1);f('#FFFFFF',10,12,2,1);f('#FFFFFF',12,11)}
-  if(cell.b===0)for(const[a,b]of[[2,10],[6,11],[10,8],[3,4],[9,3]]){f('#FFF3D0',a,b,3,1);f('#C9962E',a,b+1,3,1)}
-  if(cell.b===1){f('#E86A4A',6,5,1,7);f('#E86A4A',4,7,2,1);f('#E86A4A',3,5,1,2);f('#E86A4A',8,6,2,1);f('#E86A4A',9,4,1,2);f('#B8466A',5,12,3,1)}
-  if(cell.b===2){f('#8C969B',2,8,4,3);f('#57636A',2,10,4,1);f('#8C969B',8,4,4,3);f('#57636A',8,6,4,1)}
-  if(cell.b===3)for(const a of[4,9])for(let b=3;b<13;b++)f('#2F6B2A',a+((b>>1)&1),b);
+// Pixel 9-slice frames for the UI: planks with nails, parchment, gold buttons. Corner pixel left empty for a stepped corner.
+function nine(kind){
+  const n=kind==='gold'||kind==='dull'?12:kind==='tag'?8:16, cv=canvas(n,n), x=cv.getContext('2d'), f=(c,a,b,w=1,h=1)=>dot(x,c,a,b,w,h);
+  f({wood:'#8B5A2B',parch:'#F6E7C1',tag:'#F6E7C1',gold:'#F2B33D',dull:'#A08E6C'}[kind],1,1,n-2,n-2);
+  if(kind==='wood'){
+    for(let y=1;y<n-1;y++){if((y-1)%5===4)f('#5E3A1A',1,y,n-2,1);else for(let i=1;i<n-1;i++)if(hash(i,y*3)>.84)f('#7A4A22',i,y)}
+    f('#B97A45',2,1,n-4,1);f('#B97A45',1,2,1,n-4);f('#5E3A1A',2,n-2,n-4,1);f('#5E3A1A',n-2,2,1,n-4);
+    for(const[a,b]of[[3,3],[n-4,3],[3,n-4],[n-4,n-4]]){f('#E8D9B0',a,b);f('#5E3A1A',a,b+1)}
+  }
+  if(kind==='parch'||kind==='tag'){
+    for(let y=2;y<n-2;y++)for(let i=2;i<n-2;i++)if(hash(i*7,y)>.9)f('#EEDBAE',i,y);
+    f('#E0C58B',1,1,n-2,1);f('#E0C58B',1,n-2,n-2,1);f('#E0C58B',1,1,1,n-2);f('#E0C58B',n-2,1,1,n-2);
+  }
+  if(kind==='gold'||kind==='dull'){const hi=kind==='gold'?'#FFD97A':'#BCAB88',lo=kind==='gold'?'#B97A1F':'#7C6B4E';f(hi,1,1,n-2,2);f(hi,1,1,1,n-3);f(lo,1,n-3,n-2,2)}
+  f(K,1,0,n-2,1);f(K,1,n-1,n-2,1);f(K,0,1,1,n-2);f(K,n-1,1,1,n-2);f(K,1,1);f(K,n-2,1);f(K,1,n-2);f(K,n-2,n-2);
+  return `url(${cv.toDataURL()})`;
 }
-// The 2x2 island as one 28px piece: a rounded beach with foam round it and a single palm.
-function drawIsland(x,X,Y){
-  const p=(col,a,b,w=1,h=1)=>{x.fillStyle=col;x.fillRect(X+a,Y+b,w,h)};
-  p('#C4EEF1',1,-2,26,32);p('#C4EEF1',-2,1,32,26);p('#C4EEF1',-1,-1,30,30);
-  for(const[a,b]of[[4,-2],[13,-2],[22,-2],[29,6],[29,17],[8,29],[19,29],[-2,10],[-2,21]])p('#FFFFFF',a,b,2,1);
-  p('#E8C77E',3,0,22,28);p('#E8C77E',0,3,28,22);p('#E8C77E',1,1,26,26);
-  p('#D1AE62',3,27,22,1);p('#D1AE62',27,3,1,22);p('#D1AE62',26,25,1,2);p('#D1AE62',25,26,2,1);
-  p('#F3DFA8',3,0,22,1);p('#F3DFA8',0,3,1,22);
-  for(const[a,b]of[[5,6],[21,9],[7,20],[23,17],[4,14]])p('#C9962E',a,b);
-  p('#D1AE62',12,23,9,2);p('#D1AE62',14,25,5,1);
-  p('#8C969B',20,18,4,3);p('#57636A',20,20,4,1);p('#B7C0C4',21,18,2,1);
-  for(const[a,b]of[[15,23],[15,22],[14,21],[14,20],[14,19],[13,18],[13,17],[13,16],[13,15],[12,14],[12,13],[12,12],[12,11]]){p('#6B4A2E',a,b,2,1);p('#4A3320',a+1,b)}
-  const frond=(dx,dy,droop)=>{for(let t=1;t<=8;t++){const a=13+Math.round(dx*t/8),b=10+Math.round(dy*t/8+droop*(t/8)**2);p(t<4?'#6E9B4A':'#3F6B33',a,b,2,2)}};
-  frond(-9,-1,5);frond(9,-1,5);frond(-7,-6,3);frond(7,-6,3);frond(0,-8,1);
-  p('#6B4A2E',11,11,2,2);p('#6B4A2E',14,11,2,2);
+for(const k of ['wood','parch','tag','gold','dull'])document.documentElement.style.setProperty(`--${k}9`,nine(k));
+{const cv=canvas(32,32),x=cv.getContext('2d');for(let i=0;i<7;i++){const a=Math.floor(hash(i,1)*26),b=1+Math.floor(hash(1,i)*30);dot(x,'rgba(140,220,228,.13)',a,b,4,1);dot(x,'rgba(140,220,228,.13)',a+4,b-1,2,1)}
+  document.documentElement.style.setProperty('--sea-tile',`url(${cv.toDataURL()})`)}
+
+// ---------- the lagoon: 24px a square, beach and pier below ----------
+const S=24, GW=N*S, BEACH=44, GH=GW+BEACH, CX=GW/2;
+// Seabed textures use page coordinates, so a patch of one bottom reads as one field across squares.
+const GROUND=[
+  (x,y,h)=>(y+Math.round(Math.sin(x*.38)*1.6))%6===0?'#D8BA7C':h>.95?'#C7A468':h<.04?'#FBEDC6':'#EBD39D',
+  (x,y,h)=>h>.9?'#C9A870':h<.06?'#F2E0B4':'#E0C48D',
+  (x,y,h)=>h>.8?'#8A8470':h<.12?'#CABFA2':'#ADA487',
+  (x,y,h)=>(x*3+y)%9===0&&h>.4?'#2C5A40':h>.9?'#28523A':h<.08?'#5E8E64':'#3F6E4E',
+];
+function star5(x,a,b){const c='#F08A5C';dot(x,c,a,b-3,1,7);dot(x,c,a-3,b-1,7,1);dot(x,c,a-1,b-1,3,3);dot(x,c,a-2,b+1,2,1);dot(x,c,a+1,b+1,2,1);dot(x,c,a-3,b+2);dot(x,c,a+3,b+2);dot(x,'#FFB38A',a,b)}
+function branch(x,a,b,r){const[c,h]=[['#FF7A6B','#FFB0A3'],['#FF9D4D','#FFD08A'],['#E0609A','#FF9CC8']][Math.floor(r()*3)];
+  dot(x,'rgba(40,30,20,.3)',a-3,b+1,7,1);dot(x,c,a,b-7,1,8);dot(x,c,a-2,b-5,1,4);dot(x,c,a-3,b-7,1,3);dot(x,c,a+2,b-6,1,4);dot(x,c,a+3,b-8,1,3);dot(x,c,a-2,b-2,5,1);
+  dot(x,h,a,b-7);dot(x,h,a-3,b-7);dot(x,h,a+3,b-8);dot(x,h,a-2,b-5)}
+function brain(x,a,b){dot(x,'rgba(40,30,20,.3)',a-3,b+1,8,1);dot(x,'#E8A05A',a-3,b-3,7,4);dot(x,'#E8A05A',a-2,b-4,5,1);dot(x,'#C07A3A',a-2,b-2,1,2);dot(x,'#C07A3A',a,b-3,1,2);dot(x,'#C07A3A',a+2,b-2,1,2);dot(x,'#FFC98A',a-1,b-4,2,1)}
+function fan(x,a,b){for(let i=0;i<6;i++)for(let j=0;j<5;j++)if((i+j)%2===0||j===4)dot(x,j===4?'#8E4FB0':'#B86BD8',a-3+i,b-7+j);dot(x,'#E0A8F5',a-2,b-7,4,1);dot(x,'#8E4FB0',a,b-2,1,3)}
+function anemone(x,a,b){dot(x,'#C8457A',a-2,b-1,5,2);for(const t of[-2,-1,0,1,2]){dot(x,'#FF9CC8',a+t,b-3-Math.abs(t)%2,1,2);dot(x,'#FFD1E6',a+t,b-4-Math.abs(t)%2)}}
+function boulder(x,a,b,w,h){dot(x,'rgba(30,30,20,.35)',a+1,b+h,w,1);dot(x,'#7D8993',a,b+1,w,h-1);dot(x,'#7D8993',a+1,b,w-2,h+1);dot(x,'#B9C4CB',a+1,b,w-3,1);dot(x,'#A3AEB6',a,b+1,1,2);dot(x,'#56606A',a+1,b+h,w-2,1);dot(x,'#56606A',a+w-1,b+2,1,h-2);if(w>6)dot(x,'#6A7580',a+2,b+2,2,1)}
+function urchin(x,a,b){dot(x,'#3A2D4A',a-1,b-1,3,3);for(const[i,j]of[[-2,0],[2,0],[0,-2],[0,2],[-2,-2],[2,2],[2,-2],[-2,2]])dot(x,'#241A33',a+i,b+j)}
+const FEATURE=[
+  (x,X,Y,r)=>{
+    if(r()<.5)star5(x,X+5+Math.floor(r()*14),Y+5+Math.floor(r()*14));
+    if(r()<.4){const a=X+4+Math.floor(r()*15),b=Y+4+Math.floor(r()*15);dot(x,'#F7EACB',a-1,b-2,3,5);dot(x,'#F7EACB',a-2,b-1,5,3);dot(x,'#D9C08E',a,b);dot(x,'#D9C08E',a-1,b+1);dot(x,'#D9C08E',a+1,b+1)}
+    for(let k=0;k<3;k++)dot(x,'#FFF8E4',X+1+Math.floor(r()*21),Y+1+Math.floor(r()*21),2,1);
+  },
+  (x,X,Y,r)=>{const kinds=[branch,brain,fan,anemone];for(let k=0;k<4;k++)kinds[Math.floor(r()*4)](x,X+3+Math.floor(r()*17),Y+8+Math.floor(r()*14),r)},
+  (x,X,Y,r)=>{
+    for(let k=0;k<3;k++){const w=6+Math.floor(r()*4),h=4+Math.floor(r()*3);boulder(x,X+1+Math.floor(r()*(22-w)),Y+1+Math.floor(r()*(21-h)),w,h)}
+    if(r()<.35)urchin(x,X+4+Math.floor(r()*16),Y+4+Math.floor(r()*16));
+  },
+  (x,X,Y,r,f)=>{
+    for(let k=0;k<4;k++){const a=X+2+Math.floor(r()*20),top=Y+1+Math.floor(r()*6),ph=r()*6;
+      for(let b=Y+23;b>=top;b--){const s=Math.round(Math.sin((b+ph)*.45+f*1.3)*1.4);dot(x,'#3F9A5E',a+s,b);
+        if((b+k)%4===0){dot(x,'#7CCB7F',a+s+1,b,2,1);dot(x,'#7CCB7F',a+s-2,b+1,2,1)}if((b+k)%7===0)dot(x,'#C9B458',a+s,b)}
+      dot(x,'#9BE39B',a+Math.round(Math.sin((top+ph)*.45+f*1.3)*1.4),top)}
+  },
+];
+const differs=(g,r,c,rr,cc,k)=>{const n=g[rr]?.[cc];return !!n&&n[k]!==g[r][c][k]};
+function paintSeabed(grid,f){
+  const R=grid.length,C=grid[0].length,w=C*S,h=R*S,cv=canvas(w,h),x=cv.getContext('2d'),img=x.createImageData(w,h),d=img.data;
+  // Clear water eats red first: the floor reads as lagoon turquoise while what grows on it keeps its colour.
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const r=py/S|0,c=px/S|0,ix=px%S,iy=py%S;let b=grid[r][c].b??0;
+    if((px+py)&1){
+      if(ix===0&&differs(grid,r,c,r,c-1,'b'))b=grid[r][c-1].b;else if(ix===S-1&&differs(grid,r,c,r,c+1,'b'))b=grid[r][c+1].b;
+      else if(iy===0&&differs(grid,r,c,r-1,c,'b'))b=grid[r-1][c].b;else if(iy===S-1&&differs(grid,r,c,r+1,c,'b'))b=grid[r+1][c].b;
+    }
+    const[a,g,bl]=rgb(GROUND[b](px,py,hash(px,py))),i=(py*w+px)*4;
+    d[i]=a*.4;d[i+1]=g*.88+14;d[i+2]=bl*.9+62;d[i+3]=255;
+  }
+  x.putImageData(img,0,0);
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{if(cell.b===undefined)return;x.save();x.beginPath();x.rect(c*S,r*S,S,S);x.clip();FEATURE[cell.b](x,c*S,r*S,mulberry(r*31+c*7+cell.b*101+1),f);x.restore()}));
+  const lit=x.getImageData(0,0,w,h),L=lit.data;
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const r=py/S|0,c=px/S|0,cell=grid[r][c],ix=px%S,iy=py%S,i=(py*w+px)*4;
+    if(cell.d){L[i]*=.34;L[i+1]=L[i+1]*.56+8;L[i+2]=L[i+2]*.76+34}
+    if(cell.l===1){
+      const eL=differs(grid,r,c,r,c-1,'l'),eR=differs(grid,r,c,r,c+1,'l'),eT=differs(grid,r,c,r-1,c,'l'),eB=differs(grid,r,c,r+1,c,'l');
+      const edge=Math.min(eL?ix:99,eR?S-1-ix:99,eT?iy:99,eB?S-1-iy:99);
+      const round=(cx,cy)=>(ix-cx)**2+(iy-cy)**2>36;
+      const corner=(eL&&eT&&ix<6&&iy<6&&round(6,6))||(eR&&eT&&ix>S-7&&iy<6&&round(S-7,6))||(eL&&eB&&ix<6&&iy>S-7&&round(6,S-7))||(eR&&eB&&ix>S-7&&iy>S-7&&round(S-7,S-7));
+      // Cloud shadow: a dithered penumbra and rounded corners, kept inside its squares so every centre reads.
+      if((edge<2||corner)&&(px+py)&1) continue;
+      L[i]*=.52;L[i+1]*=.58;L[i+2]=L[i+2]*.66+6;
+    }
+  }
+  x.putImageData(lit,0,0);
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{
+    if(cell.d)return;const X=c*S,Y=r*S,up=grid[r-1]?.[c],lf=row[c-1],rt=row[c+1];
+    if(up&&up.d){for(let i=0;i<S;i++){if(i%2===0)dot(x,'rgba(200,255,244,.75)',X+i,Y);dot(x,'rgba(160,242,228,.35)',X+i,Y+1);for(let j=1;j<=3;j++)if(j===1||(i+j)%2===0)dot(x,'rgba(4,20,40,.38)',X+i,Y-j)}}
+    if(lf&&lf.d)for(let j=0;j<S;j++){if(j%2===0)dot(x,'rgba(200,255,244,.6)',X,Y+j);for(let i=1;i<=2;i++)if((i+j)%2===0)dot(x,'rgba(4,20,40,.32)',X-i,Y+j)}
+    if(rt&&rt.d)for(let j=0;j<S;j++){if(j%2===0)dot(x,'rgba(200,255,244,.6)',X+S-1,Y+j);for(let i=1;i<=2;i++)if((i+j)%2===0)dot(x,'rgba(4,20,40,.32)',X+S-1+i,Y+j)}
+  }));
+  return cv;
 }
-function tileURL(cell){const cv=document.createElement('canvas');cv.width=cv.height=14;drawCell(cv.getContext('2d'),0,0,cell);return cv.toDataURL()}
-function seaURL(sea){
-  const cv=document.createElement('canvas'); cv.width=cv.height=N*14; const x=cv.getContext('2d');
-  sea.grid.forEach((row,r)=>row.forEach((cell,c)=>drawCell(x,c*14,r*14,cell)));
-  x.fillStyle='rgba(16,50,74,.14)';for(let i=1;i<N;i++){x.fillRect(i*14,0,1,N*14);x.fillRect(0,i*14,N*14,1)}
-  const top=sea.grid.flat().findIndex(cell=>cell.island);
-  drawIsland(x,top%N*14,Math.floor(top/N)*14);
-  return cv.toDataURL();
+// Light only dances where the sun reaches: a caustic net over sunny squares, none under cloud shadow.
+function lightUp(img,grid,t){
+  const d=img.data,w=img.width,h=img.height;
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const cell=grid[py/S|0][px/S|0];if(cell.l!==0)continue;
+    const a=px*.2+Math.sin(py*.15+t*.9)*1.8,b=py*.2+Math.sin(px*.17-t*.7)*1.8,m=Math.min(Math.abs(Math.sin(a)),Math.abs(Math.sin(b)));
+    const k=(m<.06?1:m<.13?.35:0)*(cell.d?.16:.42);if(!k)continue;
+    const i=(py*w+px)*4;d[i]+=(255-d[i])*k;d[i+1]+=(250-d[i+1])*k;d[i+2]+=(215-d[i+2])*k;
+  }
+}
+function surface(x,grid,t){
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{
+    const X=c*S,Y=r*S;
+    if(cell.d)for(let k=0;k<2;k++){const a=X+Math.floor((hash(r,c+k)*S+t*.7+k*11)%S),b=Y+5+k*11;if(a<X+S-4)dot(x,'rgba(220,245,255,.16)',a,b,4,1)}
+    if(cell.l===0){const ph=(t+Math.floor(hash(r,c)*14))%14;if(ph<6){const al=[.35,.8,1,.8,.45,.2][ph],a=X+3+Math.floor(hash(c,r+(t>>4))*17),b=Y+3+Math.floor(hash(r+9,c)*17);dot(x,`rgba(255,255,255,${al})`,a,b,3,1);dot(x,`rgba(255,255,255,${al*.6})`,a+1,b-1)}}
+  }));
+  for(let i=0;i<2;i++){
+    const tt=t*.02+i*3.1,fx=Math.round((Math.sin(tt*.7+i)*.42+.5)*GW),fy=Math.round((Math.cos(tt*.5+i*2)*.4+.46)*GW),dir=Math.cos(tt*.7+i)>0?1:-1;
+    dot(x,'rgba(4,22,40,.26)',fx-3,fy,7,2);dot(x,'rgba(4,22,40,.26)',fx-2,fy-1,5,1);dot(x,'rgba(4,22,40,.26)',fx-2,fy+2,5,1);dot(x,'rgba(4,22,40,.22)',fx-dir*5,fy-1,1,4);
+  }
+  for(let i=1;i<N;i++)for(let j=1;j<N;j++)dot(x,'rgba(255,255,255,.34)',i*S,j*S);
+}
+const ROD={x:CX+17,y:GW-18}, GRIP={x:CX+5,y:GW+10};
+function beach(x,t){
+  for(let px=0;px<GW;px++){
+    const fo=2+Math.round(Math.sin(px*.35+t*.5)*1.2+Math.sin(px*.13-t*.3));
+    for(let j=0;j<BEACH;j++){
+      const c=j<fo?((px+j+t)%3?'#F4FBFF':'#D8F4F4'):j<fo+2?'#9ED9D0':j<fo+7?(hash(px,j)>.9?'#E4C58A':'#C9A56A'):(hash(px,j+99)>.93?'#D8BA7C':hash(px,j)<.03?'#FFF6E0':'#E9CF96');
+      dot(x,c,px,GW+j);
+    }
+  }
+  const L=CX-10;
+  for(let j=0;j<BEACH;j++)dot(x,j%4===3?'#5E3A1A':j%4===0?'#B98553':'#9A6A3C',L,GW+j,20,1);
+  dot(x,'#5E3A1A',L,GW,1,BEACH);dot(x,'#5E3A1A',L+19,GW,1,BEACH);
+  dot(x,'#4A2E14',L-1,GW-3,3,5);dot(x,'#4A2E14',L+18,GW-3,3,5);
+  for(let j=0;j<BEACH;j+=8){dot(x,'#E8D9B0',L+2,GW+j+1);dot(x,'#E8D9B0',L+17,GW+j+1)}
+  drawMap(x,M.catBack,CX-7,GW+4);
+  const n=Math.max(Math.abs(ROD.x-GRIP.x),Math.abs(ROD.y-GRIP.y));
+  for(let i=0;i<=n;i++)dot(x,i<n*.5?'#6B4220':'#8B5A2B',Math.round(GRIP.x+(ROD.x-GRIP.x)*i/n),Math.round(GRIP.y+(ROD.y-GRIP.y)*i/n));
+  dot(x,'#8C969B',GRIP.x+2,GRIP.y-3,2,2);dot(x,P.o,GRIP.x-1,GRIP.y,2,2);
+}
+const centre=k=>({x:(k%100)*S+12,y:Math.floor(k/100)*S+12});
+function lineTo(x,to,p){
+  const cx=(ROD.x+to.x)/2,cy=Math.min(ROD.y,to.y)-30,n=90;
+  for(let i=0;i<=n*p;i++){const s=i/n,a=(1-s)**2*ROD.x+2*(1-s)*s*cx+s*s*to.x,b=(1-s)**2*ROD.y+2*(1-s)*s*cy+s*s*to.y;dot(x,'rgba(255,246,222,.9)',Math.round(a),Math.round(b))}
+}
+function ring(x,at,rad,al){for(let a=0;a<64;a++){const t=a/64*Math.PI*2;dot(x,`rgba(232,255,255,${al})`,Math.round(at.x+Math.cos(t)*rad),Math.round(at.y+Math.sin(t)*rad*.7))}}
+function splash(x,at,age){for(let i=0;i<12;i++){const s=age/1000,vx=(hash(i,3)-.5)*40,vy=-40-hash(3,i)*40,px=at.x+vx*s,py=at.y+vy*s+90*s*s;if(py<at.y+2)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,i%4?1:2)}}
+
+// ---------- the catch scene, 80x64, drawn in the foreground when the game ends ----------
+function cloud(x,a,b,c1,c2){dot(x,c1,a+2,b,6,1);dot(x,c1,a,b+1,10,2);dot(x,c2,a+1,b+3,8,1)}
+function scene(x,won,fi,t){
+  const HZ=36;
+  const sky=won?['#5CC8E6','#78D4EA','#96DFEE','#B4EAF2','#D2F4F5']:['#6F8799','#8198A8','#93A9B7','#A6B9C5','#B9C9D3'];
+  for(let y=0;y<HZ;y++)dot(x,sky[Math.min(4,Math.floor(y/HZ*5))],0,y,80,1);
+  if(won)for(let y=0;y<HZ;y++)for(let i=0;i<80;i++){const a=Math.atan2(y-22,i-40)+t*.02;if(Math.floor((a+Math.PI)*14/Math.PI)%2===0)dot(x,'rgba(255,246,200,.3)',i,y)}
+  cloud(x,6,6,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');cloud(x,60,11,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');
+  const sea=won?['#3FC1C0','#2FA9B5','#2391A6','#1B7A96','#15658A']:['#4E8F9A','#3F7E8C','#336E7E','#285E70','#1F4F62'];
+  for(let y=HZ;y<64;y++)dot(x,sea[Math.min(4,Math.floor((y-HZ)/28*5))],0,y,80,1);
+  dot(x,won?'#E8FAFA':'#C9D6DC',0,HZ,80,1);
+  for(let i=0;i<9;i++)dot(x,'rgba(255,255,255,.45)',(i*17+t)%84-3,HZ+4+(i*7)%20,3,1);
+  for(let y=50;y<64;y++){const w=Math.round(10+(y-50)*1.3);dot(x,y%3===2?'#5E3A1A':'#9A6A3C',40-w/2|0,y,w,1)}
+  drawMap(x,M.catBack,33,40);
+  const tip=won?{x:60,y:16}:{x:58,y:12};
+  const n=30;for(let i=0;i<=n;i++){const s=i/n,cxp=won?60:46,cyp=won?34:24,a=(1-s)**2*44+2*(1-s)*s*cxp+s*s*tip.x,b=(1-s)**2*46+2*(1-s)*s*cyp+s*s*tip.y;dot(x,s<.5?'#6B4220':'#8B5A2B',Math.round(a),Math.round(b))}
+  if(won){
+    const p=Math.min(1,fi/16),e=1-(1-p)**3,fy=Math.round(HZ-4-e*26+(fi>16?((t>>2)&1):0)),fx=27;
+    for(let i=0;i<=40;i++){const s=i/40;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+24-tip.x)*s),Math.round(tip.y+(fy+7-tip.y)*s+Math.sin(s*Math.PI)*2))}
+    if(fi<26)for(let i=0;i<14;i++){const s=fi/12,vx=(hash(i,5)-.5)*30,vy=-24-hash(5,i)*26,px=40+vx*s,py=HZ+vy*s+34*s*s;if(py<HZ+1)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,1)}
+    if(fi<10)ring(x,{x:40,y:HZ+1},3+fi*1.4,1-fi/10);
+    drawMap(x,M.fishBig,fx,fy,true);
+    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0)dot(x,'#FFFFFF',[22,56,30,50][i],[fy-2,fy+2,fy+15,fy-4][i]);
+  }else{
+    for(let i=0;i<=12;i++)dot(x,'rgba(255,246,222,.9)',tip.x+Math.round(Math.sin(i*.6+t*.3)),tip.y+i);
+    const dive=Math.min(1,fi/14);drawMap(x,M.tail,62,Math.round(HZ-8+dive*6));
+    dot(x,sea[0],58,HZ+1,18,Math.round(dive*5)+1);
+    ring(x,{x:67,y:HZ+2},4+((fi>>1)%8),.8-((fi>>1)%8)/10);
+  }
 }
 
 const EPOCH='2026-09-25';
@@ -192,30 +386,32 @@ const STR={
   en:{sub:'Pista #{n} · {d}',lang:'PT',help:'Help',
     help_title:'How to play',
     help1:'Today’s fish likes one bottom, one depth and one light.',
-    help2:'Tap a square, then Cast. 🐟 counts how many of those three the square has, never which.',
-    help3:'Three 🐟 catches it. You have 6 casts, the same sea for everyone.',
+    help2:'Tap a square to read it, then Cast. The number is how many of the three the square has, never which.',
+    help3:'Three catches it. You have 6 casts, and everyone fishes the same sea.',
     got_it:'Got it',
     b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
-    intro:'Today’s fish has 3 habits: a bottom, a depth and a light. Each cast tells how many a square has.',
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
-    pick:'Tap a square',cast:'Cast ({n} left)',
-    bite0:'Nothing. None of its habits here.',bite1:'1 habit matches.',bite2:'2 habits match. Close!',
-    caught:'Caught it in {n}!',lost:'It got away. Its habits: {h}.',
-    won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',
+    intro:'Today’s fish has 3 habits: a bottom, a depth and a light. Each cast tells me how many a square has.',
+    pick:'Tap a square in the water',cast:'Cast',left:'{n} casts left',
+    bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
+    caught:'Caught it in {n}! What a fish.',lost:'It got away. It liked {h}.',
+    won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
+    log_title:'Fishing log',key_title:'Reading the water',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'Pista #{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
     help1:'O peixe de hoje gosta de um chão, uma profundidade e uma luz.',
-    help2:'Toque uma casa e depois Lançar. 🐟 conta quantas dessas três a casa tem, nunca quais.',
-    help3:'Três 🐟 pescam o peixe. São 6 lances, o mesmo mar para todo mundo.',
+    help2:'Toque uma casa para ler, depois Lançar. O número diz quantas das três a casa tem, nunca quais.',
+    help3:'Com as três, pescou. São 6 lances, e todo mundo pesca no mesmo mar.',
     got_it:'Entendi',
     b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
-    intro:'O peixe de hoje tem 3 manias: um chão, uma profundidade e uma luz. Cada lance diz quantas a casa tem.',
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
-    pick:'Toque uma casa',cast:'Lançar ({n})',
-    bite0:'Nada. Nenhuma mania aqui.',bite1:'1 mania bate.',bite2:'2 manias batem. Perto!',
-    caught:'Pescou em {n}!',lost:'Escapou. As manias eram: {h}.',
-    won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',
+    intro:'O peixe de hoje tem 3 manias: um chão, uma profundidade e uma luz. Cada lance me diz quantas a casa tem.',
+    pick:'Toque uma casa na água',cast:'Lançar',left:'{n} lances restantes',
+    bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
+    caught:'Pescou em {n}! Que peixe.',lost:'Escapou. Ele gostava de {h}.',
+    won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
+    log_title:'Diário de pesca',key_title:'Lendo a água',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -227,26 +423,78 @@ function track(path,event){
   try{new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent(event?path:document.title)}${event?'&e=true':`&r=${encodeURIComponent(document.referrer)}&s=${screen.width},${screen.height},${devicePixelRatio}`}&rnd=${Math.random()}`}catch(e){}
 }
 
-const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`;
+const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`, LAND=520;
 const cellAt=k=>{const r=Math.floor(k/100),c=k%100;return Number.isInteger(k)&&r>=0&&r<N&&c>=0&&c<N?SEA.grid[r][c]:null};
 const bitesAt=k=>bites(cellAt(k),SEA.fish);
 const caught=()=>casts.some(k=>bitesAt(k)===3);
 const over=()=>caught()||casts.length>=MAX;
 const feats=x=>[t('b'+x.b),t('d'+x.d),t('l'+x.l)];
 const fishes=n=>'🐟'.repeat(n)+'⬜'.repeat(3-n);
-const pips=n=>`<span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(i=>i<n?sprite('dourada'):'<i class="off"></i>').join('')}</span>`;
-const TILE=Object.fromEntries([[0,1,2,3].map(b=>['b'+b,{b,d:0}]),[['d0',{d:0}],['d1',{d:1}],['l0',{d:0,l:0}],['l1',{d:0,l:1}]]].flat().map(([k,cell])=>[k,tileURL(cell)]));
-const chip=k=>`<span><img alt="" src="${TILE[k]}">${t(k)}</span>`;
 let casts=(()=>{try{
   const out=[];
   for(const k of JSON.parse(localStorage.getItem(REC)||'[]')){
-    const x=cellAt(k); if(!x||x.island||out.includes(k)||out.length>=MAX||out.some(q=>bitesAt(q)===3)) break;
+    const x=cellAt(k); if(!x||out.includes(k)||out.length>=MAX||out.some(q=>bitesAt(q)===3)) break;
     out.push(k);
   }
   return out;
 }catch(e){return []}})();
-let sel=null;
+let sel=null, anim=null, sceneAt=0;
 const $=id=>document.getElementById(id);
+const fishCells=()=>SEA.grid.flatMap((row,r)=>row.map((x,c)=>combo(x)===combo(SEA.fish)?key(r,c):null)).filter(k=>k!==null);
+
+const bases=[0,1].map(f=>paintSeabed(SEA.grid,f).getContext('2d').getImageData(0,0,GW,GW));
+const work=canvas(GW,GH), wx=work.getContext('2d'), view=$('sea'), vx=view.getContext('2d');
+let q=-1, lit=null;
+function fit(){
+  const dpr=devicePixelRatio||1, avail=$('seabox').parentElement.clientWidth-20, k=Math.max(1,Math.floor(avail*dpr/GW));
+  view.width=GW*k; view.height=GH*k; view.style.width=GW*k/dpr+'px'; view.style.height=GH*k/dpr+'px';
+  $('board').style.height=GW*k/dpr+'px';
+}
+function drawSea(now){
+  const tk=Math.floor(now/125);
+  if(tk!==q){q=tk;const b=bases[(tk>>3)&1];lit=new ImageData(new Uint8ClampedArray(b.data),GW,GW);lightUp(lit,SEA.grid,tk*.25)}
+  wx.putImageData(lit,0,0); surface(wx,SEA.grid,tk); beach(wx,tk);
+  const done=over(), won=caught();
+  casts.forEach((k,i)=>{
+    if(bitesAt(k)===3||(anim&&anim.k===k&&now-anim.start<LAND)) return;
+    const c=centre(k); drawMap(wx,M.bobber,c.x-4,c.y-6+(((tk>>1)+i)%3===0?1:0));
+  });
+  const lastK=casts.at(-1);
+  if(lastK!==undefined){const p=anim&&anim.k===lastK?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(lastK),p)}
+  if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n===3&&age>=0&&age<1300)splash(wx,c,age)}
+  if(won){const k=casts.find(k=>bitesAt(k)===3),c=centre(k),age=anim&&anim.k===k?now-anim.start-LAND:1e4;
+    if(age>=0){const hop=age<900?Math.round(Math.sin(age/900*Math.PI)*14):0;drawMap(wx,M.fish,c.x-6,c.y-4-hop)}}
+  if(done&&!won)fishCells().forEach(k=>{const c=centre(k);drawMap(wx,M.fish,c.x-6,c.y-4)});
+  vx.imageSmoothingEnabled=false; vx.drawImage(work,0,0,view.width,view.height);
+  document.querySelectorAll('canvas.scene').forEach(cv=>{
+    const sx=cv.getContext('2d'), fi=cv.dataset.live?Math.floor((now-sceneAt)/70):40;
+    const small=cv._s||(cv._s=canvas(80,64)); scene(small.getContext('2d'),caught(),fi,tk);
+    sx.imageSmoothingEnabled=false; sx.drawImage(small,0,0,cv.width,cv.height);
+  });
+}
+function fitScene(cv,avail){const dpr=devicePixelRatio||1,k=Math.max(1,Math.floor(avail*dpr/80));cv.width=80*k;cv.height=64*k;cv.style.width=80*k/dpr+'px';cv.style.height=64*k/dpr+'px'}
+const still=matchMedia('(prefers-reduced-motion: reduce)');
+function loop(now){drawSea(now);if(!still.matches)requestAnimationFrame(loop)}
+
+function tileURL(cell,light){
+  const cv=paintSeabed([[cell]],0),x=cv.getContext('2d');
+  if(light){const img=x.getImageData(0,0,S,S);lightUp(img,[[cell]],2);x.putImageData(img,0,0)}
+  const out=canvas(16,16);out.getContext('2d').drawImage(cv,4,4,16,16,0,0,16,16);return out.toDataURL();
+}
+const TILE={b0:tileURL({b:0,d:0}),b1:tileURL({b:1,d:0}),b2:tileURL({b:2,d:0}),b3:tileURL({b:3,d:0}),
+  d0:tileURL({d:0}),d1:tileURL({d:1}),l0:tileURL({d:0,l:0},true),l1:tileURL({d:0,l:1})};
+const chip=(k,cls='chip')=>`<span class="${cls}"><img alt="" src="${TILE[k]}">${t(k)}</span>`;
+const starsHTML=st=>`<div class="stars" role="img" aria-label="${st}/3">${[0,1,2].map(i=>sprite(i<st?'star':'starOff')).join('')}</div>`;
+function resultHTML(live){
+  const won=caught(), st=won?stars(casts.length):0;
+  return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div>`
+    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`
+    +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
+}
+function wireResult(el){
+  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{share(el.querySelector('.note'));track('share',true)});
+  const cv=el.querySelector('canvas.scene'); if(cv) fitScene(cv,Math.min(el.clientWidth||340,400)-8);
+}
 
 function renderStatic(){
   document.documentElement.lang=LANG;
@@ -254,33 +502,32 @@ function renderStatic(){
   $('lang').textContent=t('lang'); $('help-btn').setAttribute('aria-label',t('help'));
   $('help-title').textContent=t('help_title'); $('got-it').textContent=t('got_it');
   $('help-body').innerHTML=['help1','help2','help3'].map(k=>`<li>${t(k)}</li>`).join('');
+  $('log-title').textContent=t('log_title'); $('key-title').textContent=t('key_title');
   $('legend').innerHTML=[['cat_b',['b0','b1','b2','b3']],['cat_d',['d0','d1']],['cat_l',['l0','l1']]]
-    .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(chip).join('')}</div>`).join('');
+    .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
 }
 function render(){
-  const done=over(), won=caught();
+  const done=over(), won=caught(), busy=!!anim, fc=combo(SEA.fish);
   $('board').innerHTML=SEA.grid.map((row,r)=>row.map((x,c)=>{
-    const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k);
-    const cls=['c', k===sel&&'sel', done&&!won&&!x.island&&combo(x)===combo(SEA.fish)&&'win'].filter(Boolean).join(' ');
-    const label=x.island?'':feats(x).join(', ')+(n===null?'':` · ${n}`);
-    return `<button class="${cls}" data-k="${k}"${x.island||done||i>=0?' disabled':''}${label?` aria-label="${label}"`:' aria-hidden="true" tabindex="-1"'}>${n===3||(done&&!won&&!x.island&&combo(x)===combo(SEA.fish))?sprite('dourada'):''}${n!==null?`<b class="bd${n===3?' hit':''}">${n}</b>`:''}</button>`;
+    const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k), reveal=done&&!won&&combo(x)===fc;
+    const cls=['c',k===sel&&'sel',reveal&&'win'].filter(Boolean).join(' ');
+    const label=feats(x).join(', ')+(n===null?'':` · ${n}`);
+    const tag=n!==null&&!(busy&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${tag}</button>`;
   }).join('')).join('');
-  const last=casts.length?bitesAt(casts.at(-1)):null;
-  $('say').textContent=won?t('caught',{n:casts.length}):done?t('lost',{h:feats(SEA.fish).join(' · ')}):last!==null?t('bite'+last):t('intro');
-  $('bar').hidden=done;
+  const lastN=casts.length&&!busy?bitesAt(casts.at(-1)):null;
+  $('say').textContent=done&&!busy?(won?t('caught',{n:casts.length}):t('lost',{h:feats(SEA.fish).join(', ')})):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro');
+  $('bar').hidden=done&&!busy;
   const sx=sel===null?null:cellAt(sel);
   $('feat').className='feat'+(sx?'':' hint');
-  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(chip).join(''):t('pick');
-  $('cast').textContent=t('cast',{n:MAX-casts.length}); $('cast').disabled=sel===null;
-  $('log').innerHTML=casts.map((k,i)=>`<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span>${pips(bitesAt(k))}</li>`).join('');
-  $('result').hidden=!done;
-  if(done){
-    const st=won?stars(casts.length):0;
-    $('result').innerHTML=`<div class="big ${won?'good':'bad'}">${won?casts.length:'X'}/${MAX}</div>`
-      +(won?`<div class="stars" aria-label="${st}/3">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`:'')
-      +`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p><button class="btn primary" id="share">${t('share')}</button><p class="note" id="note"></p>`;
-    $('share').onclick=()=>{share($('note'));track('share',true)};
-  }
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):t('pick');
+  $('left').innerHTML=Array.from({length:MAX},(_,i)=>sprite('bobber',i<casts.length?'used':'')).join('');
+  $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
+  $('cast').textContent=t('cast'); $('cast').disabled=sel===null||busy;
+  $('logbox').hidden=!casts.length;
+  $('log').innerHTML=casts.map((k,i)=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?sprite('fish'):'<i class="off"></i>').join('')}</span></li>`}).join('');
+  $('result').hidden=!done||busy;
+  if(done&&!busy){$('result').innerHTML=resultHTML(false);wireResult($('result'))}
 }
 function shareText(){
   const won=caught(), st=won?stars(casts.length):0;
@@ -294,23 +541,32 @@ function share(note){
   if(navigator.share&&matchMedia('(pointer:coarse)').matches) navigator.share({text:txt}).catch(e=>{if(e.name!=='AbortError')copy()});
   else copy();
 }
+function showCatch(){
+  $('catch-body').innerHTML=resultHTML(true); $('catch').showModal(); sceneAt=performance.now(); wireResult($('catch-body'));
+  if(still.matches) drawSea(performance.now()+5000);
+}
 
-$('board').style.backgroundImage=`url(${seaURL(SEA)})`;
-$('cat').style.backgroundImage=`url(${SPRITE_URL.boatcat})`;
+$('cat').style.backgroundImage=`url(${URLS.boatcat})`;
+$('help-icon').style.backgroundImage=`url(${URLS.help})`;
 $('board').addEventListener('click',e=>{
   const b=e.target.closest('.c'); if(!b||b.disabled) return;
   const k=Number(b.dataset.k); sel=sel===k?null:k; render();
 });
 $('cast').onclick=()=>{
-  if(sel===null||over()) return;
-  casts.push(sel); sel=null;
+  if(sel===null||over()||anim) return;
+  const k=sel; casts.push(k); sel=null;
   try{localStorage.setItem(REC,JSON.stringify(casts))}catch(e){}
+  anim={k,start:performance.now(),n:bitesAt(k)};
   if(over()) track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);
   render();
+  const end=over();
+  setTimeout(()=>{anim=null;render();if(end)showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:anim.n===3?LAND+1100:LAND+500);
+  if(still.matches) drawSea(performance.now()+LAND);
 };
-$('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}renderStatic();render()};
+$('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}renderStatic();render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}};
 $('help-btn').onclick=()=>$('help').showModal();
-renderStatic(); render();
+addEventListener('resize',()=>{fit();drawSea(performance.now())});
+renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop);
 track(location.pathname);
 let seen=null;try{seen=localStorage.getItem('goodcatch:pista:seenHelp')}catch(e){}
 if(!seen){$('help').showModal();try{localStorage.setItem('goodcatch:pista:seenHelp','1')}catch(e){}}

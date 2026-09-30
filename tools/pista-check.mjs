@@ -1,4 +1,4 @@
-// Invariants of the novo-jogo sea over 60 days: deterministic, exactly 12 combinations, the fish among them,
+// Invariants of the novo-jogo sea over 90 days from 2026-09-30: deterministic, exactly 12 combinations, the fish among them,
 // par 4 and a consistent player always catching within six casts.
 import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../novo-jogo/index.html', import.meta.url), 'utf8');
@@ -24,12 +24,13 @@ function worst(S, memo = new Map()) {
 if (G.bites({ b: 1, d: 1, l: 0 }, { b: 1, d: 0, l: 0 }) !== 2) throw new Error('bites: coral deep sun vs coral shallow sun must be 2');
 if (JSON.stringify([4, 5, 6].map(G.stars)) !== '[3,2,1]') throw new Error('stars: 4/5/6 casts must give 3/2/1');
 const tries = [];
-for (let i = 0; i < 60; i++) {
-  const d = new Date(2026, 9, 1 + i), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+for (let i = 0; i < 90; i++) {
+  const d = new Date(2026, 8, 30 + i), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const s = G.genSea(date);
   if (JSON.stringify(s) !== JSON.stringify(G.genSea(date))) throw new Error(`${date}: not deterministic`);
-  const cells = s.grid.flat().filter(x => !x.island), present = [...new Set(cells.map(G.combo))].sort((x, y) => x - y);
-  if (s.grid.flat().length !== G.N * G.N || cells.length !== G.N * G.N - 4) throw new Error(`${date}: expected 7x7 with a 2x2 island`);
+  const cells = s.grid.flat(), present = [...new Set(cells.map(G.combo))].sort((x, y) => x - y);
+  if (cells.length !== G.N * G.N || cells.some(x => x.island)) throw new Error(`${date}: expected 7x7 open water`);
+  if (cells.some((x, i) => x.d !== (Math.floor(i / G.N) >= s.shelf[i % G.N] ? 0 : 1))) throw new Error(`${date}: depth must follow the shelf`);
   if (present.length !== 12 || present.join() !== s.present.join()) throw new Error(`${date}: ${present.length} combinations present`);
   if (!present.includes(G.combo(s.fish))) throw new Error(`${date}: the fish is not on the map`);
   const p = par(present, present), w = worst(present);
@@ -38,4 +39,4 @@ for (let i = 0; i < 60; i++) {
   tries.push(s.tries);
 }
 tries.sort((x, y) => x - y);
-console.log(`pista ok: 60 days, generator tries median ${tries[30]} max ${tries.at(-1)}`);
+console.log(`pista ok: 90 days, generator tries median ${tries[tries.length >> 1]} max ${tries.at(-1)}`);

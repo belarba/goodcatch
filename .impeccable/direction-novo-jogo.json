@@ -1,0 +1,93 @@
+{
+  "title": "Escolha o mundo visual do novo jogo",
+  "question": "O sorteio escolheu Água Clara. Fique com ela, pegue uma alternativa ou sorteie de novo.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Água Clara",
+      "kicker": "O SORTEIO",
+      "lineage": "pixel art rico de Eastward e Celeste, visto de cima como a pesca de Stardew",
+      "thesis": "O mar é uma janela: você vê o fundo através da água, e sol, sombra e profundidade são luz de verdade.",
+      "palette": [
+        "#0B2233",
+        "#0E4A5C",
+        "#3FC1C0",
+        "#F2D49B",
+        "#FF7A6B",
+        "#3E8E5E",
+        "#FFF4C2"
+      ],
+      "materials": [
+        "pixel art com luz e sombra",
+        "cáusticas e ondas animadas",
+        "placas de madeira na interface"
+      ],
+      "viewport": "O mar 7×7 enche a tela em pixel art detalhado; a ilha projeta sombra real; o gato boia no barco na borda; o lance sai de uma placa de madeira.",
+      "risk": "É muita arte feita à mão; se a luz ficar tímida, sombra e fundo perdem a leitura."
+    },
+    {
+      "id": "challenger-shader",
+      "label": "Água Viva",
+      "lineage": "portal de estúdio com shader WebGL em tela cheia",
+      "thesis": "A água é um shader vivo que ondula sob o dedo; a interface flutua fina por cima.",
+      "palette": [
+        "#06222E",
+        "#0F6B7A",
+        "#7FE3D8",
+        "#FFE9B0"
+      ],
+      "case": "Funde bem com Alto's: água que respira e reage ao toque. Perde o aconchego se a interface ficar fina demais, e pesa em celular fraco.",
+      "risk": "WebGL em celular antigo, e o pixel art some.",
+      "hero": "https://impeccable.style/worlds/cards/webgl-shader-portal-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/webgl-shader-portal.webp"
+    },
+    {
+      "id": "challenger-dusk",
+      "label": "Pesca ao Entardecer",
+      "lineage": "cidade passando da hora azul para a noite chuvosa",
+      "thesis": "O mar na hora azul: céu cobalto, a lanterna âmbar do barco e os reflexos na água marcam cada lance.",
+      "palette": [
+        "#101B3D",
+        "#27407A",
+        "#F2A23A",
+        "#FFD27A",
+        "#C9D6F2"
+      ],
+      "case": "Funde razoável: a luz âmbar do lance e o reflexo na água ficam lindos, mas sol e sombra precisam de outra leitura à noite.",
+      "risk": "A mania 'sol' fica estranha num mar noturno.",
+      "hero": "https://impeccable.style/worlds/cards/light-shadow-caustics-rain-night-cityscape-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/light-shadow-caustics-rain-night-cityscape.webp"
+    },
+    {
+      "id": "challenger-paper",
+      "label": "Mar de Papel",
+      "lineage": "sequência de dobras de origami, do quadrado à garça",
+      "thesis": "O mar como diorama de papel dobrado, em camadas como Monument Valley; cada lance é uma dobra.",
+      "palette": [
+        "#E8453C",
+        "#F4EFE6",
+        "#1C1C1C",
+        "#C9A227",
+        "#5FA8A0"
+      ],
+      "case": "Funde mal: as camadas de papel dão profundidade, mas o vermelho do washi briga com o mar e o fundo do mar vira abstrato.",
+      "risk": "Fundo, profundidade e luz ficam difíceis de ler em papel.",
+      "hero": "https://impeccable.style/worlds/cards/paper-folds-pleats-deployable-orizuru-crane-sequence-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/paper-folds-pleats-deployable-orizuru-crane-sequence.webp"
+    }
+  ],
+  "reroll": true,
+  "canon": true,
+  "canonCard": {
+    "label": "O padrão da categoria",
+    "thesis": "Um tabuleiro plano no estilo Wordle ou Puzzmo, executado com todo o capricho.",
+    "viewport": "O arranjo que o jogador espera, no máximo de acabamento."
+  },
+  "steer": true,
+  "answer": {
+    "optionId": "assigned",
+    "label": "Água Clara",
+    "seed": "9bbec2c1",
+    "steer": "owner: no island, the cat fishes from a pier; a foreground pixel catch scene"
+  }
+}

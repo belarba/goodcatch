@@ -39,18 +39,16 @@ A throwaway script (not committed) played the rule over the whole feature space:
 
 ## Sea
 
-- 7×7 with one island (rock squares, not castable).
-- Depth: shallow within 2 squares (Chebyshev) of the island, deep beyond.
-- Light: the day's sun comes from one side; shade is the band of squares behind the island on the
-  opposite side, out to the edge.
+- 7×7 open water; a beach and a wooden pier run along the bottom edge, where the cat fishes.
+  (The first build had a 2×2 island; the owner swapped it for the cat on a pier, Sep 30.)
+- Depth: each column has a shelf row (3–5, wandering by at most one row between neighbours);
+  squares from the shelf down to the beach are shallow, the rest deep.
+- Light: two cloud ellipses; a square whose centre is inside one is in shade.
 - Bottom: contiguous patches from seeded points (nearest point wins).
-- Seeded from `DATE + ':pista'` (then `:pista:2`, `:pista:3`, …) with the same `mulberry`/`seedFrom` as
-  the game. The generator retries until exactly 12 of the 16 combinations are present; the fish is
-  drawn among those 12. Measured on 120 generated days (2026-10-01 on): median 12 tries, max 87;
-  92 distinct sets of missing combinations; par 4 on all 120; worst consistent player 5 (7 days) or
-  6 (113). Manhattan depth needed fewer tries (median 6) but gave 68 distinct sets, so Chebyshev stays.
-- Island: 2×2, top-left corner in rows and columns 1–4. Shade: behind the island, away from the
-  sun, in a cone that widens by one square every two squares.
+- Seeded from `DATE + ':pista'` (then `:pista:2`, …). The generator retries until exactly 12 of the
+  16 combinations are present; the fish is drawn among those 12. Measured over 90 days from
+  2026-09-30 (`node tools/pista-check.mjs`): tries median 7, max 50; par 4 on all 90; the worst
+  consistent player catches in 5 (18 days) or 6 (72); 84 distinct sets of missing combinations.
 
 ## Par and stars
 
