@@ -1595,7 +1595,8 @@ if(MODE) document.getElementById('train-btn').hidden=true;
 else showTab(saved in games?saved:'rede');
 for(const g of Object.values(games)) render(g);
 let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
-if(!seen){if(MODE)startTutorial(games.rede);else help.showModal();try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
+if(MODE&&(!seen||new URLSearchParams(location.search).has('tutorial')))startTutorial(games.rede);else if(!seen)help.showModal();
+if(!seen){try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
 })();
 </script>
 </body>
