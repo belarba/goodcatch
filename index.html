@@ -1467,7 +1467,7 @@ function leakFish(g){
   if(sig===g.leakSig) return;
   g.leakSig=sig; g.leakFishEl?.remove(); g.leakFishEl=null;
   if(!sig) return;
-  const cells=[g.start,...[...lk.path].reverse().map(k=>[Math.floor(k/100),k%100])], size=cw*.85;
+  const cells=[g.start,...[...lk.path].reverse().map(k=>[Math.floor(k/100),k%100])], size=parseFloat(getComputedStyle(b).getPropertyValue('--spx'))||cw*.7;
   const flip=cells.at(-1)[1]<cells[0][1]?' scaleX(-1)':'';
   const f=document.createElement('i'); f.className='sp s-sardinha leakfish'; f.style.cssText=`width:${size}px;height:${size}px`;
   b.parentNode.appendChild(f); g.leakFishEl=f;
