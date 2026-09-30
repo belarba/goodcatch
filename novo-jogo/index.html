@@ -42,21 +42,28 @@ h1 span{color:var(--accent-text)}
 .c .sp{width:70%;height:70%}
 .c .bd{position:absolute;top:3px;right:3px;min-width:20px;height:20px;border-radius:10px;background:var(--ink);color:#fff;font:400 18px/20px var(--pixel);text-align:center;padding:0 5px}
 .c .bd.hit{background:var(--good)}
-.bar{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:6px 6px 6px 12px}
-.bar span{font:400 22px/1.1 var(--pixel)}
-.bar span.hint{color:var(--muted)}
+.bar{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:8px}
+.feat{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;min-height:28px;align-items:center;font:400 22px/1 var(--pixel)}
+.feat.hint{color:var(--muted)}
+.feat span,.legend span{display:inline-flex;align-items:center;gap:5px}
+.feat img{width:24px;height:24px;image-rendering:pixelated;border:1px solid var(--ink);border-radius:4px}
 .btn{appearance:none;border:2px solid var(--ink);background:var(--surface);color:var(--ink);font:400 22px var(--pixel);padding:8px 12px;border-radius:12px;cursor:pointer}
 .btn:hover:not(:disabled){background:var(--surface2)}
 .btn.primary{background:var(--accent)}
 .btn.primary:hover:not(:disabled){background:#F79B40}
 .btn:disabled,.btn.primary:disabled{border-color:var(--edge);color:var(--edge);background:transparent;cursor:default}
-.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 6px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:8px}
-.legend div{display:flex;align-items:center;gap:6px;font-size:13px;line-height:1.1}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:10px 12px}
+.legend div{display:flex;flex-wrap:wrap;gap:4px 12px}
+.legend div:first-child{grid-column:1/-1}
+.legend b{flex-basis:100%;font:400 18px/1 var(--pixel);color:var(--muted)}
+.legend span{font-size:13px;line-height:1.1}
 .legend img{width:28px;height:28px;flex:none;image-rendering:pixelated;border:1px solid var(--edge);border-radius:4px}
 .log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
-.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:4px 10px}
+.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:10px;padding:5px 10px}
+.pips{display:flex;gap:4px}
+.pips i{width:22px;height:22px}
+.pips i.off{border:2px dashed var(--edge);border-radius:6px}
 .log li>span:first-child{font:400 18px var(--pixel);color:var(--muted)}
-.log b{font-weight:400;font-size:15px;letter-spacing:1px}
 .result{text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;background:var(--surface);border:2px solid var(--ink);border-radius:14px;padding:16px}
 .big{font:400 72px/1 var(--pixel)}
 .big.good{color:var(--good)} .big.bad{color:var(--bad)}
@@ -79,7 +86,7 @@ dialog li{margin:6px 0}
   </header>
   <div class="say"><i class="sp" id="cat"></i><p id="say" aria-live="polite"></p></div>
   <div class="board" id="board"></div>
-  <div class="bar" id="bar"><span id="feat"></span><button class="btn primary" id="cast"></button></div>
+  <div class="bar" id="bar"><div class="feat" id="feat"></div><button class="btn primary" id="cast"></button></div>
   <section class="result" id="result" hidden></section>
   <ol class="log" id="log"></ol>
   <div class="legend" id="legend"></div>
@@ -139,19 +146,38 @@ const sprite=k=>`<i class="sp" style="background-image:url(${SPRITE_URL[k]})"></
 // One 14px tile. Shade is drawn under the bottom so the bottom stays readable in both lights.
 function drawCell(x,px,py,cell){
   const f=(col,a,b,w=1,h=1)=>{x.fillStyle=col;x.fillRect(px+a,py+b,w,h)};
-  if(cell.island){f('#E8C77E',0,0,14,14);f('#C9962E',3,3);f('#C9962E',10,10);f('#C9962E',11,4);f('#3F6B33',4,5,6,1);f('#3F6B33',5,4,4,1);f('#6B4A2E',7,6,1,4);return}
+  if(cell.island){f('#9EDFE4',0,0,14,14);return}
   f(cell.d?'#4E9DBE':'#9EDFE4',0,0,14,14);
-  if(cell.l)for(let i=0;i<14;i++)for(let j=0;j<14;j++)if((i+j)%4===0)f('rgba(16,50,74,.45)',i,j);
+  if(cell.l===1){f('rgba(16,50,74,.2)',0,0,14,14);for(let i=0;i<14;i++)for(let j=0;j<14;j++)if((i+j)%5===0)f('rgba(16,50,74,.38)',i,j)}
+  if(cell.l===0){f('#FFFFFF',1,2,2,1);f('#FFFFFF',3,1,2,1);f('#FFFFFF',10,12,2,1);f('#FFFFFF',12,11)}
   if(cell.b===0)for(const[a,b]of[[2,10],[6,11],[10,8],[3,4],[9,3]]){f('#FFF3D0',a,b,3,1);f('#C9962E',a,b+1,3,1)}
   if(cell.b===1){f('#E86A4A',6,5,1,7);f('#E86A4A',4,7,2,1);f('#E86A4A',3,5,1,2);f('#E86A4A',8,6,2,1);f('#E86A4A',9,4,1,2);f('#B8466A',5,12,3,1)}
   if(cell.b===2){f('#8C969B',2,8,4,3);f('#57636A',2,10,4,1);f('#8C969B',8,4,4,3);f('#57636A',8,6,4,1)}
   if(cell.b===3)for(const a of[4,9])for(let b=3;b<13;b++)f('#2F6B2A',a+((b>>1)&1),b);
+}
+// The 2x2 island as one 28px piece: a rounded beach with foam round it and a single palm.
+function drawIsland(x,X,Y){
+  const p=(col,a,b,w=1,h=1)=>{x.fillStyle=col;x.fillRect(X+a,Y+b,w,h)};
+  p('#C4EEF1',1,-2,26,32);p('#C4EEF1',-2,1,32,26);p('#C4EEF1',-1,-1,30,30);
+  for(const[a,b]of[[4,-2],[13,-2],[22,-2],[29,6],[29,17],[8,29],[19,29],[-2,10],[-2,21]])p('#FFFFFF',a,b,2,1);
+  p('#E8C77E',3,0,22,28);p('#E8C77E',0,3,28,22);p('#E8C77E',1,1,26,26);
+  p('#D1AE62',3,27,22,1);p('#D1AE62',27,3,1,22);p('#D1AE62',26,25,1,2);p('#D1AE62',25,26,2,1);
+  p('#F3DFA8',3,0,22,1);p('#F3DFA8',0,3,1,22);
+  for(const[a,b]of[[5,6],[21,9],[7,20],[23,17],[4,14]])p('#C9962E',a,b);
+  p('#D1AE62',12,23,9,2);p('#D1AE62',14,25,5,1);
+  p('#8C969B',20,18,4,3);p('#57636A',20,20,4,1);p('#B7C0C4',21,18,2,1);
+  for(const[a,b]of[[15,23],[15,22],[14,21],[14,20],[14,19],[13,18],[13,17],[13,16],[13,15],[12,14],[12,13],[12,12],[12,11]]){p('#6B4A2E',a,b,2,1);p('#4A3320',a+1,b)}
+  const frond=(dx,dy,droop)=>{for(let t=1;t<=8;t++){const a=13+Math.round(dx*t/8),b=10+Math.round(dy*t/8+droop*(t/8)**2);p(t<4?'#6E9B4A':'#3F6B33',a,b,2,2)}};
+  frond(-9,-1,5);frond(9,-1,5);frond(-7,-6,3);frond(7,-6,3);frond(0,-8,1);
+  p('#6B4A2E',11,11,2,2);p('#6B4A2E',14,11,2,2);
 }
 function tileURL(cell){const cv=document.createElement('canvas');cv.width=cv.height=14;drawCell(cv.getContext('2d'),0,0,cell);return cv.toDataURL()}
 function seaURL(sea){
   const cv=document.createElement('canvas'); cv.width=cv.height=N*14; const x=cv.getContext('2d');
   sea.grid.forEach((row,r)=>row.forEach((cell,c)=>drawCell(x,c*14,r*14,cell)));
   x.fillStyle='rgba(16,50,74,.14)';for(let i=1;i<N;i++){x.fillRect(i*14,0,1,N*14);x.fillRect(0,i*14,N*14,1)}
+  const top=sea.grid.flat().findIndex(cell=>cell.island);
+  drawIsland(x,top%N*14,Math.floor(top/N)*14);
   return cv.toDataURL();
 }
 
@@ -171,6 +197,7 @@ const STR={
     got_it:'Got it',
     b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
     intro:'Today’s fish has 3 habits: a bottom, a depth and a light. Each cast tells how many a square has.',
+    cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
     pick:'Tap a square',cast:'Cast ({n} left)',
     bite0:'Nothing. None of its habits here.',bite1:'1 habit matches.',bite2:'2 habits match. Close!',
     caught:'Caught it in {n}!',lost:'It got away. Its habits: {h}.',
@@ -178,12 +205,13 @@ const STR={
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'Pista #{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
-    help1:'O peixe de hoje gosta de um fundo, uma profundidade e uma luz.',
+    help1:'O peixe de hoje gosta de um chão, uma profundidade e uma luz.',
     help2:'Toque uma casa e depois Lançar. 🐟 conta quantas dessas três a casa tem, nunca quais.',
     help3:'Três 🐟 pescam o peixe. São 6 lances, o mesmo mar para todo mundo.',
     got_it:'Entendi',
     b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
-    intro:'O peixe de hoje tem 3 manias: um fundo, uma profundidade e uma luz. Cada lance diz quantas a casa tem.',
+    intro:'O peixe de hoje tem 3 manias: um chão, uma profundidade e uma luz. Cada lance diz quantas a casa tem.',
+    cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
     pick:'Toque uma casa',cast:'Lançar ({n})',
     bite0:'Nada. Nenhuma mania aqui.',bite1:'1 mania bate.',bite2:'2 manias batem. Perto!',
     caught:'Pescou em {n}!',lost:'Escapou. As manias eram: {h}.',
@@ -206,6 +234,9 @@ const caught=()=>casts.some(k=>bitesAt(k)===3);
 const over=()=>caught()||casts.length>=MAX;
 const feats=x=>[t('b'+x.b),t('d'+x.d),t('l'+x.l)];
 const fishes=n=>'🐟'.repeat(n)+'⬜'.repeat(3-n);
+const pips=n=>`<span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(i=>i<n?sprite('dourada'):'<i class="off"></i>').join('')}</span>`;
+const TILE=Object.fromEntries([[0,1,2,3].map(b=>['b'+b,{b,d:0}]),[['d0',{d:0}],['d1',{d:1}],['l0',{d:0,l:0}],['l1',{d:0,l:1}]]].flat().map(([k,cell])=>[k,tileURL(cell)]));
+const chip=k=>`<span><img alt="" src="${TILE[k]}">${t(k)}</span>`;
 let casts=(()=>{try{
   const out=[];
   for(const k of JSON.parse(localStorage.getItem(REC)||'[]')){
@@ -223,10 +254,8 @@ function renderStatic(){
   $('lang').textContent=t('lang'); $('help-btn').setAttribute('aria-label',t('help'));
   $('help-title').textContent=t('help_title'); $('got-it').textContent=t('got_it');
   $('help-body').innerHTML=['help1','help2','help3'].map(k=>`<li>${t(k)}</li>`).join('');
-  $('legend').innerHTML=[
-    [{b:0,d:0,l:0},'b0'],[{b:1,d:0,l:0},'b1'],[{b:2,d:0,l:0},'b2'],[{b:3,d:0,l:0},'b3'],
-    [{d:0,l:0},'d0'],[{d:1,l:0},'d1'],[{d:0,l:0},'l0'],[{d:0,l:1},'l1'],
-  ].map(([cell,k])=>`<div><img alt="" src="${tileURL(cell)}">${t(k)}</div>`).join('');
+  $('legend').innerHTML=[['cat_b',['b0','b1','b2','b3']],['cat_d',['d0','d1']],['cat_l',['l0','l1']]]
+    .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(chip).join('')}</div>`).join('');
 }
 function render(){
   const done=over(), won=caught();
@@ -239,10 +268,11 @@ function render(){
   const last=casts.length?bitesAt(casts.at(-1)):null;
   $('say').textContent=won?t('caught',{n:casts.length}):done?t('lost',{h:feats(SEA.fish).join(' · ')}):last!==null?t('bite'+last):t('intro');
   $('bar').hidden=done;
-  $('feat').className=sel===null?'hint':'';
-  $('feat').textContent=sel===null?t('pick'):feats(cellAt(sel)).map(s=>s[0].toUpperCase()+s.slice(1)).join(' · ');
+  const sx=sel===null?null:cellAt(sel);
+  $('feat').className='feat'+(sx?'':' hint');
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(chip).join(''):t('pick');
   $('cast').textContent=t('cast',{n:MAX-casts.length}); $('cast').disabled=sel===null;
-  $('log').innerHTML=casts.map((k,i)=>`<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><b>${fishes(bitesAt(k))}</b></li>`).join('');
+  $('log').innerHTML=casts.map((k,i)=>`<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span>${pips(bitesAt(k))}</li>`).join('');
   $('result').hidden=!done;
   if(done){
     const st=won?stars(casts.length):0;
