@@ -163,7 +163,7 @@ function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a
 const key=(r,c)=>r*100+c;
 const combo=x=>x.b*4+x.d*2+x.l;
 const bites=(x,f)=>(x.b===f.b)+(x.d===f.d)+(x.l===f.l);
-const stars=n=>n<=4?3:n===5?2:1;
+const stars=n=>n<=2?3:n===3?2:1;
 // The beach runs along the bottom edge: a square is shallow from its column's shelf row down to the shore.
 // Shade is the shadow of two clouds, a square's centre inside an ellipse.
 function genSea(date){
@@ -450,7 +450,7 @@ const STR={
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
     intro:'There’s {a} {s} in these waters today! It has 3 habits: a bottom, a depth and a light. Each cast tells me how many a square has.',
     sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
-    journal:'Fish journal · {n}/{m}',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak_best:'best {n}',
+    journal:'Fish journal · {n}/{m}',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
     pick:'Tap a square in the water',cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
@@ -467,7 +467,7 @@ const STR={
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
     intro:'Tem {um} {s} nestas águas hoje! {Ele} tem 3 manias: um chão, uma profundidade e uma luz. Cada lance me diz quantas a casa tem.',
     sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
-    journal:'Diário de espécies · {n}/{m}',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak_best:'recorde {n}',
+    journal:'Diário de espécies · {n}/{m}',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
     pick:'Toque uma casa na água',cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
@@ -516,7 +516,7 @@ function weekHTML(){
   const n=streakOf(),best=bestStreak(),days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
   const cells=days.map(d=>{const a=castsOn(d),won=caughtOn(d),fin=won||a.length>=MAX;
     return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${won?fishSprite(speciesOf(d)):`<b>${!a.length?'·':fin?'✕':'…'}</b>`}</span>`}).join('');
-  return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t('streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
+  return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t(n===1?'streak1':'streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
 }
 function journalHTML(){
   const got=new Set(playedDays().filter(caughtOn).map(speciesOf));

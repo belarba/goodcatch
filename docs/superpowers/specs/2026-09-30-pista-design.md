@@ -54,7 +54,8 @@ A throwaway script (not committed) played the rule over the whole feature space:
 
 - Par is the constant 4: the optimal worst case over the present combinations, measured 4 on every
   sampled map. The check asserts it for every generated day instead of the page computing it.
-- ★★★ in 4 casts or fewer, ★★ in 5, ★ in 6. Lost: no stars.
+- ★★★ in 1–2 casts, ★★ in 3, ★ in 4–6. Lost: no stars. (First shipped as 4/5/6; recalibrated Sep 30
+  because a consistent deducer got ★★★ on 98% of days. Now the same player splits 33% / 41% / 26%.)
 
 ## Screen
 

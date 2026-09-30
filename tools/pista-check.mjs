@@ -22,7 +22,7 @@ function worst(S, memo = new Map()) {
   memo.set(k, w); return w;
 }
 if (G.bites({ b: 1, d: 1, l: 0 }, { b: 1, d: 0, l: 0 }) !== 2) throw new Error('bites: coral deep sun vs coral shallow sun must be 2');
-if (JSON.stringify([4, 5, 6].map(G.stars)) !== '[3,2,1]') throw new Error('stars: 4/5/6 casts must give 3/2/1');
+if (JSON.stringify([1, 2, 3, 4, 6].map(G.stars)) !== '[3,3,2,1,1]') throw new Error('stars: 1-2 casts give 3, 3 gives 2, 4-6 give 1');
 if (!G.speciesOf || !G.SPECIES) throw new Error('speciesOf / SPECIES missing from @gen');
 for (const s of G.SPECIES) {
   const map = G.speciesMap(s), letters = new Set(map.join('').replace(/\./g, ''));
