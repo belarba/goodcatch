@@ -1,292 +1,345 @@
 ---
 name: Good Catch
-description: A daily fishing puzzle on a daylight pixel board. Go for the best catch, or the worst.
+description: A daily fishing deduction puzzle drawn as a rich pixel-art lagoon, framed in wood, parchment and gold.
 colors:
-  seafoam-page: "#E4F4F2"
-  white-stock: "#FFFFFF"
-  foam-tint: "#EEF7F6"
-  harbour-slate: "#5F8A92"
-  navy-ink: "#10324A"
-  tide-grey: "#48656F"
-  buoy-orange: "#F08A24"
-  rust-text: "#A04C08"
-  seabed-sand: "#E8C77E"
-  kelp-green: "#157A4C"
-  signal-red: "#C8352A"
-  shallow-water: "#9EDFE4"
-  open-sea-ring: "#6CC4D2"
-  pen-sand: "#F7E6B0"
-  pen-lagoon: "#E2F6F7"
-  net-tile: "#F4F1E8"
-  stone: "#57636A"
-  stone-top: "#8C969B"
-  protect-glow: "rgba(214,60,45,.42)"
-  sprite-outline: "#051019"
+  abyss: "#0B2233"
+  deep-teal: "#0E4A5C"
+  lagoon-surface: "#136A82"
+  foam-text: "#BFE7E6"
+  bark: "#2E1A0C"
+  parchment: "#F6E7C1"
+  parchment-edge: "#E0C58B"
+  parchment-fleck: "#EEDBAE"
+  log-rule: "#D9BE84"
+  ink: "#3B2414"
+  ink-soft: "#6B4A2A"
+  cream: "#FFF1D0"
+  gold: "#F2B33D"
+  gold-highlight: "#FFD97A"
+  gold-shade: "#B97A1F"
+  sun: "#FFE27A"
+  plank: "#8B5A2B"
+  plank-grain: "#7A4A22"
+  plank-seam: "#5E3A1A"
+  plank-light: "#B97A45"
+  nail: "#E8D9B0"
+  driftwood: "#A08E6C"
+  driftwood-highlight: "#BCAB88"
+  driftwood-shade: "#7C6B4E"
+  disabled-ink: "#4A3B26"
+  pip-ring: "#8A6A3A"
+  lost-coral: "#E8826A"
+  cat-orange: "#E0703A"
+  unknown-silhouette: "#1E4A5A"
+  sand: "#E9CF96"
+  wet-sand: "#C9A56A"
+  shore-foam: "#F4FBFF"
+  shallow-rim: "#9ED9D0"
+  backdrop: "rgba(6,20,32,.7)"
 typography:
-  display:
-    fontFamily: "\"Jersey 10\", ui-rounded, system-ui, sans-serif"
-    fontSize: "clamp(36px, 10vw, 44px)"
+  wordmark:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "clamp(40px, 12vw, 54px)"
     fontWeight: 400
-    lineHeight: 1
+    lineHeight: 0.9
+    letterSpacing: "0.5px"
   score:
-    fontFamily: "\"Jersey 10\", ui-rounded, system-ui, sans-serif"
-    fontSize: "72px"
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "84px"
+    fontWeight: 400
+    lineHeight: 0.85
+  headline:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "34px"
     fontWeight: 400
     lineHeight: 1
-  headline:
-    fontFamily: "\"Jersey 10\", ui-rounded, system-ui, sans-serif"
-    fontSize: "28px"
-    fontWeight: 400
   title:
-    fontFamily: "\"Jersey 10\", ui-rounded, system-ui, sans-serif"
-    fontSize: "22px"
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "26px"
     fontWeight: 400
-  label:
-    fontFamily: "\"Jersey 10\", ui-rounded, system-ui, sans-serif"
-    fontSize: "18px"
+    lineHeight: 1
+  button:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "28px"
     fontWeight: 400
     lineHeight: 1
   body:
-    fontFamily: "Figtree, system-ui, -apple-system, sans-serif"
-    fontSize: "15px"
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "22px"
     fontWeight: 400
-    lineHeight: 1.5
+    lineHeight: 1.15
+  dialogue:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 400
+    lineHeight: 1.05
+  label:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "20px"
+    fontWeight: 400
+    lineHeight: 1
   caption:
-    fontFamily: "Figtree, system-ui, -apple-system, sans-serif"
-    fontSize: "13px"
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "18px"
     fontWeight: 400
-    lineHeight: 1.5
+    lineHeight: 1
+  micro:
+    fontFamily: "Jersey 10, ui-rounded, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1
 rounded:
-  xs: "6px"
-  sm: "8px"
-  md: "10px"
-  lg: "12px"
-  xl: "14px"
+  pixel: "0px"
+  pip: "50%"
 spacing:
+  hair: "2px"
   xs: "4px"
   sm: "6px"
-  md: "8px"
-  lg: "10px"
+  md: "10px"
+  lg: "12px"
   xl: "16px"
 components:
-  button:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    typography: "{typography.title}"
-    rounded: "{rounded.lg}"
-    padding: "10px 12px"
-  button-hover:
-    backgroundColor: "{colors.foam-tint}"
-  button-primary:
-    backgroundColor: "{colors.buoy-orange}"
-    textColor: "{colors.navy-ink}"
-    typography: "{typography.title}"
-    rounded: "{rounded.lg}"
-    padding: "10px 12px"
-  button-disabled:
-    backgroundColor: "transparent"
-    textColor: "{colors.harbour-slate}"
-    rounded: "{rounded.lg}"
-  icon-button:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    rounded: "{rounded.md}"
-    size: "40px"
-  icon-button-hover:
-    backgroundColor: "{colors.pen-sand}"
-  switch-tab:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    typography: "{typography.title}"
-    rounded: "{rounded.lg}"
+  button-gold:
+    backgroundColor: "{colors.gold}"
+    textColor: "{colors.ink}"
+    typography: "{typography.button}"
+    rounded: "{rounded.pixel}"
+    padding: "2px 14px 4px"
+  button-gold-disabled:
+    backgroundColor: "{colors.driftwood}"
+    textColor: "{colors.disabled-ink}"
+    rounded: "{rounded.pixel}"
+  button-gold-small:
+    backgroundColor: "{colors.gold}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pixel}"
+    padding: "0 10px 2px 6px"
+  icon-button-wood:
+    backgroundColor: "{colors.plank}"
+    textColor: "{colors.cream}"
+    rounded: "{rounded.pixel}"
+    size: "48px"
+  panel-parchment:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pixel}"
+  plaque-wood:
+    backgroundColor: "{colors.plank}"
+    textColor: "{colors.cream}"
+    rounded: "{rounded.pixel}"
+  chip-tag:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pixel}"
+    padding: "0 4px 0 0"
+  cell-tag:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pixel}"
+    padding: "0 3px"
+  cell-tag-hit:
+    backgroundColor: "{colors.gold}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pixel}"
+  week-day:
+    backgroundColor: "{colors.parchment}"
+    textColor: "{colors.ink-soft}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pixel}"
     height: "52px"
-  switch-tab-selected:
-    backgroundColor: "{colors.buoy-orange}"
-    textColor: "{colors.navy-ink}"
-  rule-card:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    rounded: "{rounded.md}"
-    padding: "5px 5px 7px"
-  result-panel:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    rounded: "{rounded.xl}"
-    padding: "18px"
-  practice-badge:
-    backgroundColor: "{colors.pen-sand}"
-    textColor: "{colors.navy-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.xs}"
-    padding: "0 7px"
-  speech-bubble:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.md}"
-    padding: "6px 10px"
-  legend:
-    backgroundColor: "{colors.white-stock}"
-    textColor: "{colors.navy-ink}"
-    rounded: "{rounded.lg}"
-    padding: "6px 4px"
+  week-day-today:
+    backgroundColor: "{colors.gold}"
+    textColor: "{colors.ink-soft}"
+    rounded: "{rounded.pixel}"
 ---
 
 # Design System: Good Catch
 
 ## Overview
 
-**Creative North Star: "The Daylight Harbour Board"**
+**Creative North Star: "The Window Into the Lagoon"**
 
-Good Catch is the category-standard daily-puzzle board, done with care: a seafoam page, white card-stock surfaces and navy ink outlines, with the pixel sea as the only thing that asks for attention. It is a canon build held to the bar of enclose.horse and Puzzmo; its job is to be read in a glance on a phone in a break, then left alone. Everything off the board is quiet, outlined and flat; everything on the board is ranked by how much it matters to the rule.
+The sea is not a board, it is a window. The player looks down through clear water at a real seabed whose sand, coral, rock and kelp run across square boundaries, and the three facts the puzzle asks about (bottom, depth, light) are drawn as light: a sunlit caustic net where the sun reaches, a dithered cloud shadow where it does not, a pale shelf edge where the water drops. Everything around the window is the dock's own furniture: pixel-drawn wood planks with nails, sun-faded parchment, and gold buttons, all generated as 9-slice frames from a single integer pixel grid at runtime.
 
-The board is a strict stack of meaning. The fence (12×12 grey stone blocks, outlined like Mario terrain) is the loudest layer, because the net's first rule is that rocks fence. The player's pen comes next: lagoon fill with a 3px navy rope drawn on the true perimeter of what the flood fill encloses, sweeping in from the boat. Animals, as outlined 12×12 two-frame pixel sprites, sit above flat turquoise water. The water is the quietest layer: a 1px 8% navy grid and a deeper wavy outer ring that means open sea.
+The page itself is the deep water around the dock: a teal gradient (lagoon surface to abyss) under a faint 32-pixel caustic tile, so even the margins read as sea. The single font, Jersey 10, carries every word from the 84px score to the 16px weekday, always weight 400, always pixel-crisp. A cat is the voice: its face sits beside a parchment speech bubble at the top, its back is drawn on the wooden pier at the bottom of the lagoon, rod in paw, and it reappears in the 80x64 catch scene that takes the foreground when the day ends.
 
-The world refuses the dark teal game grid it replaced. Colour carries score meaning, never decoration: green is gain, red is loss, and protected animals sit on a soft red glow.
+Density is that of a handheld game screen: one 480px column, a board scaled to the largest integer pixel multiple that fits both width and height, and furniture panels stacked beneath it. Nothing is smooth-scaled; nothing is rounded; depth comes from soft drop-shadow filters under hard pixel silhouettes.
 
 **Key Characteristics:**
-- Daylight: light page, white surfaces, navy ink as the single outline colour.
-- 2px navy outlines on every interactive surface; depth comes from outline, not shadow.
-- Two voices of type: Jersey 10 for every number and label, Figtree for sentences.
-- Pixel sprites are the fun: 12×12, 1px near-black outline, two-frame idle loop.
-- Board layer order is fence > pen > animals > water, and it is enforced.
+- One integer pixel grid: every canvas draws at 1x and scales by a whole factor with smoothing off; every sprite carries a 1px bark outline.
+- Furniture vocabulary of five 9-slice frames (wood, parchment, tag, gold, dull), with stepped (notched) corners instead of radii.
+- Jersey 10 only, weight 400, sized by role from 16px to 84px.
+- Light is information: sun, shade and depth are rendered as lighting on the seabed, never as icons or outlines.
+- Motion is pixel-stepped: sprites bob a pixel, selection pulses in two steps, the board animates on a 125ms tick.
 
 ## Colors
 
-A daylight sea palette: pale seafoam and white carry the page, navy ink draws every edge, one warm orange marks the action, and green/red are reserved for score.
+A warm dock-and-parchment palette laid over a cool teal sea: wood browns and parchment creams carry the interface, gold marks the one action and the wins, and pale sun-yellow is reserved for selection and focus.
 
 ### Primary
-- **Buoy Orange** (`buoy-orange`): the primary action (the haul button, the selected game tab), the focus ring, the boat's ping, and the ring around a picked rule card. Always paired with navy ink text (5.30:1), never white.
-- **Rust Text** (`rust-text`): the orange's text-safe form (5.95:1 on white, 5.24:1 on page). Used for "Catch" in the wordmark, notes on the result range, and the border of a picked card.
+- **Dock Gold** (`gold`): the face of every primary button (Cast, Share, Got it, Close, Collection) and of the winning states that reuse the gold frame: the cell tag that scored 3, today's square in the week strip, rare tiles in the collection. Also the "Catch" half of the wordmark and the score numeral. Lit by **Gold Highlight** on its top and left rows and shaded by **Gold Shade** on its bottom two rows.
 
 ### Secondary
-- **Kelp Green** (`kelp-green`): positive points and good hits (catch squares tinted at 14%, the "▲" arrow sprite, best-score tab labels, positive result numbers).
-- **Signal Red** (`signal-red`): negative only. Penalties, bad hits (tinted at 16%), blocked-move marks, the "▼" arrow sprite, alert hints, negative result numbers.
-- **Protected Glow** (`protect-glow`, rgba(214,60,45,.42)): a radial red glow behind every protected animal (turtle, dolphin, shark, coral), drawn as a background image so it layers over the pen's sand. It follows the card: an animal a card turns positive loses the glow.
+- **Sun Glint** (`sun`): selection and focus only. The four corner brackets of the selected square, the 3px focus ring, the win outline on the revealed fish squares, the "today" outline in the collection, and text selection.
+- **Plank Brown** (`plank`): the wood frame around the sea, the cast plaque and the header icon buttons, with **Plank Grain** speckle, a **Plank Seam** line every five rows, a **Plank Light** top-left bevel and **Nail** heads in the four corners.
 
 ### Tertiary
-- **Shallow Water** (`shallow-water`): the net board's water.
-- **Open Sea Ring** (`open-sea-ring`): the outermost ring of net cells, deeper than the water with white wave ticks, meaning "the sea reaches here". Line boards instead grade from `#D6F1F3` surface row down through an HSL depth ramp (hue 186→194, darker with depth).
-- **Pen Lagoon** (`pen-lagoon`): the enclosed pen fill, the lightest water on the board: open-sea ring darkest, water in between, the protected pen lightest. The navy rope carries the edge (the fill alone is 1.33:1 on water).
-- **Net Tile** (`net-tile`): the fill of a buoy's square under the navy mesh; warm off-white so it never reads as the lagoon pen or the water.
-- **Stone** (`stone`, `stone-top`): the reef blocks, a dark grey body with a lighter top edge; 4.16:1 on water and 3.08:1 on the open-sea ring (the earlier brown was 3.50:1 and 2.59:1).
-- **Pen Sand** (`pen-sand`): the practice badge, the pressed legend item, icon-button hover and text selection.
-- **Seabed Sand** (`seabed-sand`): the 8px seabed strip under the line and sea-floor boards.
+- **Lost Coral** (`lost-coral`): the score numeral when the fish got away. Its only use.
+- **Cat Orange** (`cat-orange`): the cat, in the face sprite, the pier sprite and the catch scene.
 
 ### Neutral
-- **Seafoam Page** (`seafoam-page`): the page background.
-- **White Stock** (`white-stock`): buttons, tabs, cards, panel, dialogs, legend, bubble, menu.
-- **Foam Tint** (`foam-tint`): hover fill for outlined buttons, tabs, menu and legend items; range-bar track.
-- **Navy Ink** (`navy-ink`): all text, all outlines, the board frame, rope, hook line (11.74:1 on page).
-- **Tide Grey** (`tide-grey`): secondary text, hints, date, record rows, card rule text (6.24:1 on white, 5.50:1 on page).
-- **Harbour Slate** (`harbour-slate`): disabled button stroke and text, range-bar border, unpicked card border once a card is picked. Boundary use only (3.79:1 on white).
-- **Sprite Outline** (`sprite-outline`): the 1px outline the sprite renderer draws around every sprite pixel.
+- **Abyss** (`abyss`): the html background and theme colour; the bottom of the page gradient.
+- **Deep Teal** (`deep-teal`) and **Lagoon Surface** (`lagoon-surface`): the page gradient (surface at 0, deep teal at 34%, abyss at 100%), fixed behind the caustic tile.
+- **Foam Text** (`foam-text`): the puzzle number and date under the wordmark, the one piece of text set directly on water.
+- **Cream** (`cream`): text on wood and on water, and the wordmark's "Good".
+- **Parchment** (`parchment`): the fill of every reading surface (bubble, result, log, journal, legend, dialogs) and of the small tag frame, with a **Parchment Edge** inner rule and **Parchment Fleck** grain.
+- **Bark** (`bark`): the universal 1px outline of every sprite and every 9-slice frame, the 8-direction stroke around the wordmark and score, the speech-bubble tail, the catch scene's 3px border.
+- **Ink** (`ink`) and **Ink Soft** (`ink-soft`): text on parchment and gold; Ink Soft for secondary text (log index, notes, weekday cells, legend group headings, the "Today's fish" caption).
+- **Driftwood** (`driftwood`, with `driftwood-highlight` and `driftwood-shade`) and **Disabled Ink** (`disabled-ink`): the disabled button, the gold frame drained of colour.
+- **Log Rule** (`log-rule`): the separator between fishing-log rows. **Pip Ring** (`pip-ring`): the empty-bite pip.
+- **Unknown Silhouette** (`unknown-silhouette`): every pixel of a species not yet caught, and of today's fish before it is caught, so it reads as a dark shape in water.
+- **Sand**, **Wet Sand**, **Shore Foam**, **Shallow Rim**: the beach strip along the bottom of the lagoon.
+- **Backdrop** (`backdrop`): behind every modal dialog.
+
+The seabed is not painted in these tokens directly. Its four floors (sand, coral rubble, rock, kelp) are drawn in warm land colours and then passed through a clear-water filter (red x0.4, green x0.88 + 14, blue x0.9 + 62) so the floor reads as lagoon turquoise while what grows on it keeps its colour. Deep squares are darkened again (red x0.34, green x0.56 + 8, blue x0.76 + 34) and cloud-shaded squares by (x0.52, x0.58, x0.66 + 6).
 
 ### Named Rules
-**The Score Owns Red And Green Rule.** Green means points gained and red means points lost. Neither appears for decoration, branding or generic "error" chrome; a red element on screen is always a cost.
+**The Water Eats Red Rule.** Anything under the surface is filtered toward turquoise and darkened with depth; anything above it (pier, beach, cat, bobbers, the caught fish leaping out) keeps full colour. A new underwater element is drawn in true colour and run through the same filter, never hand-picked teal.
 
-**The Navy Edge Rule.** There is one outline colour, navy ink, at 2px on controls and 3px on the board frame and rope. Grey borders only mean "inactive".
+**The One Gold Rule.** Gold means the action you can take now, or a win. A surface that is neither stays parchment or wood.
 
-**The Orange Is Action Rule.** Buoy orange marks where the player acts next (primary button, selected tab, focus, picked card, boat ping). Text in orange uses rust text.
+**The Sun Is Selection Rule.** Sun Glint appears only on what is selected, focused or revealed. It is never a fill for a static surface.
 
 ## Typography
 
 **Display Font:** Jersey 10 (with ui-rounded, system-ui, sans-serif)
-**Body Font:** Figtree (with system-ui, -apple-system, sans-serif)
+**Body Font:** Jersey 10
+**Label Font:** Jersey 10
 
-**Character:** Jersey 10 is the arcade scoreboard: every number, button, tab and label speaks in it, and its digits stay unambiguous at a glance. Figtree is the friendly explainer, used only for full sentences.
+**Character:** One condensed pixel face for everything, chosen because its digits and letters stay distinct at score sizes (Pixelify Sans was rejected for confusing C/O, 2/8 and 5/S). Hierarchy comes from size and from the bark stroke, never from weight.
 
 ### Hierarchy
-- **Display** (400, clamp(36px, 10vw, 44px), 1): the "Good Catch" wordmark only.
-- **Score** (400, 72px, 1): the final score on the result panel, coloured by sign (green, red, or tide grey for zero).
-- **Headline** (400, 28px): the verdict line and dialog titles.
-- **Title** (400, 22px): buttons, game tabs, buoy/length count, record rows, catch chips, dialog subheads.
-- **Label** (400, 18px, line-height 1): the date, legend points, card names and corner ranks, badge, bubble, range ends, small buttons.
-- **Body** (400, 15px, 1.5): hints and help text.
-- **Caption** (400, 13px): range label and notes; rule-card text drops to 12px/1.25 to fit three cards across a phone.
+- **Wordmark** (400, clamp(40px, 12vw, 54px), 0.9): "Good Catch" in the header only, cream with a gold "Catch", wrapped in a 3px 8-direction bark stroke plus a 7px soft drop.
+- **Score** (400, 84px, 0.85): the "n/6" on the result and catch panels, gold (lost coral when lost) with a 4px 8-direction bark stroke.
+- **Headline** (400, 34px, 1): dialog titles. The collection dialog uses 30px.
+- **Button** (400, 28px, 1): gold buttons. The small Collection button drops to 22px.
+- **Title** (400, 26px, 1): panel headings (Fishing log, Reading the water) and today's species name.
+- **Body** (400, 22px, 1.15): the page default, log rows, streak line, the help list and the result sentence.
+- **Dialogue** (400, 20px, 1.05): the cat's line in the bubble; legend keys.
+- **Label** (400, 20px): chips, cell tags (20px on a 14px line), notes, week-day marks, legend group headings.
+- **Caption** (400, 18px): the date under the wordmark, the "Today's fish" caption.
+- **Micro** (400, 16px): weekday abbreviations in the week strip, species names in collection tiles.
 
 ### Named Rules
-**The Digits Must Read Rule.** Any face that carries a number must keep 2/8, 5/S and 0/O distinct at 18px. Pixelify Sans failed that test and is out.
+**The Single Face Rule.** Jersey 10 at weight 400, everywhere. Emphasis is size, colour or the bark stroke; `<b>` is reset to 400.
 
-**The Pixel Speaks, The Sans Explains Rule.** Jersey 10 for anything a player scans (numbers, labels, controls); Figtree for anything a player reads as a sentence. Never set a sentence paragraph in Jersey 10.
+**The Stroke For Shouting Rule.** Only the wordmark and the score get the 8-direction bark outline. Everything else is plain text on its surface.
 
 ## Layout
 
-A single centred column (max-width 540px, padding 12px 16px 32px, 10px gap) built phone-first at ~400px. Order from top: header (40px icon button, centred wordmark and date, 40px icon button), game switcher (two tabs on a row, the third spans full width), practice rule cards when present, the board, a meta row (count, badge, points), a live hint line, a three-column control row (undo, clear, and a 1.5× wider primary), then the legend as a nine-column strip.
+A single centred column, max 480px, padded 10px 16px 40px, with a 10px gap between blocks. Top to bottom: header (48px icon button, wordmark, 48px icon button in a 48px / 1fr / 48px grid), the cat's face beside the speech bubble (54px / 1fr, 16px gap), the sea, the cast plaque, then the parchment panels (result, fishing log, today's fish and collection, the legend).
 
-The board fills the column and sizes itself against the viewport so it never pushes the controls off screen (`min(100%, max(260px, cols/rows × (100svh − 360px)))`). Sprites snap to whole multiples of 14px (90% of a cell, floored) so pixels stay crisp at any width. Spacing runs on a tight 4/6/8/10/16px rhythm; interior gaps are 6–10px, never larger.
+The sea is a 7x7 lagoon of 24-pixel squares plus a 32-pixel beach strip (168 x 200 logical pixels). `fit()` scales it by the largest integer factor that fits both the column width and the viewport height left above the cast plaque, with a floor of 200 device pixels, so the board and the Cast button share the first viewport on a phone. A transparent 7x7 button grid sits exactly over the water part of the canvas. The catch scene (80 x 64) uses the same integer-fit rule against its panel width (at most 400px).
+
+Spacing is small and stepped: 2, 4, 6, 10, 12 and 16px, the larger steps reserved for gaps between the bubble and the face and between legend groups. Grids inside panels: the week strip is 7 equal columns at 4px, the collection 4 columns at 6px, the legend 2 columns (the bottom group spanning both) at 12px / 14px. The only media queries are `(hover:hover)` for the cell hover tint and `prefers-reduced-motion`.
 
 ## Elevation & Depth
 
-Flat by default: depth is conveyed by the navy outline and by tonal steps (page, white stock, foam tint), not by shadow. Soft navy-tinted shadows appear only on things that float above the board or the page, and on the rule cards, which are physical objects.
+Depth is a drop-shadow filter under hard pixel silhouettes. Because the frames are 9-slice images with notched corners, `filter: drop-shadow` follows the stepped outline where `box-shadow` would draw a rectangle. All shadows are the same abyss blue-black (rgba(4,16,26,...)) at different strengths; nothing is lit from a direction other than straight above.
 
 ### Shadow Vocabulary
-- **Board frame** (`box-shadow: 0 0 0 3px #10324A`): the board's 3px ink frame, drawn as a spread so the grid is not inset.
-- **Card rest** (`box-shadow: 0 3px 8px rgba(16,50,74,.14)`): rule cards lying on the table.
-- **Card picked** (`box-shadow: 0 0 0 3px #F08A24, 0 10px 18px rgba(16,50,74,.22)`): the chosen card, lifted with an orange ring.
-- **Bubble** (`box-shadow: 0 4px 12px rgba(16,50,74,.22)`): the boat's speech bubble.
-- **Menu** (`box-shadow: 0 8px 24px rgba(16,50,74,.18)`): the popover menu.
-- **Result panel** (`box-shadow: 0 10px 30px rgba(16,50,74,.2)`): the result panel laid over the board.
+- **Furniture** (`filter: drop-shadow(0 8px 10px rgba(4,16,26,.4))`): every wood and parchment panel, icon buttons, the cast plaque, the bubble.
+- **Window** (`filter: drop-shadow(0 14px 18px rgba(4,16,26,.5))`): the sea frame only, the deepest object on the page.
+- **Face** (`filter: drop-shadow(0 6px 6px rgba(4,16,26,.4))`): the cat's face sprite.
+- **Wordmark drop** (`text-shadow: 0 7px 0 rgba(4,16,26,.45)` after the bark stroke): the wordmark only.
+
+Inside the lagoon, depth is light: the shelf edge where shallow meets deep gets a dithered pale rim on the shallow side and a 3-pixel dithered shadow on the deep side; fish shadows drift across the bed; deep squares are darker and carry slow surface streaks.
 
 ### Named Rules
-**The Floaters Only Rule.** Buttons, tabs and the legend are flat and outlined. A shadow means the element sits above something else (panel, menu, bubble) or is a card you can pick up. All shadows are soft and navy-tinted; there are no hard offset shadows.
+**The Silhouette Shadow Rule.** Shadows are filters that follow the pixel outline. A rectangular box-shadow under a notched frame is wrong.
 
 ## Shapes
 
-Friendly rounded rectangles outlined in navy. Radius steps by size: 6px for small inner shapes (card art window, badge, hit squares), 8px for list items inside a container, 10px for icon buttons, cards and the bubble, 12px for buttons, tabs, the board, the legend and the menu, 14px for the result panel and dialogs. On the board, pixels stay square (`image-rendering: pixelated`); the only circle is the boat's ping. Rule cards fan at −3°, 0°, +3° like a dealt hand.
+There are no radii. Every frame is a 9-slice whose corner pixel is left empty, producing a one-pixel stepped notch at each corner, outlined in bark. The five frames, generated by `nine()` and exposed as `--wood9`, `--parch9`, `--tag9`, `--gold9`, `--dull9`:
+
+- **Wood** (16px source, slice 5, drawn at 10px, round): plank fill, a seam every five rows, grain speckle, light bevel top-left, dark bevel bottom-right, four nail heads.
+- **Parchment** (16px, slice 5, 10px): parchment fill, parchment-edge inner rule, flecked grain.
+- **Tag** (8px, slice 3, 5-6px): the same parchment at small scale, for chips, cell tags, week days and collection tiles.
+- **Gold** (12px, slice 4, 8px): gold fill, two-row highlight top and one column left, two-row shade at the bottom.
+- **Dull** (12px, slice 4, 8px): the gold frame in driftwood, for disabled buttons.
+
+Selection is drawn as eight 4px sun bars forming corner brackets (34% of the square on each arm), not an outline. The only circle in the system is the empty bite pip (50%), see Do's and Don'ts.
 
 ## Components
 
 ### Buttons
-Outlined, chunky and arcade-legible.
-- **Shape:** gently rounded (12px), 2px navy ink stroke.
-- **Default:** white stock, navy ink text in Jersey 10 at 22px, padding 10px 12px. Hover fills foam tint.
-- **Primary:** buoy orange fill with navy ink text; hover lightens the orange.
-- **Disabled:** transparent fill, harbour slate stroke and text, default cursor.
-- **Focus:** 3px buoy-orange outline, 2px offset, on every button.
-- **Icon button:** 40px square, 10px radius, holding a 24px pixel sprite; hover fills pen sand.
+Tactile and coin-like: a slab of gold that presses down two pixels.
+- **Shape:** gold 9-slice with stepped corners (8px border).
+- **Primary:** ink text at 28px on gold, padding 2px 14px 4px.
+- **Active:** `translateY(2px)`. No hover colour change; the press is the feedback.
+- **Disabled:** the dull frame and disabled ink; default cursor. Cast is disabled until a square is selected.
+- **Small:** 22px with a 24px sprite leading (the book on Collection), padding 0 10px 2px 6px.
+- **Icon button (header):** 48 x 48 wood frame, centred 24px pixel sprite or the 22px language code in cream; presses 2px.
 
-### Game Switcher
-Three outlined tabs (52px min height, 12px radius), each with a 28px sprite, the mode name and, when a record exists, the best score in kelp green below. The selected tab fills buoy orange and its record turns navy ink.
+### Chips
+- **Style:** tag frame (5px), parchment fill, ink text at 20px, a 24px seabed tile thumbnail leading, cut from the real seabed renderer so the chip shows the actual sand, coral, rock, kelp, shallow, deep, sun or shade.
+- **Use:** the three habits of the selected square, shown inside the bubble in place of the cat's line; the legend keys reuse the same thumbnails at 32px without a frame.
 
-### Rule Cards (signature)
-Face-up playing cards offered on practice purse-net maps.
-- **Stock:** white, 2px navy outline, 10px radius, resting shadow; three across in a fan (−3°, 0°, +3°), straightening and lifting 3px on hover.
-- **Art window:** 46px tall, 6px radius, 1.5px ink border, holding a 28px sprite on the pale surface tint, the same for every card, always at full opacity.
-- **Rank:** a Jersey 10 value in the top-left corner of the art window, only on cards that change points.
-- **Picked:** lifts 6px, straightens, rust border, orange ring and deeper shadow; its rule text turns navy ink. Unpicked cards drop to a slate border and lose their shadow; art and text stay at full contrast. The pick is final for the map.
-- **Motion:** 0.25s ease-out (`cubic-bezier(.16,1,.3,1)`) on transform and shadow; none under reduced motion.
+### Cards / Containers
+- **Parchment panel:** 10px parchment frame, ink text, furniture shadow. Result, fishing log, today's fish, legend, and every dialog body (padding 4px 6px).
+- **Wood plaque (cast bar):** 10px wood frame, a single row: six bobber sprites (28px, spent ones at 30% opacity and greyscale) on the left, the gold Cast button on the right.
+- **Speech bubble:** a parchment panel at least 52px tall beside the 54 x 48 cat face, with a two-layer clipped triangle tail (bark 17 x 20 under parchment 12 x 12) pointing at the face.
 
-### Board
-The signature surface. Water is a generated pixel canvas (14px per cell): flat turquoise with sparse white wave ticks, 8% navy grid lines, deeper ring at the edge. Rocks are full-cell outlined stone blocks. The pen fills pen lagoon with a staggered sweep outward from the boat (0.45s per cell, 45ms step) and its 3px square-capped navy rope fades in 120ms behind. Protected animals sit on a soft red radial glow. The outer ring never holds animals: it is open sea and can never be caught. Catch and loss squares get a 3px green or red rounded outline with a 14–16% tint. A buoy square is a net tile: the whole cell turns net tile (`net-tile`) under a navy diagonal mesh with a 2px navy inset edge, and the buoy (white, navy band, orange cap) sits still in the middle. Barriers never animate, like the rocks: a full-cell, static tile reads as fence, while the animals are bobbing sprites. While the pen is open, a solid 3px navy rope links every buoy to its neighbours and to the boat, diagonals included: the sea only flows 4-directionally, so two buoys meeting at a corner already seal. The boat carries a soft white halo and an orange ping until the first mark.
+### Inputs / Fields
+There are no text inputs. The board cells are the input.
 
-### Result Panel
-Laid over the board: 96% white, 2px navy outline, 14px radius, 18px padding, floated with the panel shadow. It stacks the 72px score, a 28px verdict, catch chips with sprites, a range bar (foam track, slate border, red-to-green fill) with the day's exact worst and best at its ends, and the player's records.
+### Navigation
+None beyond the two header icon buttons (help, language) and the modal dialogs they open.
 
-### Legend
-A white strip with a navy outline and 12px radius, nine columns of 28px sprite over its Jersey 10 value in green or red. Items hover to foam tint and press to pen sand (spotlighting that species on the board).
+### The Sea Window (signature)
+A wood-framed canvas: the lagoon, the beach and the wooden pier with the cat seen from behind, rod angled up into the water. Over it, a 7x7 grid of transparent buttons.
+- **Hover (pointer devices):** a cream tint at 14%.
+- **Selected:** sun corner brackets over an 18% sun tint, pulsing in two steps at 1s.
+- **Cast:** a cream fishing line arcs from the rod tip to the square (quadratic curve, 520ms), a bobber lands and a pale ring spreads; a three-bite cast also splashes and the fish leaps out.
+- **Read:** a tag-framed number (0-3) in the square's bottom-right corner; a 3 uses the gold frame.
+- **Lost:** the fish's squares get a 4px inset sun outline and the fish sprite is drawn on them.
 
-### Speech Bubble
-The boat's voice for blocked moves: white, 2px navy outline, 10px radius, Jersey 10 at 18px, a navy-outlined tail pointing at the boat; pops in over 0.18s and fades after 2.5s. While no rule card is picked it becomes the pick prompt: anchored to the top of the board, tail up toward the cards, it stays and bobs gently until a card is chosen (still, with reduced motion).
+### Result Panel and Catch Dialog
+The same content in two places: the catch dialog opens in the foreground when the day ends (live scene), the result panel stays on the page afterwards (still scene). Centred column, 10px gap: the 80x64 catch scene (3px bark border), the score, three star sprites (36px) on a win, the sentence, the week strip and streak line, then Share (and "Back to the sea" in the dialog). The won scene has a bright sky with turning sun rays and the cat hauling the golden fish up out of the water; the lost scene is overcast with only a tail diving away.
 
-### Pixel Sprites
-12×12 maps on a named palette, rendered once to data URLs with a 1px sprite-outline border and a second frame shifted one pixel, looped in 1.2s steps and phase-locked across re-renders. UI icons (menu, up/down arrows) are sprites from the same set, not font glyphs.
+### Week Strip
+Seven tag-framed days (min 52px tall, 4px gap): a 16px weekday abbreviation over the caught species sprite (28 x 22), or a mark when not caught. Today uses the gold frame. Below it, the streak line at 22px in ink, with the best streak appended when higher.
+
+### Today's Fish and Collection
+- **Today card:** the species sprite (56 x 44, drawn as the unknown silhouette until caught), the caption and the species name at 26px, and the small gold Collection n/12 button.
+- **Collection dialog:** title at 30px and a 4-column grid of tag-framed tiles (40 x 34 sprite, 16px name). Rare species use the gold frame; today's species gets a 3px sun outline at 1px offset; uncaught species show the silhouette and "???".
+
+### Fishing Log and Legend
+- **Log:** newest cast first; rows in a 22px / 1fr / auto grid with 6px vertical padding: index in ink soft, the square's three habits, and three pips (a 28px sprite of today's fish per bite, an empty ring otherwise). Rows are separated by a 2px dashed log-rule line.
+- **Legend ("Reading the water"):** groups for bottom, depth and light, each a 20px ink-soft heading over 32px seabed tiles with their names.
+
+### Motion
+- The board redraws on a 125ms tick: two seabed frames alternate every 8 ticks (kelp sways), caustics drift over sunny squares only, sparkles blink on sunny water, streaks move across deep water, shoreline foam laps the beach.
+- Bobbers bob one pixel out of phase; the selection pulse is `steps(2)`.
+- Under `prefers-reduced-motion`, all CSS animation stops, the canvas loop does not run, and casts resolve without delay.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep the board layer order fence > pen > animals > water: rocks stay the highest-contrast element on the board, water the lowest.
-- **Do** draw the pen's rope on the true perimeter of the enclosed cells, exactly what the 4-directional flood fill catches.
-- **Do** outline every interactive surface in navy ink at 2px and fill the primary action with buoy orange under navy text.
-- **Do** set every number and control label in Jersey 10 and every sentence in Figtree.
-- **Do** measure every new pair against WCAG AA: 4.5:1 for text, 3:1 for board pieces and UI boundaries (e.g. navy ink on page 11.74:1, tide grey on white 6.24:1, sprite outline #051019 against every water tone at least 7.2:1).
-- **Do** draw new icons as 12×12 sprites in the shared palette.
-- **Do** honour `prefers-reduced-motion`: sweeps, pings, sprite frames and card transitions stop.
+- **Do** draw every new graphic at 1x on the integer pixel grid, with a 1px bark outline, and scale it by a whole number with smoothing off.
+- **Do** frame new surfaces with one of the five 9-slice frames (wood for structure, parchment for reading, tag for small items, gold for the action or a win, dull for disabled).
+- **Do** use `filter: drop-shadow` in abyss blue-black for depth (0 8px 10px at .4 for furniture).
+- **Do** set every word in Jersey 10 at weight 400, choosing a size from the hierarchy above.
+- **Do** run anything underwater through the clear-water filter, and express bottom, depth and light as lighting on the seabed.
+- **Do** keep the board at the largest integer scale that fits beside the Cast button in the first viewport.
+- **Do** make every icon a pixel sprite (the help "?" and the collection book are sprites).
 
 ### Don't:
-- **Don't** use green or red for anything but points gained and lost; protected status is the red glow, and it follows the card's values.
-- **Don't** return to the dark teal game grid this world replaced.
-- **Don't** put orange text on light surfaces; use rust text.
-- **Don't** give the lobster or any species the buoy's orange-and-white; the lobster is blue so the buoy stays unique.
-- **Don't** add shadows to flat controls or use hard offset shadows; shadows are soft, navy-tinted, and only for floating elements and cards.
-- **Don't** set a score in a face whose 2/8, 5/S or 0/O can be confused (Pixelify Sans is rejected).
+- **Don't** use border-radius on frames, buttons or panels; corners are one-pixel steps.
+- **Don't** smooth-scale a canvas or sprite, or use a fractional scale.
+- **Don't** outline the board as a flat grid of boxed squares; squares are read through the water, separated only by faint corner sparkles.
+- **Don't** use sun yellow as a static fill, or gold on anything that is not an action or a win.
+- **Don't** add a second typeface or a bold weight, and don't stroke text other than the wordmark and the score.
+- **Don't** use rectangular box-shadows under notched frames.

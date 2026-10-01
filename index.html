@@ -34,7 +34,7 @@ button{font:inherit;color:inherit}
 .btn:disabled{border-image-source:var(--dull9);color:#4A3B26;cursor:default}
 
 .top{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;text-align:center;gap:6px}
-.icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:24px;line-height:1;cursor:pointer}
+.icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:22px;line-height:1;cursor:pointer}
 .icon-btn .sp{width:24px;height:24px}
 .icon-btn:active{transform:translateY(2px)}
 h1{margin:0;font:400 clamp(40px,12vw,54px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;
@@ -48,14 +48,14 @@ h1 span{color:var(--gold)}
 .bubble::before,.bubble::after{content:"";position:absolute;top:50%;clip-path:polygon(100% 0,0 50%,100% 100%)}
 .bubble::before{left:-26px;width:17px;height:20px;margin-top:-10px;background:var(--bark)}
 .bubble::after{left:-20px;width:12px;height:12px;margin-top:-6px;background:var(--parch)}
-.bubble p{margin:0;font-size:21px;line-height:1.05}
+.bubble p{margin:0;font-size:20px;line-height:1.05}
 
 .sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5))}
 .sea canvas{display:block;image-rendering:pixelated}
 .grid{position:absolute;left:0;top:0;right:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);user-select:none;-webkit-user-select:none;touch-action:manipulation}
 .c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
 .c:disabled{cursor:default}
-@media (hover:hover){.c:not(:disabled):hover{background:rgba(255,244,194,.14)}}
+@media (hover:hover){.c:not(:disabled):hover{background:rgba(255,226,122,.14)}}
 .c.sel{background:
   linear-gradient(var(--sun),var(--sun)) 2px 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px 2px/4px 34% no-repeat,
   linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/4px 34% no-repeat,
@@ -82,7 +82,7 @@ h1 span{color:var(--gold)}
 .big.lost{color:#E8826A}
 .stars{display:flex;gap:6px}
 .stars .sp{width:36px;height:36px}
-.result p{margin:0;font-size:24px}
+.result p{margin:0;font-size:22px}
 .note{font-size:20px;color:var(--ink-soft)}
 .note:empty{display:none}
 
@@ -109,7 +109,7 @@ h1 span{color:var(--gold)}
 .today b{font-weight:400;font-size:26px}
 .btn.small{display:inline-flex;align-items:center;gap:6px;font-size:22px;padding:0 10px 2px 6px}
 .btn.small .sp{width:24px;height:22px}
-.mon{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:17px;line-height:1;text-align:center;color:var(--ink)}
+.mon{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:16px;line-height:1;text-align:center;color:var(--ink)}
 .mon.rare{border-image-source:var(--gold9);border-image-slice:4 fill}
 .mon.now{outline:3px solid var(--sun);outline-offset:1px}
 .mon .sp{width:40px;height:34px;background-size:contain}
@@ -117,13 +117,13 @@ h1 span{color:var(--gold)}
 .keys>div{display:flex;flex-wrap:wrap;gap:6px 12px}
 .keys>div:first-child{grid-column:1/-1}
 .keys b{flex-basis:100%;font-weight:400;font-size:20px;color:var(--ink-soft)}
-.key{display:inline-flex;align-items:center;gap:6px;font-size:21px}
+.key{display:inline-flex;align-items:center;gap:6px;font-size:20px}
 
 dialog{padding:0;border:0;background:none;color:var(--ink);max-width:min(94vw,420px);overflow:visible}
 dialog::backdrop{background:rgba(6,20,32,.7)}
 dialog .parch{padding:4px 6px}
 dialog h2{margin:0 0 8px;font:400 34px/1 var(--pixel)}
-dialog ol{margin:0 0 14px;padding-left:24px;font-size:23px;line-height:1.1}
+dialog ol{margin:0 0 14px;padding-left:24px;font-size:22px;line-height:1.1}
 dialog li{margin:8px 0}
 #catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:6px}
 #catch .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}

@@ -7,7 +7,7 @@
         "rule": "flat-type-hierarchy",
         "value": "*",
         "files": [
-          "index.html"
+          "rede/index.html"
         ],
         "createdAt": "2026-09-29T14:21:32.777Z",
         "reason": "Owner confirmed: body size only; hierarchy comes from the 44px title and 72px score"
