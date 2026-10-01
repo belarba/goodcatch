@@ -600,7 +600,7 @@ const TILE={b0:tileURL({b:0,d:0}),b1:tileURL({b:1,d:0}),b2:tileURL({b:2,d:0}),b3
 const chip=(k,cls='chip')=>`<span class="${cls}"><img alt="" src="${TILE[k]}">${t(k)}</span>`;
 const starsHTML=st=>`<div class="stars" role="img" aria-label="${st}/3">${[0,1,2].map(i=>sprite(i<st?'star':'starOff')).join('')}</div>`;
 // The village: everyone's results for the day, from the API. The game never waits on it; any failure just hides it.
-const API=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8787':'';
+const API=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8787':'https://goodcatch-api.goodcatch-api.workers.dev';
 let VILLAGE=null, heatOn=false;
 const playerId=()=>{try{let id=localStorage.getItem('goodcatch:player');if(!id){id=crypto.randomUUID();localStorage.setItem('goodcatch:player',id)}return id}catch(e){return null}};
 // Posting is idempotent server-side (first game of the day stands), so a finished day is sent on every visit.

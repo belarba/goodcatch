@@ -1,8 +1,11 @@
 name = "goodcatch-api"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
+# The GoodCatch Cloudflare account; pinned so nothing lands in another account the same login can reach.
+account_id = "ab9e9e79e03c9bee9b6da5b861c9f301"
+workers_dev = true
 
 [[d1_databases]]
 binding = "DB"
 database_name = "goodcatch"
-database_id = "local-until-created"
+database_id = "6c9d457f-e6c3-450a-abc4-a3ae645392df"
