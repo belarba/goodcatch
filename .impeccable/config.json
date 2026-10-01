@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-09-29T14:21:32.777Z",
         "reason": "Owner confirmed: body size only; hierarchy comes from the 44px title and 72px score"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-01T08:27:29.000Z",
+        "reason": "Owner confirmed (Oct 1, 2026): small text is supporting copy; hierarchy comes from the outlined wordmark, the 84px score and the pixel sea. Revisit later."
       }
     ]
   }
