@@ -56,12 +56,11 @@ h1 span{color:var(--gold)}
 .c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
 .c:disabled{cursor:default}
 @media (hover:hover){.c:not(:disabled):hover{background:rgba(255,226,122,.14)}}
-.c.sel{background:
-  linear-gradient(var(--sun),var(--sun)) 2px 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px 2px/4px 34% no-repeat,
+:root{--corners:linear-gradient(var(--sun),var(--sun)) 2px 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px 2px/4px 34% no-repeat,
   linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/4px 34% no-repeat,
   linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/4px 34% no-repeat,
-  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/4px 34% no-repeat,
-  rgba(255,226,122,.18);animation:pulse 1s steps(2) infinite}
+  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/4px 34% no-repeat}
+.c.sel{background:var(--corners),rgba(255,226,122,.18);animation:pulse 1s steps(2) infinite}
 .c.win{box-shadow:inset 0 0 0 4px var(--sun);background:rgba(255,226,122,.22)}
 .c .tag{position:absolute;right:1px;bottom:1px;min-width:24px;padding:0 3px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;color:var(--ink);font:400 20px/14px var(--pixel);text-align:center}
 .c .tag.hit{border-image-source:var(--gold9);border-image-slice:4 fill}
@@ -98,8 +97,8 @@ h1 span{color:var(--gold)}
 .bars i.zero{height:2px;min-width:0;padding:0;background:#D9BE84;box-shadow:none}
 .bars .me i{background:var(--gold)}
 .bars .me{color:var(--ink)}
-.c .heat{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,226,122,var(--a));pointer-events:none}
-.c .heat b{min-width:22px;padding:0 3px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 5px;font:400 18px/12px var(--pixel);color:var(--ink);text-align:center}
+.c .heat{position:absolute;inset:0;background:linear-gradient(rgba(255,226,122,var(--a)) 0 0),rgba(6,20,32,.5);pointer-events:none}
+.c.sel .heat{background:var(--corners),linear-gradient(rgba(255,226,122,var(--a)) 0 0),rgba(6,20,32,.5)}
 .note{font-size:20px;color:var(--ink-soft)}
 .note:empty{display:none}
 
@@ -485,7 +484,7 @@ const STR={
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
-    village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',
+    village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',heat_say:'Village map: where the {n} fishers cast today. More gold, more fishers. Tap a square.',heat_say1:'Village map: only you have fished today.',heat_cell:'{n} of {t} fishers cast here.',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -503,7 +502,7 @@ const STR={
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
-    village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',
+    village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',heat_say:'Mapa da vila: onde os {n} pescadores lançaram hoje. Mais dourado, mais gente. Toque num quadrado.',heat_say1:'Mapa da vila: só você pescou hoje.',heat_cell:'{n} de {t} pescadores lançaram aqui.',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -638,7 +637,7 @@ function resultHTML(live){
 }
 function wireResult(el){
   el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{share(el.querySelector('.note'));track('share',true)});
-  el.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>{heatOn=!heatOn;if($('catch').open)$('catch').close();render();if(heatOn)$('seabox').scrollIntoView({behavior:'smooth',block:'center'})});
+  el.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>{heatOn=!heatOn;sel=null;if($('catch').open)$('catch').close();render();if(heatOn)$('seabox').scrollIntoView({behavior:'smooth',block:'center'})});
   const cv=el.querySelector('canvas.scene'); if(cv) fitScene(cv,Math.min(el.clientWidth||340,400)-8);
 }
 
@@ -654,20 +653,21 @@ function renderStatic(){
 }
 function render(){
   const done=over(), won=caught(), busy=!!anim, fc=combo(SEA.fish);
+  const heat=heatOn&&VILLAGE?.heat, hmax=heat?Math.max(1,...Object.values(heat)):1, heatAt=k=>heat[k]||0;
   $('board').innerHTML=SEA.grid.map((row,r)=>row.map((x,c)=>{
     const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k), reveal=done&&!won&&combo(x)===fc;
     const cls=['c',k===sel&&'sel',reveal&&'win'].filter(Boolean).join(' ');
-    const label=feats(x).join(', ')+(n===null?'':` · ${n}`);
-    const tag=n!==null&&!(busy&&anim.k===k)&&!(heatOn&&VILLAGE?.heat)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
-    const hc=heatOn&&VILLAGE?.heat?VILLAGE.heat[k]||0:0, hmax=hc?Math.max(...Object.values(VILLAGE.heat)):1;
-    const heat=hc?`<i class="heat" style="--a:${(.12+.55*hc/hmax).toFixed(2)}"><b>${hc}</b></i>`:'';
-    return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${heat}${tag}</button>`;
+    const label=feats(x).join(', ')+(n===null?'':` · ${n}`)+(heat?` · ${t('heat_cell',{n:heatAt(k),t:VILLAGE.players})}`:'');
+    const tag=n!==null&&!(busy&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    const tint=heat?`<i class="heat" style="--a:${(.85*Math.sqrt(heatAt(k)/hmax)).toFixed(2)}"></i>`:'';
+    return `<button class="${cls}" data-k="${k}"${heat?(busy?' disabled':''):done||busy||i>=0?' disabled':''} aria-label="${label}">${tint}${tag}</button>`;
   }).join('')).join('');
   const lastN=casts.length&&!busy?bitesAt(casts.at(-1)):null;
-  $('say').textContent=done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
+  $('say').textContent=heat?(sel!==null?t('heat_cell',{n:heatAt(sel),t:VILLAGE.players}):VILLAGE.players===1?t('heat_say1'):t('heat_say',{n:VILLAGE.players}))
+    :done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
   $('bar').hidden=done&&!busy;
   const sx=sel===null?null:cellAt(sel);
-  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):''; $('feat').hidden=!sx; $('say').hidden=!!sx;
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):''; $('feat').hidden=!sx; $('say').hidden=!!sx&&!heat;
   $('cat').style.backgroundImage=`url(${URLS[won&&!busy?'catHappy':'catFace']})`;
   $('left').innerHTML=Array.from({length:MAX},(_,i)=>sprite('bobber',i<casts.length?'used':'')).join('');
   $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
