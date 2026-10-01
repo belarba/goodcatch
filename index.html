@@ -83,6 +83,16 @@ h1 span{color:var(--gold)}
 .stars{display:flex;gap:6px}
 .stars .sp{width:36px;height:36px}
 .result p{margin:0;font-size:22px}
+.vila{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.vila p{margin:0}
+.bars{width:100%;display:flex;flex-direction:column;gap:3px}
+.bars span{display:grid;grid-template-columns:18px 1fr 34px;gap:6px;align-items:center;font-size:18px;color:var(--ink-soft)}
+.bars i{height:14px;background:#D9BE84;box-shadow:0 0 0 2px var(--bark)}
+.bars .me i{background:var(--gold)}
+.bars .me{color:var(--ink)}
+.bars small{font-size:18px;text-align:right}
+.c .heat{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,226,122,var(--a));pointer-events:none}
+.c .heat b{min-width:22px;padding:0 3px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 5px;font:400 18px/12px var(--pixel);color:var(--ink);text-align:center}
 .note{font-size:20px;color:var(--ink-soft)}
 .note:empty{display:none}
 
@@ -468,6 +478,7 @@ const STR={
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
+    village:'{n} fishers today',village1:'1 fisher today',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -485,6 +496,7 @@ const STR={
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
+    village:'{n} pescadores hoje',village1:'1 pescador hoje',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -587,14 +599,32 @@ const TILE={b0:tileURL({b:0,d:0}),b1:tileURL({b:1,d:0}),b2:tileURL({b:2,d:0}),b3
   d0:tileURL({d:0}),d1:tileURL({d:1}),l0:tileURL({d:0,l:0},true),l1:tileURL({d:0,l:1})};
 const chip=(k,cls='chip')=>`<span class="${cls}"><img alt="" src="${TILE[k]}">${t(k)}</span>`;
 const starsHTML=st=>`<div class="stars" role="img" aria-label="${st}/3">${[0,1,2].map(i=>sprite(i<st?'star':'starOff')).join('')}</div>`;
+// The village: everyone's results for the day, from the API. The game never waits on it; any failure just hides it.
+const API=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8787':'';
+let VILLAGE=null, heatOn=false;
+const playerId=()=>{try{let id=localStorage.getItem('goodcatch:player');if(!id){id=crypto.randomUUID();localStorage.setItem('goodcatch:player',id)}return id}catch(e){return null}};
+// Posting is idempotent server-side (first game of the day stands), so a finished day is sent on every visit.
+function sendPlay(){
+  const id=playerId(); if(!API||!id||!over()) return;
+  fetch(`${API}/plays`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:DATE,player:id,casts})})
+    .then(r=>r.ok?r.json():null).then(v=>{if(!v)return;VILLAGE=v;render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}}).catch(()=>{});
+}
+function villageHTML(){
+  const v=VILLAGE; if(!v||!v.players) return '';
+  const max=Math.max(...v.dist,1), mine=v.you?(v.you.won?v.you.n-1:6):-1;
+  return `<div class="vila"><p>${t(v.players===1?'village1':'village',{n:v.players})}${v.better!==null?` · ${t('better',{p:v.better})}`:''}</p>`
+    +`<div class="bars">${v.dist.map((c,i)=>`<span class="${i===mine?'me':''}"><b>${i<6?i+1:'✕'}</b><i style="width:${Math.max(3,Math.round(100*c/max))}%"></i><small>${c}</small></span>`).join('')}</div>`
+    +(v.heat?`<button class="btn small" data-heat>${t(heatOn?'heat_off':'heat_on')}</button>`:'')+`</div>`;
+}
 function resultHTML(live){
   const won=caught(), st=won?stars(casts.length):0;
   return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div>`
-    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`+weekHTML()
+    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`+villageHTML()+weekHTML()
     +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
 }
 function wireResult(el){
   el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{share(el.querySelector('.note'));track('share',true)});
+  el.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>{heatOn=!heatOn;if($('catch').open)$('catch').close();render();if(heatOn)$('seabox').scrollIntoView({behavior:'smooth',block:'center'})});
   const cv=el.querySelector('canvas.scene'); if(cv) fitScene(cv,Math.min(el.clientWidth||340,400)-8);
 }
 
@@ -614,8 +644,10 @@ function render(){
     const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k), reveal=done&&!won&&combo(x)===fc;
     const cls=['c',k===sel&&'sel',reveal&&'win'].filter(Boolean).join(' ');
     const label=feats(x).join(', ')+(n===null?'':` · ${n}`);
-    const tag=n!==null&&!(busy&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
-    return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${tag}</button>`;
+    const tag=n!==null&&!(busy&&anim.k===k)&&!(heatOn&&VILLAGE?.heat)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    const hc=heatOn&&VILLAGE?.heat?VILLAGE.heat[k]||0:0, hmax=hc?Math.max(...Object.values(VILLAGE.heat)):1;
+    const heat=hc?`<i class="heat" style="--a:${(.12+.55*hc/hmax).toFixed(2)}"><b>${hc}</b></i>`:'';
+    return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${heat}${tag}</button>`;
   }).join('')).join('');
   const lastN=casts.length&&!busy?bitesAt(casts.at(-1)):null;
   $('say').textContent=done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
@@ -663,7 +695,7 @@ $('cast').onclick=()=>{
   try{localStorage.setItem(REC,JSON.stringify(casts))}catch(e){}
   anim={k,start:performance.now(),n:bitesAt(k)};
   if(casts.length===1){track(`pista/day-${Math.min(playedDays().length,30)}`,true);track(`pista/streak-${Math.min(streakOf(),30)}`,true)}
-  if(over()) track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);
+  if(over()){track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);sendPlay()}
   render();
   const end=over();
   setTimeout(()=>{anim=null;render();if(end)showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:anim.n===3?LAND+1100:LAND+500);
@@ -673,7 +705,7 @@ $('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('good
 $('help-btn').onclick=()=>$('help').showModal();
 // Mobile browsers resize while their toolbars slide; refit only when the width really changes.
 let fitW=innerWidth;addEventListener('resize',()=>{if(innerWidth===fitW)return;fitW=innerWidth;fit();drawSea(performance.now())});
-renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop);
+renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop); sendPlay();
 // The pixel font changes the bubble's height once it loads, and the board's scale depends on that height.
 document.fonts?.ready.then(()=>{fit();drawSea(performance.now())});
 track(location.pathname);

@@ -1,6 +1,7 @@
 // Invariants of the daily sea over 90 days from 2026-09-30: deterministic, exactly 12 combinations, the fish among them,
 // par 4 and a consistent player always catching within six casts.
 import { readFileSync } from 'node:fs';
+import { genModule } from './sync-gen.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end');
 if (a < 0 || b < a) throw new Error('@gen markers not found');
@@ -51,4 +52,5 @@ for (let i = 0; i < 90; i++) {
   tries.push(s.tries);
 }
 tries.sort((x, y) => x - y);
+if (readFileSync(new URL('../api/src/gen.js', import.meta.url), 'utf8') !== genModule) throw new Error('api/src/gen.js is stale: run node tools/sync-gen.mjs');
 console.log(`pista ok: 90 days, generator tries median ${tries[tries.length >> 1]} max ${tries.at(-1)}`);

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS plays (
+  date TEXT NOT NULL,
+  player TEXT NOT NULL,
+  casts TEXT NOT NULL,
+  n INTEGER NOT NULL,
+  won INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  PRIMARY KEY (date, player)
+);

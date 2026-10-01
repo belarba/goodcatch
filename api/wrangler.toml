@@ -1,0 +1,8 @@
+name = "goodcatch-api"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "goodcatch"
+database_id = "local-until-created"
