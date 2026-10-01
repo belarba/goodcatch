@@ -100,7 +100,15 @@ h1 span{color:var(--gold)}
 .day small{font-size:16px;line-height:1}
 .day .sp{width:28px;height:22px;background-size:contain}
 .streak{margin:0;font-size:22px;color:var(--ink)}
-.dex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.dex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+#dex h2{margin:0 0 8px;font:400 30px/1 var(--pixel)}
+.today{display:flex;align-items:center;gap:12px}
+.today>.sp{width:56px;height:44px;flex:none}
+.today>div{flex:1;display:flex;flex-direction:column;line-height:1}
+.today small{font-size:18px;color:var(--ink-soft)}
+.today b{font-weight:400;font-size:26px}
+.btn.small{display:inline-flex;align-items:center;gap:6px;font-size:22px;padding:0 10px 2px 6px}
+.btn.small .sp{width:24px;height:22px}
 .mon{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:17px;line-height:1;text-align:center;color:var(--ink)}
 .mon.rare{border-image-source:var(--gold9);border-image-slice:4 fill}
 .mon.now{outline:3px solid var(--sun);outline-offset:1px}
@@ -155,6 +163,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <form method="dialog"><button class="btn" id="got-it"></button></form>
 </div></dialog>
 <dialog id="catch"><div class="parch" id="catch-body"></div></dialog>
+<dialog id="dex"><div class="parch"><div id="dex-body"></div><form method="dialog"><button class="btn" id="dex-close"></button></form></div></dialog>
 <script>
 (function(){
 // @gen-start
@@ -236,6 +245,7 @@ const M={
   tail:["YY......YY","YYY....YYY",".YYY..YYY.","..YYYYYY..","...yyyy...","...yyyy...","..yyyyyy.."],
   bobber:["...mm...","...mm...","..rrrr..",".rrWrrr.",".rrrrRr.",".wwwwww.",".wwwwwq.","..wwqq..","...mm..."],
   star:[".....yy.....","....yhhy....","....yhhy....","yyyyyhhyyyyy",".yyyyhhyyyy.","..yyyyyyyy..","...yyyyyy...","..yyyyyyyy..","..yyyYYyyy..",".yyYY..YYyy.",".yY......Yy."],
+  book:["..RRRRRRRRR.",".RrrrrrrrrR.",".RrrryyrrrR.",".RrryhhyrrR.",".RrryhhyrrR.",".RrrryyrrrR.",".RrrrrrrrrR.",".RrrrrrrrrR.",".RRRRRRRRRR.",".wwwwwwwwwww",".mmmmmmmmmmm"],
   help:["..cccccc..",".cccccccc.",".ccc..ccc.","......ccc.",".....ccc..","....ccc...","....cc....","....cc....","..........","....cc....","....cc...."],
 };
 M.starOff=M.star.map(r=>r.replace(/[yh]/g,'q').replace(/Y/g,'u'));
@@ -250,7 +260,7 @@ function drawMap(x,map,X,Y,flipX=false,pal=P){
   for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,pal[ch],X+c,Y+r)}
 }
 const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
-const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help'].map(k=>[k,mapURL(M[k])]));
+const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help','book'].map(k=>[k,mapURL(M[k])]));
 const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
 const SP_BY=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
 const spPal=(s,dark)=>dark?Object.fromEntries('abcfwe'.split('').map(k=>[k,'#1E4A5A'])):{...s.pal,w:'#FFFFFF',e:'#0A1F2B'};
@@ -452,7 +462,7 @@ const STR={
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
     intro:'There’s {a} {s} around today! Tap a square to read the water.',
     sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
-    journal:'Fish journal · {n}/{m}',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
+    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
     cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
@@ -469,7 +479,7 @@ const STR={
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
     intro:'Hoje tem {um} {s} por aqui! Toque uma casa para ler a água.',
     sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
-    journal:'Diário de espécies · {n}/{m}',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
+    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
     cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
@@ -519,6 +529,11 @@ function weekHTML(){
   const cells=days.map(d=>{const a=castsOn(d),won=caughtOn(d),fin=won||a.length>=MAX;
     return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${won?fishSprite(speciesOf(d)):`<b>${!a.length?'·':fin?'✕':'…'}</b>`}</span>`}).join('');
   return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t(n===1?'streak1':'streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
+}
+function todayHTML(){
+  const got=caughtOn(DATE);
+  return `<div class="today">${fishSprite(TODAY.id,'',!got)}<div><small>${t('today_fish')}</small><b>${spName(TODAY.id)}</b></div>`
+    +`<button class="btn small" id="open-dex">${sprite('book')}${t('collection',{n:new Set(playedDays().filter(caughtOn).map(speciesOf)).size,m:SPECIES.length})}</button></div>`;
 }
 function journalHTML(){
   const got=new Set(playedDays().filter(caughtOn).map(speciesOf));
@@ -589,7 +604,7 @@ function renderStatic(){
   $('lang').textContent=t('lang'); $('help-btn').setAttribute('aria-label',t('help'));
   $('help-title').textContent=t('help_title'); $('got-it').textContent=t('got_it');
   $('help-body').innerHTML=['help1','help2','help3'].map(k=>`<li>${t(k)}</li>`).join('');
-  $('log-title').textContent=t('log_title'); $('key-title').textContent=t('key_title');
+  $('log-title').textContent=t('log_title'); $('dex-close').textContent=t('close'); $('key-title').textContent=t('key_title');
   $('legend').innerHTML=[['cat_b',['b0','b1','b2','b3']],['cat_d',['d0','d1']],['cat_l',['l0','l1']]]
     .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
 }
@@ -612,8 +627,9 @@ function render(){
   $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
   $('cast').textContent=t('cast'); $('cast').disabled=sel===null||busy;
   $('logbox').hidden=!casts.length;
-  $('journal').innerHTML=journalHTML();
-  $('log').innerHTML=casts.map((k,i)=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?fishSprite(TODAY.id):'<i class="off"></i>').join('')}</span></li>`}).join('');
+  $('journal').innerHTML=todayHTML();
+  $('open-dex').onclick=()=>{$('dex-body').innerHTML=journalHTML();$('dex').showModal()};
+  $('log').innerHTML=casts.map((k,i)=>[k,i]).reverse().map(([k,i])=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?fishSprite(TODAY.id):'<i class="off"></i>').join('')}</span></li>`}).join('');
   $('result').hidden=!done||busy;
   if(done&&!busy){$('result').innerHTML=resultHTML(false);wireResult($('result'))}
 }
