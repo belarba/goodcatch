@@ -1,7 +1,7 @@
-// Invariants of the novo-jogo sea over 90 days from 2026-09-30: deterministic, exactly 12 combinations, the fish among them,
+// Invariants of the daily sea over 90 days from 2026-09-30: deterministic, exactly 12 combinations, the fish among them,
 // par 4 and a consistent player always catching within six casts.
 import { readFileSync } from 'node:fs';
-const html = readFileSync(new URL('../novo-jogo/index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end');
 if (a < 0 || b < a) throw new Error('@gen markers not found');
 const G = new Function(`${html.slice(a, b)}; return {genSea, combo, bites, stars, N, SPECIES: typeof SPECIES === 'undefined' ? null : SPECIES, speciesOf: typeof speciesOf === 'undefined' ? null : speciesOf, speciesMap: typeof speciesMap === 'undefined' ? null : speciesMap};`)();

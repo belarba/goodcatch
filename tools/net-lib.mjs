@@ -1,10 +1,10 @@
 // Shared by the dev tools: loads the page's game logic (@gen markers, never duplicated here), solves the purse net
-// as an integer program with HiGHS, and reads/writes the tables inside index.html.
+// as an integer program with HiGHS, and reads/writes the tables inside rede/index.html.
 import { readFileSync, writeFileSync } from 'node:fs';
 import highsLoader from 'highs';
 
 const highs = await highsLoader();
-const FILE = new URL('../index.html', import.meta.url);
+const FILE = new URL('../rede/index.html', import.meta.url);
 
 let html = readFileSync(FILE, 'utf8');
 const between = (a, b) => {

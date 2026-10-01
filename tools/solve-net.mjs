@@ -1,5 +1,5 @@
 // Deals three rule cards per purse-net map and computes each card's exact best/worst catch and the buoys that
-// make it, written into index.html between the @card-ref markers (buoys packed as 2-char base-36 cell indices,
+// make it, written into rede/index.html between the @card-ref markers (buoys packed as 2-char base-36 cell indices,
 // see packCells). Buoy mode is solved as an integer program with HiGHS, which the page cannot load, so the page
 // ships the table.
 //
@@ -8,7 +8,7 @@
 //   node tools/solve-net.mjs orders [days=60] [from]    → ORDER_REF["<date>"], the Encomenda maps and orders
 //   node tools/solve-net.mjs cards [maps=24] [first=0] → CARD_REF["carta:<i>"], the practice maps first..maps-1
 //
-// Game logic is read from index.html (@gen markers), never duplicated here.
+// Game logic is read from rede/index.html (@gen markers), never duplicated here.
 import { G, localDate, map, checkNet, checkLine, solveBuoys, readTable, writeTable, netFor, realScore, NAIVE } from './net-lib.mjs';
 
 const days = Number(process.argv[2] ?? 60);

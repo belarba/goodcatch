@@ -3,1549 +3,641 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A daily fishing puzzle. Go for the best catch, or the worst.">
+<meta name="description" content="A daily fishing puzzle. Find the fish of the day in six casts.">
+<meta name="theme-color" content="#0B2233">
 <title>Good Catch</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Jersey+10&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
 <style>
 :root{
-  color-scheme:light;
-  --bg:#E4F4F2; --surface:#FFFFFF; --surface2:#EEF7F6; --edge:#5F8A92;
-  --ink:#10324A; --muted:#48656F; --accent:#F08A24; --accent-text:#A04C08; --sand:#E8C77E;
-  --good:#157A4C; --bad:#C8352A;
-  --water:#9EDFE4; --pen:#F7E6B0; --lagoon:#E2F6F7; --net:#F4F1E8;
+  color-scheme:dark;
+  --abyss:#0B2233; --deep:#0E4A5C;
+  --bark:#2E1A0C; --parch:#F6E7C1; --ink:#3B2414; --ink-soft:#6B4A2A;
+  --gold:#F2B33D; --cream:#FFF1D0; --sun:#FFE27A;
   --pixel:"Jersey 10",ui-rounded,system-ui,sans-serif;
-  --body:Figtree,system-ui,-apple-system,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0}
 [hidden]{display:none!important}
-html,body{background:var(--bg)}
-body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
-::selection{background:var(--pen);color:var(--ink)}
+html{background:var(--abyss)}
+body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixel);image-rendering:pixelated;
+  background:var(--sea-tile,none) 0 0/64px 64px,linear-gradient(180deg,#136A82 0,var(--deep) 34%,var(--abyss) 100%) fixed}
+::selection{background:var(--sun);color:var(--ink)}
 button{font:inherit;color:inherit}
-button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.wrap{max-width:540px;margin:0 auto;padding:12px 16px 32px;display:flex;flex-direction:column;gap:10px}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.wrap{max-width:480px;margin:0 auto;padding:10px 16px 40px;display:flex;flex-direction:column;gap:10px}
+.sp{display:block;background:center/contain no-repeat;image-rendering:pixelated}
 
-.top{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;text-align:center}
-.icon-btn{appearance:none;width:40px;height:40px;border:2px solid var(--ink);background:var(--surface);border-radius:10px;font:400 28px var(--pixel);color:var(--ink);cursor:pointer}
-.icon-btn:hover{background:var(--pen)}
-h1{font:400 clamp(36px,10vw,44px)/1 var(--pixel);margin:0}
-h1 span{color:var(--accent-text)}
-.date{font:400 18px var(--pixel);color:var(--muted);margin-top:2px}
+.wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.parch{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:var(--ink);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.btn{appearance:none;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;padding:2px 14px 4px;font:400 28px/1 var(--pixel);color:var(--ink);cursor:pointer}
+.btn:active:not(:disabled){transform:translateY(2px)}
+.btn:disabled{border-image-source:var(--dull9);color:#4A3B26;cursor:default}
 
-.menu{margin:0;inset:auto;top:60px;right:max(16px,calc(50vw - 254px));position:fixed;background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:12px;padding:6px;min-width:220px;box-shadow:0 8px 24px rgba(16,50,74,.18)}
-.menu button{display:block;width:100%;appearance:none;border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:8px;cursor:pointer}
-.menu button:hover{background:var(--surface2)}
+.top{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;text-align:center;gap:6px}
+.icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:24px;line-height:1;cursor:pointer}
+.icon-btn .sp{width:24px;height:24px}
+.icon-btn:active{transform:translateY(2px)}
+h1{margin:0;font:400 clamp(40px,12vw,54px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;
+  text-shadow:3px 0 var(--bark),-3px 0 var(--bark),0 3px var(--bark),0 -3px var(--bark),3px 3px var(--bark),-3px 3px var(--bark),3px -3px var(--bark),-3px -3px var(--bark),0 7px 0 rgba(4,16,26,.45)}
+h1 span{color:var(--gold)}
+.date{margin-top:4px;font-size:18px;color:#BFE7E6}
 
-.switch{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.switch button{appearance:none;border:2px solid var(--ink);background:var(--surface);color:var(--ink);font:400 22px/1 var(--pixel);padding:6px;border-radius:12px;cursor:pointer;display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:7px;min-height:52px;white-space:nowrap}
-.switch button:hover{background:var(--surface2)}
-.switch button:nth-child(3){grid-column:1/-1}
-.switch button .sp{grid-row:span 2}
-.switch button[aria-selected="true"]{background:var(--accent);color:var(--ink)}
-.switch .sp{width:28px;height:28px}
-.switch small{font-size:18px;color:var(--good);text-align:left}
-.switch button[aria-selected="true"] small{color:var(--ink)}
-.switch small:empty{display:none}
-.switch button:has(small:empty) .sp{grid-row:auto}
+.talk{display:grid;grid-template-columns:54px 1fr;gap:16px;align-items:center}
+.face{width:54px;height:48px;filter:drop-shadow(0 6px 6px rgba(4,16,26,.4))}
+.bubble{position:relative;min-height:52px;display:flex;align-items:center;padding:0 2px}
+.bubble::before,.bubble::after{content:"";position:absolute;top:50%;clip-path:polygon(100% 0,0 50%,100% 100%)}
+.bubble::before{left:-26px;width:17px;height:20px;margin-top:-10px;background:var(--bark)}
+.bubble::after{left:-20px;width:12px;height:12px;margin-top:-6px;background:var(--parch)}
+.bubble p{margin:0;font-size:21px;line-height:1.05}
 
-.game{display:flex;flex-direction:column;gap:8px}
-.stage{position:relative;display:flex;justify-content:center}
-.board{position:relative;display:grid;grid-template-columns:repeat(var(--cols),1fr);grid-template-rows:repeat(var(--rows),1fr);
-  aspect-ratio:var(--cols)/var(--rows);width:min(100%, max(260px, calc(var(--cols) / var(--rows) * (100svh - 360px))));
-  touch-action:none;user-select:none;-webkit-user-select:none;border-radius:12px;overflow:hidden;background:var(--water) center/100% 100%;
-  box-shadow:0 0 0 3px var(--ink);image-rendering:pixelated;cursor:crosshair}
-.board.line{border-bottom:8px solid var(--sand)}
-.c{position:relative;display:grid;place-items:center}
-.c.in{background-color:var(--lagoon);animation:sweep .45s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--since,0s) + var(--d,0)*45ms)}
-.c.far{background-color:rgba(226,246,247,.55)}
-.c.net{background-color:var(--net);background-image:repeating-linear-gradient(45deg,rgba(16,50,74,.5) 0 1.5px,transparent 1.5px 7px),repeating-linear-gradient(-45deg,rgba(16,50,74,.5) 0 1.5px,transparent 1.5px 7px);box-shadow:inset 0 0 0 2px var(--ink)}
-.c.neg{background-image:radial-gradient(circle,rgba(214,60,45,.42) 0 46%,rgba(214,60,45,0) 80%)}
-.ov .rope{animation:ropein .35s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--since,0s) + var(--d,0)*45ms + 120ms)}
-@keyframes sweep{from{background-color:rgba(226,246,247,0)}}
-@keyframes ropein{from{opacity:0}}
-.board.haul .ov .rope{transition:opacity .25s;opacity:0}
-.board.haul .c.in{transition:background-color .25s;background-color:transparent}
-.board.started .c.boat::after{animation:none;opacity:0}
-.c.rock .s-rock{width:100%;height:100%}
-.board.spot .c.rock:not(.lit) .sp.s-rock{opacity:1}
-.sp{display:block;width:var(--spx,28px);height:var(--spx,28px);background:center/100% no-repeat;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
-.c.hit::before{content:"";position:absolute;inset:6%;border-radius:6px;border:3px solid var(--bad)}
-.c.hit.good::before{border-color:var(--good);background:rgba(21,122,76,.14)}
-.c.hit.bad::before{border-color:var(--bad);background:rgba(200,53,42,.16)}
-.c.gone .sp{opacity:.3}
-.c>.s-buoy{position:absolute;inset:0;margin:auto;z-index:2;opacity:1!important}
-.board.spot .c:not(.lit) .sp:not(.s-boat):not(.s-boatcat){opacity:.25}
-.ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5))}
+.sea canvas{display:block;image-rendering:pixelated}
+.grid{position:absolute;left:0;top:0;right:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
+.c:disabled{cursor:default}
+@media (hover:hover){.c:not(:disabled):hover{background:rgba(255,244,194,.14)}}
+.c.sel{background:
+  linear-gradient(var(--sun),var(--sun)) 2px 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px 2px/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) 2px/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) 2px calc(100% - 2px)/4px 34% no-repeat,
+  linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/34% 4px no-repeat,linear-gradient(var(--sun),var(--sun)) calc(100% - 2px) calc(100% - 2px)/4px 34% no-repeat,
+  rgba(255,226,122,.18);animation:pulse 1s steps(2) infinite}
+.c.win{box-shadow:inset 0 0 0 4px var(--sun);background:rgba(255,226,122,.22)}
+.c .tag{position:absolute;right:1px;bottom:1px;min-width:24px;padding:0 3px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;color:var(--ink);font:400 20px/14px var(--pixel);text-align:center}
+.c .tag.hit{border-image-source:var(--gold9);border-image-slice:4 fill}
 
-.panel{position:absolute;inset:0 0 auto;margin:0 auto;width:min(100%,420px);min-height:100%;background:rgba(255,255,255,.96);border:2px solid var(--ink);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;justify-content:center;z-index:3;box-shadow:0 10px 30px rgba(16,50,74,.2)}
-.big{font:400 72px/1 var(--pixel)}
-.big.good,.good b,.pos{color:var(--good)} .big.bad,.bad b,.neg-t{color:var(--bad)} .big.zero{color:var(--muted)}
-.verdict{font:400 28px var(--pixel)}
-.chips{display:flex;flex-wrap:wrap;gap:4px 12px;font:400 22px var(--pixel);color:var(--muted)}
-.chips span{display:inline-flex;align-items:center;gap:3px}
-.chips .sp{width:28px;height:28px}
-.big-good{color:var(--good)} .big-bad{color:var(--bad)} .big-zero{color:var(--muted)}
-.range{display:flex;flex-direction:column;gap:4px}
-.range-label{font-size:13px;color:var(--muted)}
-.bar{position:relative;height:10px;background:var(--surface2);border:1px solid var(--edge);border-radius:6px}
-.bar i{position:absolute;top:0;bottom:0;min-width:4px;background:linear-gradient(90deg,var(--bad),var(--good));border-radius:6px}
-.range-ends{display:flex;justify-content:space-between;font:400 18px var(--pixel)}
-.range-note{margin:0;font-size:13px;color:var(--accent-text)}
-.recs{font:400 22px var(--pixel);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.feat{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 6px;padding:0 4px 0 0;color:var(--ink);font-size:20px;background:none}
+.chip img{width:24px;height:24px;image-rendering:pixelated}
+.key img{width:32px;height:32px;image-rendering:pixelated}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.left{display:flex;gap:2px}
+.left i{width:28px;height:28px}
+.left i.used{opacity:.3;filter:grayscale(1)}
 
-.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 22px var(--pixel)}
-.meta .count b{font-weight:500}
-.meta .pv{color:var(--muted)} .meta .pv b{color:var(--ink);display:inline-block}
-.meta .pv.bump b{animation:bump .3s ease-out}
-@keyframes bump{50%{transform:scale(1.3)}}
-.badge{font:400 18px var(--pixel);color:var(--ink);background:var(--pen);border:2px solid var(--ink);padding:0 7px;border-radius:6px}
-.hint{margin:0;min-height:1.5em;font-size:15px;color:var(--muted);text-align:center}
-.hint.alert{color:var(--bad)}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:6px 4px 2px}
-.card{--rot:0deg;appearance:none;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:5px 5px 7px;border:2px solid var(--ink);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;cursor:pointer;font:inherit;box-shadow:0 3px 8px rgba(16,50,74,.14);transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s,opacity .25s}
-.card{transform:rotate(var(--rot));animation:deal .5s cubic-bezier(.16,1,.3,1) backwards;animation-delay:calc(var(--dealt,0s) + var(--i,0)*140ms)}
-.card:nth-child(1){--rot:-3deg} .card:nth-child(3){--rot:3deg}
-@keyframes deal{0%{transform:translateY(28px) rotate(var(--rot)) scaleX(0);opacity:0}55%{transform:translateY(-4px) rotate(var(--rot)) scaleX(.15);opacity:1}100%{transform:rotate(var(--rot)) scaleX(1)}}
-.cards.locked .card[aria-disabled="true"]{cursor:not-allowed}
-.board.await>.c{opacity:.55}
-.board.await{cursor:default}
-.card:hover{transform:translateY(-3px) rotate(0)}
-.card .art{position:relative;display:grid;place-items:center;height:46px;border-radius:6px;background:var(--surface2);border:1.5px solid var(--ink)}
-.card .art .sp{width:28px;height:28px}
-.card .rank{position:absolute;top:1px;left:5px;font:400 18px/1 var(--pixel)}
-.card b{font:400 18px/1 var(--pixel);margin-top:2px}
-.card .rule{font-size:13px;line-height:1.25;color:var(--muted)}
-.cards.picked .card:not([aria-pressed="true"]){border-color:var(--edge);box-shadow:none}
-.card[aria-pressed="true"]{transform:translateY(-6px) rotate(0);border-color:var(--accent-text);box-shadow:0 0 0 3px var(--accent),0 10px 18px rgba(16,50,74,.22)}
-.card[aria-pressed="true"] .rule{color:var(--ink)}
-.sp.arr{display:inline-block;width:.75em;height:.75em;vertical-align:-.05em;margin-right:1px}
-.icon-btn .sp{width:24px;height:24px;margin:auto}
-@media (prefers-reduced-motion:reduce){.card{transition:none;animation:none}}
-.mark{position:absolute;pointer-events:none;z-index:4;display:grid;place-items:center;font:400 22px var(--pixel)}
-.hook{position:absolute;pointer-events:none;z-index:4;width:2px;background:var(--ink);transform:translateX(-1px)}
-.mark.blocked{border:3px solid var(--bad);border-radius:6px;animation:shake .35s ease-in-out,fade .6s .35s forwards}
-.bubble{position:absolute;z-index:5;max-width:78%;padding:6px 10px;background:var(--surface);color:var(--ink);font:400 18px/1.1 var(--pixel);text-align:center;border:2px solid var(--ink);border-radius:10px;box-shadow:0 4px 12px rgba(16,50,74,.22);pointer-events:none;animation:pop .18s ease-out,fade .4s 2.5s forwards}
-.bubble::before,.bubble::after{content:"";position:absolute;left:var(--tail);border:solid transparent}
-.bubble::before{top:100%;margin-left:-9px;border-width:9px;border-top-color:var(--ink)}
-.bubble::after{top:100%;margin-left:-6px;border-width:6px;border-top-color:var(--surface)}
-.bubble.below::before,.bubble.below::after{top:auto;bottom:100%;border-top-color:transparent}
-.bubble.below::before{border-bottom-color:var(--ink)}
-.bubble.below::after{border-bottom-color:var(--surface)}
-@keyframes pop{from{transform:scale(.5);opacity:0}}
-.bubble.stay{animation:pop .18s ease-out,bob 1.6s ease-in-out .2s infinite}
-@keyframes bob{50%{translate:0 -4px}}
-.mark.cost{color:var(--bad);text-shadow:0 1px 4px rgba(255,255,255,.95);animation:rise .8s ease-out forwards}
-.mark.cost.up{color:var(--good)}
-.c.goal::after{content:"";position:absolute;inset:12%;border:3px dashed var(--accent-text);border-radius:6px;animation:goalpulse .9s ease-in-out infinite alternate}
-@keyframes goalpulse{to{opacity:.3}}
-@media (prefers-reduced-motion:reduce){.c.goal::after{animation:none}}
-.skip{display:block;margin:2px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
-.tut{margin:10px 0 14px;color:var(--ink);line-height:1.45}
-.btn.wide{width:100%}
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0 4px}
-.day{display:flex;flex-direction:column;align-items:center;padding:3px 0;border:2px solid var(--edge);border-radius:8px;font:400 18px var(--pixel);color:var(--accent-text)}
-.day small{font:400 13px var(--body);color:var(--muted)}
-.day.today{border-color:var(--ink)}
-.streak{margin:4px 0 0;font-weight:600;color:var(--ink)}
-.cards.orders{grid-template-columns:repeat(3,1fr)}
-.orders-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 2px}
-.orders-head b{font:400 18px var(--pixel);color:var(--ink)}
-.orders-head span{font-size:13px;color:var(--muted)}
-.leakfish{position:absolute;top:0;left:0;pointer-events:none;z-index:3;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 0 1px #10324A)}
-.tide{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid var(--ink);border-radius:10px;background:var(--surface);color:var(--ink)}
-.tide b{font:400 22px var(--pixel)}
-.tide span{font-size:13px;line-height:1.25}
-.order{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border:2px solid var(--edge);border-radius:10px;background:var(--surface)}
-.order.met{border-color:var(--good);box-shadow:inset 0 0 0 2px var(--good)}
-.order .want{display:flex;align-items:center;gap:4px;font:400 22px var(--pixel);color:var(--ink)}
-.order .bonus{font:400 18px var(--pixel);color:var(--accent-text)}
-.order.met .bonus::after{content:' ✓';color:var(--good)}
-.clue{margin:8px 0 2px;color:var(--ink);font-weight:600}
-.stars{font:400 28px var(--pixel);color:var(--accent-text);letter-spacing:4px;line-height:1}
-@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-@keyframes fade{to{opacity:0}}
-@keyframes rise{from{transform:translateY(0)}to{transform:translateY(-70%);opacity:0}}
-@keyframes frames{0%{background-position:0 0}50%{background-position:100% 0}}
-.c.boat{background:radial-gradient(circle,rgba(255,255,255,.75) 0 42%,transparent 72%)}
-.c.boat::after{content:"";position:absolute;inset:4%;border:2px solid var(--accent);border-radius:50%;animation:ping 1.6s ease-out infinite;animation-delay:var(--clock,0s)}
-@keyframes ping{from{transform:scale(.55);opacity:.9}to{transform:scale(1.1);opacity:0}}
-@media (prefers-reduced-motion:reduce){.mark{animation:fade .6s forwards!important}.sp,.c.boat::after,.c.in,.ov .rope{animation:none!important}.bubble{animation:fade .01s 2.5s forwards!important}.bubble.stay{animation:none!important}}
+.result,#catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.scene{display:block;image-rendering:pixelated;box-shadow:0 0 0 3px var(--bark)}
+.big{font:400 84px/.85 var(--pixel);color:var(--gold);
+  text-shadow:4px 0 var(--bark),-4px 0 var(--bark),0 4px var(--bark),0 -4px var(--bark),4px 4px var(--bark),-4px 4px var(--bark),4px -4px var(--bark),-4px -4px var(--bark)}
+.big.lost{color:#E8826A}
+.stars{display:flex;gap:6px}
+.stars .sp{width:36px;height:36px}
+.result p{margin:0;font-size:24px}
+.note{font-size:20px;color:var(--ink-soft)}
+.note:empty{display:none}
 
-.controls{display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:8px}
-.panel .controls{grid-template-columns:1fr 1fr}
-.game.done>.meta,.game.done>.hint,.game.done>.controls{visibility:hidden}
-.btn{appearance:none;border:2px solid var(--ink);background:var(--surface);color:var(--ink);font:400 22px var(--pixel);padding:10px 12px;border-radius:12px;cursor:pointer}
-.btn:hover:not(:disabled){background:var(--surface2)}
-.btn:disabled{border-color:var(--edge);color:var(--edge);background:transparent;cursor:default}
-.reveal{display:flex;gap:8px}
-.reveal .btn{flex:1;font-size:18px;padding:6px 8px}
-.btn.primary{background:var(--accent);color:var(--ink)}
-.btn.primary:hover:not(:disabled){background:#F79B40}
-.btn.primary:disabled{background:transparent;color:var(--edge);border-color:var(--edge)}
-.note{font-size:13px;color:var(--muted);margin:0;text-align:center;min-height:1.2em}
+.book h2{margin:0 0 6px;font:400 26px/1 var(--pixel);color:var(--ink)}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-top:2px dashed #D9BE84;font-size:22px}
+.log li:first-child{border-top:0}
+.log li>span:first-child{color:var(--ink-soft)}
+.pips{display:flex;gap:4px;align-items:center}
+.pips .sp{width:28px;height:28px}
+.pips .off{width:20px;height:20px;margin:4px;border-radius:50%;box-shadow:inset 0 0 0 3px #8A6A3A}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:20px;color:var(--ink-soft)}
+.day.today{border-image-source:var(--gold9);border-image-slice:4 fill}
+.day small{font-size:16px;line-height:1}
+.day .sp{width:28px;height:22px;background-size:contain}
+.streak{margin:0;font-size:22px;color:var(--ink)}
+.dex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+#dex h2{margin:0 0 8px;font:400 30px/1 var(--pixel)}
+.today{display:flex;align-items:center;gap:12px}
+.today>.sp{width:56px;height:44px;flex:none}
+.today>div{flex:1;display:flex;flex-direction:column;line-height:1}
+.today small{font-size:18px;color:var(--ink-soft)}
+.today b{font-weight:400;font-size:26px}
+.btn.small{display:inline-flex;align-items:center;gap:6px;font-size:22px;padding:0 10px 2px 6px}
+.btn.small .sp{width:24px;height:22px}
+.mon{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:17px;line-height:1;text-align:center;color:var(--ink)}
+.mon.rare{border-image-source:var(--gold9);border-image-slice:4 fill}
+.mon.now{outline:3px solid var(--sun);outline-offset:1px}
+.mon .sp{width:40px;height:34px;background-size:contain}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.keys>div{display:flex;flex-wrap:wrap;gap:6px 12px}
+.keys>div:first-child{grid-column:1/-1}
+.keys b{flex-basis:100%;font-weight:400;font-size:20px;color:var(--ink-soft)}
+.key{display:inline-flex;align-items:center;gap:6px;font-size:21px}
 
-.legend{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;background:var(--surface);border:2px solid var(--ink);border-radius:12px;padding:6px 4px;margin-top:4px}
-.legend button{appearance:none;border:0;background:transparent;border-radius:8px;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;font:400 18px var(--pixel)}
-.legend button:hover{background:var(--surface2)}
-.legend button[aria-pressed="true"]{background:var(--pen)}
-.legend .sp{width:28px;height:28px}
-.legend .pos,.legend .neg-t{line-height:1}
+dialog{padding:0;border:0;background:none;color:var(--ink);max-width:min(94vw,420px);overflow:visible}
+dialog::backdrop{background:rgba(6,20,32,.7)}
+dialog .parch{padding:4px 6px}
+dialog h2{margin:0 0 8px;font:400 34px/1 var(--pixel)}
+dialog ol{margin:0 0 14px;padding-left:24px;font-size:23px;line-height:1.1}
+dialog li{margin:8px 0}
+#catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:6px}
+#catch .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
-dialog{background:var(--surface);color:var(--ink);border:2px solid var(--ink);border-radius:14px;padding:20px;max-width:min(92vw,460px)}
-dialog::backdrop{background:rgba(16,50,74,.45)}
-dialog h2{font:400 28px var(--pixel);margin:0 0 8px}
-dialog h3{font:400 22px var(--pixel);margin:14px 0 4px;display:flex;align-items:center;gap:8px}
-dialog h3 .sp{width:28px;height:28px}
-dialog p{margin:0 0 6px;color:var(--muted)} dialog b{color:var(--ink)}
-dialog .btn{width:100%;margin-top:14px}
-.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@keyframes pulse{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
 </style>
 </head>
 <body>
 <!--
-THESIS: the daylight daily-puzzle board of the category, done with care; the net's first rule (rock fences) is the loudest thing on screen. Refuses the dark teal game grid it replaces.
-OWN-WORLD: seafoam page, white surfaces, navy ink outlines; flat turquoise water with a faint grid and a deeper wavy ring for open sea; rocks as Mario-style pixel blocks; sand pen swept in from the boat with a navy rope on its true perimeter; white buoys with a navy band; dashed protected-area square on protected animals; rule cards as playing cards; 12x12 pixel sprites kept as the fun.
-STORY: the player reads the fence in a glance, closes a pen, sees exactly what it holds, hauls.
-FIRST VIEWPORT: title, three rule cards, the board full width, buoys left and catch, controls, legend.
-FORM: canon (category standard), bar set by enclose.horse and Puzzmo; seed d74d21b0.
+THESIS: The sea is a window. You look down through clear water at a real seabed, and sun, shade and depth are light: caustics where the sun reaches, cloud shadow where it does not, a shelf where the water drops. Refuses the flat outlined grid board every daily puzzle ships.
+OWN-WORLD: Rich pixel art lagoon on a deep-teal page; seabed tiles that run across squares; a beach and a wooden pier along the bottom where the cat sits with a rod; UI as pixel-drawn wood planks and parchment (9-slice), gold pixel buttons; Jersey 10 everywhere; one integer pixel grid.
+STORY: The player reads the cat's line, looks into the water, taps a square to read its three habits, casts (the line arcs from the rod to a bobber), and deduces the fish in six casts; the catch takes the foreground as a pixel scene of the cat hauling the golden fish out of the water; then shares.
+FIRST VIEWPORT: Wordmark, the cat's dialogue box, then the lagoon with the beach and pier in a wooden frame at an integer scale; the cast plaque with bobbers left and the gold Cast button right under it.
+FORM: Água Clara, candidate 5 of 7 (rich pixel art seen from above), seed 9bbec2c1; owner steer: no island, the cat fishing from a pier, a foreground catch scene.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->
-
 <div class="wrap">
   <header class="top">
-    <button class="icon-btn" id="help-btn" data-t-label="how_to_play">?</button>
-    <div><h1>Good <span>Catch</span></h1><div class="date" id="date"></div></div>
-    <button class="icon-btn" id="menu-btn" popovertarget="menu" data-t-label="menu"><i class="sp s-menu"></i></button>
+    <button class="icon-btn wood" id="help-btn" aria-label="Help"><i class="sp" id="help-icon"></i></button>
+    <div><h1>Good <span>Catch</span></h1><div class="date" id="sub"></div></div>
+    <button class="icon-btn wood" id="lang"></button>
   </header>
-  <div id="menu" class="menu" popover>
-    <button id="train-btn"></button>
-    <button id="lang-btn"></button>
+  <div class="talk"><i class="sp face" id="cat"></i><div class="bubble parch"><p id="say" aria-live="polite"></p><div class="feat" id="feat" hidden></div></div></div>
+  <div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div></div>
+  <div class="cast wood" id="bar">
+    <div class="row"><div class="left" id="left"></div><button class="btn" id="cast"></button></div>
   </div>
-
-  <nav class="switch" role="tablist">
-    <button role="tab" id="tab-rede"><i class="sp s-sardinha"></i><span data-t="game_rede"></span><small data-k="best"></small></button>
-    <button role="tab" id="tab-linha"><i class="sp s-hook"></i><span data-t="game_linha"></span><small data-k="best"></small></button>
-    <button role="tab" id="tab-fundo"><i class="sp s-hook"></i><span data-t="game_fundo"></span><small data-k="best"></small></button>
-  </nav>
-
-  <section class="game" id="game-rede">
-    <div class="cards" data-k="card" hidden></div>
-    <div class="stage"><div class="board net" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
-    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
-    <p class="hint" data-k="hint" aria-live="polite"></p>
-    <div class="controls">
-      <button class="btn" data-k="undo" data-t="undo"></button>
-      <button class="btn" data-k="clear" data-t="clear"></button>
-      <button class="btn primary" data-k="go" data-t="go_rede"></button>
-    </div>
-  </section>
-
-  <section class="game" id="game-linha" hidden>
-    <div class="stage"><div class="board line" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
-    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
-    <p class="hint" data-k="hint" aria-live="polite"></p>
-    <div class="controls">
-      <button class="btn" data-k="undo" data-t="undo"></button>
-      <button class="btn" data-k="clear" data-t="clear"></button>
-      <button class="btn primary" data-k="go" data-t="go_linha"></button>
-    </div>
-  </section>
-
-  <section class="game" id="game-fundo" hidden>
-    <div class="stage"><div class="board line" data-k="board"></div><div class="panel" data-k="result" hidden></div></div>
-    <div class="meta"><span class="count" data-k="count"></span><span class="badge" data-k="train" data-t="practice" hidden></span><span class="pv" data-k="pv"></span></div>
-    <p class="hint" data-k="hint" aria-live="polite"></p>
-    <div class="controls">
-      <button class="btn" data-k="undo" data-t="undo"></button>
-      <button class="btn" data-k="clear" data-t="clear"></button>
-      <button class="btn primary" data-k="go" data-t="go_linha"></button>
-    </div>
-  </section>
-
-  <div class="legend" id="legend"></div>
+  <section class="result parch" id="result" hidden></section>
+  <section class="book parch" id="logbox" hidden><h2 id="log-title"></h2><ol class="log" id="log"></ol></section>
+  <section class="book parch" id="journal"></section>
+  <section class="book parch"><h2 id="key-title"></h2><div class="keys" id="legend"></div></section>
 </div>
-
-<dialog id="reveal">
-  <p data-t="reveal_confirm"></p>
-  <form method="dialog" class="choice">
-    <button class="btn" value="no" data-t="cancel"></button>
-    <button class="btn primary" value="yes" data-t="reveal_go"></button>
-  </form>
-</dialog>
-
-<dialog id="help">
-  <h2 data-t="how_to_play"></h2>
-  <div id="help-body"></div>
-  <form method="dialog"><button class="btn primary" data-t="got_it"></button></form>
-</dialog>
-
+<dialog id="help"><div class="parch">
+  <h2 id="help-title"></h2>
+  <ol id="help-body"></ol>
+  <form method="dialog"><button class="btn" id="got-it"></button></form>
+</div></dialog>
+<dialog id="catch"><div class="parch" id="catch-body"></div></dialog>
+<dialog id="dex"><div class="parch"><div id="dex-body"></div><form method="dialog"><button class="btn" id="dex-close"></button></form></div></dialog>
 <script>
 (function(){
-// ---------- pixel sprites ----------
-const PAL = {
-  s:'#5E8FA3', b:'#9CC3CF', e:'#0A1F2B', w:'#EDEAE0',
-  p:'#D98BB0', P:'#A9608A',
-  o:'#E0703A', O:'#B24E22',
-  y:'#E9C25A', Y:'#C9962E',
-  r:'#D8553A', R:'#A33A28', c:'#E86A4A',
-  k:'#F07C9A', K:'#B8466A',
-  G:'#7F929E', u:'#D3DDE1',
-  h:'#9BC46A', f:'#7FA84E', g:'#3F6B33', v:'#6E9B4A',
-  d:'#6F9FC4', D:'#4C7DA3',
-  m:'#6B4A2E', n:'#F39A36', N:'#C8741F',
-  q:'#7A8A8C', Q:'#56666A', z:'#36454A',
-  x:'#C9D3D6', l:'#EBDDB4',
-  a:'#4F6BD8', A:'#33479E', j:'#10324A',
-  H:'#8C969B', F:'#57636A', L:'#3A4347', T:'#2E363A',
-  U:'#157A4C', V:'#C8352A',
-};
-const SPRITES = {
-  boatcat:["......rr....","......mrr...","......ww....","o...o.www...","ooooo.wwww..","oeoeo.wwwww.","ooOoo.wwwwww",".ooo..m.....","nnnnnnnnnnnn","nNNNNNNNNNNn",".nnnnnnnnnn.","............"],
-  lontra:["...wwwwww...","..wwwwwwww..","..wwwwwwww..","...wwwwww...","..mmmmmmmm..",".mmlmmmmlmm.",".mmemmmmemm.",".mmmllllmmm.","..mmleelmm..","..mmmllmmm..","...mmmmmm...","............"],
-  pelicano:["............","....wwww....","...wwwwww...","...wwewwww..","...wwwwwyyy.","....wwwyyyYY","....wwwYyyyY","...wwwwwYYY.","..wwwwwww...","..wwwwwww...","...wwwww....","............"],
-  guaxinim:[".q........q.",".qq......qq.","..qqqqqqqq..",".qqqqqqqqqq.",".zzzqqqqzzz.",".zezqqqqzez.",".zzzqqqqzzz.","..qqqxxqqq..","..qqxeexqq..","...qxxxxq...","....qqqq....","............"],
-  vovo:[".x........x.",".xx......xx.",".xxxxxxxxxx.","xxxxxxxxxxxx","xjjjxxxxjjjx","xjejjjjjjejx","xjjjxxxxjjjx","xxxxxkkxxxxx",".xxxxxxxxxx.",".pppppppppp.","pppppppppppp","............"],
-  sardinha:["............","............","............",".....ssss...",".s..ssssss..",".ss.sssssses","..bbbbbbbbbb",".bb.bbbbbbb.",".b...bbbbb..","............","............","............"],
-  lula:[".....pp.....","....pppp....","..P.pPpp.P..",".PPppppppPP.","..PppPpppP..","....pppp....","....pPpp....","...epppPe...","...pppppp...","..p.p..p.p..","..p.p..p.p..",".p..p..p..p."],
-  caranguejo:["............",".oo......oo.","o.o......o.o",".oo.e..e.oo.","..o.o..o.o..","...oooooo...","..oOooooOo..",".oooooooooo.","o.oOOOOOOo.o","..o.o..o.o..",".o..o..o..o.","............"],
-  dourada:["............","....yyyy....","...yyyyyy...","y.yyyyyyyy..","yyyYyyyyyey.","yyyYyyyyyyyy","yyyYyyyyyyy.","y.yyyyyyyy..","...yyyyyy...","....yyyy....","............","............"],
-  lagosta:[".a........a.","aa........aa","aa..a..a..aa",".a..a..a..a.","..aaaaaaaa..","...aAAAAa...","...aaaaaa...","...aAAAAa...","....aaaa....","....aAAa....","...aaaaaa...","............"],
-  coral:["............","..k.....k...","..k..k..k.k.","k.kk.k.kk.k.","kk.k.k.k..k.",".k.kkkkk.kk.",".kk..k..kk..","..kk.k.kk...","...kkkkk....","....kKk.....","...KKKKK....","............"],
-  tubarao:["............","............",".....G......","....GG......","G..GGGGGG...","GGGGGGGGGGG.","GGGGGGGGGeGG",".GGuuuuuuuu.","G..uuuuuu...",".....u......","............","............"],
-  tartaruga:["....hh......","....hh......","..f.gggg.f..",".ffgvgvggff.","..gvvgvvgg..","..ggvgvgvg..","..gvvgvvgg..",".ffggvgggff.","..f.gggg.f..",".....hh.....","............","............"],
-  golfinho:["............","............","......D.....",".....DD.....","...dddddd...","..ddddddded.",".ddwwwwddddd","dd...wwww...","d...........","dd..........","............","............"],
-  boat:["......rr....","......mrr...","......ww....","......www...","....w.wwww..","...ww.wwwww.","..www.wwwwww","......m.....","nnnnnnnnnnnn","nNNNNNNNNNNn",".nnnnnnnnnn.","............"],
-  rock:["HHHHHHHHHHHL","HFFFFFFFFFFL","HFTFFFFFFTFL","HFFFFFFFFFFL","HFFFFFFFFFFL","HFFFFFFFFFFL","HFFFFFFFFFFL","HFFFFFFFFFFL","HFFFFFFFFFFL","HFTFFFFFFTFL","HFFFFFFFFFFL","LLLLLLLLLLLL"],
-  up:["............","............",".....UU.....","....UUUU....","...UUUUUU...","..UUUUUUUU..",".UUUUUUUUUU.","............","............","............","............","............"],
-  down:["............","............","............","............","............",".VVVVVVVVVV.","..VVVVVVVV..","...VVVVVV...","....VVVV....",".....VV.....","............","............"],
-  menu:["............",".jjjjjjjjjj.","............","............","............",".jjjjjjjjjj.","............","............","............",".jjjjjjjjjj.","............","............"],
-  buoy:["............",".....ll.....",".....ll.....","....nnnn....","...nnnnnn...","..wwwwwwww..","..jjjjjjjj..","..wwwwwwww..","..wwwwwwww..","...xxxxxx...","....xxxx....","............"],
-  hook:[".......l....",".......l....",".......l....","......xxx...",".......x....",".......x....",".......x....","..x....x....","..xx...x....","...x...x....","...xx.xx....","....xxx....."],
-};
-function shift(m,[r0,r1],[c0,c1],dr,dc){
-  const out=m.map(row=>[...row]);
-  for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++) out[r][c]='.';
-  for(let r=r0;r<=r1;r++)for(let c=c0;c<=c1;c++){const nr=r+dr,nc=c+dc;if(m[r][c]!=='.'&&nr>=0&&nc>=0&&nr<12&&nc<12)out[nr][nc]=m[r][c]}
-  return out.map(row=>row.join(''));
-}
-const FRAME2 = {
-  sardinha:m=>shift(m,[0,11],[0,2],-1,0),
-  dourada:m=>shift(m,[0,11],[0,1],1,0),
-  tubarao:m=>shift(m,[0,11],[0,2],-1,0),
-  golfinho:m=>shift(m,[6,11],[0,1],-1,0),
-  lula:m=>shift(m,[9,11],[0,11],0,1),
-  caranguejo:m=>shift(m,[0,3],[0,11],1,0),
-  lagosta:m=>shift(m,[0,3],[0,11],1,0),
-  coral:m=>shift(m,[0,4],[0,11],0,1),
-  tartaruga:m=>shift(shift(m,[0,11],[0,2],1,0),[0,11],[9,11],1,0),
-  boat:m=>shift(m,[0,11],[0,11],1,0),
-  boatcat:m=>shift(m,[0,11],[0,11],1,0),
-};
-function spriteURL(frames){
-  const cv=document.createElement('canvas'); cv.width=14*frames.length; cv.height=14; const x=cv.getContext('2d');
-  frames.forEach((map,f)=>{
-    const on=(r,c)=>r>=0&&c>=0&&r<12&&c<12&&map[r][c]!=='.';
-    for(let r=-1;r<13;r++)for(let c=-1;c<13;c++){
-      if(on(r,c)){x.fillStyle=PAL[map[r][c]];x.fillRect(14*f+c+1,r+1,1,1)}
-      else if(on(r-1,c)||on(r+1,c)||on(r,c-1)||on(r,c+1)){x.fillStyle='#051019';x.fillRect(14*f+c+1,r+1,1,1)}
-    }
-  });
-  return cv.toDataURL();
-}
-const spriteCSS=Object.entries(SPRITES).map(([k,m])=>FRAME2[k]
-  ?`.s-${k}{background-image:url(${spriteURL([m,FRAME2[k](m)])});background-size:200% 100%;background-position:0 0;animation:frames 1.2s step-end infinite;animation-delay:var(--clock,0s)}`
-  :`.s-${k}{background-image:url(${spriteURL([m])})}`).join('');
-document.head.insertAdjacentHTML('beforeend',`<style>${spriteCSS}</style>`);
-const sprite=(k,extra='')=>`<i class="sp s-${k}"${extra}></i>`;
-const arr=k=>`<i class="sp arr s-${k}" aria-hidden="true"></i>`;
-
-function seaURL(g){
-  const S=14, cv=document.createElement('canvas'); cv.width=g.cols*S; cv.height=g.rows*S; const x=cv.getContext('2d');
-  const rng=mulberry(seedFrom('sea:'+g.key));
-  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-    let base, tick;
-    const ring=r===0||c===0||r===g.rows-1||c===g.cols-1;
-    if(g.kind==='net'){base=ring?'#6CC4D2':'#9EDFE4';tick=ring?'#E9F8F9':null}
-    else if(r===0){base='#D6F1F3';tick='#FFFFFF'}
-    else {const d=(r-1)/(g.rows-2);base=`hsl(${186+d*8} ${58-d*14}% ${75-d*20}%)`;tick=`hsl(${186+d*8} ${58-d*14}% ${81-d*20}%)`}
-    x.fillStyle=base; x.fillRect(c*S,r*S,S,S);
-    if(!tick) continue;
-    x.fillStyle=tick;
-    for(let k=0;k<2;k++) if(rng()<.35){const wx=c*S+Math.floor(rng()*8), wy=r*S+2+Math.floor(rng()*10); x.fillRect(wx,wy,3,1); x.fillRect(wx+3,wy-1,2,1)}
-  }
-  if(g.kind==='net'){x.fillStyle='rgba(16,50,74,.08)';for(let c=1;c<g.cols;c++)x.fillRect(c*S,0,1,g.rows*S);for(let r=1;r<g.rows;r++)x.fillRect(0,r*S,g.cols*S,1)}
-  if(g.kind==='line'){x.fillStyle='#FFFFFF';for(let c=0;c<g.cols*S;c+=4)x.fillRect(c,0,2,1)}
-  return cv.toDataURL();
-}
-
-// ---------- daily date ----------
-const EPOCH = '2026-09-25';
-const now = new Date();
-// ?dia= previews another day, only on a local server: on the live site it would reveal future maps.
-const DAY_PARAM=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('dia');
-const DATE = DAY_PARAM||`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-const DAYNUM = Math.round((new Date(DATE+'T12:00:00') - new Date(EPOCH+'T12:00:00'))/864e5) + 1;
-
 // @gen-start
-const SP = {
-  sardinha:{p:1},
-  lula:{p:2},
-  caranguejo:{p:2},
-  dourada:{p:3},
-  lagosta:{p:5},
-  coral:{p:-3},
-  tubarao:{p:-4},
-  tartaruga:{p:-6},
-  golfinho:{p:-8},
-};
-
-// Practice-net rule cards. Each must stay linear so tools/solve-net.mjs can solve the map exactly.
-const CARDS = {
-  isca:{empty:-1},
-  mare:{noRocks:true},
-  curta:{maxArea:12},
-  golfinho:{set:{golfinho:8}},
-  barbatana:{set:{tubarao:4}},
-  soltura:{release:3},
-  faminto:{hungry:true},
-};
-const pts=(g,sp)=>g.card?.set?.[sp]??SP[sp].p;
-function applyCard(g){if(g.card?.noRocks) for(const row of g.grid) for(const x of row) x.rock=false}
-const stars=(s,best)=>best>0?(s>=best?3:s>=.85*best?2:s>=.7*best?1:0):null;
-const canBuoy=(g,r,c)=>{const sp=g.grid[r][c].sp;return !sp||SP[sp].p>=0||!!g.card?.release};
-const overArea=(g,inside)=>!!(g.card?.maxArea&&inside&&inside.size>g.card.maxArea);
-
-// ---------- deterministic randomness ----------
+const N=7, BOTTOMS=['areia','coral','pedra','alga'];
 function seedFrom(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^h>>>16)>>>0}
 function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const ri=(rng,a,b)=>a+Math.floor(rng()*(b-a+1));
-function weighted(rng,list){let t=0;for(const x of list)t+=x[1];let v=rng()*t;for(const [k,w] of list){if((v-=w)<0)return k}return list[0][0]}
-
-const emptyGrid=(R,C)=>Array.from({length:R},()=>Array.from({length:C},()=>({rock:false,sp:null})));
 const key=(r,c)=>r*100+c;
-
-// ---------- generation: net ----------
-function genNet(g,rng){
-  g.start=[ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)];
-  const G=emptyGrid(g.rows,g.cols); const [sr,sc]=g.start;
-  const inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
-  const nearBoat=(r,c)=>Math.abs(r-sr)+Math.abs(c-sc)<=2;
-  const free=(r,c)=>inB(r,c)&&!G[r][c].rock&&!G[r][c].sp&&!nearBoat(r,c);
-  // The outer ring is open sea: nothing there can ever be enclosed, so an animal on it would only be noise.
-  const openSea=(r,c)=>r===0||c===0||r===g.rows-1||c===g.cols-1;
-  const put=(sp,r,c)=>{if(free(r,c)&&!openSea(r,c)){G[r][c].sp=sp;return true}return false};
-  for(let f=0;f<5;f++){
-    let r=ri(rng,0,g.rows-1), c=ri(rng,0,g.cols-1), d=ri(rng,0,3);
-    for(let n=ri(rng,3,7);n>0;n--){
-      if(free(r,c)) G[r][c].rock=true;
-      if(rng()<.4) d=ri(rng,0,3);
-      const [dr,dc]=[[1,0],[-1,0],[0,1],[0,-1]][d];
-      r=Math.max(0,Math.min(g.rows-1,r+dr)); c=Math.max(0,Math.min(g.cols-1,c+dc));
-    }
+const combo=x=>x.b*4+x.d*2+x.l;
+const bites=(x,f)=>(x.b===f.b)+(x.d===f.d)+(x.l===f.l);
+const stars=n=>n<=2?3:n===3?2:1;
+// The beach runs along the bottom edge: a square is shallow from its column's shelf row down to the shore.
+// Shade is the shadow of two clouds, a square's centre inside an ellipse.
+function genSea(date){
+  for(let tries=1;;tries++){
+    const rng=mulberry(seedFrom(`${date}:pista${tries>1?':'+tries:''}`)), ri=n=>Math.floor(rng()*n);
+    const shelf=[];let sh=3+ri(3);for(let c=0;c<N;c++){shelf.push(sh);sh=Math.min(5,Math.max(3,sh+ri(3)-1))}
+    const clouds=Array.from({length:2},()=>({r:rng()*N,c:rng()*N,rr:1.2+rng()*1.3,rc:1.5+rng()*1.5}));
+    const pts=Array.from({length:6},(_,i)=>({r:rng()*N,c:rng()*N,b:i<4?i:ri(4)}));
+    const grid=[];
+    for(let r=0;r<N;r++){grid.push([]);for(let c=0;c<N;c++){
+      let b=0,bd=1e9;for(const p of pts){const q=(p.r-r-.5)**2+(p.c-c-.5)**2;if(q<bd){bd=q;b=p.b}}
+      const l=clouds.some(k=>((r+.5-k.r)/k.rr)**2+((c+.5-k.c)/k.rc)**2<=1)?1:0;
+      grid[r].push({b,d:r>=shelf[c]?0:1,l});
+    }}
+    const present=[...new Set(grid.flat().map(combo))].sort((x,y)=>x-y);
+    if(present.length===12){const f=present[ri(12)];return {grid,shelf,clouds,fish:{b:f>>2,d:(f>>1)&1,l:f&1},present,tries}}
   }
-  const posW=[['sardinha',6],['lula',2],['dourada',2]];
-  const negs=['tartaruga','golfinho','tubarao','tartaruga'];
-  for(let k=0;k<5;k++){
-    const cr=ri(rng,1,g.rows-2), cc=ri(rng,1,g.cols-2);
-    let want=ri(rng,4,6);
-    for(let t=0;t<30&&want>0;t++){if(put(weighted(rng,posW),cr+ri(rng,-2,2),cc+ri(rng,-2,2)))want--}
-    if(k<4){for(let t=0;t<20;t++){if(put(negs[k],cr+ri(rng,-1,1),cc+ri(rng,-1,1)))break}}
-  }
-  for(let n=2,t=0;n>0&&t<40;t++){if(put('lagosta',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
-  for(let n=1,t=0;n>0&&t<40;t++){if(put(rng()<.5?'golfinho':'tubarao',ri(rng,0,g.rows-1),ri(rng,0,g.cols-1)))n--}
-  return G;
 }
-
-// ---------- generation: line ----------
-function genLine(g,rng){
-  g.start=[0,ri(rng,0,g.cols-1)];
-  for(let attempt=0;attempt<60;attempt++){
-    const G=emptyGrid(g.rows,g.cols); const R=g.rows, C=g.cols;
-    const [sr,sc]=g.start;
-    const free=(r,c)=>r>=1&&c>=0&&r<R&&c<C&&!G[r][c].rock&&!G[r][c].sp&&!(r===1&&c===sc);
-    const zone=(sp,r0,r1,n,rock)=>{for(let t=0;t<80&&n>0;t++){const r=ri(rng,r0,r1),c=ri(rng,0,C-1);if(free(r,c)){if(rock)G[r][c].rock=true;else G[r][c].sp=sp;n--}}};
-    zone(null,3,R-1,7,true);
-    zone('golfinho',1,4,1);
-    zone('tartaruga',3,7,2);
-    zone('tubarao',5,9,2);
-    zone('coral',R-2,R-1,3);
-    zone('sardinha',1,3,7);
-    zone('lula',2,5,3);
-    zone('dourada',4,8,4);
-    zone('caranguejo',R-1,R-1,2);
-    zone('lagosta',R-2,R-1,1);
-    // make sure a path to the seabed exists
-    const dist=new Map([[key(sr,sc),0]]); const q=[[sr,sc]]; let best=Infinity;
-    while(q.length){const [r,c]=q.shift();const d=dist.get(key(r,c));if(r===R-1)best=Math.min(best,d);
-      for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(nr<1||nc<0||nr>=R||nc>=C)continue;const cell=G[nr][nc];if(cell.rock||cell.sp)continue;if(dist.has(key(nr,nc)))continue;dist.set(key(nr,nc),d+1);q.push([nr,nc])}}
-    if(best<=g.maxLen-4) return G;
-  }
-  return emptyGrid(g.rows,g.cols);
-}
-
-// ---------- generation: drop ----------
-function syncDrop(g){
-  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) g.grid[r][c].sp=g.cells[r][c];
-}
-function buildDrop(g,rng){
-  const R=g.rows, C=g.cols;
-  const cells=Array.from({length:R},()=>Array(C).fill(null));
-  const species=['sardinha','dourada','lula','caranguejo'];
-  for(let c=0;c<C;c++){
-    for(let r=R-1;r>=1;r--){
-      const below=r<R-1?cells[r+1][c]:null, left=c>0?cells[r][c-1]:null;
-      cells[r][c]=(rng()<.55&&(below||left))?(below||left):species[ri(rng,0,species.length-1)];
-    }
-  }
-  let placed=0;
-  while(placed<2){
-    const r=ri(rng,2,7), c=ri(rng,0,C-1);
-    if(cells[r][c]!=='tartaruga'){cells[r][c]='tartaruga';placed++}
-  }
-  return cells;
-}
-// Greedy play (always the biggest school) is the obvious plan; a day only passes when the obvious plan
-// scores at most 65% of the optimum and the optimum needs a small setup cast, so the map has something to find.
-const DROP_TRIES=80;
-function greedyDrop(cells,lances){
-  let total=0;
-  for(let i=0;i<lances;i++){
-    let pick=null;
-    for(let c=0;c<cells[0].length;c++){const res=dropFish(cells,c);if(!res.why&&(!pick||res.points>pick.points))pick=res}
-    if(!pick) break;
-    total+=pick.points; cells=pick.cells;
-  }
-  return total;
-}
-function genDrop(g,rng){
-  g.start=[0,Math.floor(g.cols/2)];
-  let fallback=null, fallbackRatio=2;
-  for(let t=0;t<DROP_TRIES;t++){
-    const cells=buildDrop(g,rng), opt=solveDrop(cells,g.lances), ratio=greedyDrop(cells,g.lances)/opt.best;
-    if(ratio<=.65&&opt.path.some(p=>p<=4)){g.cells0=cells;g.tries=t+1;return emptyGrid(g.rows,g.cols)}
-    if(ratio<fallbackRatio){fallbackRatio=ratio;fallback=cells}
-  }
-  g.cells0=fallback; g.tries=DROP_TRIES; return emptyGrid(g.rows,g.cols);
-}
-function dropTarget(cells,c){
-  for(let r=1;r<cells.length;r++) if(cells[r][c]!=null) return r;
-  return -1;
-}
-function dropGroup(cells,r,c){
-  const sp=cells[r][c]; if(sp==null) return [];
-  const R=cells.length, C=cells[0].length;
-  const seen=new Set([key(r,c)]), stack=[[r,c]], out=[[r,c]];
-  while(stack.length){
-    const [cr,cc]=stack.pop();
-    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
-      const nr=cr+dr, nc=cc+dc;
-      if(nr<1||nr>=R||nc<0||nc>=C||seen.has(key(nr,nc))||cells[nr][nc]!==sp) continue;
-      seen.add(key(nr,nc)); stack.push([nr,nc]); out.push([nr,nc]);
-    }
-  }
-  return out;
-}
-function dropFish(cells,c){
-  const r=dropTarget(cells,c);
-  if(r<0) return {cells,caught:[],sp:null,points:0,why:'empty'};
-  const sp=cells[r][c];
-  if(sp==='tartaruga') return {cells,caught:[],sp,points:0,why:'turtle'};
-  const group=dropGroup(cells,r,c);
-  const R=cells.length, C=cells[0].length;
-  const next=cells.map(row=>row.slice());
-  for(const [gr,gc] of group) next[gr][gc]=null;
-  for(let cc=0;cc<C;cc++){
-    const colVals=[];
-    for(let rr=1;rr<R;rr++) if(next[rr][cc]!=null) colVals.push(next[rr][cc]);
-    for(let rr=1;rr<R;rr++) next[rr][cc]=null;
-    let write=R-1;
-    for(let i=colVals.length-1;i>=0;i--){ next[write][cc]=colVals[i]; write--; }
-  }
-  return {cells:next, caught:group, sp, points:group.length*group.length, why:null};
-}
-function solveDrop(cells0,lances){
-  const memo=new Map();
-  let nodes=0, complete=true;
-  const keyOf=(cells,rem)=>JSON.stringify(cells)+':'+rem;
-  const choice=new Map();
-  function dfs(cells,rem){
-    if(rem===0) return 0;
-    // node cap: bails out of the DFS once the branching factor makes an exact solve too slow, and reports the partial best instead
-    if(++nodes>200000){ complete=false; return 0 }
-    const k=keyOf(cells,rem);
-    if(memo.has(k)) return memo.get(k);
-    let best=0, bestC=-1;
-    for(let c=0;c<cells[0].length;c++){
-      const res=dropFish(cells,c);
-      if(res.why) continue;
-      const v=res.points+dfs(res.cells,rem-1);
-      if(v>best){best=v;bestC=c}
-    }
-    memo.set(k,best); choice.set(k,bestC);
-    return best;
-  }
-  const best=dfs(cells0,lances), path=[];
-  for(let cells=cells0,rem=lances;rem>0;rem--){
-    const c=choice.get(keyOf(cells,rem)); if(c==null||c<0) break;
-    const res=dropFish(cells,c); path.push(res.points); cells=res.cells;
-  }
-  return {best,complete,path};
-}
-
-// ---------- jogos ----------
-const games = {
-  rede:{key:'rede',kind:'net',buoy:true,cols:11,rows:11,maxBuoys:14,gen:genNet,icon:'🕸️'},
-  linha:{key:'linha',kind:'line',cols:9,rows:12,maxLen:20,gen:genLine,icon:'🪝'},
-  fundo:{key:'fundo',kind:'drop',cols:7,rows:9,lances:5,gen:genDrop,icon:'🎣'},
+const SHAPES={
+  oval:["......aaaaa.....","....aaaaaaaaa.ff","..aaaaaaaaaaaaff",".aweaaaaaaaaafff","aaaaaaaaaaaaafff",".acccccccccaaaff","..ccccccccccaaff","....cccccca...ff","......ff........"],
+  tall:["......ff......",".....fff......","....aaaa......","...aaaaaa.....","..aaaaaaaa..ff",".aweaaaaaaaaff","aaaaaaaaaaaaff",".aaaaaaaaaaaff","..cccccccc..ff","...cccccc.....","....cccc......",".....fff......","......ff......"],
+  round:[".....aaaa.....","...aaaaaaaa...","..aaaaaaaaaa.f",".aweaaaaaaaaff","aaaaaaaaaaaaaf","aaaaaaaaaaaaff",".acccccccccaaf","..cccccccccc..","...cccccccc...",".....cccc....."],
+  flat:["....aaaaaaaa....","..aaaaaaaaaaaa..",".aaewaaaaaaaaaff","aaaaaaaaaaaaaaff",".aaewaaaaaaaaaff","..aaaaaaaaaaaa..","....aaaaaaaa...."],
+  long:["...aaaaaaaaaa.f.",".awaaaaaaaaaaaff","aeaaaaaaaaaaaaff",".acccccccccccaff","...cccccccccc.f."],
+  seahorse:["...aaa...","..aaaaf..",".aewaaf..","aaa.aa...","....aaa..","...aaaaf.","...acaaf.","...acaa..","...acaa..","....aaa..",".....aa..","...a.aa..","...aa.a..","....aa..."],
+  ray:[".......aa.......","......aaaa......",".....aaaaaa.....","a...aaaaaaaa...a","aaaaaaaaaaaaaaaa",".aaaaawaawaaaaa.","..aaaaeaaeaaaa..","...aaaaaaaaaa...",".....aaaaaa.....",".......ff.......",".......ff.......","........f......."],
 };
-
-// Buoys, rocks and the boat are fence; the catch is whatever the open sea cannot reach on the boat's side.
-function evaluateBuoys(g){
-  const [sr,sc]=g.start, D=[[1,0],[-1,0],[0,1],[0,-1]], inB=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols;
-  const wall=(r,c)=>g.marks.has(key(r,c))||g.grid[r][c].rock||r===sr&&c===sc;
-  const out=new Set(), q=[];
-  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if((r===0||c===0||r===g.rows-1||c===g.cols-1)&&!wall(r,c)){out.add(key(r,c));q.push([r,c])}
-  while(q.length){const [r,c]=q.pop();for(const [dr,dc] of D){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(!inB(nr,nc)||wall(nr,nc)||out.has(k))continue;out.add(k);q.push([nr,nc])}}
-  const inside=new Set(), hits=[];
-  // A pen may touch the boat at a corner too: the net leaves one side of the boat and comes back on the other.
-  for(const [dr,dc] of [...D,[1,1],[1,-1],[-1,1],[-1,-1]]){const r0=sr+dr,c0=sc+dc;if(!inB(r0,c0)||wall(r0,c0)||out.has(key(r0,c0))||inside.has(key(r0,c0)))continue;
-    inside.add(key(r0,c0)); q.push([r0,c0]);
-    while(q.length){const [r,c]=q.pop();for(const [er,ec] of D){const nr=r+er,nc=c+ec,k=key(nr,nc);if(!inB(nr,nc)||wall(nr,nc)||inside.has(k))continue;inside.add(k);q.push([nr,nc])}}}
-  for(const k of inside){const r=Math.floor(k/100),c=k%100;if(g.grid[r][c].sp)hits.push([r,c])}
-  return {hits:inside.size?hits:null,inside,onP:g.marks,out};
+// rare: 1 uncommon, 2 rare (Saturdays only). Species is flavour and collection; it never changes the habits.
+const SPECIES=[
+  {id:'dourado',shape:'oval',pal:{a:'#F2C84B',b:'#C9962E',c:'#FFE9A0',f:'#E0A030'},spots:[[2,6],[4,9]]},
+  {id:'palhaco',shape:'oval',pal:{a:'#F28A30',b:'#FFFFFF',c:'#F9A850',f:'#1A1A1A'},stripes:[3,8,12]},
+  {id:'cirurgiao',shape:'oval',pal:{a:'#3E6FD8',b:'#14285A',c:'#2F58B8',f:'#F2C84B'},spots:[[2,6],[2,7],[2,8],[3,9],[3,10]]},
+  {id:'garoupa',shape:'oval',pal:{a:'#A0744A',b:'#5E3A1A',c:'#C9A070',f:'#7A5230'},spots:[[2,5],[3,9],[4,3],[5,7],[2,11],[4,12]]},
+  {id:'baiacu',shape:'round',pal:{a:'#D9B460',b:'#6B4A2A',c:'#F4E6BE',f:'#C79A40'},spots:[[1,5],[2,8],[3,11],[4,6],[2,3]]},
+  {id:'papagaio',shape:'oval',pal:{a:'#3FBF8F',b:'#F2A0C8',c:'#7FE0B8',f:'#2E8F6A'},stripes:[5,10]},
+  {id:'linguado',shape:'flat',pal:{a:'#C9A56A',b:'#8A6A40',f:'#A8844E'},spots:[[1,6],[3,9],[5,4],[5,11],[1,12]]},
+  {id:'sardinha',shape:'long',pal:{a:'#8FB8D8',b:'#4E7FA8',c:'#E4EEF4',f:'#6E98BA'},spots:[[0,4],[0,6],[0,8]]},
+  {id:'anjo',shape:'tall',rare:1,pal:{a:'#F2D24B',b:'#1A1A2A',c:'#FFE88A',f:'#3E6FD8'},stripes:[5,9]},
+  {id:'cavalo',shape:'seahorse',rare:1,pal:{a:'#F28A30',b:'#B24E22',c:'#FFC07A',f:'#FFD08A'},spots:[[4,5],[9,5]]},
+  {id:'leao',shape:'tall',rare:2,pal:{a:'#D8553A',b:'#FFFFFF',c:'#F4D8C8',f:'#E89080'},stripes:[3,6,9]},
+  {id:'manta',shape:'ray',rare:2,pal:{a:'#2A4A7A',b:'#1A2E50',f:'#2A4A7A'},spots:[[3,7],[3,8],[4,3],[4,12]]},
+];
+function speciesMap(s){
+  const m=SHAPES[s.shape].map(r=>[...r]);
+  for(const c of s.stripes||[])for(const row of m)if(/[ac]/.test(row[c]||''))row[c]='b';
+  for(const[r,c]of s.spots||[])if(/[ac]/.test(m[r]?.[c]||''))m[r][c]='b';
+  return m.map(r=>r.join(''));
 }
-// After a haul: the first idea the player's pen missed against the best pen of the same card, without giving the pen away.
-function clueFor(g,bestMarks){
-  const mine=evaluateBuoys(g); if(!mine.hits) return null;
-  const saved=g.marks; g.marks=bestMarks; const best=evaluateBuoys(g); g.marks=saved;
-  if(!best.hits) return null;
-  const count=hits=>{const gone=eaten(g,hits),m={};for(const [r,c] of hits){if(gone.has(key(r,c)))continue;const sp=g.grid[r][c].sp;m[sp]=(m[sp]||0)+1}return m};
-  const cm=count(mine.hits), cb=count(best.hits), [sr,sc]=g.start;
-  const dir=cells=>{let dr=0,dc=0;for(const k of cells){dr+=Math.floor(k/100)-sr;dc+=k%100-sc}return Math.abs(dr)>=Math.abs(dc)?(dr<0?'n':'s'):(dc<0?'w':'e')};
-  for(const sp in cm) if(pts(g,sp)<0&&!cb[sp]) return {k:'prot',sp};
-  const reef=inside=>{const s=new Set();for(const k of inside){const r=Math.floor(k/100),c=k%100;for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc;if(nr>=0&&nc>=0&&nr<g.rows&&nc<g.cols&&g.grid[nr][nc].rock)s.add(key(nr,nc))}}return s};
-  const rb=reef(best.inside), rm=reef(mine.inside);
-  if(rb.size&&(!rm.size||dir(rm)!==dir(rb))) return {k:'reef',dir:dir(rb)};
-  let top=null;
-  for(const sp in cb){const miss=cb[sp]-(cm[sp]||0);if(pts(g,sp)>0&&miss>0&&(!top||miss>top.n-top.m))top={k:'species',sp,n:cb[sp],m:cm[sp]||0}}
-  if(top) return top;
-  const db=dir(best.inside);
-  return dir(mine.inside)!==db?{k:'side',dir:db}:null;
+// Weekdays and Sunday draw from a per-week shuffle of the ten common species, so a week never repeats; Saturday is rare.
+function speciesOf(date){
+  const d=new Date(date+'T12:00:00'), wd=(d.getDay()+6)%7, mon=new Date(d); mon.setDate(d.getDate()-wd);
+  const rare=SPECIES.filter(x=>x.rare===2), pool=SPECIES.filter(x=>x.rare!==2).map(x=>x.id);
+  if(wd===5) return rare[Math.round(mon.getTime()/6048e5)%rare.length].id;
+  const rng=mulberry(seedFrom(`${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}:especie`));
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  return pool[wd<5?wd:5];
 }
-function leakPath(g){
-  if(!g.buoy||!g.marks.size) return null;
-  const e=evaluateBuoys(g); if(e.hits) return null;
-  const [sr,sc]=g.start, rc=k=>[Math.floor(k/100),k%100];
-  const edge=([r,c])=>r===0||c===0||r===g.rows-1||c===g.cols-1, near=([r,c])=>Math.max(Math.abs(r-sr),Math.abs(c-sc))===1;
-  const prev=new Map(), dist=new Map(), q=[];
-  for(const k of e.out) if(edge(rc(k))){prev.set(k,null);dist.set(k,0);q.push(k)}
-  // The square beside the boat the sea takes longest to reach is the one the player is fencing in; the nearest is just open water.
-  let end=null;
-  for(let i=0;i<q.length;i++){
-    const k=q[i],[r,c]=rc(k); if(near([r,c])&&(end===null||dist.get(k)>dist.get(end))) end=k;
-    for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const n=key(r+dr,c+dc);if(e.out.has(n)&&!prev.has(n)){prev.set(n,k);dist.set(n,dist.get(k)+1);q.push(n)}}
-  }
-  if(end===null) return null;
-  const path=[]; for(let k=end;k!==null;k=prev.get(k)) path.unshift(k);
-  // Blocking the path before the net closes it too (a bigger pen); the hole the player sees is the closing square flanked by fence.
-  const wall=([r,c])=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||g.grid[r][c].rock||r===sr&&c===sc);
-  const flank=k=>{const [r,c]=rc(k);return [[1,0],[-1,0],[0,1],[0,-1]].filter(([dr,dc])=>wall([r+dr,c+dc])).length};
-  let gap=null;
-  for(const k of path){g.marks.add(k);const shut=!!evaluateBuoys(g).hits;g.marks.delete(k);if(shut&&(gap===null||flank(k)>flank(gap)))gap=k}
-  return {path,gap};
-}
-// The marks must form one chain from the boat to the seabed: a single end, no branch, never touching itself
-// (every marked square has at most two marked neighbours, counting the boat).
-function lineChain(g){
-  const [sr,sc]=g.start, on=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(r===sr&&c===sc||g.marks.has(key(r,c)));
-  const nb=(r,c)=>[[1,0],[-1,0],[0,1],[0,-1]].map(([dr,dc])=>[r+dr,c+dc]).filter(([r,c])=>on(r,c));
-  if(!g.marks.size) return {path:null,why:'start'};
-  for(const k of g.marks) if(nb(Math.floor(k/100),k%100).length>2) return {path:null,why:'self'};
-  const path=[[sr,sc]];
-  for(let prev=null,cur=[sr,sc];;){
-    const next=nb(...cur).filter(([r,c])=>!prev||r!==prev[0]||c!==prev[1]);
-    if(!next.length) break;
-    prev=cur; cur=next[0]; path.push(cur);
-  }
-  return path.length-1===g.marks.size&&path.at(-1)[0]===g.rows-1?{path,why:null}:{path:null,why:'go'};
-}
-const lineCost=g=>[...g.marks].reduce((s,k)=>s+(g.grid[Math.floor(k/100)][k%100].sp?2:1),0);
-function evaluate(g){
-  if(g.buoy) return evaluateBuoys(g);
-  const path=lineChain(g).path;
-  if(!path) return {hits:null,inside:null,onP:g.marks};
-  const onP=new Set(path.map(p=>key(p[0],p[1]))), hits=[], seen=new Set();
-  for(const [r,c] of path){const sp=g.grid[r][c].sp;if(sp&&SP[sp].p<0&&!seen.has(key(r,c))){seen.add(key(r,c));hits.push([r,c])}}
-  for(const [r,c] of path){for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr<0||nc<0||nr>=g.rows||nc>=g.cols||onP.has(k)||seen.has(k))continue;if(g.grid[nr][nc].sp){seen.add(k);hits.push([nr,nc])}}}
-  return {hits,inside:null,onP};
-}
-const crazyTide=date=>{const d=new Date(date+'T12:00:00').getDay();return d===0||d===6?'faminto':null};
-const FLEE=new Set(['sardinha','tartaruga','golfinho']);
-// With a shark in the pen (Hungry shark), these hits neither score nor fill orders.
-const eaten=(g,hits)=>g.card?.hungry&&(hits||[]).some(([r,c])=>g.grid[r][c].sp==='tubarao')?new Set((hits||[]).filter(([r,c])=>FLEE.has(g.grid[r][c].sp)).map(([r,c])=>key(r,c))):new Set();
-function scoreOf(g,hits,inside){
-  const gone=eaten(g,hits);
-  let s=hits.reduce((s,[r,c])=>s+(gone.has(key(r,c))?0:pts(g,g.grid[r][c].sp)),0);
-  const cd=g.card||{}, at=k=>g.grid[Math.floor(k/100)][k%100];
-  if(cd.empty) for(const k of inside) if(!at(k).sp) s+=cd.empty;
-  if(cd.release) for(const k of g.marks){const sp=at(k).sp;if(sp&&SP[sp].p<0) s+=cd.release}
-  for(const o of orderStatus(g,hits)) if(o.met) s+=o.b;
-  return s;
-}
-const ORDER_SP={dourada:4,sardinha:4,lula:4,lagosta:8};
-function genOrders(g,rng){
-  const have={}; for(const row of g.grid) for(const x of row) if(x.sp in ORDER_SP) have[x.sp]=(have[x.sp]||0)+1;
-  const pool=Object.keys(ORDER_SP).filter(sp=>have[sp]>=(sp==='lagosta'?1:2)), pick=[];
-  while(pick.length<3&&pool.length) pick.push(pool.splice(Math.floor(rng()*pool.length),1)[0]);
-  return pick.map(sp=>{const lo=sp==='lagosta'?1:2,hi=Math.min(sp==='lagosta'?2:4,have[sp]),q=lo+Math.floor(rng()*(hi-lo+1));return {sp,q,b:ORDER_SP[sp]*q}});
-}
-function orderStatus(g,hits){
-  if(!g.orders) return [];
-  const gone=eaten(g,hits), n={}; for(const [r,c] of hits||[]){if(gone.has(key(r,c)))continue;const sp=g.grid[r][c].sp;n[sp]=(n[sp]||0)+1}
-  return g.orders.map(o=>({...o,have:n[o.sp]||0,met:(n[o.sp]||0)>=o.q}));
-}
-// Self-contained: it is stringified into a Web Worker. Every species has non-zero points, so v !== 0 means "an animal is here".
-function solveLine(m){
-  const R=m.rows, C=m.cols, D=[[1,0],[-1,0],[0,1],[0,-1]], on=new Uint8Array(R*C), path=[m.start];
-  let best=-Infinity, worst=Infinity, bestPath=null, worstPath=null;
-  const score=()=>{
-    let s=0; const seen=new Uint8Array(R*C);
-    for(const [r,c] of path){const x=m.v[r][c];if(x<0&&!seen[r*C+c]){seen[r*C+c]=1;s+=x}}
-    for(const [r,c] of path)for(const [dr,dc] of D){const nr=r+dr,nc=c+dc,k=nr*C+nc;if(nr<0||nc<0||nr>=R||nc>=C||on[k]||seen[k])continue;if(m.v[nr][nc]){seen[k]=1;s+=m.v[nr][nc]}}
-    return s;
-  };
-  on[m.start[0]*C+m.start[1]]=1;
-  (function dfs(r,c,moves){
-    if(r===R-1){const s=score();if(s>best){best=s;bestPath=path.slice()}if(s<worst){worst=s;worstPath=path.slice()}}
-    for(const [dr,dc] of D){
-      const nr=r+dr,nc=c+dc,k=nr*C+nc;
-      if(nr<1||nc<0||nr>=R||nc>=C||on[k]||m.rock[nr][nc]) continue;
-      if(D.some(([er,ec])=>{const ar=nr+er,ac=nc+ec;return (ar!==r||ac!==c)&&ar>=0&&ac>=0&&ar<R&&ac<C&&on[ar*C+ac]})) continue;
-      const cost=m.v[nr][nc]?2:1;
-      if(moves+cost+(R-1-nr)>m.maxLen) continue;
-      on[k]=1;path.push([nr,nc]);dfs(nr,nc,moves+cost);path.pop();on[k]=0;
-    }
-  })(m.start[0],m.start[1],0);
-  return {best,worst,bestPath,worstPath,complete:true};
-}
-const boardModel=g=>({rows:g.rows,cols:g.cols,start:g.start,maxLen:g.maxLen,maxBuoys:g.maxBuoys,
-  v:g.grid.map(row=>row.map(x=>x.sp?pts(g,x.sp):0)), rock:g.grid.map(row=>row.map(x=>x.rock)),
-  card:g.card||{}, prot:g.grid.map(row=>row.map(x=>!!x.sp&&SP[x.sp].p<0)), orders:g.orders||[], species:g.grid.map(row=>row.map(x=>x.sp))});
-const packCells=(g,cells)=>cells.map(([r,c])=>(r*g.cols+c).toString(36).padStart(2,'0')).join('');
-const unpackCells=(g,s)=>(s.match(/../g)||[]).map(x=>{const n=parseInt(x,36);return key(Math.floor(n/g.cols),n%g.cols)});
 // @gen-end
 
-// @card-ref-start
-const CARD_REF = {
-  "2026-09-28:rede":{"s":"2026-09-28:rede:8","c":[["curta",19,-8,"0p0q0z1b1f1l1p1v1y1z25282h2i","0y0z1b1k1m1u1x1y252a2j2l2s2v"],["golfinho",33,-8,"1c1h1m1t1w23262d2l2m2n2r2v35","0y0z1b1k1m1u1x1y252a2j2l2r2v"],["barbatana",36,-5,"030f0r0y1h1r1u21252b2l2r2v35","0y0z1b1k1m1u1x25292f2j2p2r2z"]]},
-  "2026-09-29:rede":{"s":"2026-09-29:rede:5","c":[["mare",12,-6,"111b1d1k1l1p2026272c2j2k2m2w","1k1w2528292g2i2l2r2w33343536"],["golfinho",19,-6,"0d0e0f0i0n0u0x15191f1j1q252g","10151a1c1e1f1h1k1s23262c2e2o"],["barbatana",23,-12,"1a1b1f1k1r2226282e2k2o2w2y38","0e0f0h0k0o0u0z141a1c1k1o263a"]]},
-  "2026-09-30:rede":{"c":[["isca",17,-32,"0f0g0o0p0s0y1012191b1d1j1p1w","070j0r11171d1h1p1t232k2w2x39"],["mare",16,-15,"050f0p0t0z13191d1j1o1v1x1y27","0r0t12141d1g1h1p1t20232b2d2n"],["curta",19,-21,"0g0o0q0s0y1013191b1d1j1p1r1w","0r0t12141d1g1p1r222k2m2n2o2w"]]},
-  "2026-10-01:rede":{"s":"2026-10-01:rede:3","c":[["isca",14,-37,"1a1d1p1r1w1y21232f2m2p2y303a","0c0i0m0u0x16181i1s1w2021222k"],["mare",10,-16,"10111a1d1p1w1y21282a2d2m2o2y","0z13191b1d1f1n1r1w2021282a2k"],["curta",15,-20,"1a1d1g1p1r1w1y21232f2m2n2o2p","0c0m0x181a1c1d1e1f1r1w20212k"]]},
-  "2026-10-02:rede":{"s":"2026-10-02:rede:2","c":[["isca",14,-36,"1a1f1k1m1v272c2j2u2z36373839","0c0m0x191j1l1u25282h2r2v3334"],["mare",16,-7,"1a1k1m1v1y1z20272c2j2m2t2w36","11131b1d1l1o1v1y25282h2k2t2v"],["curta",18,-14,"0y1a1k1m1v272c2j2u2z36373839","0c0m0x10191b1k1n1v26282h2t2v"]]},
-  "2026-10-03:rede":{"s":"2026-10-03:rede:8","c":[["isca",12,-17,"0102030b0f0m0p0y1a1c1k1n2627","0y181a1b1j2527282g2k2r2t2u33"],["mare",13,-10,"101a1c1k1o20252c2h2m2t2w3536","0y181a1j1l1x25272g2j2m2s2t31"],["curta",15,-10,"0102030b0f0m0p0y1a1c1k1n2627","0y10181a1j1l25272a2g2j2k2s2t"]]},
-  "2026-10-04:rede":{"s":"2026-10-04:rede:4","c":[["isca",15,-26,"070d0e0j0n0u0v171g1h1o1q202s","070k0w161f1i1o1p1s1y242a2f2l"],["mare",14,-10,"0g0i0k0q0s0v10171c1g1h1o1q20","090i0l0s0w14161f1i1q1s20222m"],["curta",15,-20,"070d0j0k0p0u0v11171g1h1o1q20","070j0u151e1g1o1p1s1y222a2c2m"]]},
-  "2026-10-05:rede":{"c":[["isca",10,-31,"0g0h0q10131a1d1l1n1w1y27292j","0e0g0o0s0y14181g1k1w1x292l2p"],["mare",12,-12,"0p0r10131a1e1m1q1w1z2027292j","050607080k0q0s0u11141d1g1p1q"],["curta",14,-9,"05060p10131a1d1l1n1w1y27292j","0g0p0s10141c1g1n1q1y20292b2l"]]},
-  "2026-10-06:rede":{"c":[["mare",19,-11,"06070g0j0q0v171c1i1o1s20222c","111a1d1k1n1u1y25272a2h2j2l2v"],["curta",13,-11,"060g0i0q131b1m1w27292c2j2m37","0k0z191c1j1n1u1y25272h2j2l2v"],["golfinho",17,-11,"1a1c1l1x272e2j2q2v2w2x2y2z30","1a1c1k1n1u1y25272c2h2j2l2m2v"]]},
-  "2026-10-07:rede":{"s":"2026-10-07:rede:9","c":[["isca",15,-33,"060i0t191e1f1l1m1q1y202c2m2w","0s0t101c1h1m1o1t232a2b2f2m2p"],["golfinho",32,-14,"06070j0m0t0x181f1j1q202c2m2w","0s12141a1c1h1o1p1q1t20232c2d"],["barbatana",31,-12,"060i0t191h1l1m1t1y242e2m2o2w","0n0x121314181c1h1j1m1p1q1r1z"]]},
-  "2026-10-08:rede":{"c":[["mare",8,-14,"1n1v1x1z25272b2l2r2t2w333536","0d0n0p0x10181b1j1n1u1x25272h"],["golfinho",28,-10,"0d0n0p11121e1k1p1u1z252a2k2r","1o1p1q1y2728292b2c2h2m2r2v2w"],["soltura",31,-15,"0i0s121c1m1w2021262m2n2r2w36","010d0p0z1a1b1j1n1u1x25282k2r"]]},
-  "2026-10-09:rede":{"c":[["isca",14,-30,"0p0q0y0z12151h1k1l1s2022272c","040d0e0g0n0s0x141b1j1l1u2628"],["golfinho",29,-12,"0f0g0p0s0u0y0z12151h1k1l272o","0d0k0n0p0x10151b1j1l1q1u2627"],["barbatana",27,-18,"0i0j0s0v0y0z1013171h1k1l272d","0d0e0g0n0q0s0x141b1j1l1u2627"]]},
-  "2026-10-10:rede":{"s":"2026-10-10:rede:6","c":[["isca",15,-36,"05060f0r151d1g1s1z22292c2l2m","0s1f1i1r1s1u20252c2h2m2t2u2w"],["mare",12,-17,"0t13151d1g1n1s1x2023282a2c2d","0v15171f1i1q1s20232a2d2n2w2x"],["curta",15,-20,"05060f0r151d1g1r1z22292c2l2m","151f1i1r1t2021242a2e2o2w2x2y"]]},
-  "2026-10-11:rede":{"s":"2026-10-11:rede:6","c":[["mare",13,-22,"0i0q0r0s0t0u161c1f1g1o1p2j2k","1a1c1k1n1o1p1v1w2128292a2b2x"],["golfinho",35,-6,"080q1b1t24252f2h2i2j2k2w3839","1a1c1n1o1p1w2128292a2b2j2k2v"],["barbatana",35,-6,"080q1b1t24252f2h2i2j2k2w3839","1a1c1n1o1p1w2128292a2b2j2k2v"]]},
-  "2026-10-12:rede":{"s":"2026-10-12:rede:2","c":[["isca",6,-22,"0r131e1y232a2c2f2m2o2q2z313b","1n1o20242b2c2e2i2p2y31383a3b"],["mare",6,-11,"1p1q1r1z232a2c2f2m2o2q2z313b","161g1i1t22232c2e2m2p2y313a3b"],["curta",8,-11,"1c1o23292a2c2f2m2o2q2y313a3b","0s12141g222c2e2i2m2p2y313a3b"]]},
-  "2026-10-13:rede":{"s":"2026-10-13:rede:5","c":[["curta",11,-6,"01020b0q0r13141g1l1m1n1p1q29","01020b0q0r0s121d1j1m1n2i2s34"],["golfinho",27,-3,"0102040506070b0j0u141e1j2829","01020b0q121d1l1x282i2s2v3435"],["barbatana",26,-9,"0102040b0g0s141g1l1q212i2k2u","01020b0j1c1j1x282i2j2s343536"]]},
-  "2026-10-14:rede":{"s":"2026-10-14:rede:1","c":[["isca",7,-28,"0r0s1114161c1f1g1i1o1t202122","060g0i0u10161a1e1g1m1q1y202a"],["mare",11,-19,"0r0s0t1115161d1e1i1q1t22242e","060g0i0t10131a1e1m1n1q1z20"],["curta",12,-20,"0r0s0t1015161c1e1i1o1q1t2022","060g0i0t10131a1d1k1l1n1y2728"]]},
-  "2026-10-15:rede":{"c":[["isca",0,-31,"0607080g0k0s0t0u1a1c1n1q2627","080i0l0s0w171i1q1t242b2c2e2o"],["mare",6,-14,"0607080g0k0q0u1013141a1d1m1n","0j0l0t0w13161d1g1o1q1z222b2c"],["curta",7,-16,"0306080f0g0i0k0m0v1314161g1v","080i0l0s0v15171f1i1q1s222b2c"]]},
-  "2026-10-16:rede":{"s":"2026-10-16:rede:3","c":[["isca",5,-34,"030d0f0o0q0r0t0z151m1q1r1y20","050f0i0p0w10171b1d1t1z242829"],["mare",8,-15,"0304050d0h0o0t1011151d1p1r21","1314151d1n1s1z242b2c2f2o2q30"],["curta",8,-14,"0e0o0q0t0z1112151m1n1q1r1y20","050f0j0q0t0v11161c1n1p1r1z21"]]},
-  "2026-10-17:rede":{"s":"2026-10-17:rede:2","c":[["isca",-1,-23,"0j0l0r0v1g1q1s21222c2d2e","080l0r0w1113171c1i1o1r1s2021"],["mare",3,-13,"080i0l0s0w12171e1i1q1t21232d","0507080f0h0l0q0v12151c1f1o1p"],["curta",3,-12,"080k0w171f1i1p1s1z232a2c2d2m","080k0o0w1213171c1i1o1r1s2021"]]},
-  "2026-10-18:rede":{"s":"2026-10-18:rede:1","c":[["isca",17,-25,"0d0q0s1b1f1l1o1p1x212a2c2w36","040608090e0l0p0w171d1h1p1r21"],["golfinho",32,-9,"0q0s0u161b1i1l1t1x242f2p2w36","0h0q101a1e1k1n1o1u1x252g2i2s"],["barbatana",32,-13,"0h0q1a1b1f1k1p1u2126272c3637","06080e0k0s0w161e1h1p1r21"]]},
-  "2026-10-19:rede":{"s":"2026-10-19:rede:4","c":[["mare",22,-13,"111b1d1f1l1p1r1w2228292c2l2m","191a1j1m1v1y2a2d2j2m2v2y3738"],["golfinho",31,-9,"0p0z11191d1e1f1j1r1v212b2j2l","1q1r1s1x1z20242d2e2j2o2w2y38"],["barbatana",30,-15,"070h0r11151b1f1l1r1w212b2j2l","05191a1j1m1v1z2b2c2j2o2w2y38"]]},
-  "2026-10-20:rede":{"s":"2026-10-20:rede:8","c":[["isca",5,-40,"06070g0j0s0v14161d1e1r1z2021","0g0q0s1014151o1p1t242f2q3839"],["mare",9,-16,"070h0j0s0v14161d1e1n1r1z2021","0304050d0h0p0q0t0u12161e1f1g"],["curta",11,-21,"06070g0j0s0v14161d1e1r20212a","030d0f0g0o0q0s0t0z151d1e1q1r"]]},
-  "2026-10-21:rede":{"s":"2026-10-21:rede:4","c":[["isca",9,-29,"0511131e1n1p272c2j2k2l2o2x2y","020c0g0n0x181j1u26282a2h2j2t"],["golfinho",26,-10,"050v12171i1n1t24292e2l2o2x2y","1e1n292d2e2k2m2q2v2x2y30373a"],["barbatana",24,-5,"051a1k1u252c2g2l2n2s2t2v2x35","161e1i1n1t23292f2l2m2n2o2q30"]]},
-  "2026-10-22:rede":{"s":"2026-10-22:rede:2","c":[["isca",14,-25,"1e1o1q1v1z21252c2h2o2w2x2y36","0g0q0s0t0u161i1t20242e2m2n2o"],["mare",17,-6,"1l1m1n1p1v21252b2h2l2t2w3536","1n1p1x2027282b2h2l2r2u2v3334"],["curta",17,-4,"1e1o1q1v1x1z21262c2o2v2w2x2y","131f1g1n1s20242c2e2n2p2y303a"]]},
-  "2026-10-23:rede":{"s":"2026-10-23:rede:5","c":[["isca",9,-29,"15171i1j1z21242b2d2f2n2q2z30","04050607090e0l0n0o0x14171i1r"],["mare",11,-10,"070h0j0r11151c1f1m1r1y212a2b","1415171e1i1q1t2123242b2e2n2o"],["curta",11,-15,"0102030b0f0h0i0j0n0o0r10152o","0f0g0h0i0j0n0o0p0x1214161h1r"]]},
-  "2026-10-24:rede":{"c":[["isca",13,-29,"11141b1d1e1g202a2c2d2i2l2u2v","0j0s0t1c1o212i2w2x3536393a3b"],["mare",9,-11,"1c1m1o1x20272a2i2m2y35363738","1e1m1n1o1q1w2126292a2c2h2j2m"],["curta",13,-12,"111b1d1e1f1r202a2c2d2i2l2u2v","0s141c1f1o1q1y212c2i2l2m2v35"]]},
-  "2026-10-25:rede":{"s":"2026-10-25:rede:8","c":[["mare",10,-18,"0f0p0r0z13141a1c1g1m1o1q202h","141e1g1o1s1y242a2f2l2n2p2x2z"],["curta",3,-22,"1f1h1t1x2327292b2c2d2j2k2l2v","0t1h1s20232b2d2l2p2v2x2y2z"],["barbatana",11,-22,"161f1t1x2327292b2c2d2j2l2x36","0t161t1x2123292b2e2l2p2x2y2z"]]},
-  "2026-10-26:rede":{"s":"2026-10-26:rede:4","c":[["isca",11,-28,"141g1r1z2228292c2i2n2u2x3637","0k0s171i1t202122242c2f2n2p2z"],["golfinho",22,-4,"141g1s1y24282f2j2p2v2z373839","030d0f0g0h0o0u10141a1m1y2n2x"],["barbatana",26,-13,"0s171i1s1y22282c2i2n2u2x3637","0r1f1h1q1t22242c2f2o2p"]]},
-  "2026-10-27:rede":{"c":[["isca",10,-28,"080i1h1s1y23292j2o2p2v2y3738","03040506080d0z1a1h1l1r1w1y28"],["mare",8,-12,"0h0j0r0u11141c1f1o1q1y212a2b","04060e0g0i0o0u10111213161f1g"],["curta",9,-13,"080i0t141f1h1s1y232a2b2n2o2p","03040506080d0z11141a1c1g1m2w"]]},
-  "2026-10-28:rede":{"s":"2026-10-28:rede:7","c":[["isca",7,-30,"0c0m0o0x0z181k1w262c2g2j2s2t","0304050607080c0k0m0v0x191b1l"],["golfinho",17,-13,"0n0p0x181k1w262c2g2s2t2w3536","0n0p0x181b1e1j1l1r1u1w262w"],["barbatana",18,-10,"030f0n0r0x181k1w262g2j2s2t39","01030405060b0i0m0q0u0x191b1l"]]},
-  "2026-10-29:rede":{"s":"2026-10-29:rede:5","c":[["isca",17,-32,"07090h0j0l0w171h1p1r20232e2o","1a1b1p1x1z272d2z343536373839"],["mare",14,-14,"0j0t0v13171d1h1p1r20232c2f2o","1c1d1e1m1q1y1z21222a2e2m2n2o"],["curta",19,-17,"070h0j0v1314171h1p1r20232e2o","1m1p1x1z22272e2j2u2w2x2y2z36"]]},
-  "2026-10-30:rede":{"c":[["mare",15,-8,"050f0h0p0t10151c1o1t2021232d","151f1o1p1s1z22292b2d2l2o2x2y"],["golfinho",38,-5,"0m0u161b1l1t1v23272d2j2v2x37","1415191b1c1d1e1k1r1w1x1y1z20"],["barbatana",34,-11,"0m0u161c1m1s1w22272b2h2l2r2v","111415191d1e1l1r1x1y282k2l2x"]]},
-  "2026-10-31:rede":{"s":"2026-10-31:rede:3","c":[["isca",2,-27,"0g0h0t0u161i1t2427282h2l2t2u","0e0n0o0x181j1l1u25292a2g3435"],["mare",8,-8,"061e1o1q1y22282b2c2i2l2v3435","1w26282b2i2k2l2n2y3435363738"],["curta",6,-11,"1015161a1h1k1v1x25282h2l2u34","050o0y10191l1w27292a2h2t2z35"]]},
-  "2026-11-01:rede":{"s":"2026-11-01:rede:5","c":[["isca",6,-33,"0304050d0h0p0t0u11161e1f1r1s","070h0j0o0p0q0r0v0y171m1t1y24"],["golfinho",19,-6,"02030405060c0i0m0u0y161r1s29","161e1f1g1m1t1y232p2v2w2z3839"],["barbatana",20,-17,"05060f0i0p0u11161t242n2v2w2x","0o0p0q0r0s0y14151h1m1t1y232b"]]},
-  "2026-11-02:rede":{"s":"2026-11-02:rede:3","c":[["isca",4,-29,"1e1m1n1o1q1w22282k2m2p2y303a","080i0s131e1q1t202d2o2q31393a"],["golfinho",17,-9,"0s0t12151c1m1t1w282k2q31393a","151c1f1g1q1t20262b2d2o30393a"],["barbatana",14,-9,"1213151c1f1m1t1w282k2q31393a","0j0t131d1g1n1q1y222c2o30393a"]]},
-  "2026-11-03:rede":{"s":"2026-11-03:rede:1","c":[["isca",7,-20,"0g0q0s0z10191l1w262e2i2p2y2z","02030c0f0g0o0s10111d2f2q393a"],["golfinho",34,0,"0203040c0g0o0s101b1n2e2q2y3a","0f0i111a1c1e1m1w282d2f2n2p2z"],["soltura",32,-9,"07080g0h0k0q101c1r292e2q393a","02030c0f0g0o0s10111d2d2f2o2q"]]},
-  "2026-11-04:rede":{"s":"2026-11-04:rede:3","c":[["isca",7,-44,"0j0t0u0v171f1i1t242f2o2q2w30","010206070b0j0m0o0v0y161m1x29"],["mare",12,-14,"0t12151c1h1o1s20242c2f2o2q30","14151c1d1h1m1o1s1x22292a2c2m"],["curta",12,-20,"0t0u0v171f1i1t24282f2q2z30","06070j0t12161c1f1m1o1q1x292a"]]},
-  "2026-11-05:rede":{"s":"2026-11-05:rede:5","c":[["isca",9,-31,"0n1e1o1q1r1s20242a2f2l2q2x2y","0t13151e1i1o1t1y23282b2k3839"],["mare",11,-21,"1q1r1s20242a2f2k2o2q2y303638","0t13151e1g1o1r1y21282b2k2m"],["curta",11,-21,"1q1r1s1v1y20242a2f2k2m2q3839","0t13151e1g1h1o1r1y21282b2k2m"]]},
-  "2026-11-06:rede":{"s":"2026-11-06:rede:4","c":[["isca",11,-36,"030d0f0q0y10191b1m1n1o202b2l","050e0p0v0z171e1i1t22232a2c2m"],["golfinho",25,-15,"03050d0v161h1t232d2k2n2v2x37","030d0g0p0s10121b1d1l1o1v1y"],["barbatana",25,-7,"03050d0t131f1r232d2k2n2v2x37","050b0e0q0t12151e1h1q1t2223"]]},
-  "2026-11-07:rede":{"s":"2026-11-07:rede:3","c":[["isca",8,-23,"0n0x181j1u1x25292h2k2t2w3536","04050c0e0h0t0y151o1r1s1z212b"],["golfinho",19,-13,"030607080c0f0g0k0w0y1d1f1g1p","040c0e0g0s0t0y151o1r1s1z212b"],["barbatana",21,-7,"03060c0f0g0i0u0y1o1p1t21232d","040c0e0g0i0j0k0s0w0y151d1e1f"]]},
-  "2026-11-08:rede":{"c":[["isca",23,-29,"0e0g0n0o0s14181j1n1p1u1x2627","121c1e1m1w272h2t2v2z35373839"],["golfinho",38,-7,"0e0g0s14181j1s1u262i2u2x3637","060g0i0u1113141c1e1n1p3a"],["barbatana",36,-10,"0308090g0i0s17191i1l1n1s1x2b","05060i0s11131c1e1m1w27292b2j"]]},
-  "2026-11-09:rede":{"s":"2026-11-09:rede:1","c":[["isca",13,-18,"0t0y1516191i1k1n1s1v232d2m2n","0708090h0l0w111d1e1f1g1i1s"],["mare",11,-12,"0j0t0v131d1i1n1s1z222b2e2n2o","07080g0h0k0q0w1113141d1g1h29"],["curta",12,-10,"131415161d1i1s232e2l2n2o2v2x","070h0j0v111d1e1f1g1h232b2m2x"]]},
-  "2026-11-10:rede":{"s":"2026-11-10:rede:2","c":[["golfinho",31,-17,"112122242f2g2q2r313334353637","0h0i0j0r0v11131b1d1g1l1z2122"],["barbatana",25,-15,"0h0r0t10111a1h1k242f2l2p2x2z","1e1f1g1o21242f2l2m2n2p2v3137"],["soltura",36,-17,"0s12141c1h1m1p20222e2k2p2w30","0h0r0t11121b1d1f1g1l1z21232d"]]},
-  "2026-11-11:rede":{"s":"2026-11-11:rede:2","c":[["mare",14,-15,"0q0r0s0u1014161c1d1i1p1r1s21","1d1e1f1g1h1n1z2123292c2d2l2m"],["golfinho",39,-6,"0f0o0p0r0t0y151a1h1m1z242e39","1r1s2124262d2e2g2i2t33"],["soltura",43,-14,"0q0r0t10151a1h1m1o22242a2e39","0x1b1d1e1f1g1h21232527282d2l"]]},
-  "2026-11-12:rede":{"c":[["isca",14,-27,"0e0i0o0q0r0u161a1h1q1t22242e","040e0o0s12181j1q1u202527282a"],["mare",10,-14,"0e0g0h0o0q0t151a1b1c1g1o1p1q","040e0g0o0r121a1e1l1p1x20292a"],["curta",16,-15,"0e0i0o0q0r0u161a1g1q1v1w2628","040e0o0p0s12191k1o1w1x20292a"]]},
-  "2026-11-13:rede":{"s":"2026-11-13:rede:9","c":[["curta",14,-10,"1y2122282e2i2l2m2n2q2u2v2z30","1h1q1r1t1z242c2e2n2q2x393a3b"],["golfinho",23,-10,"04050e0i0u161h1r232c2f2o2q30","0l1h1q1r1t242c2e2n2q2x393a3b"],["barbatana",19,-10,"080g0i0k0w171h1r232c2f2o2q30","1h1r1t21242d2f2n2o2q2x393a3b"]]},
-  "2026-11-14:rede":{"s":"2026-11-14:rede:5","c":[["isca",11,-31,"010b0d0m0y191c1f1m1o1q1x2027","0n0o0x181d1e1h1s20272a2c2k2o"],["mare",12,-16,"01020b0e0m0q0y121a1e1k1o1w1y","0q1e1g1o1q1s1y20232d2k2l2m2n"],["curta",13,-16,"0d0n0y131a1c1f1n1o1q1x202127","041g1o1q1s1y20212k2l2m2o2v2y"]]},
-  "2026-11-15:rede":{"s":"2026-11-15:rede:1","c":[["isca",17,-36,"0j0v171i1t1z2224292f2l2p2x2z","050f0h0q121b1c1l2a2m2o2z3738"],["golfinho",50,-4,"020304060c0g0n0x182d2p2z3738","1c1m1o1y232d2f2m2o2q2x313a3b"],["soltura",46,-18,"030405060d0n0x13181n2o2w2z38","0s121c1m1w232a2f2m2o2p2y3738"]]},
-  "2026-11-16:rede":{"s":"2026-11-16:rede:6","c":[["isca",15,-22,"0x181b1d1j1n1p1u26272c2l2n2x","0q0t101213161b1i1n1o1t20232d"],["mare",15,-13,"1b1d1j1l1n1p1v272c2j2n2v2x37","060g0i0q0r0t10151b1h1n1o1r20"],["curta",17,-13,"191b1j1n1u1z202627282c2l2n2x","0405060i0p0r0s131b1f1n1o1q20"]]},
-  "2026-11-17:rede":{"s":"2026-11-17:rede:1","c":[["isca",10,-24,"282a2c2d2i2m2p2t2v2z35373839","02070e0j0v0x15191d1e1f1j1v28"],["mare",14,-17,"0s131d1f1n1q1x202a2h2l2t2v35","11191a1b1d1j1o1v1x20292c2l2m"],["curta",15,-15,"1x2a2c2d2i2m2p2t2z3536373839","0z1011191d1j1v1z202c2j2k2m2w"]]},
-  "2026-11-18:rede":{"s":"2026-11-18:rede:9","c":[["mare",11,-14,"040e0g0o0s0t0z151b1e1g1n1o1q","060g0i0r12161d1f1h1o1q1s2022"],["golfinho",28,-14,"0p0s0t0z151a1g1k1q1u222e2i2p","060g0i12161c1d1f1i1o1q1s2022"],["barbatana",28,-6,"060g0i10141a1g1m1q1x222d2k2p","14161b1e1f1i1n1o1q1t2022232c"]]},
-  "2026-11-19:rede":{"s":"2026-11-19:rede:2","c":[["isca",15,-23,"050f0h0q0t10131d1m1p20282a2k","0f0g0o0p0s0w0y161g1l1o1y202c"],["mare",19,-6,"04050e0h0o0t0z131d1m1p1y202a","020c0e0n0p0y101p22292j2m2s2t"],["curta",20,-11,"050f0h0q0t10131d1m1p20282a2k","1k1m1v28292c2l2m2t2u2y363738"]]},
-  "2026-11-20:rede":{"c":[["isca",10,-28,"060f0g0i0p0u0z1b1n2l2w2z3839","131a1b1d1k1n1u252g2z36373839"],["mare",10,-10,"1g1h1p1q1t1z232a2d2m2p2y313b","131d1f1o1r20232a2f2l2q2x3039"],["curta",9,-8,"0g0h0q0t111c1o1z2a2l2w2z3839","131a1d1o1z22232f2l2p2w303839"]]},
-  "2026-11-21:rede":{"c":[["isca",7,-28,"07080h0k0s0u161h1q1t2022242e","0k0u0w14171e1p1q1t232d2m2o2y"],["mare",8,-16,"07080h0k0s0u12161d1o1q1s2022","1415161e1o1q1t20232b2d2m2o2y"],["curta",9,-21,"07080h0k0s0u151h1q1t2022242e","0k0u0w1415171e1p1s222d2m2o2y"]]},
-  "2026-11-22:rede":{"s":"2026-11-22:rede:1","c":[["isca",11,-25,"0j0o0p0t0v0y16191g1r1y1z212b","050607080f0p0w171f1i1p1s2122"],["mare",12,-11,"080i0s0v101112151a1f1m1p1y1z","0g0i0j0q0s0v11151d1e1g1p1r21"],["curta",10,-13,"0j0t0v1014161a1h1r1y1z20212c","0u0w15171f1i1p1s1z22292c2l2o"]]},
-  "2026-11-23:rede":{"s":"2026-11-23:rede:4","c":[["isca",10,-29,"030d0o0z1a1l1r1x1y232a2d2n2x","030c0m0x181b1d1j1p1z26292i2j"],["golfinho",24,-6,"030d0n0z1a1i1l1t1x23292d2n2x","030c0m0x10181d1j1l1m1p1v1y1z"],["barbatana",23,-13,"030c0m0y1a1k1r1w1x23292d2n2x","030c0m0x10181b1j1l1x26292i2j"]]},
-  "2026-11-24:rede":{"s":"2026-11-24:rede:3","c":[["mare",14,-12,"030d0f0n0r0s0z131b1f1n1r1z21","1o1y20282e2i2l2o2s2x34353637"],["curta",9,-15,"0d0f0g0k0p0t0u0w171i1s1z2122","1o1q1r1s1x24272c2d2e2h2l2s34"],["barbatana",14,-15,"0t0u161i1s22282e2q303738393a","1o1q1r1s1x24272c2d2e2h2l2s34"]]},
-  "2026-11-25:rede":{"s":"2026-11-25:rede:9","c":[["curta",8,-17,"0e0i0q0r0t12151g1h1t21242d2e","101a1c1d1l1w1y272b2j2k2n2w2x"],["golfinho",30,-11,"0e0i0n0o0u151g1s1v1x20222729","0r121c1m1x1y20272j2k2m2w"],["barbatana",30,-16,"0e0i0o0u0y151g1s1v1x2227292b","101a1c1d1l1n1w1y20272j2k2m2w"]]},
-  "2026-11-26:rede":{"s":"2026-11-26:rede:1","c":[["mare",14,-10,"0203040c0g0m0q0x12191e1l1n1x","060g0i0r0t0u11161c1f1i1p1r1s"],["golfinho",36,-7,"03040506070m0w0x181e1j1n1q22","060f0g0i0p0t0z11131a1e1m1n28"],["soltura",40,-13,"030405070h0o0w101c1e1h1q222t","060g0i0p0q0v0z11141a1e1g1m1y"]]},
-  "carta:0":{"s":"carta:0:2","c":[["isca",13,-28,"040e0g0o0r10121e1f1r1s2o2q30","02040c0e0h0n0t0u0y162c2j2p2z"],["mare",9,-17,"040e0g0o0r10121a1d1k1o1w1x1y","0203040c0h0n0p0q0t0y1012131a"],["curta",14,-18,"040e0g0o0r10121d1m1p1y212a2d","02040c0e0h0n0p0q0t0y131b1c1d"]]},
-  "carta:1":{"c":[["isca",11,-28,"0g0j0q0t0v0y13171a1c1h1r1y21","04050t0x14181f1n1p1r1u23252h"],["mare",9,-15,"04050e0o0s0y121a1c1l1o1x1y37","0r0t1112141b1f1n1o1r20232c2d"],["curta",12,-15,"0f0g0i0j0v0y1213171a1c1f1h1r","0r0t12141c1f1h1n1o1r1t20242e"]]},
-  "carta:10":{"s":"carta:10:9","c":[["curta",17,-5,"191e1j1l1n1q1u1y20262c2k2l2m","13141g1p1q1v1w1z2a2h2l2m2w36"],["golfinho",29,-4,"181e1j1q1u2d2g2m2n2r2w333436","0h0i0u13151g1p1q1v1w1z2a2h2k"],["barbatana",28,-3,"0j0t0v1317181h1j1u2c2h2k2l2m","13141g1v1w1y2a2d2h2m2n2w3639"]]},
-  "carta:11":{"s":"carta:11:1","c":[["isca",5,-25,"0p0q0s0z191a1e1j1n1u1w1y2628","0q0s101a1g1l1w1y262i2j2u2w36"],["mare",10,-13,"0f0g0p0s0z191e1j1o1u1w1y2628","1e1g1o1r1x1y21282b2j2l2u2w36"],["curta",10,-12,"0f0p0s0z191a1b1e1j1u1w1y2628","0q0s101b1e1m1w262i2j2l2u2w36"]]},
-  "carta:12":{"s":"carta:12:6","c":[["isca",15,-25,"1214161c1g1i1n1t1y24282d2e2n","0c0f0g0o141c1g1s1z232f2p2z39"],["mare",16,-19,"12141c1g1n1s1x24292d2e2l2n2x","030d0f0g0o0y12181b1c1j1l1v"],["curta",14,-17,"12141c1f1n1p1y202122282d2l2n","0b0f0g0m0o0x1012181c1j1v2p2z"]]},
-  "carta:13":{"s":"carta:13:6","c":[["isca",10,-26,"0i0k11161b1h1l1v202127292b2l","06070e0f0k0o0z161b1g1n1z2b2n"],["mare",11,-12,"0i0k0s0w12171c1h1m1r1y20212a","0506070e0f0j0o0s0t0z11121a1b"],["curta",13,-10,"0i0k14161d1e1h1n1x2021272a2k","0e0i0k0o0q0z161b1f1g1n1o1p2n"]]},
-  "carta:14":{"s":"carta:14:1","c":[["isca",17,-26,"0o0p0v0y1214161f1i1k1l1p1r1s","0102030b0m0o0p0x0z1j1u252g2s"],["mare",11,-17,"0f0g0o0p0s0y141b1c1d1f1k1l1p","0102030b0f0m0o0p0r0x0z111a1k"],["curta",15,-17,"0o0p0v0y121415171f1g1k1l1p2a","0102030b0m0o0p0x0z192a2c2k2x"]]},
-  "carta:15":{"s":"carta:15:8","c":[["golfinho",43,-10,"0106070j0n0x181v1w24282a2b2k","010n0p0q0z1v1z20292h2k2m2v2w"],["barbatana",22,-14,"0106070j0m0y10141a1c1e1g1o28","010n0q0z111314151a1d1m1y202a"],["soltura",43,-22,"0106070e0f0j0n0z1b1f1n1z212b","010n0q0z1113141a1d1g1m1y1z20"]]},
-  "carta:16":{"s":"carta:16:1","c":[["isca",7,-30,"0c0d0m0p0x181o1v20282b2j2l2v","0q0s141a1g1s1v232d2i2n2x3637"],["mare",12,-19,"0d0n0p0x11181d1j1p1v1y20282a","1f1p1r1x1y1z232c2d2j2k2l2n2x"],["curta",13,-19,"0c0d0m0p0x12181o1v2028292b2l","1f1p1r1x1z232c2d2j2k2l2n2o2x"]]},
-  "carta:17":{"s":"carta:17:1","c":[["isca",17,-41,"0e0f0o0r0s181j1m1u1y262a2l2v","1b1i1l1t1v242528292f2h2y3638"],["barbatana",30,-15,"0e0f0o0r0s181j1m1u1y262a2k36","010d0p10191l1m1p1y21292b2k2m"],["soltura",34,-19,"0e0f0g0o0s181j1n1u1x26292l36","0o10191l1m1o1p1w2128292b2k2x"]]},
-  "carta:18":{"s":"carta:18:1","c":[["isca",-2,-28,"1k1l1m1p1u1z252a2b2g2k2r2t33","1f1p1y20262b2g2m2r2w33343536"],["golfinho",10,-8,"1m1w1z262b2g2n2r2w2x33343536","191f1j1p1u1w2025292a2g2r2t33"],["soltura",15,-19,"1e1t1v2022292e2h2r2u2x303334","1f1p1y20262b2g2m2r2w33343536"]]},
-  "carta:19":{"s":"carta:19:5","c":[["isca",12,-26,"0r0t0u11161b1h1l1w26292i2l2y","04050e0o0t0z151b1h1n1x282n2x"],["golfinho",38,-14,"0r0t0u11161b1h1l1w262i30393a","050e0f0o0s0y12181b1d1j1l1n1v"],["soltura",42,-14,"0i0r0u11161c1i1m1w262c2i2k2y","04050e0o0s0y12181b1d1j1l1n1v"]]},
-  "carta:2":{"s":"carta:2:5","c":[["isca",9,-21,"0r1113141b1g1l1q1v20292l2r2t","111a1b1d1k1p1u21262a2l2r2v34"],["mare",10,-7,"0z10191c1k1m1u1x25292g2j2r2t","1c1m1o1w1z26282a2g2l2r2t2u2v"],["curta",11,-7,"0n0x0z10181c1e1k1m1v1x292r2t","0z1b1c1l1o1u1w1y262a2l2r2v34"]]},
-  "carta:20":{"s":"carta:20:5","c":[["isca",7,-31,"1o1p1w1y212628292b2m2s2x3637","0n0x0z10181j1o1u1y25272a2r2u"],["mare",11,-19,"1o1p1w1y2126282b2m2s2w343536","0n0x0z181b1c1j1o1u1y2527282h"],["curta",11,-21,"1o1p1w1y2126282b2m2s2x303637","0n0x0z181a1b1j1o1u1y2527282h"]]},
-  "carta:21":{"s":"carta:21:5","c":[["curta",4,-19,"161f1g1i1p1r1t242f2o2q2u2z31","222a2e2i2p2u2w2x303136393a"],["golfinho",28,0,"222e2g2q2r30333435363738393a","0102030405060x181g1j1q2p2z31"],["soltura",24,-19,"111e1r212d2e2k2p2v313738393a","1d1p222a2e2i2q2u2w2x2y2z3136"]]},
-  "carta:22":{"s":"carta:22:3","c":[["mare",13,-19,"070h0j0r0v13171f1i1p1s20222c","0z191b1c1k1o1v202528292a2h2i"],["curta",0,-18,"1k1o1u1z2021232a2e2o2w2x2y35","0c0n0o0p0r191l1v1z252h2i2j2l"],["golfinho",15,-2,"0c0d0m0p0x181j1u20252h2l2t35","0c0g0h0s191l1o1v20252h2i2j2l"]]},
-  "carta:23":{"s":"carta:23:5","c":[["isca",20,-20,"080e0i0k0o0v0z16191b1g1k1n1u","0e0n0x11181a1d1e1j1q1v1w1y1z"],["mare",13,-12,"030f0n0r0x13191d1l1n1w1z2829","0n0p0y111a1c1d1e1l1q1x1y1z20"],["curta",18,-12,"0e0o0z15191c1d1e1g1l1n1q1w1z","0e0o0y111a1c1d1e1l1q1x1y1z20"]]},
-  "carta:3":{"c":[["isca",15,-24,"0s121c1m1p1v212b2j2n2v373839","0r11131n1r1x1z232b2f2l2p2x39"],["mare",14,-10,"1d1n1p1x21282b2i2n2u2v373839","010b0d0k0u0w16212b2d2l2o2x39"],["curta",13,-14,"060s121c1n1p1x202b2k2n2w3839","0k0u0w171h1q1t2122242b2f2n2p"]]},
-  "carta:4":{"s":"carta:4:6","c":[["mare",8,-14,"0d0e0g0n0q0s0t0z151b1f1n1p1z","060g0i0r13161f1i1m1r1s2k2q2y"],["golfinho",31,-9,"060i0m15181j1u252d2h2l2m2n2v","0i0s12161d1i1r1s1v2728292a2b"],["barbatana",31,-14,"0i0m0s15181j1u252d2h2l2m2n2v","06070j0m0n0s14161c1i1p1r1s20"]]},
-  "carta:5":{"s":"carta:5:4","c":[["mare",13,-10,"141d1e1g1n1r1x21272b2h2l2t2v","0c0u1q1r20232a2d2k2n2u2x3637"],["golfinho",39,-10,"080k0w1a1k1r1t21232b2l2t2v","1q1r1y20232a2d2k2n2u2x343637"],["barbatana",39,-5,"0v0y181a1j1t232e2o2t2y363738","1o1p1q1r1y23272b2d2k2l2n2t2v"]]},
-  "carta:6":{"s":"carta:6:8","c":[["mare",26,-17,"0f0o0p0r0y131f1k1m1q1w1y202a","0y1a1j1l1u1x26292h2k2t2w3536"],["golfinho",42,-4,"0105060708090l0m0v0x1j1v272j","1112191b1j1l1u1w25272g2j2s2t"],["soltura",43,-18,"0506070c0j0m0x1k1w1y22282i2v","191j1l1u1x252g2j2k2s2w343536"]]},
-  "carta:7":{"s":"carta:7:3","c":[["golfinho",38,-4,"0p0s0z15191h1l1t242f2p2z3738","0n0p0z101a1b1k1l2b2l2n2w2z38"],["barbatana",24,-10,"1115161b1d1i1m1t232d2n2y3738","0q0s101c1n222a2b2e2n2q2y303a"],["soltura",38,-17,"0c0o0s0y12181k222e2m2o2z3738","0r11131c1e1n21222a2d2l2p2x2z"]]},
-  "carta:8":{"s":"carta:8:1","c":[["isca",12,-31,"0t13151m1o1s1w1z22272a2i2q30","050607080f0p0z1a1k1s1w1x2l2n"],["golfinho",43,-8,"0t13151k1m1o1u1w252h2i2q30","060d0n0p0q0y12191k1m1n1s1w22"],["soltura",41,-15,"0o0t0y101315191c1l1w23262i2p","0d0n0p0y111a1k1n1v1x25282h2i"]]},
-  "carta:9":{"c":[["isca",6,-36,"08090l0r0v11131b1l1o1p1q1x1y","0e0h0q0r15191e1j1u21262b2i2j"],["mare",11,-14,"12131c1f1m1p1z262a2g2k2s2u34","101c1m1o1p21282b2k2m2u2x3637"],["curta",11,-18,"12131c1f1j1m1p1z262g2k2s2u34","0e0f0g0h1012131b1d1l1p1x212b"]]}
+const K='#2E1A0C';
+const P={o:'#E0703A',O:'#B24E22',l:'#F4A56A',p:'#F2A0A8',w:'#F4EFE6',W:'#FFFFFF',e:'#0A1F2B',y:'#F2C84B',Y:'#C9962E',h:'#FFF1A8',
+  r:'#D8553A',R:'#A33A28',m:'#6B4220',n:'#F39A36',N:'#C8741F',q:'#D9C597',u:'#9C7F4A',c:'#FFF1D0'};
+const M={
+  catFace:[".oo..........oo.",".ooo........ooo.",".oppo......oppo.",".oppooooooooppo.","oooooooOOooooooo","ooooooOooOoooooo","oooeeooooooeeooo","oooeWooooooeWooo","oooooowwwwoooooo","oooooowppwoooooo","ooooowwmmwwooooo",".ooooowwwwooooo.","..oooooooooooo..","....oooooooo...."],
+  catHappy:[".oo..........oo.",".ooo........ooo.",".oppo......oppo.",".oppooooooooppo.","oooooooOOooooooo","ooooooOooOoooooo","oooeeooooooeeooo","ooeooeooooeooeoo","oooooowwwwoooooo","oooooowppwoooooo","ooooowmwwmwooooo",".ooooowmmwooooo.","..oooooooooooo..","....oooooooo...."],
+  catBack:["..o........o..",".opo......opo.",".oppooooooppo.",".oooooooooooo.","ooOOooooooOOoo","oooooooooooooo",".oooooooooooo.","..oooooooooo..",".oooooooooooo.","ooOoooooooooOo","oooooooooooooo","ooOOooooooOOoo",".oooooooooooo.o","..oooooooooo.oo"],
+  fish:["...yyyy.....",".yyhhyyy..Y.","yweyyyyyyYY.","yyyyyyyyyYYY","ryyyyyyyyYY.",".yyyyyyy..Y.","...yYYy....."],
+  fishBig:["..........yyyyy...........",".......yyyyhhhyyy.........",".....yyyhhhhyyyyyyy....YY.","...yyyyyyyyyyyyyyyyy..YYY.","..yywyyyyyYyyyYyyyyyYYYY..",".yyekyyyyyYyyyYyyyyyYYY...","yyyyyyyyyyYyyyYyyyyyyYY...",".yrryyyyyyYyyyYyyyyyYYY...","..yyyyyyyyYyyyYyyyyYYYY...","...yyyyyyyyyyyyyyyyy..YYY.",".....YYyyyyyyyyyyy....YY..",".......YYYYyyyYYY.........","..........YYYYY..........."],
+  tail:["YY......YY","YYY....YYY",".YYY..YYY.","..YYYYYY..","...yyyy...","...yyyy...","..yyyyyy.."],
+  bobber:["...mm...","...mm...","..rrrr..",".rrWrrr.",".rrrrRr.",".wwwwww.",".wwwwwq.","..wwqq..","...mm..."],
+  star:[".....yy.....","....yhhy....","....yhhy....","yyyyyhhyyyyy",".yyyyhhyyyy.","..yyyyyyyy..","...yyyyyy...","..yyyyyyyy..","..yyyYYyyy..",".yyYY..YYyy.",".yY......Yy."],
+  book:["..RRRRRRRRR.",".RrrrrrrrrR.",".RrrryyrrrR.",".RrryhhyrrR.",".RrryhhyrrR.",".RrrryyrrrR.",".RrrrrrrrrR.",".RrrrrrrrrR.",".RRRRRRRRRR.",".wwwwwwwwwww",".mmmmmmmmmmm"],
+  help:["..cccccc..",".cccccccc.",".ccc..ccc.","......ccc.",".....ccc..","....ccc...","....cc....","....cc....","..........","....cc....","....cc...."],
 };
-// @card-ref-end
-// @order-ref-start
-const ORDER_REF = {
-  "2026-09-28":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8}],"b":29,"w":-23,"bb":"1j1n1u1z25292h2l2o2t2y353637","wb":"0e0f0o0r10121e1m28292k2n2w2y"},
-  "2026-09-29":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":38,"w":-8,"bb":"1o1q1r1s1y1z242f2k2p2w2z3839","wb":"292a2c2d2j2m2n2p2v303738393a"},
-  "2026-09-30":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":35,"w":-21,"bb":"05070f0j0p0z1315191d1f1j1o1q","wb":"0r0t12141d1g1p1r222d2k2n2w2x"},
-  "2026-10-01":{"o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":51,"w":-10,"bb":"0t1113151b1h1r1w21272b2j2l2v","wb":"0d0e0f0z10131c1f1q222b2e2n2o"},
-  "2026-10-02":{"s":"2026-10-02:rede:1","o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":43,"w":-14,"bb":"040e0g0o0s0y14181d1f1p262i2j","wb":"0c0m0o0x191c1l1z272i2m2s2x37"},
-  "2026-10-03":{"k":"faminto","o":[{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":41,"w":-8,"bb":"0n0o0p0q0x12181e1k1w282n2w2x","wb":"0h0z1011191d1j1m1u1x26292i2u"},
-  "2026-10-04":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":38,"w":-13,"bb":"0u161h1l1s1v22272a2j2m2v3738","wb":"2627292c2g2j2l2n2s3435363738"},
-  "2026-10-05":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":3,"b":12}],"b":45,"w":-10,"bb":"05060q10151a1h1k1u2k2o2u3334","wb":"0p0r1012141b1e1g1n1z21292l2o"},
-  "2026-10-06":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16}],"b":39,"w":-11,"bb":"06070g0q1a1l1w272c2j2n2v2x37","wb":"0z191c1j1n1u1y25272c2h2j2l2v"},
-  "2026-10-07":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":40,"w":-17,"bb":"191a1j1u23252c2d2h2m2t2w3536","wb":"161i1n1t1x24282a2b2c2d2k2l"},
-  "2026-10-08":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":38,"w":-15,"bb":"0t131d1n1x26272n2r2w2z363839","wb":"1b1c1l1o1p1q1v1x252b2c2l2r2v"},
-  "2026-10-09":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":41,"w":-18,"bb":"0d0e0n0v0x0z1015171i1k1l272d","wb":"0d0e0f0g0n0s0x121b1j1l1u2627"},
-  "2026-10-10":{"k":"faminto","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16}],"b":35,"w":-13,"bb":"0h0i0r0u12141g1l1s1x292l2o2y","wb":"0s1112141f1k1m1q1v1z2026282a"},
-  "2026-10-11":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":2,"b":8}],"b":45,"w":-6,"bb":"0g0p101a1m1p22272b2c2e2l2v","wb":"0g0p10121b1m1o1z2a2l2t2w3536"},
-  "2026-10-12":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":4,"b":16}],"b":55,"w":-13,"bb":"0r0s11141c1f1p21262c2m2r3435","wb":"0p0y0z11181c1j1u27282i2r3435"},
-  "2026-10-13":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":48,"w":-12,"bb":"0t10151h1r232e2o2t2z35363839","wb":"0p141b1d1f1m1p1x1z2b2j2n2v2x"},
-  "2026-10-14":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":32,"w":-7,"bb":"06070g0j0s0v14171e1i242e2n2o","wb":"0s12141h1p1z21232c2e2n2q2z30"},
-  "2026-10-15":{"s":"2026-10-15:rede:1","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":28,"w":-16,"bb":"0c0d0e0q111b1m1u1w25282h2j2t","wb":"0j0s0t11121b1l1o1p1w27292i2k"},
-  "2026-10-16":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":2,"b":8}],"b":40,"w":-7,"bb":"0j0w0z191i1l1t1v232d2k2n2w2x","wb":"0u0w121c1h1m1q1y202h2l2r2v"},
-  "2026-10-17":{"k":"faminto","o":[{"sp":"dourada","q":3,"b":12},{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":3,"b":12}],"b":35,"w":-5,"bb":"0n0o0p0q0x181j1q1u22262c2j2l","wb":"060g0i0r0t151g1o1p1r1y222a2c"},
-  "2026-10-18":{"k":"faminto","o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":37,"w":-11,"bb":"0e0o0q0y12181e1k1o1u252r2t2w","wb":"0o0y10191c1l1o1v252a2r2v3435"},
-  "2026-10-19":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":2,"b":8}],"b":40,"w":0,"bb":"010304050m0y1a1l1q1w20282a2k","wb":"010e0m0p0x181j1l1n1u1x26272e"},
-  "2026-10-20":{"s":"2026-10-20:rede:2","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":3,"b":12}],"b":38,"w":-14,"bb":"020304050c0h0o0v0z1k1u252h2l","wb":"030405060c0d0i0m0q0u0y101314"},
-  "2026-10-21":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":43,"w":-8,"bb":"080i0k0q0s10121a1i1t1w1z2829","wb":"080y0z181b1c1o1w1x282j2u2w36"},
-  "2026-10-22":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":35,"w":-12,"bb":"0h0r0t12141c1g1n1z232d2n2x37","wb":"0d0h0p0s0t0u10161c1d1e1i1q1r"},
-  "2026-10-23":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":2,"b":8},{"sp":"dourada","q":3,"b":12}],"b":29,"w":-16,"bb":"0u101d1f1g1l1n1p1v1y2126282i","wb":"0n0x1012191a1e1f1n1r1z202124"},
-  "2026-10-24":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16}],"b":46,"w":-11,"bb":"0h0i111b1w262d2g2n2s2x353637","wb":"1e1o1q1z21292a2c2i2n2w2x3536"},
-  "2026-10-25":{"k":"faminto","o":[{"sp":"dourada","q":3,"b":12},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":3,"b":12}],"b":25,"w":-21,"bb":"0z101f1g1h1m242d2e2n2y363738","wb":"0i0s0u1316191h21242d2f2n2z3b"},
-  "2026-10-26":{"o":[{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":45,"w":-18,"bb":"111a1b1k1p1u2122262a2b2i2k2u","wb":"0z12131b1c1g1p1s21222u2v2x37"},
-  "2026-10-27":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"lula","q":4,"b":16}],"b":45,"w":-13,"bb":"080h1h1s1y24292j2o2p2v2y3738","wb":"030405060d0j0z11181a1c1g1m1w"},
-  "2026-10-28":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":46,"w":-15,"bb":"0i0s0u0w17191i1k22292c2j2l2m","wb":"07080h0v151b1h1n1o1q202c2e2o"},
-  "2026-10-29":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":28,"w":-4,"bb":"0u161i1s1w2226292a2b2d2i2j2n","wb":"14151f1h1s1w2122262b2l2t2v35"},
-  "2026-10-30":{"o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":2,"b":8},{"sp":"lagosta","q":1,"b":8}],"b":34,"w":-11,"bb":"0m0r0t1213151b1m1t1y1z232b2d","wb":"111415191d1e1l1m1r1y2a2i2l2x"},
-  "2026-10-31":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16}],"b":50,"w":-8,"bb":"0708090h0l0s1d1n1t1x24292e2l","wb":"0c0m0o0q0x1013191f1l1n1p1x1z"},
-  "2026-11-01":{"k":"faminto","o":[{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":39,"w":-13,"bb":"0f0p0z171b1g1i1q1s202b2l2u2w","wb":"0i0s0u13161d1g1n1q202a2l2u2w"},
-  "2026-11-02":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12},{"sp":"lula","q":3,"b":12}],"b":44,"w":-20,"bb":"0106070d0e0g0q0y1a1c1f1m1o1p","wb":"0s0t121e1h1t20242a2d2e2m2n"},
-  "2026-11-03":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":48,"w":-25,"bb":"0n0x191c1e1l1q1v22272d2j2p37","wb":"1d1g1n1p1q1s1x202124282a2j37"},
-  "2026-11-04":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":3,"b":12}],"b":56,"w":-16,"bb":"04050c0e0h0n0t0y1a1h1l1r1v22","wb":"0c0e0n0p0q1012181e1k1l1m1n1o"},
-  "2026-11-05":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lula","q":4,"b":16},{"sp":"dourada","q":2,"b":8}],"b":37,"w":-20,"bb":"0o0t0z1a1l1r1v1y252a2d2h2s34","wb":"0n0x0z181b1d1k1n1p1r1w292c2l"},
-  "2026-11-06":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"lagosta","q":1,"b":8}],"b":33,"w":-15,"bb":"12131c1f1g1n1s24282j2m2w36","wb":"0f1c1y272h2l2p2y303637383a"},
-  "2026-11-07":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"dourada","q":4,"b":16},{"sp":"lula","q":2,"b":8}],"b":32,"w":-26,"bb":"040b0g0h0n0t0x14191j1q1v1x29","wb":"0b0c11121b1e1j1l1n1q1x202j2v"},
-  "2026-11-08":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":3,"b":12}],"b":48,"w":-10,"bb":"030s121415181j1m1n1p1u1w26","wb":"05060i0s11131c1e1m1w27292b2j"},
-  "2026-11-09":{"o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"dourada","q":3,"b":12}],"b":23,"w":-14,"bb":"040e0h0o0y15181g1j1q20272j2v","wb":"0f0o0p0r0y12181c1j1o1y26282i"},
-  "2026-11-10":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":38,"w":-13,"bb":"0d0e0n0q0z12131v2a2h2k2t2v35","wb":"0s1m1n1o1u1w292h2i2j2l2m2o2y"},
-  "2026-11-11":{"o":[{"sp":"dourada","q":3,"b":12},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":43,"w":-12,"bb":"0s0t151e1h1p1t242f2m2q2y303a","wb":"0c0m0p0q0x0z181e1j1l1m1o1v25"},
-  "2026-11-12":{"o":[{"sp":"lula","q":4,"b":16},{"sp":"sardinha","q":4,"b":16},{"sp":"dourada","q":3,"b":12}],"b":49,"w":-15,"bb":"03040d0i0o0u161a1h1q1t22242e","wb":"040e0o0p0r12181k1o1w1x20292a"},
-  "2026-11-13":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":39,"w":-18,"bb":"080c0k0m0o0p0q0x16191e1f1l2g","wb":"0203040c0n0p0y1112151a1b1q20"},
-  "2026-11-14":{"k":"faminto","o":[{"sp":"lula","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":57,"w":-4,"bb":"0f0o0p0y181j1p1u21262a2i2j2k","wb":"0405070h0m0u0x0z16181e1l1r"},
-  "2026-11-15":{"k":"faminto","o":[{"sp":"lula","q":4,"b":16},{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":50,"w":-10,"bb":"01020b0h0j0k0n0t0x181j1v262i","wb":"070d0h0j0n0u0x15181j1q1v1w20"},
-  "2026-11-16":{"o":[{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":1,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":21,"w":-13,"bb":"1h1q1r1t20242f2j2q2v2y303738","wb":"1e1f1g1s2021242d2f2o2q2z313b"},
-  "2026-11-17":{"o":[{"sp":"dourada","q":2,"b":8},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":32,"w":-14,"bb":"07090g0j0l0w10171a1c1g1h1k1m","wb":"10121b1d1m1x1z21282d2k2l2m2n"},
-  "2026-11-18":{"o":[{"sp":"sardinha","q":2,"b":8},{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":2,"b":16}],"b":31,"w":-18,"bb":"02070f0h0r0t15191f1l1m1r1y2f","wb":"0d0f0r11191b1j1m1u1y26"},
-  "2026-11-19":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":4,"b":16},{"sp":"lagosta","q":2,"b":16}],"b":53,"w":-16,"bb":"0g0h0j0q0t14161g1x292d2e2l2m","wb":"1x1z20232627292g2m2s2t2v2w35"},
-  "2026-11-20":{"o":[{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":2,"b":16},{"sp":"lula","q":3,"b":12}],"b":46,"w":-9,"bb":"060f0g0i0p0u0z1b1n2l2w2z3839","wb":"131d1n1r20232f2k2q2w3138393b"},
-  "2026-11-21":{"k":"faminto","o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lula","q":4,"b":16},{"sp":"lagosta","q":1,"b":8}],"b":39,"w":-12,"bb":"07080h0k0u161q1t2022242d2f2p","wb":"0k0u0w1415171e1q1r1s202o2y2z"},
-  "2026-11-22":{"k":"faminto","o":[{"sp":"lagosta","q":1,"b":8},{"sp":"lula","q":2,"b":8},{"sp":"sardinha","q":2,"b":8}],"b":29,"w":0,"bb":"0r131c1e1n1q1z21292l2x30393a","wb":"01020b0e0m0o1a1c1l1n1x2y303a"},
-  "2026-11-23":{"o":[{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12},{"sp":"dourada","q":2,"b":8}],"b":49,"w":-8,"bb":"060g0i0r0u12161i1n2b2d2l2n2x","wb":"191a1b1d1j1p1v1z26292h2l2t2x"},
-  "2026-11-24":{"o":[{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":2,"b":16},{"sp":"sardinha","q":3,"b":12}],"b":40,"w":-12,"bb":"0p0z1k1u2226282a2e2m2q2y303a","wb":"101d1n22292b2e2k2m2q2w2y2z30"},
-  "2026-11-25":{"s":"2026-11-25:rede:1","o":[{"sp":"dourada","q":4,"b":16},{"sp":"sardinha","q":4,"b":16},{"sp":"lagosta","q":1,"b":8}],"b":39,"w":-13,"bb":"10191a1c1j1u24252f2h2i2q2y3b","wb":"1h2d2e2h2i2q2r3334353637383b"},
-  "2026-11-26":{"o":[{"sp":"sardinha","q":3,"b":12},{"sp":"lula","q":3,"b":12},{"sp":"lagosta","q":1,"b":8}],"b":34,"w":-10,"bb":"0g0q0s11141g1n1s1z242f2q3039","wb":"161g1i1q1t22242d2f2o2q2z313b"}
-};
-// @order-ref-end
+M.starOff=M.star.map(r=>r.replace(/[yh]/g,'q').replace(/Y/g,'u'));
+const canvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+const dot=(x,c,a,b,w=1,h=1)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
+const hash=(x,y)=>{const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s)};
+const rgb=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+function drawMap(x,map,X,Y,flipX=false,pal=P){
+  const h=map.length,w=Math.max(...map.map(r=>r.length));
+  const at=(r,c)=>{const ch=map[r]?.[flipX?w-1-c:c];return ch&&ch!=='.'?ch:null};
+  for(let r=-1;r<=h;r++)for(let c=-1;c<=w;c++)if(!at(r,c)&&(at(r-1,c)||at(r+1,c)||at(r,c-1)||at(r,c+1)))dot(x,K,X+c,Y+r);
+  for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,pal[ch],X+c,Y+r)}
+}
+const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
+const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help','book'].map(k=>[k,mapURL(M[k])]));
+const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
+const SP_BY=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
+const spPal=(s,dark)=>dark?Object.fromEntries('abcfwe'.split('').map(k=>[k,'#1E4A5A'])):{...s.pal,w:'#FFFFFF',e:'#0A1F2B'};
+const spURL=(id,dark)=>{const s=SP_BY[id],m=speciesMap(s),cv=canvas(Math.max(...m.map(r=>r.length))+2,m.length+2);drawMap(cv.getContext('2d'),m,1,1,false,spPal(s,dark));return cv.toDataURL()};
+const SP_URL=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id)])), SP_DARK=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id,true)]));
+const fishSprite=(id,cls='',dark)=>`<i class="sp ${cls}" style="background-image:url(${(dark?SP_DARK:SP_URL)[id]})"></i>`;
 
-// ---------- storage ----------
-function load(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
-
-// ---------- today's reference ----------
-// The one seam the UI reads the day's best/worst from; a future backend replaces this function.
-function dailyReference(g,done){
-  if(g.kind==='drop') return;
-  if(g.kind==='net'){
-    if(MODE){const r=ORDER_REF[DATE];if(r) done({best:r.b,worst:r.w,exact:true,bestBuoys:unpackCells(g,r.bb),worstBuoys:unpackCells(g,r.wb)});return}
-    const cs=CARD_REF[g.seed]?.c;
-    if(cs){
-      const hi=cs.reduce((a,b)=>b[1]>a[1]?b:a), lo=cs.reduce((a,b)=>b[2]<a[2]?b:a);
-      done({best:hi[1],worst:lo[2],exact:true,bestBuoys:unpackCells(g,hi[3]),worstBuoys:unpackCells(g,lo[4]),bestCard:hi[0],worstCard:lo[0]});
-      return;
-    }
-    return;
+// Pixel 9-slice frames for the UI: planks with nails, parchment, gold buttons. Corner pixel left empty for a stepped corner.
+function nine(kind){
+  const n=kind==='gold'||kind==='dull'?12:kind==='tag'?8:16, cv=canvas(n,n), x=cv.getContext('2d'), f=(c,a,b,w=1,h=1)=>dot(x,c,a,b,w,h);
+  f({wood:'#8B5A2B',parch:'#F6E7C1',tag:'#F6E7C1',gold:'#F2B33D',dull:'#A08E6C'}[kind],1,1,n-2,n-2);
+  if(kind==='wood'){
+    for(let y=1;y<n-1;y++){if((y-1)%5===4)f('#5E3A1A',1,y,n-2,1);else for(let i=1;i<n-1;i++)if(hash(i,y*3)>.84)f('#7A4A22',i,y)}
+    f('#B97A45',2,1,n-4,1);f('#B97A45',1,2,1,n-4);f('#5E3A1A',2,n-2,n-4,1);f('#5E3A1A',n-2,2,1,n-4);
+    for(const[a,b]of[[3,3],[n-4,3],[3,n-4],[n-4,n-4]]){f('#E8D9B0',a,b);f('#5E3A1A',a,b+1)}
   }
-  solveAsync(g,2000,r=>done({best:r.best,worst:r.worst,exact:r.complete,bestPath:r.complete&&r.bestPath,worstPath:r.complete&&r.worstPath}));
+  if(kind==='parch'||kind==='tag'){
+    for(let y=2;y<n-2;y++)for(let i=2;i<n-2;i++)if(hash(i*7,y)>.9)f('#EEDBAE',i,y);
+    f('#E0C58B',1,1,n-2,1);f('#E0C58B',1,n-2,n-2,1);f('#E0C58B',1,1,1,n-2);f('#E0C58B',n-2,1,1,n-2);
+  }
+  if(kind==='gold'||kind==='dull'){const hi=kind==='gold'?'#FFD97A':'#BCAB88',lo=kind==='gold'?'#B97A1F':'#7C6B4E';f(hi,1,1,n-2,2);f(hi,1,1,1,n-3);f(lo,1,n-3,n-2,2)}
+  f(K,1,0,n-2,1);f(K,1,n-1,n-2,1);f(K,0,1,1,n-2);f(K,n-1,1,1,n-2);f(K,1,1);f(K,n-2,1);f(K,1,n-2);f(K,n-2,n-2);
+  return `url(${cv.toDataURL()})`;
 }
-let solver=null;
-function solveAsync(g,ms,done){
-  try{solver??=new Worker(URL.createObjectURL(new Blob([`const solveLine=${solveLine};onmessage=e=>{const [id,m]=e.data;postMessage([id,solveLine(m)])}`],{type:'text/javascript'})))}
-  catch(e){return}
-  const id=Math.random();
-  solver.addEventListener('message',function on(e){if(e.data[0]!==id)return;solver.removeEventListener('message',on);done(e.data[1])});
-  solver.postMessage([id,boardModel(g)]);
+for(const k of ['wood','parch','tag','gold','dull'])document.documentElement.style.setProperty(`--${k}9`,nine(k));
+{const cv=canvas(32,32),x=cv.getContext('2d');for(let i=0;i<7;i++){const a=Math.floor(hash(i,1)*26),b=1+Math.floor(hash(1,i)*30);dot(x,'rgba(140,220,228,.13)',a,b,4,1);dot(x,'rgba(140,220,228,.13)',a+4,b-1,2,1)}
+  document.documentElement.style.setProperty('--sea-tile',`url(${cv.toDataURL()})`)}
+
+// ---------- the lagoon: 24px a square, beach and pier below ----------
+const S=24, GW=N*S, BEACH=32, GH=GW+BEACH, CX=GW/2;
+// Seabed textures use page coordinates, so a patch of one bottom reads as one field across squares.
+const GROUND=[
+  (x,y,h)=>(y+Math.round(Math.sin(x*.38)*1.6))%6===0?'#D8BA7C':h>.95?'#C7A468':h<.04?'#FBEDC6':'#EBD39D',
+  (x,y,h)=>h>.9?'#C9A870':h<.06?'#F2E0B4':'#E0C48D',
+  (x,y,h)=>h>.8?'#8A8470':h<.12?'#CABFA2':'#ADA487',
+  (x,y,h)=>(x*3+y)%9===0&&h>.4?'#2C5A40':h>.9?'#28523A':h<.08?'#5E8E64':'#3F6E4E',
+];
+function star5(x,a,b){const c='#F08A5C';dot(x,c,a,b-3,1,7);dot(x,c,a-3,b-1,7,1);dot(x,c,a-1,b-1,3,3);dot(x,c,a-2,b+1,2,1);dot(x,c,a+1,b+1,2,1);dot(x,c,a-3,b+2);dot(x,c,a+3,b+2);dot(x,'#FFB38A',a,b)}
+function branch(x,a,b,r){const[c,h]=[['#FF7A6B','#FFB0A3'],['#FF9D4D','#FFD08A'],['#E0609A','#FF9CC8']][Math.floor(r()*3)];
+  dot(x,'rgba(40,30,20,.3)',a-3,b+1,7,1);dot(x,c,a,b-7,1,8);dot(x,c,a-2,b-5,1,4);dot(x,c,a-3,b-7,1,3);dot(x,c,a+2,b-6,1,4);dot(x,c,a+3,b-8,1,3);dot(x,c,a-2,b-2,5,1);
+  dot(x,h,a,b-7);dot(x,h,a-3,b-7);dot(x,h,a+3,b-8);dot(x,h,a-2,b-5)}
+function brain(x,a,b){dot(x,'rgba(40,30,20,.3)',a-3,b+1,8,1);dot(x,'#E8A05A',a-3,b-3,7,4);dot(x,'#E8A05A',a-2,b-4,5,1);dot(x,'#C07A3A',a-2,b-2,1,2);dot(x,'#C07A3A',a,b-3,1,2);dot(x,'#C07A3A',a+2,b-2,1,2);dot(x,'#FFC98A',a-1,b-4,2,1)}
+function fan(x,a,b){for(let i=0;i<6;i++)for(let j=0;j<5;j++)if((i+j)%2===0||j===4)dot(x,j===4?'#8E4FB0':'#B86BD8',a-3+i,b-7+j);dot(x,'#E0A8F5',a-2,b-7,4,1);dot(x,'#8E4FB0',a,b-2,1,3)}
+function anemone(x,a,b){dot(x,'#C8457A',a-2,b-1,5,2);for(const t of[-2,-1,0,1,2]){dot(x,'#FF9CC8',a+t,b-3-Math.abs(t)%2,1,2);dot(x,'#FFD1E6',a+t,b-4-Math.abs(t)%2)}}
+function boulder(x,a,b,w,h){dot(x,'rgba(30,30,20,.35)',a+1,b+h,w,1);dot(x,'#7D8993',a,b+1,w,h-1);dot(x,'#7D8993',a+1,b,w-2,h+1);dot(x,'#B9C4CB',a+1,b,w-3,1);dot(x,'#A3AEB6',a,b+1,1,2);dot(x,'#56606A',a+1,b+h,w-2,1);dot(x,'#56606A',a+w-1,b+2,1,h-2);if(w>6)dot(x,'#6A7580',a+2,b+2,2,1)}
+function urchin(x,a,b){dot(x,'#3A2D4A',a-1,b-1,3,3);for(const[i,j]of[[-2,0],[2,0],[0,-2],[0,2],[-2,-2],[2,2],[2,-2],[-2,2]])dot(x,'#241A33',a+i,b+j)}
+const FEATURE=[
+  (x,X,Y,r)=>{
+    if(r()<.5)star5(x,X+5+Math.floor(r()*14),Y+5+Math.floor(r()*14));
+    if(r()<.4){const a=X+4+Math.floor(r()*15),b=Y+4+Math.floor(r()*15);dot(x,'#F7EACB',a-1,b-2,3,5);dot(x,'#F7EACB',a-2,b-1,5,3);dot(x,'#D9C08E',a,b);dot(x,'#D9C08E',a-1,b+1);dot(x,'#D9C08E',a+1,b+1)}
+    for(let k=0;k<3;k++)dot(x,'#FFF8E4',X+1+Math.floor(r()*21),Y+1+Math.floor(r()*21),2,1);
+  },
+  (x,X,Y,r)=>{const kinds=[branch,brain,fan,anemone];for(let k=0;k<4;k++)kinds[Math.floor(r()*4)](x,X+3+Math.floor(r()*17),Y+8+Math.floor(r()*14),r)},
+  (x,X,Y,r)=>{
+    for(let k=0;k<3;k++){const w=6+Math.floor(r()*4),h=4+Math.floor(r()*3);boulder(x,X+1+Math.floor(r()*(22-w)),Y+1+Math.floor(r()*(21-h)),w,h)}
+    if(r()<.35)urchin(x,X+4+Math.floor(r()*16),Y+4+Math.floor(r()*16));
+  },
+  (x,X,Y,r,f)=>{
+    for(let k=0;k<4;k++){const a=X+2+Math.floor(r()*20),top=Y+1+Math.floor(r()*6),ph=r()*6;
+      for(let b=Y+23;b>=top;b--){const s=Math.round(Math.sin((b+ph)*.45+f*1.3)*1.4);dot(x,'#3F9A5E',a+s,b);
+        if((b+k)%4===0){dot(x,'#7CCB7F',a+s+1,b,2,1);dot(x,'#7CCB7F',a+s-2,b+1,2,1)}if((b+k)%7===0)dot(x,'#C9B458',a+s,b)}
+      dot(x,'#9BE39B',a+Math.round(Math.sin((top+ph)*.45+f*1.3)*1.4),top)}
+  },
+];
+const differs=(g,r,c,rr,cc,k)=>{const n=g[rr]?.[cc];return !!n&&n[k]!==g[r][c][k]};
+function paintSeabed(grid,f){
+  const R=grid.length,C=grid[0].length,w=C*S,h=R*S,cv=canvas(w,h),x=cv.getContext('2d'),img=x.createImageData(w,h),d=img.data;
+  // Clear water eats red first: the floor reads as lagoon turquoise while what grows on it keeps its colour.
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const r=py/S|0,c=px/S|0,ix=px%S,iy=py%S;let b=grid[r][c].b??0;
+    if((px+py)&1){
+      if(ix===0&&differs(grid,r,c,r,c-1,'b'))b=grid[r][c-1].b;else if(ix===S-1&&differs(grid,r,c,r,c+1,'b'))b=grid[r][c+1].b;
+      else if(iy===0&&differs(grid,r,c,r-1,c,'b'))b=grid[r-1][c].b;else if(iy===S-1&&differs(grid,r,c,r+1,c,'b'))b=grid[r+1][c].b;
+    }
+    const[a,g,bl]=rgb(GROUND[b](px,py,hash(px,py))),i=(py*w+px)*4;
+    d[i]=a*.4;d[i+1]=g*.88+14;d[i+2]=bl*.9+62;d[i+3]=255;
+  }
+  x.putImageData(img,0,0);
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{if(cell.b===undefined)return;x.save();x.beginPath();x.rect(c*S,r*S,S,S);x.clip();FEATURE[cell.b](x,c*S,r*S,mulberry(r*31+c*7+cell.b*101+1),f);x.restore()}));
+  const lit=x.getImageData(0,0,w,h),L=lit.data;
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const r=py/S|0,c=px/S|0,cell=grid[r][c],ix=px%S,iy=py%S,i=(py*w+px)*4;
+    if(cell.d){L[i]*=.34;L[i+1]=L[i+1]*.56+8;L[i+2]=L[i+2]*.76+34}
+    if(cell.l===1){
+      const eL=differs(grid,r,c,r,c-1,'l'),eR=differs(grid,r,c,r,c+1,'l'),eT=differs(grid,r,c,r-1,c,'l'),eB=differs(grid,r,c,r+1,c,'l');
+      const edge=Math.min(eL?ix:99,eR?S-1-ix:99,eT?iy:99,eB?S-1-iy:99);
+      const round=(cx,cy)=>(ix-cx)**2+(iy-cy)**2>36;
+      const corner=(eL&&eT&&ix<6&&iy<6&&round(6,6))||(eR&&eT&&ix>S-7&&iy<6&&round(S-7,6))||(eL&&eB&&ix<6&&iy>S-7&&round(6,S-7))||(eR&&eB&&ix>S-7&&iy>S-7&&round(S-7,S-7));
+      // Cloud shadow: a dithered penumbra and rounded corners, kept inside its squares so every centre reads.
+      if((edge<2||corner)&&(px+py)&1) continue;
+      L[i]*=.52;L[i+1]*=.58;L[i+2]=L[i+2]*.66+6;
+    }
+  }
+  x.putImageData(lit,0,0);
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{
+    if(cell.d)return;const X=c*S,Y=r*S,up=grid[r-1]?.[c],lf=row[c-1],rt=row[c+1];
+    if(up&&up.d){for(let i=0;i<S;i++){if(i%2===0)dot(x,'rgba(200,255,244,.75)',X+i,Y);dot(x,'rgba(160,242,228,.35)',X+i,Y+1);for(let j=1;j<=3;j++)if(j===1||(i+j)%2===0)dot(x,'rgba(4,20,40,.38)',X+i,Y-j)}}
+    if(lf&&lf.d)for(let j=0;j<S;j++){if(j%2===0)dot(x,'rgba(200,255,244,.6)',X,Y+j);for(let i=1;i<=2;i++)if((i+j)%2===0)dot(x,'rgba(4,20,40,.32)',X-i,Y+j)}
+    if(rt&&rt.d)for(let j=0;j<S;j++){if(j%2===0)dot(x,'rgba(200,255,244,.6)',X+S-1,Y+j);for(let i=1;i<=2;i++)if((i+j)%2===0)dot(x,'rgba(4,20,40,.32)',X+S-1+i,Y+j)}
+  }));
+  return cv;
+}
+// Light only dances where the sun reaches: a caustic net over sunny squares, none under cloud shadow.
+function lightUp(img,grid,t){
+  const d=img.data,w=img.width,h=img.height;
+  for(let py=0;py<h;py++)for(let px=0;px<w;px++){
+    const cell=grid[py/S|0][px/S|0];if(cell.l!==0)continue;
+    const a=px*.2+Math.sin(py*.15+t*.9)*1.8,b=py*.2+Math.sin(px*.17-t*.7)*1.8,m=Math.min(Math.abs(Math.sin(a)),Math.abs(Math.sin(b)));
+    const k=(m<.06?1:m<.13?.35:0)*(cell.d?.16:.42);if(!k)continue;
+    const i=(py*w+px)*4;d[i]+=(255-d[i])*k;d[i+1]+=(250-d[i+1])*k;d[i+2]+=(215-d[i+2])*k;
+  }
+}
+function surface(x,grid,t){
+  grid.forEach((row,r)=>row.forEach((cell,c)=>{
+    const X=c*S,Y=r*S;
+    if(cell.d)for(let k=0;k<2;k++){const a=X+Math.floor((hash(r,c+k)*S+t*.7+k*11)%S),b=Y+5+k*11;if(a<X+S-4)dot(x,'rgba(220,245,255,.16)',a,b,4,1)}
+    if(cell.l===0){const ph=(t+Math.floor(hash(r,c)*14))%14;if(ph<6){const al=[.35,.8,1,.8,.45,.2][ph],a=X+3+Math.floor(hash(c,r+(t>>4))*17),b=Y+3+Math.floor(hash(r+9,c)*17);dot(x,`rgba(255,255,255,${al})`,a,b,3,1);dot(x,`rgba(255,255,255,${al*.6})`,a+1,b-1)}}
+  }));
+  for(let i=0;i<2;i++){
+    const tt=t*.02+i*3.1,fx=Math.round((Math.sin(tt*.7+i)*.42+.5)*GW),fy=Math.round((Math.cos(tt*.5+i*2)*.4+.46)*GW),dir=Math.cos(tt*.7+i)>0?1:-1;
+    dot(x,'rgba(4,22,40,.26)',fx-3,fy,7,2);dot(x,'rgba(4,22,40,.26)',fx-2,fy-1,5,1);dot(x,'rgba(4,22,40,.26)',fx-2,fy+2,5,1);dot(x,'rgba(4,22,40,.22)',fx-dir*5,fy-1,1,4);
+  }
+  for(let i=1;i<N;i++)for(let j=1;j<N;j++)dot(x,'rgba(255,255,255,.34)',i*S,j*S);
+}
+const ROD={x:CX+17,y:GW-18}, GRIP={x:CX+5,y:GW+10};
+function beach(x,t){
+  for(let px=0;px<GW;px++){
+    const fo=2+Math.round(Math.sin(px*.35+t*.5)*1.2+Math.sin(px*.13-t*.3));
+    for(let j=0;j<BEACH;j++){
+      const c=j<fo?((px+j+t)%3?'#F4FBFF':'#D8F4F4'):j<fo+2?'#9ED9D0':j<fo+7?(hash(px,j)>.9?'#E4C58A':'#C9A56A'):(hash(px,j+99)>.93?'#D8BA7C':hash(px,j)<.03?'#FFF6E0':'#E9CF96');
+      dot(x,c,px,GW+j);
+    }
+  }
+  const L=CX-10;
+  for(let j=0;j<BEACH;j++)dot(x,j%4===3?'#5E3A1A':j%4===0?'#B98553':'#9A6A3C',L,GW+j,20,1);
+  dot(x,'#5E3A1A',L,GW,1,BEACH);dot(x,'#5E3A1A',L+19,GW,1,BEACH);
+  dot(x,'#4A2E14',L-1,GW-3,3,5);dot(x,'#4A2E14',L+18,GW-3,3,5);
+  for(let j=0;j<BEACH;j+=8){dot(x,'#E8D9B0',L+2,GW+j+1);dot(x,'#E8D9B0',L+17,GW+j+1)}
+  drawMap(x,M.catBack,CX-7,GW+4);
+  const n=Math.max(Math.abs(ROD.x-GRIP.x),Math.abs(ROD.y-GRIP.y));
+  for(let i=0;i<=n;i++)dot(x,i<n*.5?'#6B4220':'#8B5A2B',Math.round(GRIP.x+(ROD.x-GRIP.x)*i/n),Math.round(GRIP.y+(ROD.y-GRIP.y)*i/n));
+  dot(x,'#8C969B',GRIP.x+2,GRIP.y-3,2,2);dot(x,P.o,GRIP.x-1,GRIP.y,2,2);
+}
+const centre=k=>({x:(k%100)*S+12,y:Math.floor(k/100)*S+12});
+function lineTo(x,to,p){
+  const cx=(ROD.x+to.x)/2,cy=Math.min(ROD.y,to.y)-30,n=90;
+  for(let i=0;i<=n*p;i++){const s=i/n,a=(1-s)**2*ROD.x+2*(1-s)*s*cx+s*s*to.x,b=(1-s)**2*ROD.y+2*(1-s)*s*cy+s*s*to.y;dot(x,'rgba(255,246,222,.9)',Math.round(a),Math.round(b))}
+}
+function ring(x,at,rad,al){for(let a=0;a<64;a++){const t=a/64*Math.PI*2;dot(x,`rgba(232,255,255,${al})`,Math.round(at.x+Math.cos(t)*rad),Math.round(at.y+Math.sin(t)*rad*.7))}}
+function splash(x,at,age){for(let i=0;i<12;i++){const s=age/1000,vx=(hash(i,3)-.5)*40,vy=-40-hash(3,i)*40,px=at.x+vx*s,py=at.y+vy*s+90*s*s;if(py<at.y+2)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,i%4?1:2)}}
+
+// ---------- the catch scene, 80x64, drawn in the foreground when the game ends ----------
+function cloud(x,a,b,c1,c2){dot(x,c1,a+2,b,6,1);dot(x,c1,a,b+1,10,2);dot(x,c2,a+1,b+3,8,1)}
+let BIG=null;const bigFish=()=>BIG||(BIG=(()=>{const one=canvas(TW+2,TH+2);drawMap(one.getContext('2d'),TMAP,1,1,true,TPAL);const big=canvas(one.width*2,one.height*2),bx=big.getContext('2d');bx.imageSmoothingEnabled=false;bx.drawImage(one,0,0,big.width,big.height);return big})());
+function scene(x,won,fi,t){
+  const HZ=36;
+  const sky=won?['#5CC8E6','#78D4EA','#96DFEE','#B4EAF2','#D2F4F5']:['#6F8799','#8198A8','#93A9B7','#A6B9C5','#B9C9D3'];
+  for(let y=0;y<HZ;y++)dot(x,sky[Math.min(4,Math.floor(y/HZ*5))],0,y,80,1);
+  if(won)for(let y=0;y<HZ;y++)for(let i=0;i<80;i++){const a=Math.atan2(y-22,i-40)+t*.02;if(Math.floor((a+Math.PI)*14/Math.PI)%2===0)dot(x,'rgba(255,246,200,.3)',i,y)}
+  cloud(x,6,6,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');cloud(x,60,11,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');
+  const sea=won?['#3FC1C0','#2FA9B5','#2391A6','#1B7A96','#15658A']:['#4E8F9A','#3F7E8C','#336E7E','#285E70','#1F4F62'];
+  for(let y=HZ;y<64;y++)dot(x,sea[Math.min(4,Math.floor((y-HZ)/28*5))],0,y,80,1);
+  dot(x,won?'#E8FAFA':'#C9D6DC',0,HZ,80,1);
+  for(let i=0;i<9;i++)dot(x,'rgba(255,255,255,.45)',(i*17+t)%84-3,HZ+4+(i*7)%20,3,1);
+  for(let y=50;y<64;y++){const w=Math.round(10+(y-50)*1.3);dot(x,y%3===2?'#5E3A1A':'#9A6A3C',40-w/2|0,y,w,1)}
+  drawMap(x,M.catBack,33,40);
+  const tip=won?{x:60,y:16}:{x:58,y:12};
+  const n=30;for(let i=0;i<=n;i++){const s=i/n,cxp=won?60:46,cyp=won?34:24,a=(1-s)**2*44+2*(1-s)*s*cxp+s*s*tip.x,b=(1-s)**2*46+2*(1-s)*s*cyp+s*s*tip.y;dot(x,s<.5?'#6B4220':'#8B5A2B',Math.round(a),Math.round(b))}
+  if(won){
+    const p=Math.min(1,fi/16),e=1-(1-p)**3,fw=TW*2,fh=TH*2,fx=40-(fw>>1),fy=Math.round(HZ-2-fh/2-e*(22-fh/4)+(fi>16?((t>>2)&1):0));
+    for(let i=0;i<=40;i++){const s=i/40;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+fw-tip.x)*s),Math.round(tip.y+(fy+(fh>>1)-tip.y)*s+Math.sin(s*Math.PI)*2))}
+    if(fi<26)for(let i=0;i<14;i++){const s=fi/12,vx=(hash(i,5)-.5)*30,vy=-24-hash(5,i)*26,px=40+vx*s,py=HZ+vy*s+34*s*s;if(py<HZ+1)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,1)}
+    if(fi<10)ring(x,{x:40,y:HZ+1},3+fi*1.4,1-fi/10);
+    x.drawImage(bigFish(),fx-2,fy-2);
+    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0)dot(x,'#FFFFFF',[fx-5,fx+fw+3,fx+4,fx+fw-4][i],[fy-2,fy+2,fy+fh+2,fy-4][i]);
+  }else{
+    for(let i=0;i<=12;i++)dot(x,'rgba(255,246,222,.9)',tip.x+Math.round(Math.sin(i*.6+t*.3)),tip.y+i);
+    const dive=Math.min(1,fi/14);drawMap(x,M.tail,62,Math.round(HZ-8+dive*6));
+    dot(x,sea[0],58,HZ+1,18,Math.round(dive*5)+1);
+    ring(x,{x:67,y:HZ+2},4+((fi>>1)%8),.8-((fi>>1)%8)/10);
+  }
 }
 
-// ---------- text ----------
-const STR = {
-  en:{
-    how_to_play:'How to play', menu:'Menu', got_it:'Got it',
-    game_rede:'Purse net', game_linha:'Bottom line', game_fundo:'Sea floor',
-    left_linha:'Line left', catch:'Catch', lances:'Casts left', par:'Best',
-    undo:'Undo', clear:'Clear', go_rede:'Haul net', go_linha:'Reel in',
-    practice:'Practice', practice_on:'Practice on another map', practice_off:'Back to today’s map',
-    cardname_isca:'Costly bait', cardrule_isca:'Empty square in the pen: −1', cardname_mare:'High tide', cardrule_mare:'The reef is under water',
-    cardname_curta:'Short net', cardrule_curta:'At most 12 squares in the pen', cardname_golfinho:'Friendly dolphin', cardrule_golfinho:'Dolphin is worth +8',
-    cardname_barbatana:'Fin', cardrule_barbatana:'Shark is worth +4', cardname_soltura:'Release', cardrule_soltura:'Buoys may sit on protected animals: +3 each',
-    card_extra:'Card', orders_title:'Today’s orders', orders_sub:'the best catch meets 2 of 3', see_best_day:'See today’s best catch', tut_fence:'Tap the glowing squares to drop buoys: the net goes around the fish and back to the boat.', tut_haul:'Closed! The light water is your catch. Pull the net.', tut_done:'That’s it. Protected animals (red glow) cost points and refuse buoys, so net around them. Every day three villagers order fish, and meeting an order adds a bonus. You get 3 hauls a day.', tut_play:'Play today’s sea', tut_skip:'Skip tutorial', tide_faminto:'Hungry shark', tiderule_faminto:'A shark in the net eats the sardines and scares the turtles and dolphins away.', cat_hint_rede_start:'Mrrow. Run the net from my boat and back. Rocks help.', cat_hint_rede_go:'Almost… bring it back to the boat, I’m hungry.', cat_hint_rede_ready:'Closed! Pull, pull, pull!', cat_hint_rede_far:'Nice pen, but it’s far from my paws. It has to touch the boat.', cat_block_protected_rede:'Hey, that’s my neighbour! No gear on them.', cat_v1:'Purrfect catch!', cat_v2:'A proper feast', cat_v3:'Enough for a nap', cat_v4:'Not even a whisker', cat_v5:'The neighbours are upset', cat_v6:'Shame on this cat', mode_orders:'Orders', villager_dourada:'Otter chef', villager_sardinha:'Pelican at the fish shop', villager_lula:'Raccoon at the market', villager_lagosta:'Grandma cat', help_intro_orders:'A fishing puzzle on a new sea every day, the same for everyone. You are a cat with a boat, and the village has placed three orders.', help_orders_title:'Orders', help_orders:'Fish whatever you like. An order met (at least that many of its fish in the net) adds its bonus. The best catch of the day meets two of the three: choose who goes without.', stars_label:'{n} of 3 stars', clue_prot:'The best catch leaves this one out: {a}.', clue_reef:'The best catch leans on the reef {d} of the boat.', clue_species:'The best catch has {n} × {a}; yours has {m}.', clue_side:'The best catch is {d} of the boat.', dir_n:'north', dir_s:'south', dir_e:'east', dir_w:'west', pct:'{n}% of this map’s best', best_card:'This map’s best used: {c}',
-    hint_rede_area:'Short net: 12 squares at most in the pen', hint_rede_card:'Pick a card to start', hint_rede_far:'Closed, but the net never came back to the boat. Only water touching the boat, side or corner, is caught.', help_cards_title:'Rule cards', help_intro_cards:'A fishing puzzle on a new sea every day, the same for everyone. Each map deals three rule cards: pick one, then fence in the best catch you can. Protected animals (red glow) take points away.', help_cards:'The card changes the rules for this map only. Your pick is final for the map; practice maps, in the menu, deal their own cards. The result shows how close you came to the best possible catch.', block_card_rede:'Pick a card first', block_lock_rede:'Your card is set for this map.',
-    try_again:'Try again', share:'Share day', copied:'Copied to clipboard', copy_fail:'Couldn’t copy. Your result: ',
-    your_best:'Your best', your_lowest:'Your lowest', nothing:'Nothing caught',
-    not_played:'not played yet',
-    hint_rede_ready:'Loop closed. Haul it in.',
-    hint_linha_start:'Tap squares to lay the line from the boat down to the seabed.',
-    hint_linha_go:'Link the boat to the seabed in one chain.', hint_linha_self:'The line can’t touch itself.',
-    hint_linha_ready:'On the seabed. Reel it in.',
-    hint_fundo_start:'Tap a column: the hook takes the first animal and its whole school.',
-    block_turtle_fundo:'A turtle is in the way.',
-    par_hit:'Best possible!', par_over:'{n} short of the best', par_is:'Best possible: {n}',
-    block_rock_linha:'Rock in the way.',
-    block_budget_linha:'Out of line.',
-    block_rockwall_rede:'Rocks already close the net.', block_protected_rede:'Protected animal: no gear on it.', block_buoys_rede:'Out of buoys.',
-    left_buoys:'Buoys left', hint_rede_start:'Run the net out from the boat and back to it. Rocks close it too.', hint_rede_go:'Bring the net back to the boat to close it.',
-    v1:'Good catch!', v2:'Solid haul', v3:'Enough for dinner', v4:'Not a nibble', v5:'Fined by the coast guard', v6:'Ecological disaster',
-    sp_sardinha:'Sardine', sp_lula:'Squid', sp_caranguejo:'Crab', sp_dourada:'Sea bream', sp_lagosta:'Lobster',
-    sp_coral:'Coral', sp_tubarao:'Shark', sp_tartaruga:'Turtle', sp_golfinho:'Dolphin',
-    help_intro:'Three puzzles on a new sea every day, the same for everyone. Chase the <b>highest</b> score or the <b>lowest</b>: both records count. Protected animals (red glow) take points away.',
-    help_rede:'A purse net leaves the <b>boat</b> and comes back to it. Drop <b>buoys</b> to run it: the water between the net and the boat is caught. Rocks close the fence too; the open sea at the edge never does. Fish under a buoy slip away; protected animals never take a buoy, unless the card says so. You have 14 buoys.',
-    help_linha:'Tap squares to lay the line from the <b>boat</b> to the <b>seabed</b> in one chain that never touches itself. Every animal touching the line bites. A fish under the line is scared off and costs 2 squares; a protected animal under it also counts its penalty. Rocks can’t hold line.',
-    help_fundo:'The sea is packed in layers. Tap a column: the hook drops to the first animal and hauls up its whole school; a school of N is worth N². What is above sinks to fill the gap. Turtles can’t be hooked and block the way. 5 casts.',
-    help_points:'Tap an animal in the strip under the board to find it on the map.',
-    other_lang:'Português',
-    range:'Today’s possible range', range_map:'This map’s possible range', range_known:'Best known range',
-    range_wait:'Working out the possible range…',
-    top_found:'You found the top catch.', low_found:'You found the lowest possible.', beat_known:'You beat the best known score.',
-    see_best:'Show top catch', see_worst:'Show lowest catch', cancel:'Cancel', reveal_go:'Show solution',
-    reveal_confirm:'See today’s solution? After that, your plays no longer count toward today’s records.',
-    revealed:'Solution seen: new plays don’t count today.', uncounted:'Free play: this one doesn’t count.',
-    locked:'All three hauls are in. A new sea tomorrow.', hauls:'Hauls', come_back:'Back in {t}', streak:'🔥 {n}-day streak', streak_best:'best {n}', week:'This week',
-    showing_best:'Top catch on this map: {n}.', showing_worst:'Lowest catch on this map: {n}.',
-  },
-  pt:{
-    how_to_play:'Como jogar', menu:'Menu', got_it:'Entendi',
-    game_rede:'Rede de cerco', game_linha:'Linha de fundo', game_fundo:'Fundo',
-    left_linha:'Linha restante', catch:'Pesca', lances:'Lances', par:'Melhor',
-    undo:'Desfazer', clear:'Limpar', go_rede:'Puxar rede', go_linha:'Recolher',
-    practice:'Treino', practice_on:'Treinar em outro mapa', practice_off:'Voltar ao mapa de hoje',
-    cardname_isca:'Isca cara', cardrule_isca:'Casa vazia no cerco: −1', cardname_mare:'Maré alta', cardrule_mare:'O recife fica submerso',
-    cardname_curta:'Rede curta', cardrule_curta:'No máximo 12 casas no cerco', cardname_golfinho:'Golfinho amigo', cardrule_golfinho:'Golfinho vale +8',
-    cardname_barbatana:'Barbatana', cardrule_barbatana:'Tubarão vale +4', cardname_soltura:'Soltura', cardrule_soltura:'Boias podem ficar sobre protegidos: +3 cada',
-    card_extra:'Carta', orders_title:'Encomendas de hoje', orders_sub:'a melhor pesca atende 2 de 3', see_best_day:'Ver a melhor pescaria de hoje', tut_fence:'Toque nas casas brilhando para soltar boias: a rede contorna os peixes e volta ao barco.', tut_haul:'Fechou! A água clara é a sua pesca. Puxe a rede.', tut_done:'É isso. Animais protegidos (brilho vermelho) tiram pontos e não aceitam boia: contorne. Todo dia três moradores pedem peixes, e atender um pedido dá bônus. São 3 puxadas por dia.', tut_play:'Jogar o mar de hoje', tut_skip:'Pular tutorial', tide_faminto:'Tubarão faminto', tiderule_faminto:'Tubarão no cerco come as sardinhas e espanta tartarugas e golfinhos.', cat_hint_rede_start:'Miau. Leva a rede do meu barco e traz de volta. Pedra ajuda.', cat_hint_rede_go:'Quase… traz de volta pro barco, tô com fome.', cat_hint_rede_ready:'Fechou! Puxa, puxa, puxa!', cat_hint_rede_far:'Bonito cerco, mas longe da minha pata. Tem que encostar no barco.', cat_block_protected_rede:'Ei, é meu vizinho! Nada de equipamento nele.', cat_v1:'Pesca de ronronar!', cat_v2:'Um banquete', cat_v3:'Dá pra um cochilo', cat_v4:'Nem um bigode', cat_v5:'Os vizinhos ficaram chateados', cat_v6:'Que vergonha, gato', mode_orders:'Encomendas', villager_dourada:'Lontra chef', villager_sardinha:'Pelicano da peixaria', villager_lula:'Guaxinim do mercado', villager_lagosta:'Vovó gata', help_intro_orders:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Você é um gato com um barco, e a vila fez três encomendas.', help_orders_title:'Encomendas', help_orders:'Pesque o que quiser. Encomenda atendida (pelo menos aquela quantidade do peixe na rede) soma o bônus. A melhor pesca do dia atende duas das três: escolha quem fica sem.', stars_label:'{n} de 3 estrelas', clue_prot:'A melhor pesca deixa de fora: {a}.', clue_reef:'A melhor pesca se apoia no recife ao {d} do barco.', clue_species:'A melhor pesca tem {n} × {a}; a sua tem {m}.', clue_side:'A melhor pesca fica ao {d} do barco.', dir_n:'norte', dir_s:'sul', dir_e:'leste', dir_w:'oeste', pct:'{n}% do melhor deste mapa', best_card:'O melhor deste mapa foi com: {c}',
-    hint_rede_area:'Rede curta: no máximo 12 casas no cerco', hint_rede_card:'Escolha uma carta para começar', hint_rede_far:'Fechou, mas a rede não voltou ao barco. Só vale a água que encosta nele, de lado ou na quina.', help_cards_title:'Cartas de regra', help_intro_cards:'Um quebra-cabeça de pesca num mar novo todo dia, igual para todo mundo. Cada mapa distribui três cartas de regra: escolha uma e cerque a melhor pescaria que conseguir. Animais protegidos (brilho vermelho) tiram pontos.', help_cards:'A carta muda as regras só deste mapa. A escolha vale para o mapa todo; os mapas de treino, no menu, distribuem outras cartas. O resultado mostra o quanto você chegou perto da melhor pescaria possível.', block_card_rede:'Escolha uma carta primeiro', block_lock_rede:'A carta vale para este mapa todo.',
-    try_again:'Tentar de novo', share:'Compartilhar', copied:'Copiado', copy_fail:'Não deu para copiar. Seu resultado: ',
-    your_best:'Seu maior', your_lowest:'Seu menor', nothing:'Nada pescado',
-    not_played:'ainda não jogado',
-    hint_rede_ready:'Cerco fechado. Pode puxar.',
-    hint_linha_start:'Toque nas casas para descer a linha do barco até o fundo.',
-    hint_linha_go:'Ligue o barco ao fundo numa corrente só.', hint_linha_self:'A linha não pode encostar nela mesma.',
-    hint_linha_ready:'No fundo. Pode recolher.',
-    hint_fundo_start:'Toque numa coluna: o anzol pega o primeiro bicho e o cardume todo dele.',
-    block_turtle_fundo:'Tem uma tartaruga no caminho.',
-    par_hit:'Melhor possível!', par_over:'{n} abaixo do melhor', par_is:'Melhor possível: {n}',
-    block_rock_linha:'Tem uma pedra no caminho.',
-    block_budget_linha:'Acabou a linha.',
-    block_rockwall_rede:'A pedra já fecha o cerco.', block_protected_rede:'Animal protegido: nada de equipamento nele.', block_buoys_rede:'Acabaram as boias.',
-    left_buoys:'Boias restantes', hint_rede_start:'Leve a rede do barco e traga de volta a ele. Pedras também fecham.', hint_rede_go:'Traga a rede de volta ao barco para fechar.',
-    v1:'Boa pescaria!', v2:'Rede cheia', v3:'Dá para o jantar', v4:'Nem uma beliscada', v5:'Multado pela guarda costeira', v6:'Desastre ecológico',
-    sp_sardinha:'Sardinha', sp_lula:'Lula', sp_caranguejo:'Caranguejo', sp_dourada:'Dourada', sp_lagosta:'Lagosta',
-    sp_coral:'Coral', sp_tubarao:'Tubarão', sp_tartaruga:'Tartaruga', sp_golfinho:'Golfinho',
-    help_intro:'Três desafios num mar novo todo dia, igual para todo mundo. Busque a pontuação <b>mais alta</b> ou a <b>mais baixa</b>: os dois recordes valem. Animais protegidos (brilho vermelho) tiram pontos.',
-    help_rede:'A rede de cerco sai do <b>barco</b> e volta a ele. Solte <b>boias</b> para levá-la: a água entre a rede e o barco é pescada. Pedras também fecham o cerco; o mar aberto da borda nunca fecha. Peixes embaixo de uma boia escapam; animais protegidos nunca levam boia, a não ser que a carta deixe. Você tem 14 boias.',
-    help_linha:'Toque nas casas para descer a linha do <b>barco</b> até o <b>fundo</b>, numa corrente só que nunca encosta nela mesma. Todo animal encostado na linha morde a isca. Peixe embaixo da linha foge e custa 2 casas; animal protegido embaixo dela também conta a penalidade. Pedra não segura linha.',
-    help_fundo:'O mar vem em camadas. Toque numa coluna: o anzol desce até o primeiro bicho e puxa o cardume inteiro dele; cardume de N vale N². O que está em cima afunda para preencher. Tartaruga não pode ser fisgada e bloqueia o caminho. 5 lances.',
-    help_points:'Toque num animal na faixa abaixo do tabuleiro para encontrá-lo no mapa.',
-    other_lang:'English',
-    range:'Faixa possível de hoje', range_map:'Faixa possível deste mapa', range_known:'Melhor faixa conhecida',
-    range_wait:'Calculando a faixa possível…',
-    top_found:'Você achou a maior pesca possível.', low_found:'Você achou a menor possível.', beat_known:'Você superou o melhor conhecido.',
-    see_best:'Ver a maior', see_worst:'Ver a menor', cancel:'Cancelar', reveal_go:'Ver solução',
-    reveal_confirm:'Ver a solução de hoje? Depois disso, suas jogadas não contam mais para os recordes do dia.',
-    revealed:'Solução vista: novas jogadas não contam hoje.', uncounted:'Jogada livre: esta não conta.',
-    locked:'As três puxadas já foram. Mar novo amanhã.', hauls:'Puxadas', come_back:'Volte em {t}', streak:'🔥 {n} dias seguidos', streak_best:'recorde {n}', week:'Esta semana',
-    showing_best:'Maior pesca deste mapa: {n}.', showing_worst:'Menor pesca deste mapa: {n}.',
-  },
+const EPOCH='2026-09-25';
+const now=new Date();
+// ?dia= previews another day, only on a local server: on the live site it would reveal future fish.
+const DAY_PARAM=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('dia');
+const DATE=DAY_PARAM||`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+const DAYNUM=Math.round((new Date(DATE+'T12:00:00')-new Date(EPOCH+'T12:00:00'))/864e5)+1;
+
+const STR={
+  en:{sub:'#{n} · {d}',lang:'PT',help:'Help',
+    help_title:'How to play',
+    help1:'Today’s fish likes one bottom, one depth and one light.',
+    help2:'Tap a square to read it, then Cast. The number is how many of the three the square has, never which.',
+    help3:'Three catches it. You have 6 casts, and everyone fishes the same sea.',
+    got_it:'Got it',
+    b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
+    cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
+    intro:'There’s {a} {s} around today! Tap a square to read the water.',
+    sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
+    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
+    cast:'Cast',left:'{n} casts left',
+    bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
+    caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
+    won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
+    log_title:'Fishing log',key_title:'Reading the water',
+    share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
+  pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
+    help_title:'Como jogar',
+    help1:'O peixe de hoje gosta de um chão, uma profundidade e uma luz.',
+    help2:'Toque uma casa para ler, depois Lançar. O número diz quantas das três a casa tem, nunca quais.',
+    help3:'Com as três, pescou. São 6 lances, e todo mundo pesca no mesmo mar.',
+    got_it:'Entendi',
+    b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
+    cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
+    intro:'Hoje tem {um} {s} por aqui! Toque uma casa para ler a água.',
+    sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
+    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
+    cast:'Lançar',left:'{n} lances restantes',
+    bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
+    caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
+    won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
+    log_title:'Diário de pesca',key_title:'Lendo a água',
+    share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
-// Three counted hauls a day, the best one stands; the third sets rec.locked, like a submission.
-// The daily is the purse net with rule cards; the line and sea floor stay in the code, hidden (roadmap: keep or drop them).
-const NET_ONLY=true;
-const MODE=new URLSearchParams(location.search).get('modo')==='cartas'?null:'encomenda';
-const MAX_HAULS=3;
-const frozen=rec=>!!(rec.revealed||rec.locked);
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
-const t=k=>(MODE&&STR[LANG]['cat_'+k])??STR[LANG][k]??STR.en[k]??k;
-const spName=k=>t('sp_'+k);
-function applyText(){
-  document.documentElement.lang=LANG==='pt'?'pt-BR':'en';
-  document.getElementById('date').textContent=`#${DAYNUM} · ${new Intl.DateTimeFormat(document.documentElement.lang,{month:'short',day:'numeric'}).format(new Date(DATE+'T12:00:00'))}`+(MODE?` · ${t('mode_orders')}`:'');
-  document.getElementById('lang-btn').textContent=t('other_lang');
-  renderLegend();
-  document.querySelectorAll('[data-t]').forEach(n=>n.textContent=t(n.dataset.t));
-  document.querySelectorAll('[data-t-label]').forEach(n=>{n.setAttribute('aria-label',t(n.dataset.tLabel));n.title=t(n.dataset.tLabel)});
-  document.getElementById('help-body').innerHTML=MODE?`<p>${t('help_intro_orders')}</p>
-    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
-    <h3>${sprite('lontra')}${t('help_orders_title')}</h3><p>${t('help_orders')}</p>
-    <p>${t('help_points')}</p>`:NET_ONLY?`<p>${t('help_intro_cards')}</p>
-    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
-    <h3>${sprite('buoy')}${t('help_cards_title')}</h3><p>${t('help_cards')}</p>
-    <p>${t('help_points')}</p>`:`<p>${t('help_intro')}</p>
-    <h3>${sprite('sardinha')}${t('game_rede')}</h3><p>${t('help_rede')}</p>
-    <h3>${sprite('hook')}${t('game_linha')}</h3><p>${t('help_linha')}</p>
-    <h3>${sprite('hook')}${t('game_fundo')}</h3><p>${t('help_fundo')}</p>
-    <p>${t('help_points')}</p>`;
-}
+const t=(k,v={})=>(STR[LANG][k]??STR.en[k]??k).replace(/\{(\w+)\}/g,(_,n)=>v[n]??'');
 
-function setup(g){
-  const root=document.getElementById('game-'+g.key);
-  g.el={}; root.querySelectorAll('[data-k]').forEach(n=>g.el[n.dataset.k]=n);
-  g.tab=document.getElementById('tab-'+g.key);
-  g.board=g.el.board;
-  g.el.card?.addEventListener('click',e=>{const k=e.target.closest('[data-card]')?.dataset.card;if(!k||g.last||k===g.cardKey)return;if(g.card){g.blocked='lock';g.blockReason='lock';render(g);return}setCard(g,k);if(!g.training){g.rec.card=k;save(g.storeKey,g.rec)}g.blocked=null;g.showing=null;render(g)});
-  if(g.buoy){g.el.hint.insertAdjacentHTML('afterend',`<button class="skip" data-k="skip" hidden></button>`);g.el.skip=g.el.hint.nextElementSibling;g.el.skip.addEventListener('click',()=>endTutorial(g,'skip'))}
-  g.bubble=document.createElement('div'); g.bubble.className='bubble'; g.bubble.hidden=true; g.board.parentNode.appendChild(g.bubble);
-  g.board.style.setProperty('--cols',g.cols); g.board.style.setProperty('--rows',g.rows);
-  g.board.style.backgroundImage=`url(${seaURL(g)})`;
-  new ResizeObserver(()=>{const cell=g.board.clientWidth/g.cols;g.board.style.setProperty('--spx',14*Math.max(1,Math.floor(cell*.9/14))+'px')}).observe(g.board);
-  g.training=false;
-  g.storeKey=`goodcatch:${DATE}:${MODE&&g.buoy?MODE:g.key}`;
-  g.rec=load(g.storeKey)||{best:null,worst:null,tries:0};
-  g.trainRec={best:null,worst:null,tries:0};
-  g.last=null;
-  if(g.kind==='drop') g.el.go.hidden=true;
-  newMap(g, DATE+':'+g.key);
-
-  let drawing=false;
-  const cellAt=e=>{const b=g.board.getBoundingClientRect();const c=Math.floor((e.clientX-b.left)/b.width*g.cols);const r=Math.floor((e.clientY-b.top)/b.height*g.rows);return (r>=0&&c>=0&&r<g.rows&&c<g.cols)?[r,c]:null};
-  g.board.addEventListener('pointerdown',e=>{
-    const cell=cellAt(e);if(!cell||g.hauling)return;
-    if(g.kind==='drop'){
-      if(g.last||g.busy) return;
-      const c=cell[1], targetRow=dropTarget(g.cells,c), res=dropFish(g.cells,c);
-      if(res.why==='turtle'){g.blocked='turtle'+c;g.blockReason='turtle';spawn(g,targetRow,c,'blocked');render(g);return}
-      if(res.why==='empty') return;
-      dropAnimate(g,c,targetRow,res);
-      return;
-    }
-    drawing=true;try{g.board.setPointerCapture(e.pointerId)}catch(_){}g.showing=null;g.strokeFrom=scoreNow(g);
-    g.paint=!g.marks.has(key(...cell)); g.painted=key(...cell); paint(g,cell); render(g);
-  });
-  g.board.addEventListener('pointermove',e=>{
-    if(g.kind==='drop'){
-      const cell=cellAt(e), hc=cell?cell[1]:null;
-      if(hc!==g.hoverCol){g.hoverCol=hc; render(g)}
-      return;
-    }
-    if(!drawing)return;const cell=cellAt(e);if(!cell)return;
-    // Fast drags skip squares between pointer events; walk one square at a time so the stroke has no gaps.
-    let [r,c]=[Math.floor(g.painted/100),g.painted%100];
-    if(r===cell[0]&&c===cell[1]) return;
-    while(r!==cell[0]||c!==cell[1]){
-      if(Math.abs(cell[0]-r)>=Math.abs(cell[1]-c)) r+=Math.sign(cell[0]-r); else c+=Math.sign(cell[1]-c);
-      paint(g,[r,c]);
-    }
-    g.painted=key(...cell); render(g);
-  });
-  g.board.addEventListener('pointerleave',()=>{if(g.kind==='drop'&&g.hoverCol!=null){g.hoverCol=null;render(g)}});
-  const stop=()=>{
-    if(drawing&&g.buoy&&g.strokeFrom!==undefined){
-      const to=scoreNow(g), [r,c]=[Math.floor(g.painted/100),g.painted%100];
-      if(to!==null&&g.strokeFrom===null) spawn(g,...g.start,'cost'+(to>=0?' up':''),fmt(to));
-      else if(to!==null&&to!==g.strokeFrom){const d=to-g.strokeFrom;spawn(g,r,c,'cost'+(d>0?' up':''),fmt(d))}
-      g.strokeFrom=undefined;
-    }
-    drawing=false;
-  };
-  g.board.addEventListener('pointerup',stop); g.board.addEventListener('pointercancel',stop);
-  g.el.undo.addEventListener('click',()=>{
-    if(g.kind==='drop'){const h=g.history.pop();if(h){g.cells=h.cells;g.score=h.score;g.moves=h.moves;g.blocked=null;syncDrop(g);render(g)}return}
-    const h=g.history.pop();if(h){h[0]?g.marks.delete(h[1]):g.marks.add(h[1]);g.blocked=null;g.showing=null;render(g)}
-  });
-  g.el.clear.addEventListener('click',()=>{
-    if(g.kind==='drop'){g.cells=g.cells0.map(row=>row.slice());g.moves=0;g.score=0;g.history=[];g.blocked=null;syncDrop(g);render(g);return}
-    g.marks.clear();g.history=[];g.blocked=null;g.showing=null;render(g);
-  });
-  g.el.go.addEventListener('click',()=>g.buoy?haulAnimate(g):commit(g));
-  g.el.result.addEventListener('click',e=>{
-    const a=e.target.closest('[data-act]')?.dataset.act;
-    if(a==='again'){g.last=null;g.blocked=null;render(g)}
-    if(a==='tut-done') endTutorial(g,'done');
-    if(a==='share'){share(g.el.result.querySelector('.note'));track('share',true)}
-    if(a==='best'||a==='worst') reveal(g,a);
-  });
-}
-
-function reveal(g,which){
-  if(g.training) g.trainRec.revealed=true;
-  else if(!frozen(g.rec)){
-    const d=document.getElementById('reveal');
-    d.returnValue=''; d.onclose=()=>{if(d.returnValue!=='yes')return;g.rec.revealed=true;save(g.storeKey,g.rec);reveal(g,which)};
-    return d.showModal();
-  }
-  g.last=null; g.blocked=null; g.showing=which;
-  const ck=g.ref[which+'Card']; if(ck&&ck!==g.cardKey) setCard(g,ck);
-  g.marks=new Set(g.buoy?g.ref[which+'Buoys']:g.ref[which+'Path'].slice(1).map(([r,c])=>key(r,c))); g.history=[];
-  render(g);
-}
-
-function paint(g,[r,c]){
-  const k=key(r,c);
-  if(isStart(g,r,c)||g.kind==='line'&&r<1||g.paint===g.marks.has(k)) return;
-  const cost=g.grid[r][c].sp?2:1;
-  const why=!g.paint?null:g.cards&&!g.card?'card':g.buoy?(g.grid[r][c].rock?'rockwall':!canBuoy(g,r,c)?'protected':g.marks.size>=g.maxBuoys?'buoys':null)
-    :g.grid[r][c].rock?'rock':lineCost(g)+cost>g.maxLen?'budget':null;
-  if(why){if(g.blocked!==k+why){g.blocked=k+why;g.blockReason=why;spawn(g,r,c,'blocked')}return}
-  g.paint?g.marks.add(k):g.marks.delete(k); g.history.push([g.paint,k]); g.blocked=null;
-  if(g.paint&&!g.buoy&&cost===2) spawn(g,r,c,'cost','−2');
-}
-function toggleTraining(g){
-  g.training=!g.training;
-  if(g.training){
-    g.trainRec={best:null,worst:null,tries:0};
-    const n=Object.keys(CARD_REF).filter(k=>k.startsWith('carta:')).length;
-    if(g.buoy&&n){const i=Math.floor(Math.random()*n);g.dealtAt=performance.now();newMap(g,'carta:'+i)}
-    else newMap(g,'treino:'+Math.random());
-  }
-  else newMap(g,DATE+':'+g.key);
-  g.last=null; render(g);
-}
-
-const VILLAGER={dourada:'lontra',sardinha:'pelicano',lula:'guaxinim',lagosta:'vovo'}, ORDER_ICON={dourada:'🦦',sardinha:'🐦',lula:'🦝',lagosta:'👵'};
-const CARD_ART={isca:['hook','','limit'],mare:['rock','','limit'],curta:['buoy','','limit'],golfinho:['golfinho','+8','boon'],barbatana:['tubarao','+4','boon'],soltura:['tartaruga','+3','boon']};
-// High tide removes the rocks, so a card switch rebuilds the grid from the seed and drops buoys that would sit on rock.
-function setCard(g,k){
-  g.card=CARDS[k]; g.cardKey=k;
-  g.grid=g.gen(g,mulberry(seedFrom(g.genSeed))); applyCard(g);
-  for(const m of [...g.marks]) if(g.grid[Math.floor(m/100)][m%100].rock){g.marks.delete(m);g.history=[]}
-}
-
-function newMap(g,seed){
-  const orders=MODE&&g.buoy, row=orders?ORDER_REF[DATE]:CARD_REF[seed];
-  g.card=g.cardKey=null; g.cards=!orders&&g.buoy&&row?.c.map(x=>x[0])||null; g.genSeed=row?.s??seed;
-  g.grid=g.gen(g,mulberry(seedFrom(g.genSeed))); applyCard(g);
-  if(orders){g.orders=row?.o??genOrders(g,mulberry(seedFrom(DATE+':pedido')));g.card=CARDS[row?.k??crazyTide(DATE)]||null}
-  g.ref=null; g.seed=seed; g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[];
-  if(!g.training&&g.cards?.includes(g.rec.card)) setCard(g,g.rec.card);
-  if(g.kind==='drop'){
-    g.cells=g.cells0.map(row=>row.slice()); g.moves=0; g.score=0; g.par=null; g.hoverCol=null; g.busy=false;
-    syncDrop(g);
-    setTimeout(()=>{const r=solveDrop(g.cells0,g.lances);if(g.seed!==seed)return;g.par=r.best;if(seed===DATE+':'+g.key)g.dailyBest=r.best;render(g)});
-    return;
-  }
-  setTimeout(()=>dailyReference(g,ref=>{if(g.seed!==seed)return;g.ref=ref;if(seed===DATE+':'+g.key&&ref.exact)g.dailyBest=ref.best;render(g)}));
-}
-
-const isStart=(g,r,c)=>r===g.start[0]&&c===g.start[1];
-function spawn(g,r,c,kind,text=''){
-  const b=g.board, m=document.createElement('div');
-  m.className='mark '+kind; m.textContent=text;
-  m.style.cssText=`left:${b.offsetLeft+c*b.clientWidth/g.cols}px;top:${b.offsetTop+r*b.clientHeight/g.rows}px;width:${b.clientWidth/g.cols}px;height:${b.clientHeight/g.rows}px`;
-  b.parentNode.appendChild(m); m.addEventListener('animationend',e=>{if(e.animationName!=='shake')m.remove()});
-}
-
-function computeFalls(oldCells,newCells,caughtSet){
-  const R=oldCells.length, C=oldCells[0].length, falls=[];
-  for(let cc=0;cc<C;cc++){
-    const oldRows=[]; for(let r=R-1;r>=1;r--) if(oldCells[r][cc]!=null&&!caughtSet.has(key(r,cc))) oldRows.push(r);
-    const newRows=[]; for(let r=R-1;r>=1;r--) if(newCells[r][cc]!=null) newRows.push(r);
-    for(let k=0;k<oldRows.length;k++) if(newRows[k]!=null&&newRows[k]!==oldRows[k]) falls.push([oldRows[k],cc,newRows[k]-oldRows[k]]);
-  }
-  return falls;
-}
-function dropAnimate(g,c,targetRow,res){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
-    g.history.push({cells:g.cells,score:g.score,moves:g.moves});
-    g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
-    spawn(g,targetRow,c,'cost','+'+res.points); syncDrop(g);
-    if(g.moves>=g.lances) commit(g); else render(g);
-    return;
-  }
-  g.busy=true;
-  const oldCells=g.cells, b=g.board, cellW=b.clientWidth/g.cols, cellH=b.clientHeight/g.rows;
-  const hook=document.createElement('div'); hook.className='hook';
-  hook.style.cssText=`left:${b.offsetLeft+c*cellW+cellW/2}px;top:${b.offsetTop+cellH/2}px;height:0px`;
-  b.parentNode.appendChild(hook);
-  requestAnimationFrame(()=>{hook.style.transition='height .2s ease-in';hook.style.height=(targetRow*cellH)+'px'});
-  setTimeout(()=>{
-    hook.remove();
-    spawn(g,targetRow,c,'cost','+'+res.points);
-    const caughtSet=new Set(res.caught.map(([r,cc])=>key(r,cc)));
-    for(const [r,cc] of res.caught){
-      const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
-      if(sp){sp.style.transition='transform .25s ease-in, opacity .25s';sp.style.transform=`translateY(${-r*cellH}px)`;sp.style.opacity='0'}
-    }
-    setTimeout(()=>{
-      const falls=computeFalls(oldCells,res.cells,caughtSet);
-      for(const [r,cc,dist] of falls){
-        const sp=g.board.children[r*g.cols+cc]?.querySelector('.sp');
-        if(sp){sp.style.transition='transform .25s ease-out';sp.style.transform=`translateY(${dist*cellH}px)`}
-      }
-      // A fixed timeout instead of transitionend: transitionend can be skipped/coalesced, a timer always fires.
-      setTimeout(()=>{
-        g.history.push({cells:oldCells,score:g.score,moves:g.moves});
-        g.cells=res.cells; g.score+=res.points; g.moves++; g.blocked=null;
-        syncDrop(g); g.busy=false;
-        if(g.moves>=g.lances) commit(g); else render(g);
-      },260);
-    },250);
-  },200);
-}
-
-const scoreNow=g=>{const e=evaluate(g);return e.hits?scoreOf(g,e.hits,e.inside):null};
-function haulAnimate(g){
-  if(!ready(g)) return;
-  const {hits}=evaluate(g);
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return commit(g);
-  // commit first: the record is final before anything moves, so skipping the animation can never change it.
-  g.hauling=true; commit(g);
-  const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, cell=(r,c)=>b.children[r*g.cols+c];
-  const ring=([r,c])=>Math.max(Math.abs(r-br),Math.abs(c-bc));
-  const steps=hits.map(([r,c])=>({r,c,p:pts(g,g.grid[r][c].sp)})).sort((a,x)=>ring([a.r,a.c])-ring([x.r,x.c]));
-  const freed=g.card?.release?[...g.marks].map(k=>[Math.floor(k/100),k%100]).filter(([r,c])=>g.grid[r][c].sp&&SP[g.grid[r][c].sp].p<0):[];
-  const extra=g.last.extra-freed.length*(g.card?.release??0);
-  const n=steps.length+freed.length+(extra?1:0), step=Math.min(100,1000/Math.max(1,n)), timers=[];
-  const shown=g.el.pv.querySelector('b'); let total=0;
-  const add=v=>{total+=v;if(shown){shown.textContent=fmt(total);shown.className=cls(total)}};
-  if(shown) shown.textContent=fmt(0);
-  const done=()=>{if(!g.hauling)return;timers.forEach(clearTimeout);document.removeEventListener('pointerdown',done,true);b.classList.remove('haul');g.hauling=false;render(g)};
-  b.classList.add('haul');
-  steps.forEach(({r,c,p},i)=>timers.push(setTimeout(()=>{
-    const sp=cell(r,c)?.querySelector('.sp');
-    if(sp){sp.style.transition='transform .3s ease-in, opacity .3s';sp.style.transform=`translate(${(bc-c)*cw}px,${(br-r)*ch}px)`;sp.style.opacity='0'}
-    if(p<0) cell(r,c)?.classList.add('hit','bad');
-    spawn(g,r,c,'cost'+(p>0?' up':''),fmt(p)); add(p);
-  },250+i*step)));
-  freed.forEach(([r,c],i)=>timers.push(setTimeout(()=>{
-    const sp=cell(r,c)?.querySelector('.sp'), dr=r<g.rows/2?-r-1:g.rows-r, dc=c<g.cols/2?-c-1:g.cols-c;
-    if(sp){sp.style.transition='transform .4s ease-in, opacity .4s';sp.style.transform=Math.abs(dr)<Math.abs(dc)?`translateY(${dr*ch}px)`:`translateX(${dc*cw}px)`;sp.style.opacity='0'}
-    spawn(g,r,c,'cost up',fmt(g.card.release)); add(g.card.release);
-  },250+(steps.length+i)*step)));
-  if(extra) timers.push(setTimeout(()=>{spawn(g,br,bc,'cost'+(extra>0?' up':''),fmt(extra));add(extra)},250+(n-1)*step));
-  timers.push(setTimeout(done,250+n*step+250));
-  document.addEventListener('pointerdown',done,true);
-}
-
-const ready=g=>{const e=evaluate(g);return !!e.hits&&!(g.cards&&!g.card)&&!overArea(g,e.inside)};
-const fmt=s=>s>0?'+'+s:s<0?'−'+Math.abs(s):'0';
-const cls=s=>s>0?'good':s<0?'bad':'zero';
-
-function renderDrop(g){
-  let html='';
-  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-    const cell=g.grid[r][c], cl=['c']; let inner='';
-    if(isStart(g,r,c)){inner=sprite(MODE?'boatcat':'boat');cl.push('boat')}
-    else if(cell.sp){
-      const s=SP[cell.sp]; if(s.p<0) cl.push('neg');
-      if(cell.sp===spotlight) cl.push('lit');
-      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(s.p)}"`);
-    }
-    html+=`<div class="${cl.join(' ')}">${inner}</div>`;
-  }
-  let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
-  if(g.hoverCol!=null&&!g.last){
-    const tr=dropTarget(g.cells,g.hoverCol);
-    if(tr>=0) svg+=`<line x1="${g.hoverCol+.5}" y1="0" x2="${g.hoverCol+.5}" y2="${tr+.5}" stroke="#10324A" stroke-width="2" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`;
-  }
-  svg+='</svg>';
-  g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
-  g.board.innerHTML=html+svg;
-  g.board.classList.toggle('spot',!!spotlight);
-  g.el.count.innerHTML=`${t('lances')}: <b>${g.lances-g.moves}</b>`;
-  g.el.pv.innerHTML=`${t('catch')}: <b class="good">${g.score}</b>`;
-  g.el.pv.className='pv';
-  g.el.hint.textContent=g.blocked?t('block_turtle_fundo'):t('hint_fundo_start');
-  g.el.hint.classList.toggle('alert',!!g.blocked);
-  g.bubble.hidden=true;
-  g.el.undo.disabled=!g.history.length||g.busy; g.el.clear.disabled=!g.history.length||g.busy;
-  g.el.train.hidden=!g.training||!!g.tutorial;
-  g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
-  renderResult(g);
-}
-
-function render(g){
-  if(g.kind==='drop'){renderDrop(g);return}
-  g.leak=null;
-  const {hits,inside,onP,out}=evaluate(g);
-  // Water the open sea cannot reach but that does not touch the boat: closed, yet it catches nothing.
-  const far=new Set();
-  if(out) for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){const k=key(r,c);if(!out.has(k)&&!inside.has(k)&&!g.marks.has(k)&&!g.grid[r][c].rock&&!isStart(g,r,c))far.add(k)}
-  const hitSet=new Set((hits||[]).map(([r,c])=>key(r,c)));
-  let html='';
-  for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++){
-    const cell=g.grid[r][c], k=key(r,c), cl=['c']; let inner='', st='';
-    if(far.has(k)) cl.push('far');
-    if(inside&&inside.has(k)){cl.push('in');st=` style="--d:${Math.abs(r-g.start[0])+Math.abs(c-g.start[1])}"`}
-    if(cell.rock){cl.push('rock');inner=sprite('rock')}
-    if(isStart(g,r,c)){inner=sprite(MODE?'boatcat':'boat');cl.push('boat')}
-    else if(cell.sp){
-      const p=pts(g,cell.sp); if(p<0) cl.push('neg');
-      if(hitSet.has(k)&&!g.buoy) cl.push('hit', p>0?'good':'bad');
-      if(onP.has(k)&&!hitSet.has(k)) cl.push('gone');
-      if(cell.sp===spotlight) cl.push('lit');
-      inner=sprite(cell.sp,` title="${spName(cell.sp)} ${fmt(p)}"`);
-    }
-    if(g.buoy&&g.marks.has(k)){inner+=sprite('buoy');cl.push('net')}
-    else if(g.tutorial&&TUT_GOAL.includes(k)) cl.push('goal');
-    html+=`<div class="${cl.join(' ')}"${st}>${inner}</div>`;
-  }
-  let svg=`<svg class="ov" viewBox="0 0 ${g.cols} ${g.rows}" preserveAspectRatio="none" aria-hidden="true">`;
-  if(g.buoy){
-    const perim=(set,line)=>{for(const k of set){const r=Math.floor(k/100),c=k%100,d=Math.abs(r-g.start[0])+Math.abs(c-g.start[1]),o=(rr,cc)=>!set.has(key(rr,cc));
-      if(o(r-1,c)) svg+=line(d,c,r,c+1,r); if(o(r+1,c)) svg+=line(d,c,r+1,c+1,r+1); if(o(r,c-1)) svg+=line(d,c,r,c,r+1); if(o(r,c+1)) svg+=line(d,c+1,r,c+1,r+1)}};
-    if(inside&&inside.size) perim(inside,(d,x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="--d:${d}" class="rope" stroke="#10324A" stroke-width="3" stroke-linecap="square" vector-effect="non-scaling-stroke"/>`);
-    else {
-      // Diagonal neighbours count: the sea flows 4-directionally, so two buoys touching at a corner already seal.
-      const knot=(r,c)=>g.marks.has(key(r,c))||r>=0&&c>=0&&r<g.rows&&c<g.cols&&isStart(g,r,c);
-      for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(g.marks.has(key(r,c))) for(const [dr,dc] of [[0,1],[1,0],[1,1],[1,-1],[-1,0],[0,-1],[-1,-1],[-1,1]]) if(knot(r+dr,c+dc)&&(isStart(g,r+dr,c+dc)||dr>0||dr===0&&dc>0))
-        svg+=`<line x1="${c+.5}" y1="${r+.5}" x2="${c+dc+.5}" y2="${r+dr+.5}" stroke="#10324A" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-      const lk=g.tutorial?null:leakPath(g); g.leak=lk;
-      if(lk){
-        if(lk.gap!==null) svg+=`<rect class="gap" x="${lk.gap%100+.08}" y="${Math.floor(lk.gap/100)+.08}" width=".84" height=".84" fill="none" stroke="#10324A" stroke-width="3" vector-effect="non-scaling-stroke"/>`;
-      }
-    }
-    if(far.size) perim(far,(d,x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#10324A" stroke-width="2.5" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>`);
-  } else {
-    const on=(r,c)=>r>=0&&c>=0&&r<g.rows&&c<g.cols&&(g.marks.has(key(r,c))||isStart(g,r,c)), end=hits&&lineChain(g).path.at(-1);
-    for(let r=0;r<g.rows;r++)for(let c=0;c<g.cols;c++) if(on(r,c)){
-      for(const [dr,dc] of [[0,1],[1,0]]) if(on(r+dr,c+dc)) svg+=`<line x1="${c+.5}" y1="${r+.5}" x2="${c+dc+.5}" y2="${r+dr+.5}" stroke="#10324A" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-      if(!isStart(g,r,c)) svg+=`<circle cx="${c+.5}" cy="${r+.5}" r="${end&&end[0]===r&&end[1]===c?.18:.1}" fill="${end&&end[0]===r&&end[1]===c?'#F08A24':'#10324A'}"/>`;
-    }
-  }
-  svg+='</svg>';
-  // innerHTML rebuilds every sprite on each render; a negative delay pinned to the page clock keeps the animations from restarting.
-  g.board.style.setProperty('--clock',`${-(performance.now()%1200)}ms`);
-  if(g.buoy){g.closedAt=inside?.size?g.closedAt??performance.now():null;g.board.style.setProperty('--since',g.closedAt?`${g.closedAt-performance.now()}ms`:'0s');g.board.classList.toggle('started',g.marks.size>0)}
-  g.board.innerHTML=html+svg;
-  if(g.buoy) leakFish(g);
-  const why=g.buoy?(g.cards&&!g.card?'card':hits?(overArea(g,inside)?'area':null):far.size&&g.marks.size?'far':g.marks.size?'go':'start'):lineChain(g).why;
-  g.board.classList.toggle('spot',!!spotlight);
-
-  g.el.count.innerHTML=g.buoy?`${t('left_buoys')}: <b>${g.maxBuoys-g.marks.size}</b>`+(g.training?'':` · ${t('hauls')} <b>${Math.min(g.rec.tries,MAX_HAULS)}/${MAX_HAULS}</b>`):`${t('left_'+g.key)}: <b>${g.maxLen-lineCost(g)}</b>`;
-  const now=hits&&scoreOf(g,hits,inside);
-  g.el.pv.innerHTML=hits?`${t('catch')}: <b class="${cls(now)}">${fmt(now)}</b>`:`${t('catch')}: <b>—</b>`;
-  g.el.pv.className='pv '+(hits?cls(now):'');
-  if(g.buoy&&now!==g.pvShown){if(g.pvShown!==undefined&&hits){void g.el.pv.offsetWidth;g.el.pv.classList.add('bump')}g.pvShown=now}
-  if(g.el.card&&g.orders){g.el.card.hidden=false;g.el.card.classList.add('orders');g.el.card.innerHTML=(g.card?.hungry?`<div class="tide">${sprite('tubarao')}<b>${t('tide_faminto')}</b><span>${t('tiderule_faminto')}</span></div>`:'')+`<div class="orders-head"><b>${t('orders_title')}</b><span>${t('orders_sub')}</span></div>`+orderStatus(g,hits).map(o=>`<div class="order${o.met?' met':''}" title="${t('villager_'+o.sp)}">${sprite(VILLAGER[o.sp])}<span class="want">${sprite(o.sp)}<b>${o.have}/${o.q}</b></span><span class="bonus">+${o.b}</span></div>`).join('')}
-  else if(g.el.card){g.el.card.hidden=!g.cards;const locked=!!g.card;if(g.cards)g.el.card.innerHTML=g.cards.map((k,i)=>{const [art,rank,kind]=CARD_ART[k];return `<button class="card ${kind}" data-card="${k}" aria-pressed="${k===g.cardKey}"${locked&&k!==g.cardKey?' aria-disabled="true"':''} style="--i:${i}"><span class="art">${rank?`<span class="rank">${rank}</span>`:''}${sprite(art)}</span><b>${t('cardname_'+k)}</b><span class="rule">${t('cardrule_'+k)}</span></button>`}).join('');g.el.card.classList.toggle('picked',!!g.card);g.el.card.classList.toggle('locked',locked);g.el.card.style.setProperty('--dealt',`${(g.dealtAt??0)-performance.now()}ms`)}
-  g.board.classList.toggle('await',!!(g.cards&&!g.card));
-  g.el.hint.textContent=g.showing?t('showing_'+g.showing).replace('{n}',fmt(g.ref[g.showing]))
-    :g.blocked?t(`block_${g.blockReason}_${g.key}`)
-    :t(`hint_${g.key}_${why||'ready'}`);
-  if(g.tutorial&&!g.blocked) g.el.hint.textContent=t(hits?'tut_haul':'tut_fence');
-  g.el.hint.classList.toggle('alert',!!g.blocked);
-  if(g.el.skip){g.el.skip.hidden=!g.tutorial;g.el.skip.textContent=t('tut_skip')}
-  const say=(g.tutorial?!!g.blocked:(g.blocked||!why||why==='self'||why==='area'||why==='card'||why==='far'))&&!g.showing&&!g.last, sayKey=g.blocked||why||'ready';
-  g.bubble.hidden=!say;
-  if(!say) delete g.bubble.dataset.k;
-  if(say){
-    const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, [br,bc]=g.start, lastK=g.history.at(-1)?.[1], focus=lastK!=null?Math.floor(lastK/100):br, pick=!!(g.cards&&!g.card), below=pick||br<2||focus<br&&br<g.rows-2;
-    if(g.bubble.dataset.k!==sayKey){g.bubble.dataset.k=sayKey;g.bubble.getAnimations().forEach(a=>{a.cancel();a.play()})}
-    g.bubble.textContent=g.el.hint.textContent; g.bubble.classList.toggle('below',below); g.bubble.classList.toggle('stay',pick);
-    const w=g.bubble.offsetWidth, h=g.bubble.offsetHeight, x=pick?b.offsetLeft+b.clientWidth/2:b.offsetLeft+(bc+.5)*cw;
-    const left=Math.max(b.offsetLeft+4,Math.min(x-w/2,b.offsetLeft+b.clientWidth-w-4));
-    g.bubble.style.left=left+'px';
-    g.bubble.style.top=(pick?b.offsetTop+12:below?b.offsetTop+(br+1)*ch+10:b.offsetTop+br*ch-h-10)+'px';
-    g.bubble.style.setProperty('--tail',x-left+'px');
-    g.bubble.style.transformOrigin=`${x-left}px ${below?0:h}px`;
-  }
-  g.el.go.disabled=!ready(g);
-  g.el.undo.disabled=!g.history.length; g.el.clear.disabled=!g.marks.size;
-  g.el.train.hidden=!g.training||!!g.tutorial;
-  g.tab.querySelector('small').innerHTML=g.rec.tries?`${arr('up')}${fmt(g.rec.best)} ${arr('down')}${fmt(g.rec.worst)}`:'';
-  if(g===current()) document.getElementById('train-btn').textContent=t(g.training?'practice_off':'practice_on');
-  renderResult(g);
-}
-
-function verdict(s){return t(s>=25?'v1':s>=12?'v2':s>0?'v3':s===0?'v4':s>-15?'v5':'v6')}
-
-function renderResult(g){
-  const L=g.last; g.el.result.hidden=!L||!!g.hauling;
-  if(L&&!g.hauling&&g.tutorial){g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());g.el.board.closest('.game').classList.add('done');g.el.result.innerHTML=`<div class="big ${cls(L.score)}">${fmt(L.score)}</div><p class="tut">${t('tut_done')}</p><div class="controls"><button class="btn primary wide" data-act="tut-done">${t('tut_play')}</button></div>`;return} g.el.board.closest('.game').classList.toggle('done',!!L&&!g.hauling); if(!L||g.hauling) return;
-  g.board.parentNode.querySelectorAll('.mark').forEach(m=>m.remove());
-  const rec=g.training?g.trainRec:g.rec;
-  if(g.kind==='drop'){
-    const verdictText=!L.counted?t('uncounted'):g.par!=null&&L.score>=g.par?t('par_hit'):t('par_over').replace('{n}',g.par-L.score);
-    g.el.result.innerHTML=`<div class="big ${L.counted?'good':'zero'}">${L.score}</div>
-      <div class="verdict">${verdictText}</div>
-      <div class="recs"><span>${t('your_best')} <b class="big-good">${arr('up')}${fmt(rec.best)}</b></span></div>
-      ${g.par!=null?`<p class="range-note">${t('par_is').replace('{n}',g.par)}</p>`:''}
-      ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:''}
-      <div class="controls"><button class="btn" data-act="again">${t('try_again')}</button><button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
-      <p class="note" aria-live="polite"></p>`;
-    return;
-  }
-  const chips=(Object.entries(L.count).sort((a,b)=>pts(g,b[0])-pts(g,a[0])).map(([k,n])=>{const p=pts(g,k)*n;return `<span title="${spName(k)}">${sprite(k)}×${n} <span class="${p>0?'pos':'neg-t'}">${fmt(p)}</span></span>`}).join('')
-    +(g.orders?g.orders.filter(o=>(L.count[o.sp]||0)>=o.q).map(o=>`<span>${sprite(VILLAGER[o.sp])} <span class="pos">+${o.b}</span></span>`).join(''):'')
-    +(L.extra&&!g.orders?`<span>${t('card_extra')} <span class="${L.extra>0?'pos':'neg-t'}">${fmt(L.extra)}</span></span>`:''))||`<span>${t('nothing')}</span>`;
-  const pct=L.counted&&(g.card||!g.training)&&g.ref?.exact&&g.ref.best>0?`<p class="range-note">${t('pct').replace('{n}',String(Math.round(100*L.score/g.ref.best)).replace('-','−'))}</p>`
-    +(g.card&&g.ref.bestCard!==g.cardKey?`<p class="range-note">${t('best_card').replace('{c}',t('cardname_'+g.ref.bestCard))}</p>`:''):'';
-  const st=L.counted&&(g.card||!g.training)&&g.ref?.exact?stars(L.score,g.ref.best):null;
-  const mine=!L.shown&&(MODE?(r=>r&&[null,r.b,r.w,r.bb])(ORDER_REF[DATE]):CARD_REF[g.seed]?.c.find(x=>x[0]===g.cardKey)), cl=mine&&L.score<mine[1]&&clueFor(g,new Set(unpackCells(g,mine[3])));
-  const clue=cl?`<p class="clue">${t('clue_'+cl.k).replace('{a}',cl.sp&&spName(cl.sp)).replace('{d}',cl.dir&&t('dir_'+cl.dir)).replace('{n}',cl.n).replace('{m}',cl.m)}</p>`:'';
-  g.el.result.innerHTML=`<div class="big ${L.counted?cls(L.score):'zero'}">${fmt(L.score)}</div>
-    ${st!==null?`<div class="stars" role="img" aria-label="${t('stars_label').replace('{n}',st)}">${'★'.repeat(st)}${'☆'.repeat(3-st)}</div>`:''}
-    <div class="verdict">${L.counted?verdict(L.score):L.shown?t('showing_'+L.shown).replace('{n}',fmt(L.score)):t('uncounted')}</div>
-    ${pct}
-    ${clue}
-    <div class="chips">${chips}</div>
-    <div class="recs"><span>${t('your_best')} <b class="big-${cls(rec.best)}">${arr('up')}${fmt(rec.best)}</b></span><span>${t('your_lowest')} <b class="big-${cls(rec.worst)}">${arr('down')}${fmt(rec.worst)}</b></span></div>
-    ${rangeHTML(g,rec)}
-    ${g.ref?.exact&&(g.ref.bestPath||g.ref.bestBuoys)?(!g.training&&rec.locked&&!rec.revealed?`<div class="reveal"><button class="btn primary wide" data-act="best">${t('see_best_day')}</button></div>`:`<div class="reveal"><button class="btn" data-act="best">${t('see_best')}</button><button class="btn" data-act="worst">${t('see_worst')}</button></div>`):''}
-    ${!g.training&&rec.locked?`<p class="range-note">${t('locked')}</p>`:!g.training&&rec.revealed?`<p class="range-note">${t('revealed')}</p>`:''}
-    ${g.training?'':weekHTML(g)}
-    <div class="controls">${!g.training&&rec.locked?`<button class="btn" disabled>${t('come_back').replace('{t}',untilTomorrow())}</button>`:`<button class="btn" data-act="again">${t('try_again')}</button>`}<button class="btn primary" data-act="share"${g.training?' disabled':''}>${t('share')}</button></div>
-    <p class="note" aria-live="polite"></p>`;
-}
-
-const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
-const playedOn=(g,d)=>(load(`goodcatch:${d}:${g.storeKey.split(':')[2]}`)?.tries||0)>0;
-// Today not played yet keeps yesterday's streak alive until midnight.
-function streakOf(g){let d=playedOn(g,DATE)?DATE:dayShift(DATE,-1),n=0;while(playedOn(g,d)){n++;d=dayShift(d,-1)}return n}
-function playedDays(g){
-  const suffix=':'+g.storeKey.split(':')[2], days=[];
-  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('goodcatch:')&&k.endsWith(suffix)&&playedOn(g,k.split(':')[1]))days.push(k.split(':')[1])}}catch(e){}
-  return days.sort();
-}
-function bestStreak(g){
-  const days=playedDays(g); let best=0,run=0,prev=null;
-  for(const d of days){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}
-  return best;
-}
-// GoatCounter through its /count pixel: no script, no cookies, nothing personal. Returns are measured from what this browser
-// already knows (days played, streak), sent as anonymous events; an empty GC_CODE switches counting off.
 const GC_CODE='belarba';
 function track(path,event){
   if(!GC_CODE||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return;
   try{new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent(event?path:document.title)}${event?'&e=true':`&r=${encodeURIComponent(document.referrer)}&s=${screen.width},${screen.height},${devicePixelRatio}`}&rnd=${Math.random()}`}catch(e){}
 }
-// The open net's leak, told as a sardine swimming from the boat out to the open sea through the hole.
-function leakFish(g){
-  const b=g.board, cw=b.clientWidth/g.cols, ch=b.clientHeight/g.rows, lk=g.leak;
-  const sig=lk&&!matchMedia('(prefers-reduced-motion: reduce)').matches?lk.path.join()+'|'+Math.round(cw):'';
-  if(sig===g.leakSig) return;
-  g.leakSig=sig; g.leakFishEl?.remove(); g.leakFishEl=null;
-  if(!sig) return;
-  const cells=[g.start,...[...lk.path].reverse().map(k=>[Math.floor(k/100),k%100])], size=parseFloat(getComputedStyle(b).getPropertyValue('--spx'))||cw*.7;
-  const flip=cells.at(-1)[1]<cells[0][1]?' scaleX(-1)':'';
-  const f=document.createElement('i'); f.className='sp s-sardinha leakfish'; f.style.cssText=`width:${size}px;height:${size}px`;
-  b.parentNode.appendChild(f); g.leakFishEl=f;
-  const at=([r,c])=>`translate(${b.offsetLeft+(c+.5)*cw-size/2}px,${b.offsetTop+(r+.5)*ch-size/2}px)${flip}`;
-  f.animate(cells.map((p,i)=>({transform:at(p),opacity:i===0||i===cells.length-1?0:1})),{duration:cells.length*280,iterations:Infinity});
-}
-const TUT_GOAL=[key(4,5),key(4,6),key(5,4),key(5,7),key(6,6)];
-function startTutorial(g){
-  g.training=true; g.tutorial=true; g.trainRec={best:null,worst:null,tries:0};
-  g.grid=emptyGrid(g.rows,g.cols); g.start=[6,5];
-  g.grid[5][5].sp='dourada'; g.grid[5][6].sp='sardinha'; g.grid[2][8].sp='tartaruga'; g.grid[8][2].sp='lula';
-  g.card=g.cardKey=g.cards=null; g.orders=null; g.ref=null; g.seed=g.genSeed='tutorial';
-  g.showing=null; g.blocked=null; g.marks=new Set(); g.history=[]; g.last=null; render(g);
-}
-function endTutorial(g,how){
-  track('tutorial/'+how,true);
-  g.tutorial=false; g.training=false; g.last=null; newMap(g,DATE+':'+g.key); render(g);
-}
-function untilTomorrow(){const x=new Date(DATE+'T00:00:00');x.setDate(x.getDate()+1);const m=Math.max(0,Math.round((x-new Date())/6e4));return `${Math.floor(m/60)}h${String(m%60).padStart(2,'0')}`}
-function weekHTML(g){
-  const n=streakOf(g), best=bestStreak(g), days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
-  const cells=days.map(d=>{const r=load(`goodcatch:${d}:${g.storeKey.split(':')[2]}`), ref=MODE?ORDER_REF[d]?.b:null, st=r?.tries?stars(r.best,ref??0):null;
-    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(document.documentElement.lang,{weekday:'narrow'}).format(new Date(d+'T12:00:00'))}</small><b>${!r?.tries?'·':st===null?'✓':'★'.repeat(st)||'☆'}</b></span>`}).join('');
-  return `<div class="week" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t('streak').replace('{n}',n)}${best>n?` · ${t('streak_best').replace('{n}',best)}`:''}</p>`:''}`;
-}
 
-function rangeHTML(g,rec){
-  if(g.kind==='drop') return '';
-  const ref=g.ref;
-  if(!ref) return g.buoy?'':`<p class="range-note">${t('range_wait')}</p>`;
-  const beat=!ref.exact&&(rec.best>ref.best||rec.worst<ref.worst);
-  if(!ref.exact){ref.best=Math.max(ref.best,rec.best);ref.worst=Math.min(ref.worst,rec.worst)}
-  const span=ref.best-ref.worst||1, pos=x=>Math.max(0,Math.min(100,(x-ref.worst)/span*100));
-  const notes=[beat&&t('beat_known'),rec.best>=ref.best&&t('top_found'),rec.worst<=ref.worst&&t('low_found')].filter(Boolean);
-  return `<div class="range">
-    <div class="range-label">${t(ref.exact?(g.training?'range_map':'range'):'range_known')}</div>
-    <div class="bar" role="img" aria-label="${t('your_lowest')} ${fmt(rec.worst)}, ${t('your_best')} ${fmt(rec.best)}, ${fmt(ref.worst)} … ${fmt(ref.best)}"><i style="left:${pos(rec.worst)}%;width:${pos(rec.best)-pos(rec.worst)}%"></i></div>
-    <div class="range-ends"><span class="big-${cls(ref.worst)}">${arr('down')}${fmt(ref.worst)}</span><span class="big-${cls(ref.best)}">${arr('up')}${fmt(ref.best)}</span></div>
-    ${notes.map(n=>`<p class="range-note">${n}</p>`).join('')}
-  </div>`;
-}
-
-function commit(g){
-  if(g.kind==='drop'){
-    const rec=g.training?g.trainRec:g.rec;
-    g.last={score:g.score,count:{},counted:!frozen(rec)};
-    if(!g.last.counted) return render(g);
-    rec.tries++; rec.best=rec.best===null?g.score:Math.max(rec.best,g.score);
-    if(!g.training&&rec.tries>=MAX_HAULS) rec.locked=true;
-    if(!g.training) save(g.storeKey,rec);
-    return render(g);
+const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`, LAND=520;
+const TODAY=SP_BY[speciesOf(DATE)], TMAP=speciesMap(TODAY), TPAL=spPal(TODAY), TW=Math.max(...TMAP.map(r=>r.length)), TH=TMAP.length;
+const spName=id=>t('sp_'+id);
+const FEM=new Set(['garoupa','sardinha','manta']);
+const spVars=(id,v={})=>{const f=FEM.has(id),s=spName(id);return {...v,s,a:/^[aeiou]/i.test(s)?'an':'a',um:f?'uma':'um',o:f?'a':'o',O:f?'A':'O',Ele:f?'Ela':'Ele'}};
+const cellAt=k=>{const r=Math.floor(k/100),c=k%100;return Number.isInteger(k)&&r>=0&&r<N&&c>=0&&c<N?SEA.grid[r][c]:null};
+const bitesAt=k=>bites(cellAt(k),SEA.fish);
+const caught=()=>casts.some(k=>bitesAt(k)===3);
+const over=()=>caught()||casts.length>=MAX;
+const feats=x=>[t('b'+x.b),t('d'+x.d),t('l'+x.l)];
+const fishes=n=>'🐟'.repeat(n)+'⬜'.repeat(3-n);
+let casts=(()=>{try{
+  const out=[];
+  for(const k of JSON.parse(localStorage.getItem(REC)||'[]')){
+    const x=cellAt(k); if(!x||out.includes(k)||out.length>=MAX||out.some(q=>bitesAt(q)===3)) break;
+    out.push(k);
   }
-  if(!ready(g)) return;
-  const {hits,inside}=evaluate(g); const score=scoreOf(g,hits,inside);
-  const count={}; for(const [r,c] of hits){const k=g.grid[r][c].sp;count[k]=(count[k]||0)+1}
-  const rec=g.training?g.trainRec:g.rec;
-  g.last={score,count,extra:score-hits.reduce((s,[r,c])=>s+pts(g,g.grid[r][c].sp),0),counted:!frozen(rec),shown:g.showing};
-  if(!g.last.counted) return render(g);
-  rec.tries++; rec.card=g.cardKey;
-  if(!g.training&&rec.tries===1){const n=playedDays(g).length+1;track(`haul/day-${Math.min(n,30)}`,true);track(`haul/streak-${Math.min(streakOf(g)+1,30)}`,true)} rec.best=rec.best===null?score:Math.max(rec.best,score); rec.worst=rec.worst===null?score:Math.min(rec.worst,score);
-  if(g.orders&&score===rec.best) rec.met=orderStatus(g,hits).map(o=>o.met);
-  if(!g.training&&rec.tries>=MAX_HAULS) rec.locked=true;
-  if(!g.training) save(g.storeKey,rec);
-  render(g);
+  return out;
+}catch(e){return []}})();
+let sel=null, anim=null, sceneAt=0;
+const $=id=>document.getElementById(id);
+const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
+const castsOn=d=>{if(d===DATE)return casts;try{const a=JSON.parse(localStorage.getItem(`goodcatch:${d}:pista`)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}};
+const caughtOn=d=>{const a=castsOn(d);if(!a.length)return false;const sea=d===DATE?SEA:genSea(d);return a.some(k=>{const x=sea.grid[Math.floor(k/100)]?.[k%100];return x&&bites(x,sea.fish)===3})};
+// Today not played yet keeps yesterday's streak alive until midnight.
+function streakOf(){let d=castsOn(DATE).length?DATE:dayShift(DATE,-1),n=0;while(castsOn(d).length){n++;d=dayShift(d,-1)}return n}
+function playedDays(){const days=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^goodcatch:(\d{4}-\d\d-\d\d):pista$/.exec(k);if(m&&castsOn(m[1]).length)days.push(m[1])}}catch(e){}if(casts.length&&!days.includes(DATE))days.push(DATE);return days.sort()}
+function bestStreak(){let best=0,run=0,prev=null;for(const d of playedDays()){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}return best}
+function weekHTML(){
+  const n=streakOf(),best=bestStreak(),days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
+  const cells=days.map(d=>{const a=castsOn(d),won=caughtOn(d),fin=won||a.length>=MAX;
+    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${won?fishSprite(speciesOf(d)):`<b>${!a.length?'·':fin?'✕':'…'}</b>`}</span>`}).join('');
+  return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t(n===1?'streak1':'streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
+}
+function todayHTML(){
+  const got=caughtOn(DATE);
+  return `<div class="today">${fishSprite(TODAY.id,'',!got)}<div><small>${t('today_fish')}</small><b>${spName(TODAY.id)}</b></div>`
+    +`<button class="btn small" id="open-dex">${sprite('book')}${t('collection',{n:new Set(playedDays().filter(caughtOn).map(speciesOf)).size,m:SPECIES.length})}</button></div>`;
+}
+function journalHTML(){
+  const got=new Set(playedDays().filter(caughtOn).map(speciesOf));
+  return `<h2>${t('journal',{n:got.size,m:SPECIES.length})}</h2><div class="dex">${SPECIES.map(s=>{const has=got.has(s.id),today=s.id===TODAY.id;
+    return `<span class="mon${s.rare===2?' rare':''}${today?' now':''}">${fishSprite(s.id,'',!has)}<small>${has||today?spName(s.id):t('unknown')}</small></span>`}).join('')}</div>`;
+}
+const fishCells=()=>SEA.grid.flatMap((row,r)=>row.map((x,c)=>combo(x)===combo(SEA.fish)?key(r,c):null)).filter(k=>k!==null);
+
+const bases=[0,1].map(f=>paintSeabed(SEA.grid,f).getContext('2d').getImageData(0,0,GW,GW));
+const work=canvas(GW,GH), wx=work.getContext('2d'), view=$('sea'), vx=view.getContext('2d');
+let q=-1, lit=null;
+function fit(){
+  const dpr=devicePixelRatio||1, box=$('seabox'), wrap=getComputedStyle(box.parentElement), avail=box.parentElement.clientWidth-parseFloat(wrap.paddingLeft)-parseFloat(wrap.paddingRight)-20;
+  const room=innerHeight-(box.getBoundingClientRect().top+scrollY)-20-($('bar').offsetHeight||64)-8;
+  const k=Math.max(Math.ceil(200*dpr/GW),Math.min(Math.floor(avail*dpr/GW),Math.floor(room*dpr/GH)));
+  view.width=GW*k; view.height=GH*k; view.style.width=GW*k/dpr+'px'; view.style.height=GH*k/dpr+'px';
+  $('board').style.height=GW*k/dpr+'px';
+}
+function drawSea(now){
+  const tk=Math.floor(now/125);
+  if(tk!==q){q=tk;const b=bases[(tk>>3)&1];lit=new ImageData(new Uint8ClampedArray(b.data),GW,GW);lightUp(lit,SEA.grid,tk*.25)}
+  wx.putImageData(lit,0,0); surface(wx,SEA.grid,tk); beach(wx,tk);
+  const done=over(), won=caught();
+  casts.forEach((k,i)=>{
+    if(bitesAt(k)===3||(anim&&anim.k===k&&now-anim.start<LAND)) return;
+    const c=centre(k); drawMap(wx,M.bobber,c.x-4,c.y-6+(((tk>>1)+i)%3===0?1:0));
+  });
+  const lastK=casts.at(-1);
+  if(lastK!==undefined){const p=anim&&anim.k===lastK?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(lastK),p)}
+  if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n===3&&age>=0&&age<1300)splash(wx,c,age)}
+  if(won){const k=casts.find(k=>bitesAt(k)===3),c=centre(k),age=anim&&anim.k===k?now-anim.start-LAND:1e4;
+    if(age>=0){const hop=age<900?Math.round(Math.sin(age/900*Math.PI)*14):0;drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1)-hop,false,TPAL)}}
+  if(done&&!won)fishCells().forEach(k=>{const c=centre(k);drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1),false,TPAL)});
+  vx.imageSmoothingEnabled=false; vx.drawImage(work,0,0,view.width,view.height);
+  document.querySelectorAll('canvas.scene').forEach(cv=>{
+    const sx=cv.getContext('2d'), fi=cv.dataset.live?Math.floor((now-sceneAt)/70):40;
+    const small=cv._s||(cv._s=canvas(80,64)); scene(small.getContext('2d'),caught(),fi,tk);
+    sx.imageSmoothingEnabled=false; sx.drawImage(small,0,0,cv.width,cv.height);
+  });
+}
+function fitScene(cv,avail){const dpr=devicePixelRatio||1,k=Math.max(1,Math.floor(avail*dpr/80));cv.width=80*k;cv.height=64*k;cv.style.width=80*k/dpr+'px';cv.style.height=64*k/dpr+'px'}
+const still=matchMedia('(prefers-reduced-motion: reduce)');
+function loop(now){drawSea(now);if(!still.matches)requestAnimationFrame(loop)}
+
+function tileURL(cell,light){
+  const cv=paintSeabed([[cell]],0),x=cv.getContext('2d');
+  if(light){const img=x.getImageData(0,0,S,S);lightUp(img,[[cell]],2);x.putImageData(img,0,0)}
+  const out=canvas(16,16);out.getContext('2d').drawImage(cv,4,4,16,16,0,0,16,16);return out.toDataURL();
+}
+const TILE={b0:tileURL({b:0,d:0}),b1:tileURL({b:1,d:0}),b2:tileURL({b:2,d:0}),b3:tileURL({b:3,d:0}),
+  d0:tileURL({d:0}),d1:tileURL({d:1}),l0:tileURL({d:0,l:0},true),l1:tileURL({d:0,l:1})};
+const chip=(k,cls='chip')=>`<span class="${cls}"><img alt="" src="${TILE[k]}">${t(k)}</span>`;
+const starsHTML=st=>`<div class="stars" role="img" aria-label="${st}/3">${[0,1,2].map(i=>sprite(i<st?'star':'starOff')).join('')}</div>`;
+function resultHTML(live){
+  const won=caught(), st=won?stars(casts.length):0;
+  return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div>`
+    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`+weekHTML()
+    +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
+}
+function wireResult(el){
+  el.querySelectorAll('[data-share]').forEach(b=>b.onclick=()=>{share(el.querySelector('.note'));track('share',true)});
+  const cv=el.querySelector('canvas.scene'); if(cv) fitScene(cv,Math.min(el.clientWidth||340,400)-8);
 }
 
+function renderStatic(){
+  document.documentElement.lang=LANG;
+  $('sub').textContent=t('sub',{n:DAYNUM,d:DATE});
+  $('lang').textContent=t('lang'); $('help-btn').setAttribute('aria-label',t('help'));
+  $('help-title').textContent=t('help_title'); $('got-it').textContent=t('got_it');
+  $('help-body').innerHTML=['help1','help2','help3'].map(k=>`<li>${t(k)}</li>`).join('');
+  $('log-title').textContent=t('log_title'); $('dex-close').textContent=t('close'); $('key-title').textContent=t('key_title');
+  $('legend').innerHTML=[['cat_b',['b0','b1','b2','b3']],['cat_d',['d0','d1']],['cat_l',['l0','l1']]]
+    .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
+}
+function render(){
+  const done=over(), won=caught(), busy=!!anim, fc=combo(SEA.fish);
+  $('board').innerHTML=SEA.grid.map((row,r)=>row.map((x,c)=>{
+    const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k), reveal=done&&!won&&combo(x)===fc;
+    const cls=['c',k===sel&&'sel',reveal&&'win'].filter(Boolean).join(' ');
+    const label=feats(x).join(', ')+(n===null?'':` · ${n}`);
+    const tag=n!==null&&!(busy&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    return `<button class="${cls}" data-k="${k}"${done||busy||i>=0?' disabled':''} aria-label="${label}">${tag}</button>`;
+  }).join('')).join('');
+  const lastN=casts.length&&!busy?bitesAt(casts.at(-1)):null;
+  $('say').textContent=done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
+  $('bar').hidden=done&&!busy;
+  const sx=sel===null?null:cellAt(sel);
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):''; $('feat').hidden=!sx; $('say').hidden=!!sx;
+  $('cat').style.backgroundImage=`url(${URLS[won&&!busy?'catHappy':'catFace']})`;
+  $('left').innerHTML=Array.from({length:MAX},(_,i)=>sprite('bobber',i<casts.length?'used':'')).join('');
+  $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
+  $('cast').textContent=t('cast'); $('cast').disabled=sel===null||busy;
+  $('logbox').hidden=!casts.length;
+  $('journal').innerHTML=todayHTML();
+  $('open-dex').onclick=()=>{$('dex-body').innerHTML=journalHTML();$('dex').showModal()};
+  $('log').innerHTML=casts.map((k,i)=>[k,i]).reverse().map(([k,i])=>{const n=bitesAt(k);return `<li><span>${i+1}</span><span>${feats(cellAt(k)).join(' · ')}</span><span class="pips" role="img" aria-label="${n}/3">${[0,1,2].map(j=>j<n?fishSprite(TODAY.id):'<i class="off"></i>').join('')}</span></li>`}).join('');
+  $('result').hidden=!done||busy;
+  if(done&&!busy){$('result').innerHTML=resultHTML(false);wireResult($('result'))}
+}
 function shareText(){
-  if(MODE){const g=games.rede,r=g.rec;if(!r.tries)return '';const st=stars(r.best,g.dailyBest);
-    const fire=streakOf(g);
-    return `🐱 Good Catch #${DAYNUM} · ${t('mode_orders')}${g.card?.hungry?' 🦈':''}${fire>1?` 🔥${fire}`:''} ▲${fmt(r.best)}${st!==null?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ${(g.orders||[]).map((o,i)=>ORDER_ICON[o.sp]+(r.met?.[i]?'✓':'✗')).join(' ')}\ngoodcatch.fish`}
-  let s=`Good Catch #${DAYNUM}\n`;
-  for(const g of Object.values(games).filter(g=>!NET_ONLY||g.buoy)){
-    const r=g.rec;
-    if(!r.tries){ s+=`${g.icon} ${t('game_'+g.key)} ${t('not_played')}\n`; continue; }
-    const pct=g.dailyBest>0?` (${Math.round(100*r.best/g.dailyBest)}%)`:'', st=stars(r.best,g.dailyBest);
-    s+= g.kind==='drop' ? `${g.icon} ${t('game_'+g.key)} ▲${fmt(r.best)}${pct}\n` : `${g.icon} ${t('game_'+g.key)}${r.card?` · ${t('cardname_'+r.card)}`:''}${st!==null&&g.buoy?' '+'★'.repeat(st)+'☆'.repeat(3-st):''} ▲${fmt(r.best)}${pct} ▼${fmt(r.worst)}\n`;
-  }
-  return s+'goodcatch.fish';
+  const won=caught(), st=won?stars(casts.length):0;
+  const fire=streakOf();
+  return `🎣 Good Catch #${DAYNUM}  ${won?casts.length:'X'}/${MAX}${won?' '+'★'.repeat(st)+'☆'.repeat(3-st):''}${fire>1?` 🔥${fire}`:''}\n`
+    +casts.map(k=>fishes(bitesAt(k))).join('\n')+'\ngoodcatch.fish';
 }
 function share(note){
   const txt=shareText();
@@ -1554,49 +646,39 @@ function share(note){
   if(navigator.share&&matchMedia('(pointer:coarse)').matches) navigator.share({text:txt}).catch(e=>{if(e.name!=='AbortError')copy()});
   else copy();
 }
-
-let spotlight=null;
-const legend=document.getElementById('legend');
-function renderLegend(){
-  legend.innerHTML=Object.entries(SP).sort((a,b)=>b[1].p-a[1].p).map(([k,s])=>
-    `<button data-sp="${k}" aria-pressed="${k===spotlight}" aria-label="${spName(k)} ${fmt(s.p)}" title="${spName(k)}">${sprite(k)}<span class="${s.p>0?'pos':'neg-t'}">${fmt(s.p)}</span></button>`).join('');
+function showCatch(){
+  $('catch-body').innerHTML=resultHTML(true); $('catch').showModal(); sceneAt=performance.now(); wireResult($('catch-body'));
+  if(still.matches) drawSea(performance.now()+5000);
 }
-legend.addEventListener('click',e=>{
-  const b=e.target.closest('[data-sp]'); if(!b) return;
-  spotlight=spotlight===b.dataset.sp?null:b.dataset.sp;
-  legend.querySelectorAll('[data-sp]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.sp===spotlight)));
-  render(current());
-});
 
-let tab='rede';
-const current=()=>games[tab];
-function showTab(k){
-  tab=k;
-  for(const x of Object.keys(games)){document.getElementById('game-'+x).hidden=x!==k;document.getElementById('tab-'+x).setAttribute('aria-selected',String(x===k))}
-  try{localStorage.setItem('goodcatch:tab',k)}catch(e){}
-  render(current());
-}
-for(const x of Object.keys(games)) document.getElementById('tab-'+x).addEventListener('click',()=>showTab(x));
-document.getElementById('train-btn').addEventListener('click',()=>{const g=current();toggleTraining(g);document.getElementById('menu').hidePopover()});
-document.getElementById('lang-btn').addEventListener('click',()=>{
-  LANG=LANG==='pt'?'en':'pt'; try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}
-  applyText(); for(const g of Object.values(games)) render(g); document.getElementById('menu').hidePopover();
-});
-const help=document.getElementById('help');
-for(const d of document.querySelectorAll('dialog')) d.addEventListener('click',e=>{const b=d.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)d.close()});
-document.getElementById('help-btn').addEventListener('click',()=>help.showModal());
 
-applyText();
-for(const g of Object.values(games)) setup(g);
-track(MODE?'/':'/?modo=cartas');
-let saved=null; try{saved=localStorage.getItem('goodcatch:tab')}catch(e){}
-if(NET_ONLY){document.querySelector('.switch').hidden=true;showTab('rede')}
-if(MODE) document.getElementById('train-btn').hidden=true;
-else showTab(saved in games?saved:'rede');
-for(const g of Object.values(games)) render(g);
-let seen=null; try{seen=localStorage.getItem('goodcatch:seenHelp')}catch(e){}
-if(MODE&&(!seen||new URLSearchParams(location.search).has('tutorial')))startTutorial(games.rede);else if(!seen)help.showModal();
-if(!seen){try{localStorage.setItem('goodcatch:seenHelp','1')}catch(e){}}
+$('help-icon').style.backgroundImage=`url(${URLS.help})`;
+$('board').addEventListener('click',e=>{
+  const b=e.target.closest('.c'); if(!b||b.disabled) return;
+  const k=Number(b.dataset.k); sel=sel===k?null:k; render();
+});
+$('cast').onclick=()=>{
+  if(sel===null||over()||anim) return;
+  const k=sel; casts.push(k); sel=null;
+  try{localStorage.setItem(REC,JSON.stringify(casts))}catch(e){}
+  anim={k,start:performance.now(),n:bitesAt(k)};
+  if(casts.length===1){track(`pista/day-${Math.min(playedDays().length,30)}`,true);track(`pista/streak-${Math.min(streakOf(),30)}`,true)}
+  if(over()) track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);
+  render();
+  const end=over();
+  setTimeout(()=>{anim=null;render();if(end)showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:anim.n===3?LAND+1100:LAND+500);
+  if(still.matches) drawSea(performance.now()+LAND);
+};
+$('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}renderStatic();render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}};
+$('help-btn').onclick=()=>$('help').showModal();
+// Mobile browsers resize while their toolbars slide; refit only when the width really changes.
+let fitW=innerWidth;addEventListener('resize',()=>{if(innerWidth===fitW)return;fitW=innerWidth;fit();drawSea(performance.now())});
+renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop);
+// The pixel font changes the bubble's height once it loads, and the board's scale depends on that height.
+document.fonts?.ready.then(()=>{fit();drawSea(performance.now())});
+track(location.pathname);
+let seen=null;try{seen=localStorage.getItem('goodcatch:pista:seenHelp')}catch(e){}
+if(!seen){$('help').showModal();try{localStorage.setItem('goodcatch:pista:seenHelp','1')}catch(e){}}
 })();
 </script>
 </body>

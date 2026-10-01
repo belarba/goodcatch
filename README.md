@@ -1,12 +1,12 @@
 # Good Catch
 
-A daily fishing puzzle for the browser. Everyone gets the same sea each day.
-Go for the highest score, or the lowest: protected animals take points away.
+A daily fishing puzzle for the browser. Everyone fishes the same sea each day: the fish of the day has three
+habits (a bottom, a depth and a light), and each cast tells you only how many of them a square has. Six casts.
 
-- **Purse net**: draw a closed loop from the boat. Everything inside is caught.
-- **Bottom line**: draw a line from the boat to the seabed. Everything touching it bites.
+- `index.html`: the daily game, served at [goodcatch.fish](https://goodcatch.fish).
+- `rede/index.html`: the earlier purse-net game, kept at [goodcatch.fish/rede/](https://goodcatch.fish/rede/).
 
-Single static file (`index.html`), no build step. Served at [goodcatch.fish](https://goodcatch.fish) via GitHub Pages.
+Single static files, no build step, via GitHub Pages.
 
 ## Run locally
 
