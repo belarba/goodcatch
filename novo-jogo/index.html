@@ -24,7 +24,7 @@ body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixe
 ::selection{background:var(--sun);color:var(--ink)}
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--sun);outline-offset:3px}
-.wrap{max-width:480px;margin:0 auto;padding:14px 16px 40px;display:flex;flex-direction:column;gap:14px}
+.wrap{max-width:480px;margin:0 auto;padding:10px 16px 40px;display:flex;flex-direction:column;gap:10px}
 .sp{display:block;background:center/contain no-repeat;image-rendering:pixelated}
 
 .wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
@@ -37,15 +37,18 @@ button{font:inherit;color:inherit}
 .icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;font-size:24px;line-height:1;cursor:pointer}
 .icon-btn .sp{width:24px;height:24px}
 .icon-btn:active{transform:translateY(2px)}
-h1{margin:0;font:400 clamp(46px,14vw,60px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;
+h1{margin:0;font:400 clamp(40px,12vw,54px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;
   text-shadow:3px 0 var(--bark),-3px 0 var(--bark),0 3px var(--bark),0 -3px var(--bark),3px 3px var(--bark),-3px 3px var(--bark),3px -3px var(--bark),-3px -3px var(--bark),0 7px 0 rgba(4,16,26,.45)}
 h1 span{color:var(--gold)}
-.date{margin-top:8px;font-size:20px;color:#BFE7E6}
+.date{margin-top:4px;font-size:18px;color:#BFE7E6}
 
-.talk{display:grid;grid-template-columns:56px 1fr;gap:12px;align-items:center;min-height:76px}
-.portrait{width:56px;height:56px;display:grid;place-items:center;background:#7FDCD6;box-shadow:0 0 0 2px var(--bark),inset 0 -20px 0 #3FC1C0}
-.portrait .sp{width:56px;height:56px}
-.talk p{margin:0;font-size:23px;line-height:1.08}
+.talk{display:grid;grid-template-columns:54px 1fr;gap:16px;align-items:center}
+.face{width:54px;height:48px;filter:drop-shadow(0 6px 6px rgba(4,16,26,.4))}
+.bubble{position:relative;min-height:52px;display:flex;align-items:center;padding:0 2px}
+.bubble::before,.bubble::after{content:"";position:absolute;top:50%;clip-path:polygon(100% 0,0 50%,100% 100%)}
+.bubble::before{left:-26px;width:17px;height:20px;margin-top:-10px;background:var(--bark)}
+.bubble::after{left:-20px;width:12px;height:12px;margin-top:-6px;background:var(--parch)}
+.bubble p{margin:0;font-size:21px;line-height:1.05}
 
 .sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5))}
 .sea canvas{display:block;image-rendering:pixelated}
@@ -63,11 +66,10 @@ h1 span{color:var(--gold)}
 .c .tag{position:absolute;right:1px;bottom:1px;min-width:24px;padding:0 3px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;color:var(--ink);font:400 20px/14px var(--pixel);text-align:center}
 .c .tag.hit{border-image-source:var(--gold9);border-image-slice:4 fill}
 
-.cast{display:flex;flex-direction:column;gap:10px}
-.feat{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;min-height:44px;align-items:center}
-.feat.hint{color:#F3DDB4;font-size:24px}
-.chip{display:inline-flex;align-items:center;gap:6px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;padding:0 6px 0 0;color:var(--ink);font-size:22px}
-.chip img,.key img{width:32px;height:32px;image-rendering:pixelated}
+.feat{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 6px;padding:0 4px 0 0;color:var(--ink);font-size:20px;background:none}
+.chip img{width:24px;height:24px;image-rendering:pixelated}
+.key img{width:32px;height:32px;image-rendering:pixelated}
 .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .left{display:flex;gap:2px}
 .left i{width:28px;height:28px}
@@ -137,10 +139,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div><h1>Good <span>Catch</span></h1><div class="date" id="sub"></div></div>
     <button class="icon-btn wood" id="lang"></button>
   </header>
-  <div class="talk parch"><div class="portrait"><i class="sp" id="cat"></i></div><p id="say" aria-live="polite"></p></div>
+  <div class="talk"><i class="sp face" id="cat"></i><div class="bubble parch"><p id="say" aria-live="polite"></p><div class="feat" id="feat" hidden></div></div></div>
   <div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div></div>
   <div class="cast wood" id="bar">
-    <div class="feat" id="feat"></div>
     <div class="row"><div class="left" id="left"></div><button class="btn" id="cast"></button></div>
   </div>
   <section class="result parch" id="result" hidden></section>
@@ -227,7 +228,8 @@ const K='#2E1A0C';
 const P={o:'#E0703A',O:'#B24E22',l:'#F4A56A',p:'#F2A0A8',w:'#F4EFE6',W:'#FFFFFF',e:'#0A1F2B',y:'#F2C84B',Y:'#C9962E',h:'#FFF1A8',
   r:'#D8553A',R:'#A33A28',m:'#6B4220',n:'#F39A36',N:'#C8741F',q:'#D9C597',u:'#9C7F4A',c:'#FFF1D0'};
 const M={
-  boatcat:["......rr....","......mrr...","......ww....","o...o.www...","ooooo.wwww..","oeoeo.wwwww.","ooOoo.wwwwww",".ooo..m.....","nnnnnnnnnnnn","nNNNNNNNNNNn",".nnnnnnnnnn.","............"],
+  catFace:[".oo..........oo.",".ooo........ooo.",".oppo......oppo.",".oppooooooooppo.","oooooooOOooooooo","ooooooOooOoooooo","oooeeooooooeeooo","oooeWooooooeWooo","oooooowwwwoooooo","oooooowppwoooooo","ooooowwmmwwooooo",".ooooowwwwooooo.","..oooooooooooo..","....oooooooo...."],
+  catHappy:[".oo..........oo.",".ooo........ooo.",".oppo......oppo.",".oppooooooooppo.","oooooooOOooooooo","ooooooOooOoooooo","oooeeooooooeeooo","ooeooeooooeooeoo","oooooowwwwoooooo","oooooowppwoooooo","ooooowmwwmwooooo",".ooooowmmwooooo.","..oooooooooooo..","....oooooooo...."],
   catBack:["..o........o..",".opo......opo.",".oppooooooppo.",".oooooooooooo.","ooOOooooooOOoo","oooooooooooooo",".oooooooooooo.","..oooooooooo..",".oooooooooooo.","ooOoooooooooOo","oooooooooooooo","ooOOooooooOOoo",".oooooooooooo.o","..oooooooooo.oo"],
   fish:["...yyyy.....",".yyhhyyy..Y.","yweyyyyyyYY.","yyyyyyyyyYYY","ryyyyyyyyYY.",".yyyyyyy..Y.","...yYYy....."],
   fishBig:["..........yyyyy...........",".......yyyyhhhyyy.........",".....yyyhhhhyyyyyyy....YY.","...yyyyyyyyyyyyyyyyy..YYY.","..yywyyyyyYyyyYyyyyyYYYY..",".yyekyyyyyYyyyYyyyyyYYY...","yyyyyyyyyyYyyyYyyyyyyYY...",".yrryyyyyyYyyyYyyyyyYYY...","..yyyyyyyyYyyyYyyyyYYYY...","...yyyyyyyyyyyyyyyyy..YYY.",".....YYyyyyyyyyyyy....YY..",".......YYYYyyyYYY.........","..........YYYYY..........."],
@@ -248,7 +250,7 @@ function drawMap(x,map,X,Y,flipX=false,pal=P){
   for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,pal[ch],X+c,Y+r)}
 }
 const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
-const URLS=Object.fromEntries(['boatcat','fish','bobber','star','starOff','help'].map(k=>[k,mapURL(M[k])]));
+const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help'].map(k=>[k,mapURL(M[k])]));
 const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
 const SP_BY=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
 const spPal=(s,dark)=>dark?Object.fromEntries('abcfwe'.split('').map(k=>[k,'#1E4A5A'])):{...s.pal,w:'#FFFFFF',e:'#0A1F2B'};
@@ -278,7 +280,7 @@ for(const k of ['wood','parch','tag','gold','dull'])document.documentElement.sty
   document.documentElement.style.setProperty('--sea-tile',`url(${cv.toDataURL()})`)}
 
 // ---------- the lagoon: 24px a square, beach and pier below ----------
-const S=24, GW=N*S, BEACH=44, GH=GW+BEACH, CX=GW/2;
+const S=24, GW=N*S, BEACH=32, GH=GW+BEACH, CX=GW/2;
 // Seabed textures use page coordinates, so a patch of one bottom reads as one field across squares.
 const GROUND=[
   (x,y,h)=>(y+Math.round(Math.sin(x*.38)*1.6))%6===0?'#D8BA7C':h>.95?'#C7A468':h<.04?'#FBEDC6':'#EBD39D',
@@ -448,10 +450,10 @@ const STR={
     got_it:'Got it',
     b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
-    intro:'There’s {a} {s} in these waters today! It has 3 habits: a bottom, a depth and a light. Each cast tells me how many a square has.',
+    intro:'There’s {a} {s} around today! Tap a square to read the water.',
     sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
     journal:'Fish journal · {n}/{m}',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
-    pick:'Tap a square in the water',cast:'Cast',left:'{n} casts left',
+    cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. None of its habits here.',bite1:'A nibble! 1 habit matches.',bite2:'Two bites! 2 habits match.',
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
@@ -465,10 +467,10 @@ const STR={
     got_it:'Entendi',
     b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
-    intro:'Tem {um} {s} nestas águas hoje! {Ele} tem 3 manias: um chão, uma profundidade e uma luz. Cada lance me diz quantas a casa tem.',
+    intro:'Hoje tem {um} {s} por aqui! Toque uma casa para ler a água.',
     sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
     journal:'Diário de espécies · {n}/{m}',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
-    pick:'Toque uma casa na água',cast:'Lançar',left:'{n} lances restantes',
+    cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Nenhuma mania aqui.',bite1:'Beliscou! 1 mania bate.',bite2:'Duas mordidas! 2 manias batem.',
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
@@ -529,7 +531,9 @@ const bases=[0,1].map(f=>paintSeabed(SEA.grid,f).getContext('2d').getImageData(0
 const work=canvas(GW,GH), wx=work.getContext('2d'), view=$('sea'), vx=view.getContext('2d');
 let q=-1, lit=null;
 function fit(){
-  const dpr=devicePixelRatio||1, avail=$('seabox').parentElement.clientWidth-20, k=Math.max(1,Math.floor(avail*dpr/GW));
+  const dpr=devicePixelRatio||1, box=$('seabox'), wrap=getComputedStyle(box.parentElement), avail=box.parentElement.clientWidth-parseFloat(wrap.paddingLeft)-parseFloat(wrap.paddingRight)-20;
+  const room=innerHeight-(box.getBoundingClientRect().top+scrollY)-20-($('bar').offsetHeight||64)-8;
+  const k=Math.max(Math.ceil(200*dpr/GW),Math.min(Math.floor(avail*dpr/GW),Math.floor(room*dpr/GH)));
   view.width=GW*k; view.height=GH*k; view.style.width=GW*k/dpr+'px'; view.style.height=GH*k/dpr+'px';
   $('board').style.height=GW*k/dpr+'px';
 }
@@ -602,8 +606,8 @@ function render(){
   $('say').textContent=done&&!busy?(won?t('caught',spVars(TODAY.id,{n:casts.length})):t('lost',spVars(TODAY.id,{h:feats(SEA.fish).join(', ')}))):lastN!==null?t('bite'+lastN):t(casts.length?'bite'+bitesAt(casts.at(-1)):'intro',spVars(TODAY.id));
   $('bar').hidden=done&&!busy;
   const sx=sel===null?null:cellAt(sel);
-  $('feat').className='feat'+(sx?'':' hint');
-  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):t('pick');
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(k=>chip(k)).join(''):''; $('feat').hidden=!sx; $('say').hidden=!!sx;
+  $('cat').style.backgroundImage=`url(${URLS[won&&!busy?'catHappy':'catFace']})`;
   $('left').innerHTML=Array.from({length:MAX},(_,i)=>sprite('bobber',i<casts.length?'used':'')).join('');
   $('left').setAttribute('aria-label',t('left',{n:MAX-casts.length})); $('left').setAttribute('role','img');
   $('cast').textContent=t('cast'); $('cast').disabled=sel===null||busy;
@@ -631,7 +635,7 @@ function showCatch(){
   if(still.matches) drawSea(performance.now()+5000);
 }
 
-$('cat').style.backgroundImage=`url(${URLS.boatcat})`;
+
 $('help-icon').style.backgroundImage=`url(${URLS.help})`;
 $('board').addEventListener('click',e=>{
   const b=e.target.closest('.c'); if(!b||b.disabled) return;
@@ -651,8 +655,11 @@ $('cast').onclick=()=>{
 };
 $('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}renderStatic();render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}};
 $('help-btn').onclick=()=>$('help').showModal();
-addEventListener('resize',()=>{fit();drawSea(performance.now())});
+// Mobile browsers resize while their toolbars slide; refit only when the width really changes.
+let fitW=innerWidth;addEventListener('resize',()=>{if(innerWidth===fitW)return;fitW=innerWidth;fit();drawSea(performance.now())});
 renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop);
+// The pixel font changes the bubble's height once it loads, and the board's scale depends on that height.
+document.fonts?.ready.then(()=>{fit();drawSea(performance.now())});
 track(location.pathname);
 let seen=null;try{seen=localStorage.getItem('goodcatch:pista:seenHelp')}catch(e){}
 if(!seen){$('help').showModal();try{localStorage.setItem('goodcatch:pista:seenHelp','1')}catch(e){}}
