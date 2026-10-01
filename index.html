@@ -75,7 +75,7 @@ h1 span{color:var(--gold)}
 .left i{width:28px;height:28px}
 .left i.used{opacity:.3;filter:grayscale(1)}
 
-.result,#catch .parch{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.result,#catch .parch{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
 .scene{display:block;image-rendering:pixelated;box-shadow:0 0 0 3px var(--bark)}
 .big{font:400 84px/.85 var(--pixel);color:var(--gold);
   text-shadow:4px 0 var(--bark),-4px 0 var(--bark),0 4px var(--bark),0 -4px var(--bark),4px 4px var(--bark),-4px 4px var(--bark),4px -4px var(--bark),-4px -4px var(--bark)}
@@ -83,14 +83,21 @@ h1 span{color:var(--gold)}
 .stars{display:flex;gap:6px}
 .stars .sp{width:36px;height:36px}
 .result p{margin:0;font-size:22px}
-.vila{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
-.vila p{margin:0}
-.bars{width:100%;display:flex;flex-direction:column;gap:3px}
-.bars span{display:grid;grid-template-columns:18px 1fr 34px;gap:6px;align-items:center;font-size:18px;color:var(--ink-soft)}
-.bars i{height:14px;background:#D9BE84;box-shadow:0 0 0 2px var(--bark)}
+.score{display:flex;align-items:center;justify-content:center;gap:16px}
+.score .side{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left}
+.score .stars .sp{width:30px;height:30px}
+.verdict{margin:0;font-size:20px;line-height:1.05;color:var(--ink-soft);max-width:12em}
+.vila{width:100%;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:2px dashed #D9BE84;text-align:left}
+.vila-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.vila-head b{font-weight:400;font-size:22px}
+.vila .rank{margin:0;font-size:20px;line-height:1.1;color:var(--ink)}
+.bars{display:flex;flex-direction:column;gap:3px}
+.bars span{display:grid;grid-template-columns:16px 1fr;gap:6px;align-items:center;font-size:18px;color:var(--ink-soft)}
+.bars b{font-weight:400}
+.bars i{display:flex;justify-content:flex-end;align-items:center;height:18px;min-width:24px;padding-right:4px;background:#D9BE84;box-shadow:inset 0 0 0 2px var(--bark);font:400 16px/1 var(--pixel);font-style:normal;color:var(--ink)}
+.bars i.zero{height:2px;min-width:0;padding:0;background:#D9BE84;box-shadow:none}
 .bars .me i{background:var(--gold)}
 .bars .me{color:var(--ink)}
-.bars small{font-size:18px;text-align:right}
 .c .heat{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,226,122,var(--a));pointer-events:none}
 .c .heat b{min-width:22px;padding:0 3px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 5px;font:400 18px/12px var(--pixel);color:var(--ink);text-align:center}
 .note{font-size:20px;color:var(--ink-soft)}
@@ -105,7 +112,7 @@ h1 span{color:var(--gold)}
 .pips .sp{width:28px;height:28px}
 .pips .off{width:20px;height:20px;margin:4px;border-radius:50%;box-shadow:inset 0 0 0 3px #8A6A3A}
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%}
-.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:52px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:20px;color:var(--ink-soft)}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:44px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:20px;color:var(--ink-soft)}
 .day.today{border-image-source:var(--gold9);border-image-slice:4 fill}
 .day small{font-size:16px;line-height:1}
 .day .sp{width:28px;height:22px;background-size:contain}
@@ -478,7 +485,7 @@ const STR={
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
-    village:'{n} fishers today',village1:'1 fisher today',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',
+    village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -496,7 +503,7 @@ const STR={
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
-    village:'{n} pescadores hoje',village1:'1 pescador hoje',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',
+    village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -609,17 +616,24 @@ function sendPlay(){
   fetch(`${API}/plays`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:DATE,player:id,casts})})
     .then(r=>r.ok?r.json():null).then(v=>{if(!v)return;VILLAGE=v;render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}}).catch(()=>{});
 }
+// With few players a percentage says little and "better than 0%" stings, so small days show a rank.
+function standing(v,mine){
+  if(v.players===1) return t('first_only');
+  const rank=1+v.dist.slice(0,mine).reduce((a,b)=>a+b,0);
+  return v.players<10||!v.better?t('rank',{r:rank,n:v.players}):`${t('village',{n:v.players})} · ${t('better',{p:v.better})}`;
+}
 function villageHTML(){
   const v=VILLAGE; if(!v||!v.players) return '';
   const max=Math.max(...v.dist,1), mine=v.you?(v.you.won?v.you.n-1:6):-1;
-  return `<div class="vila"><p>${t(v.players===1?'village1':'village',{n:v.players})}${v.better!==null?` · ${t('better',{p:v.better})}`:''}</p>`
-    +`<div class="bars">${v.dist.map((c,i)=>`<span class="${i===mine?'me':''}"><b>${i<6?i+1:'✕'}</b><i style="width:${Math.max(3,Math.round(100*c/max))}%"></i><small>${c}</small></span>`).join('')}</div>`
-    +(v.heat?`<button class="btn small" data-heat>${t(heatOn?'heat_off':'heat_on')}</button>`:'')+`</div>`;
+  return `<div class="vila"><div class="vila-head"><b>${t('village_title')}</b>${v.heat?`<button class="btn small" data-heat>${t(heatOn?'heat_off':'heat_on')}</button>`:''}</div>`
+    +(mine>=0?`<p class="rank">${standing(v,mine)}</p>`:`<p class="rank">${t(v.players===1?'village1':'village',{n:v.players})}</p>`)
+    +`<div class="bars">${v.dist.map((c,i)=>`<span class="${i===mine?'me':''}"><b>${i<6?i+1:'✕'}</b>${c?`<i style="width:${Math.round(100*c/max)}%">${c}</i>`:'<i class="zero"></i>'}</span>`).join('')}</div></div>`;
 }
 function resultHTML(live){
   const won=caught(), st=won?stars(casts.length):0;
-  return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div>`
-    +(won?starsHTML(st):'')+`<p>${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p>`+villageHTML()+weekHTML()
+  return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas>`
+    +`<div class="score"><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div><div class="side">${won?starsHTML(st):''}<p class="verdict">${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p></div></div>`
+    +villageHTML()+weekHTML()
     +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
 }
 function wireResult(el){
