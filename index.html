@@ -120,6 +120,12 @@ h1 span{color:var(--gold)}
 .day.today{border-image-source:var(--gold9);border-image-slice:4 fill}
 .day small{font-size:16px;line-height:1}
 .day .sp{width:28px;height:22px;background-size:contain}
+.day .sp.plate{width:30px;height:10px;margin-top:-4px}
+.day .sp.portion-small{width:20px;height:16px}
+.day .sp.portion-record{width:36px;height:28px}
+.day em{font-style:normal;font-size:16px;line-height:1;color:var(--ink-soft)}
+.guest-say{display:flex;align-items:center;gap:8px;margin:0;font-size:20px;line-height:1.1;color:var(--ink);text-align:left}
+.guest-say .sp{width:36px;height:36px;flex:none}
 .streak{margin:0;font-size:22px;color:var(--ink)}
 .dex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
 #dex h2{margin:0 0 8px;font:400 30px/1 var(--pixel)}
@@ -280,6 +286,9 @@ const M={
   bobber:["...mm...","...mm...","..rrrr..",".rrWrrr.",".rrrrRr.",".wwwwww.",".wwwwwq.","..wwqq..","...mm..."],
   star:[".....yy.....","....yhhy....","....yhhy....","yyyyyhhyyyyy",".yyyyhhyyyy.","..yyyyyyyy..","...yyyyyy...","..yyyyyyyy..","..yyyYYyyy..",".yyYY..YYyy.",".yY......Yy."],
   book:["..RRRRRRRRR.",".RrrrrrrrrR.",".RrrryyrrrR.",".RrryhhyrrR.",".RrryhhyrrR.",".RrrryyrrrR.",".RrrrrrrrrR.",".RrrrrrrrrR.",".RRRRRRRRRR.",".wwwwwwwwwww",".mmmmmmmmmmm"],
+  plate:["..wwwwwwww..",".wWWWWWWWWw.","wWWWWWWWWWWw",".wwwwwwwwww."],
+  bone:["............",".q.q.q..qq..","qqqqqqqqqqq.",".q.q.q..qq..","............"],
+  cover:[".....mm.....","...yyyyyy...","..yhhyyyyy..",".yhyyyyyyyy.",".yyyyyyyyyy.","YYYYYYYYYYYY"],
   help:["..cccccc..",".cccccccc.",".ccc..ccc.","......ccc.",".....ccc..","....ccc...","....cc....","....cc....","..........","....cc....","....cc...."],
 };
 M.starOff=M.star.map(r=>r.replace(/[yh]/g,'q').replace(/Y/g,'u'));
@@ -293,14 +302,26 @@ function drawMap(x,map,X,Y,flipX=false,pal=P){
   for(let r=-1;r<=h;r++)for(let c=-1;c<=w;c++)if(!at(r,c)&&(at(r-1,c)||at(r+1,c)||at(r,c-1)||at(r,c+1)))dot(x,K,X+c,Y+r);
   for(let r=0;r<h;r++)for(let c=0;c<w;c++){const ch=at(r,c);if(ch)dot(x,pal[ch],X+c,Y+r)}
 }
-const mapURL=map=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1);return cv.toDataURL()};
-const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help','book'].map(k=>[k,mapURL(M[k])]));
+const mapURL=(map,pal=P)=>{const cv=canvas(Math.max(...map.map(r=>r.length))+2,map.length+2);drawMap(cv.getContext('2d'),map,1,1,false,pal);return cv.toDataURL()};
+const URLS=Object.fromEntries(['catFace','catHappy','fish','bobber','star','starOff','help','book','plate','bone','cover'].map(k=>[k,mapURL(M[k])]));
 const sprite=(k,cls='')=>`<i class="sp ${cls}" style="background-image:url(${URLS[k]})"></i>`;
 const SP_BY=Object.fromEntries(SPECIES.map(s=>[s.id,s]));
 const spPal=(s,dark)=>dark?Object.fromEntries('abcfwe'.split('').map(k=>[k,'#1E4A5A'])):{...s.pal,w:'#FFFFFF',e:'#0A1F2B'};
 const spURL=(id,dark)=>{const s=SP_BY[id],m=speciesMap(s),cv=canvas(Math.max(...m.map(r=>r.length))+2,m.length+2);drawMap(cv.getContext('2d'),m,1,1,false,spPal(s,dark));return cv.toDataURL()};
 const SP_URL=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id)])), SP_DARK=Object.fromEntries(SPECIES.map(s=>[s.id,spURL(s.id,true)]));
 const fishSprite=(id,cls='',dark)=>`<i class="sp ${cls}" style="background-image:url(${(dark?SP_DARK:SP_URL)[id]})"></i>`;
+const GUESTS={
+  lontra:["...wwwwww...","..wwwwwwww..","..wwwwwwww..","...wwwwww...","..mmmmmmmm..",".mmlmmmmlmm.",".mmemmmmemm.",".mmmllllmmm.","..mmleelmm..","..mmmllmmm..","...mmmmmm...","............"],
+  pelicano:["............","....wwww....","...wwwwww...","...wwewwww..","...wwwwwyyy.","....wwwyyyYY","....wwwYyyyY","...wwwwwYYY.","..wwwwwww...","..wwwwwww...","...wwwww....","............"],
+  guaxinim:[".q........q.",".qq......qq.","..qqqqqqqq..",".qqqqqqqqqq.",".zzzqqqqzzz.",".zezqqqqzez.",".zzzqqqqzzz.","..qqqxxqqq..","..qqxeexqq..","...qxxxxq...","....qqqq....","............"],
+  vovo:[".x........x.",".xx......xx.",".xxxxxxxxxx.","xxxxxxxxxxxx","xjjjxxxxjjjx","xjejjjjjjejx","xjjjxxxxjjjx","xxxxxkkxxxxx",".xxxxxxxxxx.",".pppppppppp.","pppppppppppp","............"],
+};
+const GPAL={w:'#EDEAE0',e:'#0A1F2B',m:'#6B4A2E',l:'#EBDDB4',y:'#E9C25A',Y:'#C9962E',q:'#7A8A8C',z:'#36454A',x:'#C9D3D6',j:'#10324A',k:'#F07C9A',p:'#D98BB0'};
+const GUEST_URL=Object.fromEntries(Object.entries(GUESTS).map(([k,m])=>[k,mapURL(m,GPAL)]));
+const guestSprite=id=>`<i class="sp guest" style="background-image:url(${GUEST_URL[id]})"></i>`;
+// One table and one guest list for now; the owner adds a week's entry to rotate them with new art.
+const CAST=[{guests:['lontra','pelicano','guaxinim','lontra','pelicano','guaxinim','vovo']}];
+const guestOf=d=>{const w=Math.floor((new Date(weekOf(d)[0]+'T12:00:00')-new Date(weekOf(EPOCH)[0]+'T12:00:00'))/6048e5);return CAST[w%CAST.length].guests[(new Date(d+'T12:00:00').getDay()+6)%7]};
 
 // Pixel 9-slice frames for the UI: planks with nails, parchment, gold buttons. Corner pixel left empty for a stepped corner.
 function nine(kind){
@@ -496,7 +517,7 @@ const STR={
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
     intro:'There’s {a} {s} around today! Tap a square to read the water.',
     sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
-    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'Last 7 days',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
+    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'This week’s table',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
     cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. It likes nothing here.',bite1:'A nibble! It likes 1 thing here.',bite2:'Two bites! It likes 2 things here.',bite3:'Three bites! It took the hook!',
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
@@ -505,6 +526,10 @@ const STR={
     village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',heat_say:'Village map: where the {n} fishers cast today. More gold, more fishers. Tap a square.',heat_say1:'Village map: only you have fished today.',heat_cell:'{n} of {t} fishers cast here.',
     hook:'It bit! Tap with the needle in the green.',hook_aria:'Reel in: tap when the needle is in the green',
     tier_small:'small',tier_good:'good size',tier_record:'record!',size:'{cm} cm · {t}',
+    g_lontra_small:'Small, but it makes a nice snack.',g_lontra_good:'This one becomes a lovely dish!',g_lontra_record:'A record! I’ll serve it whole.',g_lontra_lost:'No fish today? Stone soup it is.',
+    g_pelicano_small:'Fits in my beak in one go.',g_pelicano_good:'Now that fills my pouch.',g_pelicano_record:'Not even my beak fits that one!',g_pelicano_lost:'I’ll have yesterday’s bones.',
+    g_guaxinim_small:'I was going to steal it, but it’s tiny.',g_guaxinim_good:'I saved a seat at the table for this one.',g_guaxinim_record:'I wouldn’t dare steal this one.',g_guaxinim_lost:'Got away? I was going to wash it so nicely.',
+    g_vovo_small:'A little one, I’ll make a broth.',g_vovo_good:'What a lovely fish!',g_vovo_record:'I’ve never seen one this big!',g_vovo_lost:'Never mind, there’s cake on the table.',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -516,7 +541,7 @@ const STR={
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
     intro:'Hoje tem {um} {s} por aqui! Toque uma casa para ler a água.',
     sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
-    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Últimos 7 dias',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
+    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Mesa da semana',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
     cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Não gosta de nada daqui.',bite1:'Beliscou! Gosta de 1 coisa daqui.',bite2:'Duas mordidas! Gosta de 2 coisas daqui.',bite3:'Três mordidas! Fisgou!',
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
@@ -525,6 +550,10 @@ const STR={
     village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',heat_say:'Mapa da vila: onde os {n} pescadores lançaram hoje. Mais dourado, mais gente. Toque num quadrado.',heat_say1:'Mapa da vila: só você pescou hoje.',heat_cell:'{n} de {t} pescadores lançaram aqui.',
     hook:'Mordeu! Toque com a agulha no verde.',hook_aria:'Puxar: toque quando a agulha estiver no verde',
     tier_small:'pequeno',tier_good:'bom tamanho',tier_record:'recorde!',size:'{cm} cm · {t}',
+    g_lontra_small:'Pequeno, mas dá um petisco.',g_lontra_good:'Esse vira um belo prato!',g_lontra_record:'Recorde! Vou servir inteiro.',g_lontra_lost:'Sem peixe hoje? Faço sopa de pedra.',
+    g_pelicano_small:'Cabe no meu bico de uma vez.',g_pelicano_good:'Esse enche a bolsa do bico.',g_pelicano_record:'Nem no meu bico cabe esse!',g_pelicano_lost:'Fico com as espinhas de ontem.',
+    g_guaxinim_small:'Eu ia roubar, mas é pequeno.',g_guaxinim_good:'Guardei um lugar na mesa pra esse.',g_guaxinim_record:'Esse eu nem tenho coragem de roubar.',g_guaxinim_lost:'Escapou? Eu ia lavar direitinho.',
+    g_vovo_small:'Pequenininho, faço um caldo.',g_vovo_good:'Que beleza de peixe!',g_vovo_record:'Nunca vi um desse tamanho!',g_vovo_lost:'Tudo bem, tem bolo na mesa.',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -563,14 +592,17 @@ const $=id=>document.getElementById(id);
 const dayShift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`};
 const castsOn=d=>{if(d===DATE)return casts;try{const a=JSON.parse(localStorage.getItem(`goodcatch:${d}:pista`)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}};
 const caughtOn=d=>{const a=castsOn(d);if(!a.length)return false;const sea=d===DATE?SEA:genSea(d);return a.some(k=>{const x=sea.grid[Math.floor(k/100)]?.[k%100];return x&&bites(x,sea.fish)===3})};
+// A day won before the hook-set existed has no q and shows a good portion.
+const tierOn=d=>caughtOn(d)?tierOf(qOn(d)??70):castsOn(d).length>=MAX?'lost':null;
 // Today not played yet keeps yesterday's streak alive until midnight.
 function streakOf(){let d=castsOn(DATE).length?DATE:dayShift(DATE,-1),n=0;while(castsOn(d).length){n++;d=dayShift(d,-1)}return n}
 function playedDays(){const days=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i),m=/^goodcatch:(\d{4}-\d\d-\d\d):pista$/.exec(k);if(m&&castsOn(m[1]).length)days.push(m[1])}}catch(e){}if(casts.length&&!days.includes(DATE))days.push(DATE);return days.sort()}
 function bestStreak(){let best=0,run=0,prev=null;for(const d of playedDays()){run=prev&&dayShift(prev,1)===d?run+1:1;best=Math.max(best,run);prev=d}return best}
 function weekHTML(){
-  const n=streakOf(),best=bestStreak(),days=Array.from({length:7},(_,i)=>dayShift(DATE,i-6));
-  const cells=days.map(d=>{const a=castsOn(d),won=caughtOn(d),fin=won||a.length>=MAX;
-    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${won?fishSprite(speciesOf(d)):`<b>${!a.length?'·':fin?'✕':'…'}</b>`}</span>`}).join('');
+  const n=streakOf(),best=bestStreak(),vw=VILLAGE?.week;
+  const cells=weekOf(DATE).map((d,i)=>{const a=castsOn(d),tier=tierOn(d);
+    const dish=d>DATE?sprite('cover'):tier==='lost'?sprite('bone'):tier?fishSprite(speciesOf(d),'portion-'+tier):a.length?'<b>…</b>':'';
+    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${dish}${sprite('plate','plate')}${vw?`<em>${vw[i].caught}</em>`:''}</span>`}).join('');
   return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t(n===1?'streak1':'streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
 }
 function todayHTML(){
@@ -660,8 +692,11 @@ function villageHTML(){
 }
 function resultHTML(live){
   const won=caught(), st=won?stars(casts.length):0;
+  const q=qOn(DATE), tier=tierOn(DATE), g=guestOf(DATE);
   return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas>`
     +`<div class="score"><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div><div class="side">${won?starsHTML(st):''}<p class="verdict">${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p></div></div>`
+    +(won&&q!==null?`<p class="verdict">${t('size',{cm:cmOf(q,CM[TODAY.id]),t:t('tier_'+tierOf(q))})}</p>`:'')
+    +(tier?`<p class="guest-say">${guestSprite(g)}<span>${t(`g_${g}_${tier}`)}</span></p>`:'')
     +villageHTML()+weekHTML()
     +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
 }
