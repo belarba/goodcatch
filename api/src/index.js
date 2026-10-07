@@ -1,7 +1,5 @@
 import { validatePlay, validateSize, summarize, isDay, weekDates, weekStats, streakStats, shiftDay } from './play.js';
 
-const STREAK_DAYS = 60; // ponytail: streaks cap at 60 days — keep a per-player streak table if plays grow large
-
 const ORIGINS = new Set(['https://goodcatch.fish', 'http://localhost:8765']);
 const cors = req => {
   const o = req.headers.get('Origin');
@@ -18,12 +16,11 @@ const readBody = async (req, max) => {
 
 async function stats(env, date, player) {
   const week = weekDates(date);
-  const [day, wk, hist] = await env.DB.batch([
-    env.DB.prepare('SELECT player, casts, n, won, q FROM plays WHERE date = ?').bind(date),
+  const [day, wk] = await env.DB.batch([
+    env.DB.prepare('SELECT player, casts, n, won, q, streak FROM plays WHERE date = ?').bind(date),
     env.DB.prepare('SELECT date, COUNT(*) AS players, SUM(won) AS caught FROM plays WHERE date BETWEEN ? AND ? GROUP BY date').bind(week[0], week[6]),
-    env.DB.prepare('SELECT player, date FROM plays WHERE date > ? AND date <= ? AND player IN (SELECT player FROM plays WHERE date = ?)').bind(shiftDay(date, -STREAK_DAYS), date, date),
   ]);
-  return { ...summarize(day.results, player), week: weekStats(date, wk.results), streak: streakStats(date, hist.results, player) };
+  return { ...summarize(day.results, player), week: weekStats(date, wk.results), streak: streakStats(day.results, player) };
 }
 
 export default {
@@ -35,8 +32,9 @@ export default {
       if (error) return json(req, { error }, 413);
       const v = validatePlay(body, today());
       if (!v.ok) return json(req, { error: v.error }, 400);
-      await env.DB.prepare('INSERT OR IGNORE INTO plays (date, player, casts, n, won, created_at) VALUES (?, ?, ?, ?, ?, ?)')
-        .bind(v.date, v.player, JSON.stringify(v.casts), v.n, v.won, Date.now()).run();
+      const prev = await env.DB.prepare('SELECT streak FROM plays WHERE date = ? AND player = ?').bind(shiftDay(v.date, -1), v.player).first('streak');
+      await env.DB.prepare('INSERT OR IGNORE INTO plays (date, player, casts, n, won, created_at, streak) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(v.date, v.player, JSON.stringify(v.casts), v.n, v.won, Date.now(), (prev ?? 0) + 1).run();
       return json(req, await stats(env, v.date, v.player));
     }
     if (req.method === 'POST' && url.pathname === '/plays/size') {

@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS plays (
   won INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
   q INTEGER,
+  streak INTEGER,
   PRIMARY KEY (date, player)
 );

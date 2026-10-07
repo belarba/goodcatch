@@ -61,12 +61,8 @@ export const shiftDay = (date, n) => { const d = new Date(date + 'T12:00:00Z'); 
 export const weekDates = date => { const wd = (new Date(date + 'T12:00:00Z').getUTCDay() + 6) % 7; return Array.from({ length: 7 }, (_, i) => shiftDay(date, i - wd)); };
 export const weekStats = (date, rows) => weekDates(date).map(d => { const r = rows.find(x => x.date === d); return { players: r ? r.players : 0, caught: r ? r.caught || 0 : 0 }; });
 
-// Only finished days reach the server, so this can run shorter than the page's own streak.
-export function streakStats(date, rows, player) {
-  const days = new Map();
-  for (const r of rows) { if (!days.has(r.player)) days.set(r.player, new Set()); days.get(r.player).add(r.date); }
-  const len = set => { let n = 0, d = date; while (set.has(d)) { n++; d = shiftDay(d, -1); } return n; };
-  const all = [...days].filter(([, s]) => s.has(date)).map(([p, s]) => [p, len(s)]);
-  const mine = all.find(([p]) => p === player)?.[1] ?? null, others = all.filter(([p]) => p !== player);
-  return { you: mine, better: mine !== null && others.length ? Math.round((100 * others.filter(([, n]) => n < mine).length) / others.length) : null };
+// Only finished days reach the server, so this can run shorter than the page's own streak. Rows from before the column count 1.
+export function streakStats(rows, player) {
+  const len = r => r.streak ?? 1, me = rows.find(r => r.player === player) || null, others = rows.filter(r => r !== me);
+  return { you: me && len(me), better: me && others.length ? Math.round((100 * others.filter(r => len(r) < len(me)).length) / others.length) : null };
 }

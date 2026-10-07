@@ -69,16 +69,12 @@ if (weekDates('2026-10-11')[0] !== '2026-10-05') fail('a Sunday belongs to the w
 if (weekDates('2026-11-02')[0] !== '2026-11-02') fail('a Monday starts its own week');
 const ws = weekStats('2026-10-07', [{ date: '2026-10-05', players: 3, caught: 2 }, { date: '2026-10-07', players: 1, caught: 0 }]);
 if (JSON.stringify(ws) !== JSON.stringify([{ players: 3, caught: 2 }, { players: 0, caught: 0 }, { players: 1, caught: 0 }, ...Array(4).fill({ players: 0, caught: 0 })])) fail(`weekStats ${JSON.stringify(ws)}`);
-const hist = [
-  ...['2026-10-05', '2026-10-06', '2026-10-07'].map(date => ({ player: P, date })),
-  ...['2026-10-03', '2026-10-05', '2026-10-07'].map(date => ({ player: 'gap', date })),
-  { player: 'one', date: '2026-10-07' },
-  ...['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07'].map(date => ({ player: 'long', date })),
-];
-const st = streakStats('2026-10-07', hist, P);
+const day = [{ player: P, streak: 3 }, { player: 'new', streak: 1 }, { player: 'old', streak: null }, { player: 'long', streak: 7 }, { player: 'tie', streak: 3 }];
+const st = streakStats(day, P);
 if (st.you !== 3) fail(`three days in a row, got ${st.you}`);
-if (st.better !== 67) fail(`3 beats gap(1) and one(1), loses to long(7): 67, got ${st.better}`);
-if (streakStats('2026-10-07', hist, 'stranger').you !== null) fail('no streak without a play today');
+if (st.better !== 50) fail(`3 beats new(1) and old(null counts 1), not long(7) nor tie(3): 50, got ${st.better}`);
+if (streakStats(day, 'stranger').you !== null || streakStats(day, 'stranger').better !== null) fail('no streak without a play today');
+if (streakStats([{ player: P, streak: 2 }], P).better !== null) fail('no streak percentile without others');
 if (!isDay('2026-10-07')) fail('a real day passes isDay');
 for (const d of ['2026-99-99', '2026-02-30', '2026-1-1']) if (isDay(d)) fail(`isDay accepted ${d}`);
 if (validatePlay({ date: '2026-02-30', player: P, casts: [fishKey] }, '2026-03-01').error !== 'date') fail('an impossible date must be refused even next to today');
