@@ -1,6 +1,6 @@
 // Checks the play validator and the daily stats without Cloudflare: node api/test.mjs
 import { genSea, bites, combo } from './src/gen.js';
-import { validatePlay, validateSize, summarize } from './src/play.js';
+import { validatePlay, validateSize, summarize, weekDates, weekStats, streakStats } from './src/play.js';
 
 const fail = msg => { throw new Error(msg); };
 const DATE = '2026-10-01', TODAY = '2026-10-01', P = '3f2b8c1e-6a4d-4c2e-9b7a-1d2e3f4a5b6c';
@@ -64,4 +64,19 @@ if (z.you.q !== 80) fail(`you.q ${z.you.q}`);
 if (z.size.top !== 95) fail(`size.top ${z.size.top}`);
 if (z.size.better !== 50) fail(`80 beats 40 and loses to 95: 50, got ${z.size.better}`);
 if (summarize(rows, P).size.better !== null || summarize(rows, P).size.top !== null) fail('no sizes, no size stats');
+if (weekDates('2026-10-07').join() !== '2026-10-05,2026-10-06,2026-10-07,2026-10-08,2026-10-09,2026-10-10,2026-10-11') fail(`week of a Wednesday ${weekDates('2026-10-07')}`);
+if (weekDates('2026-10-11')[0] !== '2026-10-05') fail('a Sunday belongs to the week that started on Monday');
+if (weekDates('2026-11-02')[0] !== '2026-11-02') fail('a Monday starts its own week');
+const ws = weekStats('2026-10-07', [{ date: '2026-10-05', players: 3, caught: 2 }, { date: '2026-10-07', players: 1, caught: 0 }]);
+if (JSON.stringify(ws) !== JSON.stringify([{ players: 3, caught: 2 }, { players: 0, caught: 0 }, { players: 1, caught: 0 }, ...Array(4).fill({ players: 0, caught: 0 })])) fail(`weekStats ${JSON.stringify(ws)}`);
+const hist = [
+  ...['2026-10-05', '2026-10-06', '2026-10-07'].map(date => ({ player: P, date })),
+  ...['2026-10-03', '2026-10-05', '2026-10-07'].map(date => ({ player: 'gap', date })),
+  { player: 'one', date: '2026-10-07' },
+  ...['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07'].map(date => ({ player: 'long', date })),
+];
+const st = streakStats('2026-10-07', hist, P);
+if (st.you !== 3) fail(`three days in a row, got ${st.you}`);
+if (st.better !== 67) fail(`3 beats gap(1) and one(1), loses to long(7): 67, got ${st.better}`);
+if (streakStats('2026-10-07', hist, 'stranger').you !== null) fail('no streak without a play today');
 console.log('api ok: validator and stats');

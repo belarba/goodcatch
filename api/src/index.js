@@ -1,4 +1,6 @@
-import { validatePlay, validateSize, summarize } from './play.js';
+import { validatePlay, validateSize, summarize, weekDates, weekStats, streakStats, shiftDay } from './play.js';
+
+const STREAK_DAYS = 60; // ponytail: streaks cap at 60 days — keep a per-player streak table if plays grow large
 
 const ORIGINS = new Set(['https://goodcatch.fish', 'http://localhost:8765']);
 const cors = req => {
@@ -15,8 +17,13 @@ const readBody = async (req, max) => {
 };
 
 async function stats(env, date, player) {
-  const { results } = await env.DB.prepare('SELECT player, casts, n, won, q FROM plays WHERE date = ?').bind(date).all();
-  return summarize(results, player);
+  const week = weekDates(date);
+  const [day, wk, hist] = await env.DB.batch([
+    env.DB.prepare('SELECT player, casts, n, won, q FROM plays WHERE date = ?').bind(date),
+    env.DB.prepare('SELECT date, COUNT(*) AS players, SUM(won) AS caught FROM plays WHERE date BETWEEN ? AND ? GROUP BY date').bind(week[0], week[6]),
+    env.DB.prepare('SELECT player, date FROM plays WHERE date > ? AND date <= ? AND player IN (SELECT player FROM plays WHERE date = ?)').bind(shiftDay(date, -STREAK_DAYS), date, date),
+  ]);
+  return { ...summarize(day.results, player), week: weekStats(date, wk.results), streak: streakStats(date, hist.results, player) };
 }
 
 export default {
