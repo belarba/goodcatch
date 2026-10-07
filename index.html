@@ -322,7 +322,9 @@ const GUEST_URL=Object.fromEntries(Object.entries(GUESTS).map(([k,m])=>[k,mapURL
 const guestSprite=id=>`<i class="sp guest" style="background-image:url(${GUEST_URL[id]})"></i>`;
 // One table and one guest list for now; the owner adds a week's entry to rotate them with new art.
 const CAST=[{guests:['lontra','pelicano','guaxinim','lontra','pelicano','guaxinim','vovo']}];
-const guestOf=d=>{const w=Math.floor((new Date(weekOf(d)[0]+'T12:00:00')-new Date(weekOf(EPOCH)[0]+'T12:00:00'))/6048e5);return CAST[w%CAST.length].guests[(new Date(d+'T12:00:00').getDay()+6)%7]};
+// round: a week across a DST change is an hour short or long.
+const castOf=d=>{const w=Math.round((new Date(weekOf(d)[0]+'T12:00:00')-new Date(weekOf(EPOCH)[0]+'T12:00:00'))/6048e5),n=CAST.length;return CAST[((w%n)+n)%n]};
+const guestOf=d=>castOf(d).guests[(new Date(d+'T12:00:00').getDay()+6)%7];
 
 // Pixel 9-slice frames for the UI: planks with nails, parchment, gold buttons. Corner pixel left empty for a stepped corner.
 function nine(kind){
@@ -474,7 +476,7 @@ let BIG=null;const bigFish=()=>BIG||(BIG=(()=>{const one=canvas(TW+2,TH+2);drawM
 // Sunday: grandma's table with the week's seven dishes, back row Mon–Wed, front row Thu–Sun.
 function banquet(x){
   dot(x,'#F6E7C1',0,0,80,64); for(let y=0;y<30;y+=6)dot(x,'#EEDBAE',0,y,80,1);
-  const g=CAST[0].guests; [...new Set(g)].forEach((id,i)=>drawMap(x,GUESTS[id],6+i*18,12,false,GPAL));
+  const g=castOf(DATE).guests; [...new Set(g)].forEach((id,i)=>drawMap(x,GUESTS[id],6+i*18,12,false,GPAL));
   dot(x,'#8B5A2B',4,30,72,26); dot(x,'#B97A45',4,30,72,2); dot(x,'#5E3A1A',4,54,72,2);
   weekOf(DATE).forEach((d,i)=>{
     const X=i<3?14+i*20:4+(i-3)*19, Y=i<3?33:43, tier=tierOn(d);
