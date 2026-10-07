@@ -1,6 +1,6 @@
 // Checks the play validator and the daily stats without Cloudflare: node api/test.mjs
 import { genSea, bites, combo } from './src/gen.js';
-import { validatePlay, validateSize, summarize, weekDates, weekStats, streakStats } from './src/play.js';
+import { validatePlay, validateSize, summarize, isDay, weekDates, weekStats, streakStats } from './src/play.js';
 
 const fail = msg => { throw new Error(msg); };
 const DATE = '2026-10-01', TODAY = '2026-10-01', P = '3f2b8c1e-6a4d-4c2e-9b7a-1d2e3f4a5b6c';
@@ -79,4 +79,7 @@ const st = streakStats('2026-10-07', hist, P);
 if (st.you !== 3) fail(`three days in a row, got ${st.you}`);
 if (st.better !== 67) fail(`3 beats gap(1) and one(1), loses to long(7): 67, got ${st.better}`);
 if (streakStats('2026-10-07', hist, 'stranger').you !== null) fail('no streak without a play today');
+if (!isDay('2026-10-07')) fail('a real day passes isDay');
+for (const d of ['2026-99-99', '2026-02-30', '2026-1-1']) if (isDay(d)) fail(`isDay accepted ${d}`);
+if (validatePlay({ date: '2026-02-30', player: P, casts: [fishKey] }, '2026-03-01').error !== 'date') fail('an impossible date must be refused even next to today');
 console.log('api ok: validator and stats');

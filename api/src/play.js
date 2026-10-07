@@ -2,10 +2,12 @@ import { N, genSea, bites } from './gen.js';
 
 const DAY = /^\d{4}-\d\d-\d\d$/, UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, MAX = 6;
 
+export const isDay = d => DAY.test(d) && !Number.isNaN(Date.parse(d + 'T12:00:00Z')) && new Date(d + 'T12:00:00Z').toISOString().slice(0, 10) === d;
+
 function who(body, today) {
   if (!body || typeof body !== 'object') return { ok: false, error: 'body' };
   const { date, player } = body;
-  if (typeof date !== 'string' || !DAY.test(date)) return { ok: false, error: 'date' };
+  if (typeof date !== 'string' || !isDay(date)) return { ok: false, error: 'date' };
   if (Math.abs(Date.parse(date + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) > 864e5) return { ok: false, error: 'date' };
   if (typeof player !== 'string' || !UUID.test(player)) return { ok: false, error: 'player' };
   return { ok: true, date, player };

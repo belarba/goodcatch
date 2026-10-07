@@ -1,4 +1,4 @@
-import { validatePlay, validateSize, summarize, weekDates, weekStats, streakStats, shiftDay } from './play.js';
+import { validatePlay, validateSize, summarize, isDay, weekDates, weekStats, streakStats, shiftDay } from './play.js';
 
 const STREAK_DAYS = 60; // ponytail: streaks cap at 60 days — keep a per-player streak table if plays grow large
 
@@ -50,6 +50,7 @@ export default {
       return json(req, await stats(env, v.date, v.player));
     }
     const m = /^\/daily\/(\d{4}-\d\d-\d\d)$/.exec(url.pathname);
+    if (req.method === 'GET' && m && !isDay(m[1])) return json(req, { error: 'date' }, 400);
     if (req.method === 'GET' && m) return json(req, await stats(env, m[1], url.searchParams.get('player') || ''));
     return json(req, { error: 'not found' }, 404);
   },
