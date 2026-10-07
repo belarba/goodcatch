@@ -3,9 +3,10 @@
 import { readFileSync } from 'node:fs';
 import { genModule } from './sync-gen.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end');
+const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end'), e = html.indexOf('// @meta-end');
 if (a < 0 || b < a) throw new Error('@gen markers not found');
-const G = new Function(`${html.slice(a, b)}; return {genSea, combo, bites, stars, N, SPECIES: typeof SPECIES === 'undefined' ? null : SPECIES, speciesOf: typeof speciesOf === 'undefined' ? null : speciesOf, speciesMap: typeof speciesMap === 'undefined' ? null : speciesMap};`)();
+if (e < b) throw new Error('@meta block (after @gen-end) not found');
+const G = new Function(`${html.slice(a, e)}; return {genSea, combo, bites, stars, N, SPECIES: typeof SPECIES === 'undefined' ? null : SPECIES, speciesOf: typeof speciesOf === 'undefined' ? null : speciesOf, speciesMap: typeof speciesMap === 'undefined' ? null : speciesMap, CM, zoneOf, qOf, cmOf, tierOf, weekOf};`)();
 
 const F = [...Array(16).keys()].map(q => [...Array(16).keys()].map(s => G.bites(
   { b: q >> 2, d: (q >> 1) & 1, l: q & 1 }, { b: s >> 2, d: (s >> 1) & 1, l: s & 1 })));
@@ -52,5 +53,18 @@ for (let i = 0; i < 90; i++) {
   tries.push(s.tries);
 }
 tries.sort((x, y) => x - y);
+// The hook-set and the banquet: the same green zone for everyone each day, sizes inside each species' range, weeks Mon→Sun.
+const day = i => { const d = new Date(2026, 8, 30 + i); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const zones = Array.from({ length: 30 }, (_, i) => G.zoneOf(day(i)));
+if (zones.some((z, i) => z !== G.zoneOf(day(i)) || z < 20 || z > 79)) throw new Error('zoneOf must be deterministic and within 20..79');
+if (new Set(zones).size < 10) throw new Error(`zoneOf barely varies by date: ${zones}`);
+if (G.qOf(50, 50) !== 100 || G.qOf(57, 50) < 90 || G.qOf(58, 50) >= 90 || G.qOf(0, 79) < 0) throw new Error('qOf: centre 100, inside the zone ≥ 90, outside below, never negative');
+if ([91, 92, 59, 60].map(G.tierOf).join() !== 'good,record,small,good') throw new Error('tierOf thresholds 60 / 92');
+for (const s of G.SPECIES) {
+  const r = G.CM[s.id]; if (!r || !(r[0] < r[1])) throw new Error(`CM: ${s.id} needs [min,max]`);
+  for (const q of [0, 50, 100]) { const c = G.cmOf(q, r); if (c < r[0] || c > r[1]) throw new Error(`cmOf(${q}) out of ${s.id} range`); }
+}
+if (G.weekOf('2026-10-07').join() !== '2026-10-05,2026-10-06,2026-10-07,2026-10-08,2026-10-09,2026-10-10,2026-10-11') throw new Error(`weekOf of a Wednesday: ${G.weekOf('2026-10-07')}`);
+if (G.weekOf('2026-10-11')[0] !== '2026-10-05' || G.weekOf('2026-11-02')[0] !== '2026-11-02') throw new Error('weekOf: Sunday closes the week, Monday opens it');
 if (readFileSync(new URL('../api/src/gen.js', import.meta.url), 'utf8') !== genModule) throw new Error('api/src/gen.js is stale: run node tools/sync-gen.mjs');
 console.log(`pista ok: 90 days, generator tries median ${tries[tries.length >> 1]} max ${tries.at(-1)}`);

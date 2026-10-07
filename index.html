@@ -248,6 +248,19 @@ function speciesOf(date){
   return pool[wd<5?wd:5];
 }
 // @gen-end
+// @meta-start
+// Page-only rules: the server never sees a size, only the tap quality q, so none of this is in @gen.
+const CM={dourado:[30,60],palhaco:[6,11],cirurgiao:[15,30],garoupa:[50,90],baiacu:[15,35],papagaio:[30,60],linguado:[25,45],sardinha:[12,20],anjo:[20,40],cavalo:[8,18],leao:[20,38],manta:[250,450]};
+const ZONE_W=14;
+const zoneOf=date=>20+Math.floor(mulberry(seedFrom(`${date}:fisgada`))()*60);
+const qOf=(x,centre)=>{const off=Math.abs(x-centre);return Math.max(0,Math.min(100,Math.round(off<=ZONE_W/2?100-off*1.4:90-(off-ZONE_W/2)*1.6)))};
+const cmOf=(q,[a,b])=>Math.round(a+q/100*(b-a));
+const tierOf=q=>q>=92?'record':q>=60?'good':'small';
+function weekOf(date){
+  const d=new Date(date+'T12:00:00'),wd=(d.getDay()+6)%7;
+  return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()-wd+i);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`});
+}
+// @meta-end
 
 const K='#2E1A0C';
 const P={o:'#E0703A',O:'#B24E22',l:'#F4A56A',p:'#F2A0A8',w:'#F4EFE6',W:'#FFFFFF',e:'#0A1F2B',y:'#F2C84B',Y:'#C9962E',h:'#FFF1A8',
