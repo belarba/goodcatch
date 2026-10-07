@@ -52,6 +52,7 @@ export function summarize(rows, player) {
   const mineQ = me && Number.isInteger(me.q) ? me.q : null, otherQ = sizes.filter(r => r !== me);
   const size = {
     top: sizes.length ? Math.max(...sizes.map(r => r.q)) : null,
+    n: otherQ.length,
     better: mineQ !== null && otherQ.length ? Math.round((100 * otherQ.filter(r => r.q < mineQ).length) / otherQ.length) : null,
   };
   return { players: rows.length, dist, you: me && { n: me.n, won: me.won, q: mineQ }, better, heat, size };

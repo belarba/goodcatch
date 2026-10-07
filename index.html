@@ -705,7 +705,7 @@ function villageHTML(){
   const max=Math.max(...v.dist,1), mine=v.you?(v.you.won?v.you.n-1:6):-1;
   return `<div class="vila"><div class="vila-head"><b>${t('village_title')}</b>${v.heat?`<button class="btn small" data-heat>${t(heatOn?'heat_off':'heat_on')}</button>`:''}</div>`
     +(mine>=0?`<p class="rank">${standing(v,mine)}</p>`:`<p class="rank">${t(v.players===1?'village1':'village',{n:v.players})}</p>`)
-    +(v.size&&v.size.top!==null&&caught()?`<p class="rank">${t('size_top',{cm:cmOf(v.size.top,CM[TODAY.id])})}${v.players>=10&&v.size.better>0?` · ${t('size_better',{p:v.size.better})}`:''}</p>`:'')
+    +(v.size&&v.size.top!==null&&caught()?`<p class="rank">${t('size_top',{cm:cmOf(v.size.top,CM[TODAY.id])})}${v.size.n>=9&&v.size.better>0?` · ${t('size_better',{p:v.size.better})}`:''}</p>`:'')
     +(v.streak&&v.players>=10&&v.streak.better>0?`<p class="rank">${t('streak_better',{p:v.streak.better})}</p>`:'')
     +`<div class="bars">${v.dist.map((c,i)=>`<span class="${i===mine?'me':''}"><b>${i<6?i+1:'✕'}</b>${c?`<i style="width:${Math.round(100*c/max)}%">${c}</i>`:'<i class="zero"></i>'}</span>`).join('')}</div></div>`;
 }

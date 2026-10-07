@@ -62,6 +62,8 @@ const sized = rows.map((r, i) => ({ ...r, q: [80, 40, null, 95, null][i] }));
 const z = summarize(sized, P);
 if (z.you.q !== 80) fail(`you.q ${z.you.q}`);
 if (z.size.top !== 95) fail(`size.top ${z.size.top}`);
+if (z.size.n !== 2) fail(`two other winners have a size, got ${z.size.n}`);
+if (summarize(sized, 'stranger').size.n !== 3) fail('a stranger compares against every sized winner');
 if (z.size.better !== 50) fail(`80 beats 40 and loses to 95: 50, got ${z.size.better}`);
 if (summarize(rows, P).size.better !== null || summarize(rows, P).size.top !== null) fail('no sizes, no size stats');
 if (weekDates('2026-10-07').join() !== '2026-10-05,2026-10-06,2026-10-07,2026-10-08,2026-10-09,2026-10-10,2026-10-11') fail(`week of a Wednesday ${weekDates('2026-10-07')}`);
