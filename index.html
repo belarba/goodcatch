@@ -53,6 +53,11 @@ h1 span{color:var(--gold)}
 .sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5))}
 .sea canvas{display:block;image-rendering:pixelated}
 .grid{position:absolute;left:0;top:0;right:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#hook{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(4,16,26,.35);border:0;padding:0 16px;cursor:pointer;touch-action:manipulation;font:400 22px/1 var(--pixel);color:var(--cream)}
+#hook[hidden]{display:none}
+#hook .bar{position:relative;width:100%;height:34px;border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round}
+#hook .zone{position:absolute;top:0;bottom:0;background:#7FB84E}
+#hook .needle{position:absolute;top:-8px;bottom:-8px;width:6px;margin-left:-3px;background:var(--bark)}
 .c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
 .c:disabled{cursor:default}
 @media (hover:hover){.c:not(:disabled):hover{background:rgba(255,226,122,.14)}}
@@ -164,7 +169,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <button class="icon-btn wood" id="lang"></button>
   </header>
   <div class="talk"><i class="sp face" id="cat"></i><div class="bubble parch"><p id="say" aria-live="polite"></p><div class="feat" id="feat" hidden></div></div></div>
-  <div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div></div>
+  <div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div><button id="hook" type="button" hidden><span id="hook-say"></span><span class="bar"><i class="zone" id="hook-zone"></i><i class="needle" id="hook-needle"></i></span></button></div>
   <div class="cast wood" id="bar">
     <div class="row"><div class="left" id="left"></div><button class="btn" id="cast"></button></div>
   </div>
@@ -498,6 +503,8 @@ const STR={
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
     village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',heat_say:'Village map: where the {n} fishers cast today. More gold, more fishers. Tap a square.',heat_say1:'Village map: only you have fished today.',heat_cell:'{n} of {t} fishers cast here.',
+    hook:'It bit! Tap with the needle in the green.',hook_aria:'Reel in: tap when the needle is in the green',
+    tier_small:'small',tier_good:'good size',tier_record:'record!',size:'{cm} cm · {t}',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -516,6 +523,8 @@ const STR={
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
     village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',heat_say:'Mapa da vila: onde os {n} pescadores lançaram hoje. Mais dourado, mais gente. Toque num quadrado.',heat_say1:'Mapa da vila: só você pescou hoje.',heat_cell:'{n} de {t} pescadores lançaram aqui.',
+    hook:'Mordeu! Toque com a agulha no verde.',hook_aria:'Puxar: toque quando a agulha estiver no verde',
+    tier_small:'pequeno',tier_good:'bom tamanho',tier_record:'recorde!',size:'{cm} cm · {t}',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -528,6 +537,9 @@ function track(path,event){
 }
 
 const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`, LAND=520;
+const QK=`${REC}:q`, HOOK_MS=4000;
+const qOn=d=>{try{const v=localStorage.getItem(`goodcatch:${d}:pista:q`);return v===null?null:Number(v)}catch(e){return null}};
+let hook=null;
 const TODAY=SP_BY[speciesOf(DATE)], TMAP=speciesMap(TODAY), TPAL=spPal(TODAY), TW=Math.max(...TMAP.map(r=>r.length)), TH=TMAP.length;
 const spName=id=>t('sp_'+id);
 const FEM=new Set(['garoupa','sardinha','manta']);
@@ -595,7 +607,7 @@ function drawSea(now){
   const lastK=casts.at(-1);
   if(lastK!==undefined){const p=anim&&anim.k===lastK?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(lastK),p)}
   if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n===3&&age>=0&&age<1300)splash(wx,c,age)}
-  if(won){const k=casts.find(k=>bitesAt(k)===3),c=centre(k),age=anim&&anim.k===k?now-anim.start-LAND:1e4;
+  if(won&&!hook){const k=casts.find(k=>bitesAt(k)===3),c=centre(k),age=anim&&anim.k===k?now-anim.start-LAND:1e4;
     if(age>=0){const hop=age<900?Math.round(Math.sin(age/900*Math.PI)*14):0;drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1)-hop,false,TPAL)}}
   if(done&&!won)fishCells().forEach(k=>{const c=centre(k);drawMap(wx,TMAP,c.x-(TW>>1),c.y-(TH>>1),false,TPAL)});
   vx.imageSmoothingEnabled=false; vx.drawImage(work,0,0,view.width,view.height);
@@ -626,6 +638,11 @@ const playerId=()=>{try{let id=localStorage.getItem('goodcatch:player');if(!id){
 function sendPlay(){
   const id=playerId(); if(!API||!id||!over()) return;
   fetch(`${API}/plays`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:DATE,player:id,casts})})
+    .then(r=>r.ok?r.json():null).then(v=>{if(!v)return;const q=qOn(DATE);if(q!==null&&v.you&&v.you.won&&v.you.q===null)sendSize(q);VILLAGE=v;render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}}).catch(()=>{});
+}
+function sendSize(q){
+  const id=playerId(); if(!API||!id) return;
+  fetch(`${API}/plays/size`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:DATE,player:id,q})})
     .then(r=>r.ok?r.json():null).then(v=>{if(!v)return;VILLAGE=v;render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}}).catch(()=>{});
 }
 // With few players a percentage says little and "better than 0%" stings, so small days show a rank.
@@ -665,13 +682,13 @@ function renderStatic(){
     .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
 }
 function render(){
-  const done=over(), won=caught(), busy=!!anim, fc=combo(SEA.fish);
+  const done=over(), won=caught(), busy=!!anim||!!hook, fc=combo(SEA.fish);
   const heat=heatOn&&VILLAGE?.heat, hmax=heat?Math.max(1,...Object.values(heat)):1, heatAt=k=>heat[k]||0;
   $('board').innerHTML=SEA.grid.map((row,r)=>row.map((x,c)=>{
     const k=key(r,c), i=casts.indexOf(k), n=i<0?null:bitesAt(k), reveal=done&&!won&&combo(x)===fc;
     const cls=['c',k===sel&&'sel',reveal&&'win'].filter(Boolean).join(' ');
     const label=feats(x).join(', ')+(n===null?'':` · ${n}`)+(heat?` · ${t('heat_cell',{n:heatAt(k),t:VILLAGE.players})}`:'');
-    const tag=n!==null&&!(busy&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    const tag=n!==null&&!(anim&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
     const tint=heat?`<i class="heat" style="--a:${(.85*Math.sqrt(heatAt(k)/hmax)).toFixed(2)}"></i>`:'';
     return `<button class="${cls}" data-k="${k}"${heat?(busy?' disabled':''):done||busy||i>=0?' disabled':''} aria-label="${label}">${tint}${tag}</button>`;
   }).join('')).join('');
@@ -709,6 +726,31 @@ function showCatch(){
   $('catch-body').innerHTML=resultHTML(true); $('catch').showModal(); sceneAt=performance.now(); wireResult($('catch-body'));
   if(still.matches) drawSea(performance.now()+5000);
 }
+// The score is already final here (sendPlay ran); the tap only sizes the fish, and a miss still lands it.
+function startHook(){
+  const b=$('hook'),centre=zoneOf(DATE),period=still.matches?760:380;
+  hook={t0:performance.now(),centre,x:50};
+  $('hook-zone').style.left=`${centre-ZONE_W/2}%`; $('hook-zone').style.width=`${ZONE_W}%`;
+  $('hook-say').textContent=t('hook'); b.setAttribute('aria-label',t('hook_aria')); b.hidden=false; b.focus();
+  render();
+  const tick=now=>{
+    if(!hook) return;
+    hook.x=50+50*Math.sin((now-hook.t0)/period);
+    $('hook-needle').style.left=`${hook.x}%`;
+    if(now-hook.t0>HOOK_MS) return endHook(20);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function endHook(q){
+  if(!hook) return;
+  hook=null; $('hook').hidden=true;
+  try{localStorage.setItem(QK,String(q))}catch(e){}
+  sendSize(q);
+  anim={k:casts.at(-1),start:performance.now()-LAND,n:3}; render();
+  setTimeout(()=>{anim=null;render();showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:1100);
+}
+$('hook').onclick=()=>{if(hook)endHook(qOf(hook.x,hook.centre))};
 
 
 $('help-icon').style.backgroundImage=`url(${URLS.help})`;
@@ -724,8 +766,8 @@ $('cast').onclick=()=>{
   if(casts.length===1){track(`pista/day-${Math.min(playedDays().length,30)}`,true);track(`pista/streak-${Math.min(streakOf(),30)}`,true)}
   if(over()){track(caught()?`pista/caught-${casts.length}`:'pista/lost',true);sendPlay()}
   render();
-  const end=over();
-  setTimeout(()=>{anim=null;render();if(end)showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:anim.n===3?LAND+1100:LAND+500);
+  const end=over(), won=caught();
+  setTimeout(()=>{anim=null;if(won){startHook();return}render();if(end)showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:won?LAND:LAND+500);
   if(still.matches) drawSea(performance.now()+LAND);
 };
 $('lang').onclick=()=>{LANG=LANG==='en'?'pt':'en';try{localStorage.setItem('goodcatch:lang',LANG)}catch(e){}renderStatic();render();if($('catch').open){$('catch-body').innerHTML=resultHTML(true);wireResult($('catch-body'))}};
@@ -733,6 +775,7 @@ $('help-btn').onclick=()=>$('help').showModal();
 // Mobile browsers resize while their toolbars slide; refit only when the width really changes.
 let fitW=innerWidth;addEventListener('resize',()=>{if(innerWidth===fitW)return;fitW=innerWidth;fit();drawSea(performance.now())});
 renderStatic(); render(); fit(); drawSea(performance.now()); if(!still.matches) requestAnimationFrame(loop); sendPlay();
+if(caught()&&qOn(DATE)===null) startHook();
 // The pixel font changes the bubble's height once it loads, and the board's scale depends on that height.
 document.fonts?.ready.then(()=>{fit();drawSea(performance.now())});
 track(location.pathname);
