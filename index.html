@@ -536,7 +536,7 @@ const STR={
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
     won_title:'Caught!',lost_title:'It got away.',tomorrow:'A new fish tomorrow.',see_sea:'Back to the sea',
     log_title:'Fishing log',key_title:'Reading the water',
-    village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',heat_on:'Village map',heat_off:'Hide map',heat_say:'Village map: where the {n} fishers cast today. More gold, more fishers. Tap a square.',heat_say1:'Village map: only you have fished today.',heat_cell:'{n} of {t} fishers cast here.',
+    village:'{n} fishers today',village1:'1 fisher today',village_title:'The village today',rank:'#{r} of {n} fishers today',first_only:'You’re the first fisher today!',better:'you did better than {p}%',size_top:'Biggest in the village: {cm} cm',size_better:'bigger than {p}%',streak_better:'Your streak beats {p}% of the village',heat_on:'Village map',heat_off:'Hide map',heat_say:'Village map: where the {n} fishers cast today. More gold, more fishers. Tap a square.',heat_say1:'Village map: only you have fished today.',heat_cell:'{n} of {t} fishers cast here.',
     hook:'It bit! Tap with the needle in the green.',hook_aria:'Reel in: tap when the needle is in the green',
     tier_small:'small',tier_good:'good size',tier_record:'record!',size:'{cm} cm · {t}',
     g_lontra_small:'Small, but it makes a nice snack.',g_lontra_good:'This one becomes a lovely dish!',g_lontra_record:'A record! I’ll serve it whole.',g_lontra_lost:'No fish today? Stone soup it is.',
@@ -561,7 +561,7 @@ const STR={
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
     won_title:'Pescou!',lost_title:'Escapou.',tomorrow:'Peixe novo amanhã.',see_sea:'Ver o mar',
     log_title:'Diário de pesca',key_title:'Lendo a água',
-    village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',heat_on:'Mapa da vila',heat_off:'Esconder mapa',heat_say:'Mapa da vila: onde os {n} pescadores lançaram hoje. Mais dourado, mais gente. Toque num quadrado.',heat_say1:'Mapa da vila: só você pescou hoje.',heat_cell:'{n} de {t} pescadores lançaram aqui.',
+    village:'{n} pescadores hoje',village1:'1 pescador hoje',village_title:'A vila hoje',rank:'Posição {r} de {n} pescadores hoje',first_only:'Você é o primeiro pescador de hoje!',better:'você foi melhor que {p}%',size_top:'Maior da vila: {cm} cm',size_better:'maior que {p}%',streak_better:'Sua sequência supera {p}% da vila',heat_on:'Mapa da vila',heat_off:'Esconder mapa',heat_say:'Mapa da vila: onde os {n} pescadores lançaram hoje. Mais dourado, mais gente. Toque num quadrado.',heat_say1:'Mapa da vila: só você pescou hoje.',heat_cell:'{n} de {t} pescadores lançaram aqui.',
     hook:'Mordeu! Toque com a agulha no verde.',hook_aria:'Puxar: toque quando a agulha estiver no verde',
     tier_small:'pequeno',tier_good:'bom tamanho',tier_record:'recorde!',size:'{cm} cm · {t}',
     g_lontra_small:'Pequeno, mas dá um petisco.',g_lontra_good:'Esse vira um belo prato!',g_lontra_record:'Recorde! Vou servir inteiro.',g_lontra_lost:'Sem peixe hoje? Faço sopa de pedra.',
@@ -703,6 +703,8 @@ function villageHTML(){
   const max=Math.max(...v.dist,1), mine=v.you?(v.you.won?v.you.n-1:6):-1;
   return `<div class="vila"><div class="vila-head"><b>${t('village_title')}</b>${v.heat?`<button class="btn small" data-heat>${t(heatOn?'heat_off':'heat_on')}</button>`:''}</div>`
     +(mine>=0?`<p class="rank">${standing(v,mine)}</p>`:`<p class="rank">${t(v.players===1?'village1':'village',{n:v.players})}</p>`)
+    +(v.size&&v.size.top!==null&&caught()?`<p class="rank">${t('size_top',{cm:cmOf(v.size.top,CM[TODAY.id])})}${v.size.better!==null?` · ${t('size_better',{p:v.size.better})}`:''}</p>`:'')
+    +(v.streak&&v.streak.better!==null?`<p class="rank">${t('streak_better',{p:v.streak.better})}</p>`:'')
     +`<div class="bars">${v.dist.map((c,i)=>`<span class="${i===mine?'me':''}"><b>${i<6?i+1:'✕'}</b>${c?`<i style="width:${Math.round(100*c/max)}%">${c}</i>`:'<i class="zero"></i>'}</span>`).join('')}</div></div>`;
 }
 function resultHTML(live){
@@ -764,9 +766,10 @@ function render(){
   if(done&&!busy){$('result').innerHTML=resultHTML(false);wireResult($('result'))}
 }
 function shareText(){
-  const won=caught(), st=won?stars(casts.length):0;
+  const won=caught(), st=won?stars(casts.length):0, q=qOn(DATE), range=CM[TODAY.id];
   const fire=streakOf();
   return `🎣 Good Catch #${DAYNUM}  ${won?casts.length:'X'}/${MAX}${won?' '+'★'.repeat(st)+'☆'.repeat(3-st):''}${fire>1?` 🔥${fire}`:''}\n`
+    +(won&&q!==null?`📏 ${cmOf(q,range)}/${range[1]} cm\n`:'')
     +casts.map(k=>fishes(bitesAt(k))).join('\n')+'\ngoodcatch.fish';
 }
 function share(note){
