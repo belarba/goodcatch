@@ -1,4 +1,4 @@
-import { validatePlay, summarize } from './play.js';
+import { validatePlay, validateSize, summarize } from './play.js';
 
 const ORIGINS = new Set(['https://goodcatch.fish', 'http://localhost:8765']);
 const cors = req => {
@@ -8,8 +8,14 @@ const cors = req => {
 const json = (req, body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...cors(req) } });
 const today = () => new Date().toISOString().slice(0, 10);
 
+const readBody = async (req, max) => {
+  const raw = await req.text();
+  if (raw.length > max) return { error: 'size' };
+  try { return { body: JSON.parse(raw) }; } catch { return { body: null }; }
+};
+
 async function stats(env, date, player) {
-  const { results } = await env.DB.prepare('SELECT player, casts, n, won FROM plays WHERE date = ?').bind(date).all();
+  const { results } = await env.DB.prepare('SELECT player, casts, n, won, q FROM plays WHERE date = ?').bind(date).all();
   return summarize(results, player);
 }
 
@@ -18,13 +24,22 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
     const url = new URL(req.url);
     if (req.method === 'POST' && url.pathname === '/plays') {
-      const raw = await req.text();
-      if (raw.length > 2048) return json(req, { error: 'size' }, 413);
-      let body = null; try { body = JSON.parse(raw); } catch {}
+      const { body, error } = await readBody(req, 2048);
+      if (error) return json(req, { error }, 413);
       const v = validatePlay(body, today());
       if (!v.ok) return json(req, { error: v.error }, 400);
       await env.DB.prepare('INSERT OR IGNORE INTO plays (date, player, casts, n, won, created_at) VALUES (?, ?, ?, ?, ?, ?)')
         .bind(v.date, v.player, JSON.stringify(v.casts), v.n, v.won, Date.now()).run();
+      return json(req, await stats(env, v.date, v.player));
+    }
+    if (req.method === 'POST' && url.pathname === '/plays/size') {
+      const { body, error } = await readBody(req, 512);
+      if (error) return json(req, { error }, 413);
+      const v = validateSize(body, today());
+      if (!v.ok) return json(req, { error: v.error }, 400);
+      // Only a won game gets a size, and the first one stands: a reload cannot re-roll it.
+      await env.DB.prepare('UPDATE plays SET q = ? WHERE date = ? AND player = ? AND won = 1 AND q IS NULL')
+        .bind(v.q, v.date, v.player).run();
       return json(req, await stats(env, v.date, v.player));
     }
     const m = /^\/daily\/(\d{4}-\d\d-\d\d)$/.exec(url.pathname);

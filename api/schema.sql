@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS plays (
   n INTEGER NOT NULL,
   won INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
+  q INTEGER,
   PRIMARY KEY (date, player)
 );

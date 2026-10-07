@@ -12,7 +12,10 @@ for (let p = 0; p < Number(count); p++) {
     const pick = (pool.length ? pool : left.filter(c => !casts.includes(c.k)))[Math.floor(Math.random() * (pool.length || 1))] ?? left[0];
     casts.push(pick.k); const n = bites(pick.x, sea.fish); seen.push([pick.x, n]); if (n === 3) break;
   }
-  await fetch('http://localhost:8787/plays', { method: 'POST', body: JSON.stringify({ date, player: crypto.randomUUID(), casts }) });
+  const player = crypto.randomUUID();
+  await fetch('http://localhost:8787/plays', { method: 'POST', body: JSON.stringify({ date, player, casts }) });
+  if (bites(sea.grid[Math.floor(casts.at(-1) / 100)][casts.at(-1) % 100], sea.fish) === 3)
+    await fetch('http://localhost:8787/plays/size', { method: 'POST', body: JSON.stringify({ date, player, q: Math.floor(Math.random() * 101) }) });
 }
 const s = await (await fetch(`http://localhost:8787/daily/${date}`)).json();
 console.log(`seeded ${date}: ${s.players} players, dist ${JSON.stringify(s.dist)}`);

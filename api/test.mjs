@@ -1,6 +1,6 @@
 // Checks the play validator and the daily stats without Cloudflare: node api/test.mjs
 import { genSea, bites, combo } from './src/gen.js';
-import { validatePlay, summarize } from './src/play.js';
+import { validatePlay, validateSize, summarize } from './src/play.js';
 
 const fail = msg => { throw new Error(msg); };
 const DATE = '2026-10-01', TODAY = '2026-10-01', P = '3f2b8c1e-6a4d-4c2e-9b7a-1d2e3f4a5b6c';
@@ -48,4 +48,20 @@ if (s.better !== 50) fail(`strictly better than 2 of 4 others (one tie) must be 
 if (s.heat[misses[0]] !== 3 || s.heat[fishKey] !== 4) fail(`heat ${JSON.stringify(s.heat)}`);
 if (summarize(rows, 'stranger').heat !== null) fail('no heat map for a player without a play');
 if (summarize([], P).better !== null) fail('no better-than with nobody else');
+
+const sz = (q, extra = {}) => validateSize({ date: DATE, player: P, q, ...extra }, TODAY);
+v = sz(73);
+if (!v.ok || v.q !== 73 || v.player !== P || v.date !== DATE) fail(`a size of 73 must pass: ${JSON.stringify(v)}`);
+if (!sz(0).ok || !sz(100).ok) fail('0 and 100 are valid sizes');
+for (const [name, r] of Object.entries({
+  'q below 0': sz(-1), 'q above 100': sz(101), 'q not integer': sz(50.5), 'q string': sz('50'),
+  'size bad player': sz(50, { player: 'me' }), 'size date too far': sz(50, { date: '2026-09-25' }),
+})) if (r.ok) fail(`must refuse: ${name}`);
+
+const sized = rows.map((r, i) => ({ ...r, q: [80, 40, null, 95, null][i] }));
+const z = summarize(sized, P);
+if (z.you.q !== 80) fail(`you.q ${z.you.q}`);
+if (z.size.top !== 95) fail(`size.top ${z.size.top}`);
+if (z.size.better !== 50) fail(`80 beats 40 and loses to 95: 50, got ${z.size.better}`);
+if (summarize(rows, P).size.better !== null || summarize(rows, P).size.top !== null) fail('no sizes, no size stats');
 console.log('api ok: validator and stats');
