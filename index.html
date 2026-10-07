@@ -545,7 +545,7 @@ const STR={
     g_pelicano_small:'Fits in my beak in one go.',g_pelicano_good:'Now that fills my pouch.',g_pelicano_record:'Not even my beak fits that one!',g_pelicano_lost:'I’ll have yesterday’s bones.',
     g_guaxinim_small:'I was going to steal it, but it’s tiny.',g_guaxinim_good:'I saved a seat at the table for this one.',g_guaxinim_record:'I wouldn’t dare steal this one.',g_guaxinim_lost:'Got away? I was going to wash it so nicely.',
     g_vovo_small:'A little one, I’ll make a broth.',g_vovo_good:'What a lovely fish!',g_vovo_record:'I’ve never seen one this big!',g_vovo_lost:'Never mind, there’s cake on the table.',
-    feast0:'A quiet table this week. Next week we fill it!',feast1:'A good table! Everyone ate.',feast2:'A full table! What a feast.',feast_village:'The village caught {n} fish this week.',
+    feast0:'A quiet table this week. Next week we fill it!',feast1:'A good table! Everyone ate.',feast2:'A full table! What a feast.',feast_village:'The village caught {n} fish this week.',feast_village1:'The village caught 1 fish this week.',
     share:'Share',copied:'Copied to clipboard',copy_fail:'Couldn’t copy. Your result: '},
   pt:{sub:'#{n} · {d}',lang:'EN',help:'Ajuda',
     help_title:'Como jogar',
@@ -570,7 +570,7 @@ const STR={
     g_pelicano_small:'Cabe no meu bico de uma vez.',g_pelicano_good:'Esse enche a bolsa do bico.',g_pelicano_record:'Nem no meu bico cabe esse!',g_pelicano_lost:'Fico com as espinhas de ontem.',
     g_guaxinim_small:'Eu ia roubar, mas é pequeno.',g_guaxinim_good:'Guardei um lugar na mesa pra esse.',g_guaxinim_record:'Esse eu nem tenho coragem de roubar.',g_guaxinim_lost:'Escapou? Eu ia lavar direitinho.',
     g_vovo_small:'Pequenininho, faço um caldo.',g_vovo_good:'Que beleza de peixe!',g_vovo_record:'Nunca vi um desse tamanho!',g_vovo_lost:'Tudo bem, tem bolo na mesa.',
-    feast0:'Mesa tranquila esta semana. Semana que vem a gente enche!',feast1:'Uma boa mesa! Todo mundo comeu.',feast2:'Mesa completa! Que banquete.',feast_village:'A vila pescou {n} peixes esta semana.',
+    feast0:'Mesa tranquila esta semana. Semana que vem a gente enche!',feast1:'Uma boa mesa! Todo mundo comeu.',feast2:'Mesa completa! Que banquete.',feast_village:'A vila pescou {n} peixes esta semana.',feast_village1:'A vila pescou 1 peixe esta semana.',
     share:'Compartilhar',copied:'Copiado',copy_fail:'Não deu para copiar. Seu resultado: '},
 };
 let LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch(e){}return l in STR?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})();
@@ -712,12 +712,12 @@ function villageHTML(){
 function resultHTML(live){
   const won=caught(), st=won?stars(casts.length):0;
   const q=qOn(DATE), tier=tierOn(DATE), g=guestOf(DATE);
-  const sunday=new Date(DATE+'T12:00:00').getDay()===0, filled=weekOf(DATE).filter(caughtOn).length, vw=VILLAGE?.week;
+  const sunday=new Date(DATE+'T12:00:00').getDay()===0, filled=weekOf(DATE).filter(caughtOn).length, vw=VILLAGE?.week, wc=vw?vw.reduce((a,w)=>a+w.caught,0):0;
   return `<canvas class="scene"${live?' data-live="1"':''} aria-hidden="true"></canvas>`
     +`<div class="score"><div class="big${won?'':' lost'}">${won?casts.length:'X'}/${MAX}</div><div class="side">${won?starsHTML(st):''}<p class="verdict">${t(won?'won_title':'lost_title')} ${t('tomorrow')}</p></div></div>`
     +(won&&q!==null?`<p class="verdict">${t('size',{cm:cmOf(q,CM[TODAY.id]),t:t('tier_'+tierOf(q))})}</p>`:'')
     +(tier?`<p class="guest-say">${guestSprite(g)}<span>${t(`g_${g}_${tier}`)}</span></p>`:'')
-    +(sunday?`<canvas class="banquet" aria-hidden="true"></canvas><p class="verdict">${t(filled>=6?'feast2':filled>=3?'feast1':'feast0')}${vw?' '+t('feast_village',{n:vw.reduce((a,w)=>a+w.caught,0)}):''}</p>`:'')
+    +(sunday?`<canvas class="banquet" aria-hidden="true"></canvas><p class="verdict">${t(filled>=6?'feast2':filled>=3?'feast1':'feast0')}${vw?' '+t(wc===1?'feast_village1':'feast_village',{n:wc}):''}</p>`:'')
     +villageHTML()+weekHTML()
     +`<div class="actions"><button class="btn" data-share>${t('share')}</button>${live?`<form method="dialog"><button class="btn">${t('see_sea')}</button></form>`:''}</div><p class="note"></p>`;
 }
