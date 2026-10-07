@@ -20,6 +20,12 @@
         ],
         "createdAt": "2026-10-01T08:27:29.000Z",
         "reason": "Owner confirmed (Oct 1, 2026): small text is supporting copy; hierarchy comes from the outlined wordmark, the 84px score and the pixel sea. Revisit later."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#5e8e64",
+        "createdAt": "2026-10-07T15:58:08.497Z",
+        "reason": "Kelp green from the seabed painter, 3.10:1 on parchment; confirmed by owner"
       }
     ]
   }
