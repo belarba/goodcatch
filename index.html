@@ -584,7 +584,7 @@ function track(path,event){
 
 const MAX=6, SEA=genSea(DATE), REC=`goodcatch:${DATE}:pista`, LAND=520;
 const QK=`${REC}:q`, HOOK_MS=4000;
-const qOn=d=>{try{const v=localStorage.getItem(`goodcatch:${d}:pista:q`);return v===null?null:Number(v)}catch(e){return null}};
+const qOn=d=>{try{const v=localStorage.getItem(`goodcatch:${d}:pista:q`);return /^\d{1,3}$/.test(v)&&+v<=100?+v:null}catch(e){return null}};
 let hook=null;
 const TODAY=SP_BY[speciesOf(DATE)], TMAP=speciesMap(TODAY), TPAL=spPal(TODAY), TW=Math.max(...TMAP.map(r=>r.length)), TH=TMAP.length;
 const spName=id=>t('sp_'+id);
