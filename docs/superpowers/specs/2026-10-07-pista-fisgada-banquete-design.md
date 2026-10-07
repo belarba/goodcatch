@@ -123,14 +123,16 @@ just hides the village.
    week of the date (`SELECT date, COUNT(*), SUM(won) … WHERE date BETWEEN ? AND ? GROUP BY
    date`). The table shows the village total under each plate; the Sunday scene closes with "the
    village caught 142 fish this week". Built only from plays the server already verified.
-3. **Streak.** The stats response gains `streak: {you, better}`: the server walks back each of the
-   day's players over the last 60 days of `plays` (`ponytail:` ceiling; a streak table if volume
-   grows). The server only knows **finished** days, while the local streak counts days with a
+3. **Streak.** `ALTER TABLE plays ADD COLUMN streak INTEGER`. `POST /plays` reads the player's
+   row for the day before and inserts `streak = (yesterday's streak ?? 0) + 1`; the stats response
+   gains `streak: {you, better}` from the day's rows (a row from before the column counts 1). The
+   server only knows **finished** days, while the local streak counts days with a
    cast, so the panel shows only the server's percentile ("streak longer than 80% of the
    village") next to the local number it already shows.
 
 Deploy (owner's go required, it is production): `npx wrangler d1 execute goodcatch --remote
---command "ALTER TABLE plays ADD COLUMN q INTEGER"`, add the column to `schema.sql`, then
+--command "ALTER TABLE plays ADD COLUMN q INTEGER"` and `npx wrangler d1 execute goodcatch --remote
+--command "ALTER TABLE plays ADD COLUMN streak INTEGER"` (both columns are in `schema.sql`), then
 `npx wrangler deploy`. The page tolerates an API without the new fields (old deploy) by hiding
 those lines.
 
