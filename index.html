@@ -530,7 +530,7 @@ const STR={
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
     intro:'There’s {a} {s} around today! Tap a square to read the water.',
     sp_dourado:'golden fish',sp_palhaco:'clownfish',sp_cirurgiao:'blue tang',sp_garoupa:'grouper',sp_baiacu:'pufferfish',sp_papagaio:'parrotfish',sp_linguado:'flounder',sp_sardinha:'sardine',sp_anjo:'angelfish',sp_cavalo:'seahorse',sp_leao:'lionfish',sp_manta:'manta ray',
-    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'This week’s table',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',
+    journal:'Fish journal · {n}/{m}',today_fish:'Today’s fish',collection:'Collection {n}/{m}',close:'Close',unknown:'???',rare:'rare',week:'This week’s table',streak:'{n}-day streak',streak1:'1-day streak',streak_best:'best {n}',week_caught:'{n} fishers caught it',week_caught1:'1 fisher caught it',
     cast:'Cast',left:'{n} casts left',
     bite0:'Nothing bit. It likes nothing here.',bite1:'A nibble! It likes 1 thing here.',bite2:'Two bites! It likes 2 things here.',bite3:'Three bites! It took the hook!',
     caught:'Caught the {s} in {n}! What a fish.',lost:'The {s} got away. It liked {h}.',
@@ -555,7 +555,7 @@ const STR={
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
     intro:'Hoje tem {um} {s} por aqui! Toque uma casa para ler a água.',
     sp_dourado:'peixe-dourado',sp_palhaco:'peixe-palhaço',sp_cirurgiao:'cirurgião-azul',sp_garoupa:'garoupa',sp_baiacu:'baiacu',sp_papagaio:'peixe-papagaio',sp_linguado:'linguado',sp_sardinha:'sardinha',sp_anjo:'peixe-anjo',sp_cavalo:'cavalo-marinho',sp_leao:'peixe-leão',sp_manta:'arraia-manta',
-    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Mesa da semana',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',
+    journal:'Diário de espécies · {n}/{m}',today_fish:'Peixe de hoje',collection:'Coleção {n}/{m}',close:'Fechar',unknown:'???',rare:'rara',week:'Mesa da semana',streak:'Sequência de {n} dias',streak1:'Sequência de 1 dia',streak_best:'recorde {n}',week_caught:'{n} pescadores pescaram',week_caught1:'1 pescador pescou',
     cast:'Lançar',left:'{n} lances restantes',
     bite0:'Nada mordeu. Não gosta de nada daqui.',bite1:'Beliscou! Gosta de 1 coisa daqui.',bite2:'Duas mordidas! Gosta de 2 coisas daqui.',bite3:'Três mordidas! Fisgou!',
     caught:'Pescou {o} {s} em {n}! Que peixe.',lost:'{O} {s} escapou. {Ele} gostava de {h}.',
@@ -617,7 +617,7 @@ function weekHTML(){
   const n=streakOf(),best=bestStreak(),vw=VILLAGE?.week;
   const cells=weekOf(DATE).map((d,i)=>{const a=castsOn(d),tier=tierOn(d);
     const dish=d>DATE?sprite('cover'):tier==='lost'?sprite('bone'):tier?fishSprite(speciesOf(d),'portion-'+tier):a.length?'<b>…</b>':'';
-    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${dish}${sprite('plate','plate')}${vw?`<em>${vw[i].caught}</em>`:''}</span>`}).join('');
+    return `<span class="day${d===DATE?' today':''}"><small>${new Intl.DateTimeFormat(LANG,{weekday:'short'}).format(new Date(d+'T12:00:00')).replace('.','').slice(0,3)}</small>${dish}${sprite('plate','plate')}${vw&&d<=DATE?`<em title="${t(vw[i].caught===1?'week_caught1':'week_caught',{n:vw[i].caught})}">${vw[i].caught}</em>`:''}</span>`}).join('');
   return `<div class="week" role="img" aria-label="${t('week')}">${cells}</div>${n?`<p class="streak">${t(n===1?'streak1':'streak',{n})}${best>n?` · ${t('streak_best',{n:best})}`:''}</p>`:''}`;
 }
 function todayHTML(){
