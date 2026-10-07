@@ -786,12 +786,13 @@ function showCatch(){
 // The score is already final here (sendPlay ran); the tap only sizes the fish, and a miss still lands it.
 function startHook(){
   const b=$('hook'),centre=zoneOf(DATE),period=still.matches?760:380;
-  hook={t0:performance.now(),centre,x:50};
+  hook={t0:null,centre,x:50};
   $('hook-zone').style.left=`${centre-ZONE_W/2}%`; $('hook-zone').style.width=`${ZONE_W}%`;
   $('hook-say').textContent=t('hook'); b.setAttribute('aria-label',t('hook_aria')); b.hidden=false; b.focus();
   render();
   const tick=now=>{
     if(!hook) return;
+    hook.t0??=now;
     hook.x=50+50*Math.sin((now-hook.t0)/period);
     $('hook-needle').style.left=`${hook.x}%`;
     if(now-hook.t0>HOOK_MS) return endHook(20);
@@ -807,6 +808,8 @@ function endHook(q){
   anim={k:casts.at(-1),start:performance.now()-LAND,n:3}; render();
   setTimeout(()=>{anim=null;render();showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:1100);
 }
+// The 4 s only run while the bar is on screen: a tab in the background must not post a q nobody saw.
+document.addEventListener('visibilitychange',()=>{if(hook)hook.t0=null});
 // Read on press: the needle keeps moving until release. Keyboard still lands through click; endHook ignores the second call.
 const tapHook=e=>{if(!hook)return;e.preventDefault();endHook(qOf(hook.x,hook.centre))};
 $('hook').onpointerdown=tapHook; $('hook').onclick=tapHook;
