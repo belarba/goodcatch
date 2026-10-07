@@ -807,7 +807,9 @@ function endHook(q){
   anim={k:casts.at(-1),start:performance.now()-LAND,n:3}; render();
   setTimeout(()=>{anim=null;render();showCatch();if(still.matches)drawSea(performance.now())},still.matches?0:1100);
 }
-$('hook').onclick=()=>{if(hook)endHook(qOf(hook.x,hook.centre))};
+// Read on press: the needle keeps moving until release. Keyboard still lands through click; endHook ignores the second call.
+const tapHook=e=>{if(!hook)return;e.preventDefault();endHook(qOf(hook.x,hook.centre))};
+$('hook').onpointerdown=tapHook; $('hook').onclick=tapHook;
 
 
 $('help-icon').style.backgroundImage=`url(${URLS.help})`;
