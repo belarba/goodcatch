@@ -1,9 +1,10 @@
-// First-pass drafts of the art set, from today's 1x sprites: Scale2x (EPX) once for 2x, twice for 4x portraits,
+// First-pass drafts of the UI sprites (fish and characters are drawn by art-draw.mjs), from today's 1x sprites: Scale2x (EPX) once for 2x, twice for 4x portraits,
 // light from the top left, scales and an eye glint on fish portraits, and a 1 px outline.
 // Writes only files art/ does not have yet, or files it wrote itself (listed in art/.drafts): the owner's never.
 // Run `node tools/art-draft.mjs`, then `node tools/art-kit.mjs` to see them in the gallery.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { pieces } from './art-kit.mjs';
+import { drawnPiece } from './art-draw.mjs';
 import { encodePNG } from './png.mjs';
 
 const root = new URL('../', import.meta.url), ledger = new URL('art/.drafts', root);
@@ -67,7 +68,7 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop()
   const drafts = new Set(existsSync(ledger) ? readFileSync(ledger, 'utf8').split('\n').filter(Boolean) : []);
   let wrote = 0, kept = 0;
   for (const p of pieces()) {
-    if (p.group === 'scenes') continue;
+    if (p.group === 'scenes' || drawnPiece(p)) continue;
     const f = new URL(p.path, root);
     if (existsSync(f) && !drafts.has(p.path)) { kept++; continue; }
     let img = p.img; for (let s = p.n; s > 1; s /= 2) img = epx(img);
@@ -76,5 +77,5 @@ if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop()
     writeFileSync(f, encodePNG(img.w, img.h, img.rgba)); drafts.add(p.path); wrote++;
   }
   writeFileSync(ledger, [...drafts].sort().join('\n') + '\n');
-  console.log(`art drafts: ${wrote} written, ${kept} owner files left alone, scenes skipped`);
+  console.log(`art drafts: ${wrote} UI sprites written, ${kept} owner files left alone`);
 }
