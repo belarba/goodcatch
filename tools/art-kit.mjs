@@ -41,18 +41,20 @@ export function rgbaOf({ map, pal }) {
   return { w, h, rgba: out };
 }
 
-const x2 = ({ w, h, rgba }) => {
-  const out = new Uint8Array(w * h * 16);
-  for (let y = 0; y < h * 2; y++) for (let x = 0; x < w * 2; x++) out.set(rgba.subarray(((y >> 1) * w + (x >> 1)) * 4, ((y >> 1) * w + (x >> 1)) * 4 + 4), (y * w * 2 + x) * 4);
-  return { w: w * 2, h: h * 2, rgba: out };
+const scale = ({ w, h, rgba }, n) => {
+  const out = new Uint8Array(w * h * n * n * 4);
+  for (let y = 0; y < h * n; y++) for (let x = 0; x < w * n; x++) { const i = (Math.floor(y / n) * w + Math.floor(x / n)) * 4; out.set(rgba.subarray(i, i + 4), (y * w * n + x) * 4); }
+  return { w: w * n, h: h * n, rgba: out };
 };
 
-// The 2x set: one entry per file the owner draws into art/.
+// One entry per file the owner draws into art/: the 2x set, plus 4x portraits of the fish and the cat's faces.
 export function pieces() {
   const scenes = [['catch-won', 'scene(), won: sky, sea, pier, cat'], ['catch-lost', 'scene(), lost: grey sky'], ['banquet', 'banquet(): wall, table, seated guests']]
     .map(([name, slot]) => ({ group: 'scenes', name, slot: `${slot} (background only)`, img: decodePNG(readFileSync(new URL(`art-kit-ref/${name}.png`, import.meta.url))), pal: {} }));
-  return [...sprites().map(s => ({ ...s, img: rgbaOf(s) })), ...scenes]
-    .map(p => ({ ...p, path: `art/${p.group}/${p.name}.png`, tpl: x2(p.img) }));
+  const set = [...sprites().map(s => ({ ...s, img: rgbaOf(s), n: 2 })), ...scenes.map(s => ({ ...s, n: 2 }))];
+  const portraits = set.filter(p => p.group === 'fish' || ['catFace', 'catHappy'].includes(p.name))
+    .map(p => ({ ...p, group: 'portrait', slot: `${p.slot}, shown large`, n: 4 }));
+  return [...set, ...portraits].map(p => ({ ...p, path: `art/${p.group}/${p.name}.png`, tpl: scale(p.img, p.n) }));
 }
 
 function status(p) {
@@ -63,10 +65,10 @@ function status(p) {
 }
 
 function gallery(list) {
-  const groups = [['fish', 'Peixes do dia'], ['guests', 'Moradores'], ['plate', 'Peixes no prato (banquete)'], ['ui', 'Gato, interface e pratos'], ['scenes', 'Fundos das cenas']];
+  const groups = [['portrait', 'Retratos 4x (gato e peixes grandes)'], ['fish', 'Peixes do dia'], ['guests', 'Moradores'], ['plate', 'Peixes no prato (banquete)'], ['ui', 'Gato, interface e pratos'], ['scenes', 'Fundos das cenas']];
   const done = list.filter(p => p.st.state === 'pronta').length;
   const card = p => {
-    const k = p.tpl.w >= 160 ? 2 : 4, used = p.map ? [...new Set(p.map.join('').replace(/\./g, ''))] : [];
+    const k = p.tpl.w >= 160 ? 2 : p.n === 4 ? 3 : 4, used = p.map ? [...new Set(p.map.join('').replace(/\./g, ''))] : [];
     const img = (src, alt) => `<img src="${src}" width="${p.tpl.w * k}" height="${p.tpl.h * k}" style="--k:${k * 2}px" alt="${alt}">`;
     return `<figure class="${p.st.state === 'pronta' ? 'ok' : p.st.state === 'falta' ? '' : 'bad'}"><div class="pair"><a href="${p.group}-${p.name}.png" download="${p.name}.png">${img(`${p.group}-${p.name}.png`, `${p.name} molde`)}</a>`
       + `${p.st.state === 'pronta' ? img(`../../${p.path}`, `${p.name} novo`) : ''}</div>`
@@ -88,9 +90,10 @@ img{display:block;image-rendering:pixelated;max-width:100%;height:auto;backgroun
 figcaption{margin-top:6px;font-size:13px;color:var(--soft)}code{font-size:12px;overflow-wrap:anywhere}
 .pal{display:flex;flex-wrap:wrap;gap:2px 8px;margin-top:4px;align-items:center}.pal i{width:12px;height:12px;border:1px solid var(--ink)}
 </style>
-<h1>Good Catch · kit de arte 2x</h1>
+<h1>Good Catch · kit de arte</h1>
 <p class="count"><b>${done} de ${list.length}</b> peças prontas em <code>art/</code></p>
-<ol><li>Cada molde é a arte de hoje ampliada 2x, no tamanho final exato. Clique para baixar.</li>
+<ol><li>Cada molde é a arte de hoje ampliada (2x no mapa, 4x nos retratos), no tamanho final exato. Clique para baixar.</li>
+<li>Retratos são o gato e os peixes quando aparecem grandes (balão, cena da pesca, diário); em cima do mapa vale a versão 2x.</li>
 <li>Desenhe por cima no Aseprite ou Piskel, mesmo tamanho, fundo transparente, <b>com o seu contorno</b> (sugestão: 1 px em <code>#2E1A0C</code>).</li>
 <li>Nas cenas, só o fundo: peixe pulando, linha, respingo e pratos da semana continuam no código.</li>
 <li>Salve como PNG no caminho indicado em <code>art/</code> e rode <code>node tools/art-kit.mjs</code> de novo: a peça fica verde e aparece ao lado do molde.</li></ol>

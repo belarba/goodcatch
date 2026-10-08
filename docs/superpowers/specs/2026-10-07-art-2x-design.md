@@ -19,6 +19,9 @@ and the page scales the whole grid by an integer (`fit()`).
    embedded copy is stale. The game stays one offline file with nothing to wait for.
 3. **All at once.** The owner draws the whole set first; the game switches to 2x in one go. Until then
    the page is untouched and nothing new shows in the game.
+4. **Cats and fish also get dense portraits** (owner, 2026-10-08: denser art for the cats and the fish;
+   the map is fine as planned). A portrait is drawn at 4× today's map and used only where the cat or fish is
+   shown large; on the lagoon they use the 2x sprite, so nothing on the map is finer than the map.
 
 ## The set (owner)
 
@@ -30,6 +33,19 @@ and the page scales the whole grid by an integer (`fit()`).
 | Fish on a plate, per species (replaces the tinted generic `M.fish` in `banquet`) | — | 24×14 | `art/plate/<species id>.png` |
 | Catch scene background, won and lost (sky, sea, pier, cat) | 80×64 by code | 160×128 | `art/scenes/catch-won.png`, `art/scenes/catch-lost.png` |
 | Banquet background (wall, table, seated guests) | 80×64 by code | 160×128 | `art/scenes/banquet.png` |
+| **Portraits:** 12 fish | map ≤ 16×14 | 4× its map (e.g. garoupa 64×36) | `art/portrait/<species id>.png` |
+| **Portraits:** cat face and happy face | 16×14 | 64×56 | `art/portrait/catFace.png`, `art/portrait/catHappy.png` |
+
+Where each version shows:
+
+| Context | Today | After the switch |
+|---|---|---|
+| Cat face beside the speech bubble (`.face`) | 16×14 map in a 54×48 box | portrait, 64×56 CSS px (1 art px = 1 CSS px) |
+| Fish in the catch scene (`bigFish`) | map scaled ×2 in the 80×64 scene | portrait, 1:1 on the 160×128 scene grid |
+| Journal cards (`.mon .sp`) and today's fish (`div.today>.sp`) | map in 40×34 / 56×44 boxes | portrait, at an integer fraction or 1:1 |
+| Lagoon, pier cat, week strip, banquet dishes | maps | 2x sprites (the grid of the lagoon) |
+
+The cat's back is not a portrait: it lives on the pier (2x sprite) and in the catch scene background.
 
 `M.starOff` stays derived from the star (`index.html`), so it is not drawn.
 
@@ -48,8 +64,8 @@ and the page scales the whole grid by an integer (`fit()`).
 
 `node tools/art-kit.mjs` writes `tools/art-kit/` (git-ignored):
 
-- every piece of the set as a **2x template**: today's art scaled ×2 nearest-neighbour, at the exact canvas
-  size, as a proportion guide (silhouette without the automatic outline);
+- every piece of the set as a **template**: today's art scaled ×2 (×4 for portraits) nearest-neighbour, at
+  the exact canvas size, as a proportion guide (silhouette without the automatic outline);
 - for scenes, a ×2 snapshot of today's code-drawn scene from `tools/art-kit-ref/` (committed, captured
   from the browser) as a layout guide, animated parts included;
 - a gallery page that is a **checklist**: each piece shows its target path in `art/` and whether that file
