@@ -79,8 +79,8 @@ The owner asked to see the drafts in the game before drawing, so the switch ran 
 `art/` holds drafts (`tools/art-draw.mjs` for fish and characters, `tools/art-draft.mjs` for UI), embedded by
 `tools/art-embed.mjs`. The lagoon is painted at 48 px a square (tried behind `?lagoa=48`, owner approved): floor
 textures, caustics, shadow dither, shelf lips and beach at native 2x, the 24 px decorations smoothed with Scale2x.
-Still pending: the scene backgrounds are today's code at 80×64 doubled, with the 2x sprites and the fish
-portrait drawn on top.
+The catch scene and the banquet are painted at 160×128 the same way (code-drawn backgrounds with dithered
+gradients, 1 px lines, planks and wood grain); owner-drawn backgrounds can still replace them later.
 
 ## The switch (later, its own plan once `art/` is complete)
 

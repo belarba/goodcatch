@@ -488,48 +488,56 @@ function lineTo(x,to,p){
 function ring(x,at,rad,al){for(let a=0;a<64;a++){const t=a/64*Math.PI*2;dot(x,`rgba(232,255,255,${al})`,Math.round(at.x+Math.cos(t)*rad),Math.round(at.y+Math.sin(t)*rad*.7))}}
 function splash(x,at,age){for(let i=0;i<12;i++){const s=age/1000,vx=(hash(i,3)-.5)*40,vy=-40-hash(3,i)*40,px=at.x+vx*s,py=at.y+vy*s+90*s*s;if(py<at.y+2)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,i%4?1:2)}}
 
-// ---------- the catch scene, 80x64, drawn in the foreground when the game ends ----------
-function cloud(x,a,b,c1,c2){dot(x,c1,a+2,b,6,1);dot(x,c1,a,b+1,10,2);dot(x,c2,a+1,b+3,8,1)}
+// ---------- the catch scene and the banquet: laid out on 80x64, painted at 160x128 (Z=2) ----------
+const SZ=2;
+// Vertical gradient in bands; the last rows of each band dither into the next instead of a hard step.
+function bands(x,cols,y0,y1){
+  for(let y=y0;y<y1;y++){const f=(y-y0)/(y1-y0)*cols.length,k=Math.floor(f),fr=f-k;
+    for(let i=0;i<160;i++)dot(x,cols[Math.min(cols.length-1,k+(fr>.8&&(i+y)%2===0?1:0))],i,y)}
+}
+function cloud(x,a,b,c1,c2){const Z=SZ;a*=Z;b*=Z;dot(x,c1,a+4,b,12,2);dot(x,c1,a,b+2,20,4);dot(x,c2,a+2,b+6,16,2);dot(x,'#FFFFFF',a+5,b,8,1);dot(x,c2,a+1,b+5,18,1)}
 // Sunday: grandma's table with the week's seven dishes, back row Mon–Wed, front row Thu–Sun.
 function banquet(x){
-  dot(x,'#F6E7C1',0,0,80,64); for(let y=0;y<30;y+=6)dot(x,'#EEDBAE',0,y,80,1);
-  dot(x,'#8B5A2B',4,30,72,26); dot(x,'#B97A45',4,30,72,2); dot(x,'#5E3A1A',4,54,72,2);
-}
-function banquet2(x){
-  [...new Set(castOf(DATE).guests)].forEach((id,i)=>art(x,'guests/'+id,(6+i*18)*2,24));
+  const Z=SZ;
+  dot(x,'#F6E7C1',0,0,160,128); for(let y=0;y<60;y+=12){dot(x,'#EEDBAE',0,y,160,1);for(let i=(y/12%2)*8;i<160;i+=16)dot(x,'#EAD3A0',i,y+6,2,2)}
+  dot(x,'#8B5A2B',4*Z,30*Z,72*Z,26*Z); dot(x,'#D49A60',4*Z,30*Z,72*Z,1); dot(x,'#B97A45',4*Z,30*Z+1,72*Z,3); dot(x,'#5E3A1A',4*Z,54*Z,72*Z,4);
+  for(let y=30*Z+5;y<54*Z;y+=3)for(let i=4*Z;i<76*Z;i++)if(hash(i>>3,y)>.6&&hash(i,y)>.35)dot(x,'#7A4A22',i,y);
+  [...new Set(castOf(DATE).guests)].forEach((id,i)=>art(x,'guests/'+id,(6+i*18)*Z,12*Z));
   weekOf(DATE).forEach((d,i)=>{
-    const X=(i<3?14+i*20:4+(i-3)*19)*2, Y=(i<3?33:43)*2, tier=tierOn(d);
+    const X=(i<3?14+i*20:4+(i-3)*19)*Z, Y=(i<3?33:43)*Z, tier=tierOn(d);
     art(x,'ui/plate',X,Y+12);
     if(tier==='lost') art(x,'ui/bone',X,Y+6);
     else if(tier) art(x,'plate/'+speciesOf(d),X,Y);
   });
 }
 function scene(x,won,fi,t){
-  const HZ=36;
-  const sky=won?['#5CC8E6','#78D4EA','#96DFEE','#B4EAF2','#D2F4F5']:['#6F8799','#8198A8','#93A9B7','#A6B9C5','#B9C9D3'];
-  for(let y=0;y<HZ;y++)dot(x,sky[Math.min(4,Math.floor(y/HZ*5))],0,y,80,1);
-  if(won)for(let y=0;y<HZ;y++)for(let i=0;i<80;i++){const a=Math.atan2(y-22,i-40)+t*.02;if(Math.floor((a+Math.PI)*14/Math.PI)%2===0)dot(x,'rgba(255,246,200,.3)',i,y)}
+  const Z=SZ, HZ=36;
+  bands(x,won?['#5CC8E6','#78D4EA','#96DFEE','#B4EAF2','#D2F4F5']:['#6F8799','#8198A8','#93A9B7','#A6B9C5','#B9C9D3'],0,HZ*Z);
+  if(won)for(let y=0;y<HZ*Z;y++)for(let i=0;i<160;i++){const a=Math.atan2(y-22*Z,i-40*Z)+t*.02;if(Math.floor((a+Math.PI)*14/Math.PI)%2===0)dot(x,'rgba(255,246,200,.3)',i,y)}
   cloud(x,6,6,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');cloud(x,60,11,won?'#FFFFFF':'#DCE4E9',won?'#DDEFF2':'#BCC8D0');
   const sea=won?['#3FC1C0','#2FA9B5','#2391A6','#1B7A96','#15658A']:['#4E8F9A','#3F7E8C','#336E7E','#285E70','#1F4F62'];
-  for(let y=HZ;y<64;y++)dot(x,sea[Math.min(4,Math.floor((y-HZ)/28*5))],0,y,80,1);
-  dot(x,won?'#E8FAFA':'#C9D6DC',0,HZ,80,1);
-  for(let i=0;i<9;i++)dot(x,'rgba(255,255,255,.45)',(i*17+t)%84-3,HZ+4+(i*7)%20,3,1);
-  for(let y=50;y<64;y++){const w=Math.round(10+(y-50)*1.3);dot(x,y%3===2?'#5E3A1A':'#9A6A3C',40-w/2|0,y,w,1)}
-  drawMap(x,M.catBack,33,40);
-  const tip=won?{x:60,y:16}:{x:58,y:12};
-  const n=30;for(let i=0;i<=n;i++){const s=i/n,cxp=won?60:46,cyp=won?34:24,a=(1-s)**2*44+2*(1-s)*s*cxp+s*s*tip.x,b=(1-s)**2*46+2*(1-s)*s*cyp+s*s*tip.y;dot(x,s<.5?'#6B4220':'#8B5A2B',Math.round(a),Math.round(b))}
+  bands(x,sea,HZ*Z,128);
+  dot(x,won?'#E8FAFA':'#C9D6DC',0,HZ*Z,160,1); dot(x,won?'#BFF0EE':'#AFC2C9',0,HZ*Z+1,160,1);
+  for(let i=0;i<9;i++)dot(x,'rgba(255,255,255,.45)',((i*17+t)%84-3)*Z,(HZ+4+(i*7)%20)*Z,6,1);
+  for(let i=0;i<14;i++){const gx=Math.floor(hash(i,7)*160),gy=HZ*Z+3+Math.floor(hash(7,i)*50);if((t+i*3)%9<3)dot(x,'rgba(255,255,255,.7)',gx,gy,2,1)}
+  for(let y=50*Z;y<128;y++){const w=Math.round((10+(y/Z-50)*1.3)*Z),k=Math.floor(y/Z);dot(x,k%3===2?(y%2?'#5E3A1A':'#4A2E14'):'#9A6A3C',80-w/2|0,y,w,1)}
+  for(let y=50*Z+3;y<128;y+=6){const w=Math.round((10+(y/Z-50)*1.3)*Z);dot(x,'#E8D9B0',80-w/2+3|0,y);dot(x,'#E8D9B0',80+w/2-4|0,y)}
+  art(x,'ui/catBack',33*Z,40*Z);
+  const tip=won?{x:60*Z,y:16*Z}:{x:58*Z,y:12*Z};
+  const n=60;for(let i=0;i<=n;i++){const s=i/n,cxp=(won?60:46)*Z,cyp=(won?34:24)*Z,a=(1-s)**2*44*Z+2*(1-s)*s*cxp+s*s*tip.x,b=(1-s)**2*46*Z+2*(1-s)*s*cyp+s*s*tip.y;dot(x,s<.5?'#6B4220':'#8B5A2B',Math.round(a),Math.round(b),2,2);if(s>.5)dot(x,'#B98553',Math.round(a),Math.round(b))}
   if(won){
-    const p=Math.min(1,fi/16),e=1-(1-p)**3,fw=TW*2,fh=TH*2,fx=40-(fw>>1),fy=Math.round(HZ-2-fh/2-e*(22-fh/4)+(fi>16?((t>>2)&1):0));
-    for(let i=0;i<=40;i++){const s=i/40;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+fw-tip.x)*s),Math.round(tip.y+(fy+(fh>>1)-tip.y)*s+Math.sin(s*Math.PI)*2))}
-    if(fi<26)for(let i=0;i<14;i++){const s=fi/12,vx=(hash(i,5)-.5)*30,vy=-24-hash(5,i)*26,px=40+vx*s,py=HZ+vy*s+34*s*s;if(py<HZ+1)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,1)}
-    if(fi<10)ring(x,{x:40,y:HZ+1},3+fi*1.4,1-fi/10);
-    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0)dot(x,'#FFFFFF',[fx-5,fx+fw+3,fx+4,fx+fw-4][i],[fy-2,fy+2,fy+fh+2,fy-4][i]);
-    return {x:fx,y:fy};
+    const img=IMG['portrait/'+TODAY.id], fw=img&&img.width?img.width:TW*4, fh=img&&img.height?img.height:TH*4;
+    const p=Math.min(1,fi/16),e=1-(1-p)**3,fx=80-(fw>>1),fy=Math.round(HZ*Z-4-fh/2-e*(44-fh/4)+(fi>16?((t>>2)&1)*Z:0));
+    for(let i=0;i<=80;i++){const s=i/80;dot(x,'rgba(255,246,222,.95)',Math.round(tip.x+(fx+fw-tip.x)*s),Math.round(tip.y+(fy+(fh>>1)-tip.y)*s+Math.sin(s*Math.PI)*4))}
+    if(fi<26)for(let i=0;i<24;i++){const s=fi/12,vx=(hash(i,5)-.5)*60,vy=-48-hash(5,i)*52,px=80+vx*s,py=HZ*Z+vy*s+68*s*s;if(py<HZ*Z+2)dot(x,i%3?'#E8FFFF':'#FFFFFF',Math.round(px),Math.round(py),i%4?1:2,i%4?1:2)}
+    if(fi<10)ring(x,{x:80,y:HZ*Z+2},6+fi*2.8,1-fi/10);
+    art(x,'portrait/'+TODAY.id,fx,fy,true);
+    if(fi>16)for(let i=0;i<4;i++)if(((t>>1)+i)%3===0){const sx=[fx-10,fx+fw+6,fx+8,fx+fw-8][i],sy=[fy-4,fy+4,fy+fh+4,fy-8][i];dot(x,'#FFFFFF',sx,sy-1,1,3);dot(x,'#FFFFFF',sx-1,sy,3,1)}
   }else{
-    for(let i=0;i<=12;i++)dot(x,'rgba(255,246,222,.9)',tip.x+Math.round(Math.sin(i*.6+t*.3)),tip.y+i);
-    const dive=Math.min(1,fi/14);drawMap(x,M.tail,62,Math.round(HZ-8+dive*6));
-    dot(x,sea[0],58,HZ+1,18,Math.round(dive*5)+1);
-    ring(x,{x:67,y:HZ+2},4+((fi>>1)%8),.8-((fi>>1)%8)/10);
+    for(let i=0;i<=24;i++)dot(x,'rgba(255,246,222,.9)',tip.x+Math.round(Math.sin(i*.3+t*.3)*2),tip.y+i);
+    const dive=Math.min(1,fi/14);art(x,'ui/tail',62*Z,Math.round((HZ-8+dive*6)*Z));
+    dot(x,sea[0],58*Z,HZ*Z+2,36,Math.round(dive*10)+2);
+    ring(x,{x:67*Z,y:HZ*Z+4},8+((fi>>1)%8)*2,.8-((fi>>1)%8)/10);
   }
 }
 
@@ -685,10 +693,7 @@ function drawSea(now){
   vx.imageSmoothingEnabled=false; vx.drawImage(work2,0,0,view.width,view.height);
   document.querySelectorAll('canvas.scene').forEach(cv=>{
     const sx=cv.getContext('2d'), fi=cv.dataset.live?Math.floor((now-sceneAt)/70):40;
-    const small=cv._s||(cv._s=canvas(80,64)), big=cv._b||(cv._b=canvas(160,128)), bx=big.getContext('2d');
-    const fish=scene(small.getContext('2d'),caught(),fi,tk);
-    bx.imageSmoothingEnabled=false; bx.drawImage(small,0,0,160,128);
-    if(fish) art(bx,'portrait/'+TODAY.id,fish.x*2,fish.y*2,true);
+    const big=cv._b||(cv._b=canvas(160,128)); scene(big.getContext('2d'),caught(),fi,tk);
     sx.imageSmoothingEnabled=false; sx.drawImage(big,0,0,cv.width,cv.height);
   });
 }
@@ -752,7 +757,7 @@ function wireResult(el){
   el.querySelectorAll('[data-heat]').forEach(b=>b.onclick=()=>{heatOn=!heatOn;sel=null;if($('catch').open)$('catch').close();render();if(heatOn)$('seabox').scrollIntoView({behavior:'smooth',block:'center'})});
   const cv=el.querySelector('canvas.scene'); if(cv) fitScene(cv,Math.min(el.clientWidth||340,400)-8);
   const bq=el.querySelector('canvas.banquet');
-  if(bq){fitScene(bq,Math.min(el.clientWidth||340,400)-8);const draw=()=>{const s=canvas(80,64),b=canvas(160,128),bx=b.getContext('2d'),q=bq.getContext('2d');banquet(s.getContext('2d'));bx.imageSmoothingEnabled=false;bx.drawImage(s,0,0,160,128);banquet2(bx);q.imageSmoothingEnabled=false;q.drawImage(b,0,0,bq.width,bq.height)};draw();ART_READY.then(draw)}
+  if(bq){fitScene(bq,Math.min(el.clientWidth||340,400)-8);const draw=()=>{const b=canvas(160,128),q=bq.getContext('2d');banquet(b.getContext('2d'));q.imageSmoothingEnabled=false;q.drawImage(b,0,0,bq.width,bq.height)};draw();ART_READY.then(draw)}
 }
 
 function renderStatic(){
