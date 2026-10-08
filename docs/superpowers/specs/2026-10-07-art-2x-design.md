@@ -77,9 +77,10 @@ The 1x letter-map tools (`sprite-import.mjs`, `png.mjs`) stay until the switch.
 
 The owner asked to see the drafts in the game before drawing, so the switch ran early with placeholder art:
 `art/` holds drafts (`tools/art-draw.mjs` for fish and characters, `tools/art-draft.mjs` for UI), embedded by
-`tools/art-embed.mjs`. Two parts of the switch below are still pending: the lagoon is painted at 1x and doubled
-(not repainted at 48 px a square), so sprites on the board are finer than the floor; and the scene backgrounds
-are today's code at 80×64 doubled, with the 2x sprites and the fish portrait drawn on top.
+`tools/art-embed.mjs`. The lagoon is painted at 48 px a square (tried behind `?lagoa=48`, owner approved): floor
+textures, caustics, shadow dither, shelf lips and beach at native 2x, the 24 px decorations smoothed with Scale2x.
+Still pending: the scene backgrounds are today's code at 80×64 doubled, with the 2x sprites and the fish
+portrait drawn on top.
 
 ## The switch (later, its own plan once `art/` is complete)
 

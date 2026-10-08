@@ -356,7 +356,7 @@ for(const k of ['wood','parch','tag','gold','dull'])document.documentElement.sty
 {const cv=canvas(32,32),x=cv.getContext('2d');for(let i=0;i<7;i++){const a=Math.floor(hash(i,1)*26),b=1+Math.floor(hash(1,i)*30);dot(x,'rgba(140,220,228,.13)',a,b,4,1);dot(x,'rgba(140,220,228,.13)',a+4,b-1,2,1)}
   document.documentElement.style.setProperty('--sea-tile',`url(${cv.toDataURL()})`)}
 
-// ---------- the lagoon: 24px a square, beach and pier below ----------
+// ---------- the lagoon: laid out at 24px a square, painted at 48 (Z=2), beach and pier below ----------
 const S=24, GW=N*S, BEACH=32, GH=GW+BEACH, CX=GW/2;
 // Seabed textures use page coordinates, so a patch of one bottom reads as one field across squares.
 const GROUND=[
@@ -653,11 +653,7 @@ function journalHTML(){
 }
 const fishCells=()=>SEA.grid.flatMap((row,r)=>row.map((x,c)=>combo(x)===combo(SEA.fish)?key(r,c):null)).filter(k=>k!==null);
 
-const bases=[0,1].map(f=>paintSeabed(SEA.grid,f).getContext('2d').getImageData(0,0,GW,GW));
-// Experiment, localhost only: ?lagoa=48 paints the lagoon at 48px a square instead of doubling the 24px one.
-const LAGOA48=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('lagoa')==='48';
-const bases2=LAGOA48&&[0,1].map(f=>paintSeabed(SEA.grid,f,2).getContext('2d').getImageData(0,0,GW*2,GW*2));
-let lit2=null;
+const bases=[0,1].map(f=>paintSeabed(SEA.grid,f,2).getContext('2d').getImageData(0,0,GW*2,GW*2));
 const work=canvas(GW,GH), wx=work.getContext('2d'), view=$('sea'), vx=view.getContext('2d');
 const work2=canvas(GW*2,GH*2), w2=work2.getContext('2d');
 let q=-1, lit=null;
@@ -670,14 +666,14 @@ function fit(){
 }
 function drawSea(now){
   const tk=Math.floor(now/125);
-  if(tk!==q){q=tk;const b=bases[(tk>>3)&1];lit=new ImageData(new Uint8ClampedArray(b.data),GW,GW);lightUp(lit,SEA.grid,tk*.25);
-    if(LAGOA48){const b2=bases2[(tk>>3)&1];lit2=new ImageData(new Uint8ClampedArray(b2.data),GW*2,GW*2);lightUp(lit2,SEA.grid,tk*.25,2)}}
-  if(LAGOA48){wx.clearRect(0,0,GW,GH);surface(wx,SEA.grid,tk)}else{wx.putImageData(lit,0,0); surface(wx,SEA.grid,tk); beach(wx,tk)}
+  if(tk!==q){q=tk;const b=bases[(tk>>3)&1];lit=new ImageData(new Uint8ClampedArray(b.data),GW*2,GW*2);lightUp(lit,SEA.grid,tk*.25,2)}
+  // The 1x canvas only carries what moves over the water (sparkles, line, rings, splash); it is doubled onto the 2x floor.
+  wx.clearRect(0,0,GW,GH); surface(wx,SEA.grid,tk);
   const done=over(), won=caught();
   const lastK=casts.at(-1);
   if(lastK!==undefined){const p=anim&&anim.k===lastK?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(lastK),p)}
   if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n===3&&age>=0&&age<1300)splash(wx,c,age)}
-  w2.imageSmoothingEnabled=false; if(LAGOA48){w2.putImageData(lit2,0,0);beach(w2,tk,2)} w2.drawImage(work,0,0,GW*2,GH*2); pier2(w2);
+  w2.imageSmoothingEnabled=false; w2.putImageData(lit,0,0); beach(w2,tk,2); w2.drawImage(work,0,0,GW*2,GH*2); pier2(w2);
   casts.forEach((k,i)=>{
     if(bitesAt(k)===3||(anim&&anim.k===k&&now-anim.start<LAND)) return;
     const c=centre(k); art(w2,'ui/bobber',c.x*2-8,c.y*2-12+(((tk>>1)+i)%3===0?2:0));
