@@ -2,6 +2,7 @@
 // par 4 and a consistent player always catching within six casts.
 import { readFileSync } from 'node:fs';
 import { genModule } from './sync-gen.mjs';
+import { artBlock } from './art-embed.mjs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const a = html.indexOf('// @gen-start'), b = html.indexOf('// @gen-end'), e = html.indexOf('// @meta-end');
 if (a < 0 || b < a) throw new Error('@gen markers not found');
@@ -66,5 +67,6 @@ for (const s of G.SPECIES) {
 }
 if (G.weekOf('2026-10-07').join() !== '2026-10-05,2026-10-06,2026-10-07,2026-10-08,2026-10-09,2026-10-10,2026-10-11') throw new Error(`weekOf of a Wednesday: ${G.weekOf('2026-10-07')}`);
 if (G.weekOf('2026-10-11')[0] !== '2026-10-05' || G.weekOf('2026-11-02')[0] !== '2026-11-02') throw new Error('weekOf: Sunday closes the week, Monday opens it');
+if (!html.includes(artBlock())) throw new Error('embedded art is stale: run node tools/art-embed.mjs');
 if (readFileSync(new URL('../api/src/gen.js', import.meta.url), 'utf8') !== genModule) throw new Error('api/src/gen.js is stale: run node tools/sync-gen.mjs');
 console.log(`pista ok: 90 days, generator tries median ${tries[tries.length >> 1]} max ${tries.at(-1)}`);
