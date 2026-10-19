@@ -6,6 +6,16 @@
 <meta name="description" content="A daily fishing puzzle. Find the fish of the day in six casts.">
 <meta name="theme-color" content="#0B2233">
 <title>Good Catch</title>
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icon.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://goodcatch.fish/">
+<meta property="og:title" content="Good Catch">
+<meta property="og:description" content="A daily fishing puzzle. Find the fish of the day in six casts.">
+<meta property="og:image" content="https://goodcatch.fish/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
 <style>
@@ -104,6 +114,11 @@ canvas.banquet{display:block;image-rendering:pixelated}
 .c.sel .heat{background:var(--corners),linear-gradient(rgba(255,226,122,var(--a)) 0 0),rgba(6,20,32,.5)}
 .note{font-size:20px;color:var(--ink-soft)}
 .note:empty{display:none}
+.foot{text-align:center;font-size:18px;color:#BFE7E6}
+.foot p{margin:0 auto;max-width:40ch}
+.foot a{color:var(--sun)}
+.foot summary{cursor:pointer;margin-top:6px}
+.foot details p{margin-top:6px}
 
 .book h2{margin:0 0 6px;font:400 26px/1 var(--pixel);color:var(--ink)}
 .log{list-style:none;margin:0;padding:0}
@@ -176,6 +191,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <section class="book parch" id="logbox" hidden><h2 id="log-title"></h2><ol class="log" id="log"></ol></section>
   <section class="book parch" id="journal"></section>
   <section class="book parch"><h2 id="key-title"></h2><div class="keys" id="legend"></div></section>
+  <footer class="foot"><p><span id="made"></span> · <a href="mailto:hello@goodcatch.fish">hello@goodcatch.fish</a></p><details><summary id="privacy"></summary><p id="privacy-body"></p></details></footer>
 </div>
 <dialog id="help"><div class="parch">
   <h2 id="help-title"></h2>
@@ -549,6 +565,9 @@ const STR={
     help1:'Today’s fish likes one bottom, one depth and one light.',
     help2:'Tap a square to read it, then Cast. The number is how many of the three the square has, never which.',
     help3:'Three catches it. You have 6 casts, and everyone fishes the same sea.',
+    help4:'Every sea is checked in advance: the clues alone always lead to the fish within six casts.',
+    made_by:'Made by Daniel Belarmino',privacy:'Privacy',
+    privacy_body:'No cookies and no sign-up. Your progress stays on this device. To show the village, the game sends your casts and result with a random ID that identifies no one. Visits are counted by GoatCounter, which collects no personal data.',
     got_it:'Got it',
     b0:'sand',b1:'coral',b2:'rock',b3:'kelp',d0:'shallow',d1:'deep',l0:'sun',l1:'shade',
     cat_b:'Bottom',cat_d:'Depth',cat_l:'Light',
@@ -574,6 +593,9 @@ const STR={
     help1:'O peixe de hoje gosta de um chão, uma profundidade e uma luz.',
     help2:'Toque uma casa para ler, depois Lançar. O número diz quantas das três a casa tem, nunca quais.',
     help3:'Com as três, pescou. São 6 lances, e todo mundo pesca no mesmo mar.',
+    help4:'Todo mar é conferido antes: só com as pistas você sempre chega ao peixe em até seis lances.',
+    made_by:'Feito por Daniel Belarmino',privacy:'Privacidade',
+    privacy_body:'Sem cookies e sem cadastro. Seu progresso fica neste aparelho. Para mostrar a vila, o jogo envia seus lances e o resultado com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.',
     got_it:'Entendi',
     b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra',
     cat_b:'Chão',cat_d:'Profundidade',cat_l:'Luz',
@@ -760,8 +782,9 @@ function renderStatic(){
   $('sub').textContent=t('sub',{n:DAYNUM,d:DATE});
   $('lang').textContent=t('lang'); $('help-btn').setAttribute('aria-label',t('help'));
   $('help-title').textContent=t('help_title'); $('got-it').textContent=t('got_it');
-  $('help-body').innerHTML=['help1','help2','help3'].map(k=>`<li>${t(k)}</li>`).join('');
+  $('help-body').innerHTML=['help1','help2','help3','help4'].map(k=>`<li>${t(k)}</li>`).join('');
   $('log-title').textContent=t('log_title'); $('dex-close').textContent=t('close'); $('key-title').textContent=t('key_title');
+  $('made').textContent=t('made_by'); $('privacy').textContent=t('privacy'); $('privacy-body').textContent=t('privacy_body');
   $('legend').innerHTML=[['cat_b',['b0','b1','b2','b3']],['cat_d',['d0','d1']],['cat_l',['l0','l1']]]
     .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
 }
