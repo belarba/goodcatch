@@ -716,7 +716,9 @@ function drawSea(now){
 }
 function fitScene(cv,avail){const dpr=devicePixelRatio||1,k=Math.max(1,Math.floor(avail*dpr/160));cv.width=160*k;cv.height=128*k;cv.style.width=160*k/dpr+'px';cv.style.height=128*k/dpr+'px'}
 const still=matchMedia('(prefers-reduced-motion: reduce)');
-function loop(now){drawSea(now);if(!still.matches)requestAnimationFrame(loop)}
+// The sea only changes every 125 ms tick, so redrawing every frame burned a slow phone's whole CPU; full rate only while something moves.
+let drawn=-1;
+function loop(now){const tk=Math.floor(now/125);if(anim||tk!==drawn||document.querySelector('canvas.scene[data-live]')){drawn=tk;drawSea(now)}if(!still.matches)requestAnimationFrame(loop)}
 
 function tileURL(cell,light){
   const cv=paintSeabed([[cell]],0),x=cv.getContext('2d');
@@ -789,6 +791,7 @@ function renderStatic(){
     .map(([h,ks])=>`<div><b>${t(h)}</b>${ks.map(k=>chip(k,'key')).join('')}</div>`).join('');
 }
 function render(){
+  drawn=-1;
   const done=over(), won=caught(), busy=!!anim||!!hook, fc=combo(SEA.fish);
   const heat=heatOn&&VILLAGE?.heat, hmax=heat?Math.max(1,...Object.values(heat)):1, heatAt=k=>heat[k]||0;
   $('board').innerHTML=SEA.grid.map((row,r)=>row.map((x,c)=>{
