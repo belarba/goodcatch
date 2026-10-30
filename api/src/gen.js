@@ -48,6 +48,9 @@ const SPECIES=[
   {id:'cavalo',shape:'seahorse',rare:1,pal:{a:'#F28A30',b:'#B24E22',c:'#FFC07A',f:'#FFD08A'},spots:[[4,5],[9,5]]},
   {id:'leao',shape:'tall',rare:2,pal:{a:'#D8553A',b:'#FFFFFF',c:'#F4D8C8',f:'#E89080'},stripes:[3,6,9]},
   {id:'manta',shape:'ray',rare:2,pal:{a:'#2A4A7A',b:'#1A2E50',f:'#2A4A7A'},spots:[[3,7],[3,8],[4,3],[4,12]]},
+  {id:'fantasma',shape:'oval',event:'halloween',pal:{a:'#DDE8F2',b:'#8FA4C0',c:'#F4F8FC',f:'#B8C8DC'},spots:[[2,6],[4,9]]},
+  {id:'zumbi',shape:'oval',event:'halloween',pal:{a:'#7FA05A',b:'#4E6A34',c:'#B4C98A',f:'#C9C2A8'},stripes:[8,12]},
+  {id:'monstro',shape:'round',event:'halloween',pal:{a:'#7A3FA8',b:'#4A2470',c:'#B07AD8',f:'#5E2E88'},spots:[[1,5],[3,8],[4,11]]},
 ];
 function speciesMap(s){
   const m=SHAPES[s.shape].map(r=>[...r]);
@@ -56,9 +59,12 @@ function speciesMap(s){
   return m.map(r=>r.join(''));
 }
 // Weekdays and Sunday draw from a per-week shuffle of the ten common species, so a week never repeats; Saturday is rare.
+// Event fish replace the rotation only on their own days; the pools leave them out so no other day changes.
+const EVENT_DAYS={'2026-10-30':'fantasma','2026-10-31':'zumbi','2026-11-01':'monstro'};
 function speciesOf(date){
+  if(EVENT_DAYS[date]) return EVENT_DAYS[date];
   const d=new Date(date+'T12:00:00'), wd=(d.getDay()+6)%7, mon=new Date(d); mon.setDate(d.getDate()-wd);
-  const rare=SPECIES.filter(x=>x.rare===2), pool=SPECIES.filter(x=>x.rare!==2).map(x=>x.id);
+  const rare=SPECIES.filter(x=>x.rare===2&&!x.event), pool=SPECIES.filter(x=>x.rare!==2&&!x.event).map(x=>x.id);
   if(wd===5) return rare[Math.round(mon.getTime()/6048e5)%rare.length].id;
   const rng=mulberry(seedFrom(`${mon.getFullYear()}-${mon.getMonth()+1}-${mon.getDate()}:especie`));
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}

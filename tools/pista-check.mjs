@@ -31,7 +31,7 @@ for (const s of G.SPECIES) {
   const map = G.speciesMap(s), letters = new Set(map.join('').replace(/\./g, ''));
   for (const ch of letters) if (!(ch in s.pal) && ch !== 'w' && ch !== 'e') throw new Error(`${s.id}: letter ${ch} has no colour`);
 }
-const tries = [];
+const tries = [], evDays = [];
 for (let i = 0; i < 90; i++) {
   const d = new Date(2026, 8, 30 + i), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const s = G.genSea(date);
@@ -44,15 +44,17 @@ for (let i = 0; i < 90; i++) {
   const p = par(present, present), w = worst(present);
   if (p !== 4) throw new Error(`${date}: par ${p}, the stars assume 4`);
   if (w > 6) throw new Error(`${date}: a consistent player can need ${w} casts`);
-  const sp = G.speciesOf(date), wd = (d.getDay() + 6) % 7, rare = G.SPECIES.find(x => x.id === sp)?.rare === 2;
+  const sp = G.speciesOf(date), wd = (d.getDay() + 6) % 7, rare = G.SPECIES.find(x => x.id === sp)?.rare === 2, ev = G.SPECIES.find(x => x.id === sp)?.event;
   if (!G.SPECIES.some(x => x.id === sp) || sp !== G.speciesOf(date)) throw new Error(`${date}: species ${sp}`);
-  if (rare !== (wd === 5)) throw new Error(`${date}: rare species on Saturdays only, got ${sp}`);
+  if (ev) evDays.push(`${date}:${sp}`);
+  if (!ev && rare !== (wd === 5)) throw new Error(`${date}: rare species on Saturdays only, got ${sp}`);
   if (wd === 6) {
     const week = Array.from({ length: 7 }, (_, j) => { const x = new Date(d); x.setDate(d.getDate() - 6 + j); return G.speciesOf(`${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`); });
     if (new Set(week).size !== 7) throw new Error(`week ending ${date} repeats a species: ${week}`);
   }
   tries.push(s.tries);
 }
+if (evDays.join() !== '2026-10-30:fantasma,2026-10-31:zumbi,2026-11-01:monstro') throw new Error(`event fish outside their days: ${evDays}`);
 tries.sort((x, y) => x - y);
 // The hook-set and the banquet: the same green zone for everyone each day, sizes inside each species' range, weeks Mon→Sun.
 const day = i => { const d = new Date(2026, 8, 30 + i); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };

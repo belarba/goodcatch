@@ -122,6 +122,32 @@ const FISH = {
     for (let v = .4; v < .74; v += .08) P.line(.32, v, .66, v, B[0], { clip: 'body' });
     P.eye(.44, .15, .055);
   },
+  fantasma: P => {
+    fish(P, { body: '#DDE8F2', belly: '#F4F8FC', fin: '#B8C8DC', tail: 'fan', dorsal: .1, eye: .001, pattern: (P, g) => {
+      for (let k = 0; k < 4; k++) P.ell(g.cx + g.rx * (.1 + k * .22), g.cy + g.ry * .95, .045, .07, [255, 255, 255], { clip: 'body' });
+      P.ell(g.cx + g.rx * .05, g.cy + g.ry * .25, .05, .07, [70, 80, 110]);
+    } });
+    P.ell(.21, .42, .055, .075, DARK); P.ell(.33, .42, .045, .065, DARK);
+  },
+  zumbi: P => {
+    fish(P, { body: '#7FA05A', belly: '#B4C98A', fin: '#9A9478', tail: 'round', eye: .001, pattern: (P, g) => {
+      P.rect(g.cx + g.rx * .45, 0, 1, 1, ramp('#E8E0C8')[1], { clip: 'body' });
+      for (let k = 0; k < 3; k++) P.line(g.cx + g.rx * (.55 + k * .14), g.cy - g.ry * .6, g.cx + g.rx * (.55 + k * .14), g.cy + g.ry * .6, ramp('#9A9478')[0], { clip: 'body' });
+      P.line(g.cx + g.rx * .45, g.cy, g.cx + g.rx, g.cy, ramp('#9A9478')[0], { clip: 'body' });
+      P.rect(g.cx - g.rx * .15, g.cy - g.ry * .7, g.cx + g.rx * .1, g.cy - g.ry * .3, ramp('#C98A6A')[1], { clip: 'body' });
+      P.line(g.cx - g.rx * .2, g.cy - g.ry * .5, g.cx + g.rx * .15, g.cy - g.ry * .5, DARK, { clip: 'body' });
+    } });
+    P.eye(.2, .44, .06, { iris: [230, 220, 120] }); P.line(.26, .36, .3, .52, DARK);
+  },
+  monstro: P => {
+    const T = ramp('#5E2E88');
+    [[.86, .8, .06], [.92, .9, .05], [.8, .9, .05]].forEach(([u, v, r]) => P.ell(u, v, r, r, T));
+    fish(P, { body: '#7A3FA8', belly: '#B07AD8', fin: '#5E2E88', cx: .46, rx: .37, ry: .38, tail: 'fan', dorsal: .14, eye: .09, bellyAt: .15,
+      pattern: spots(toRgb('#C8F060'), [[-.1, -.55, .025], [.3, -.4, .03], [.55, .1, .025], [.2, .05, .02]]) });
+    P.poly([[.1, .58], [.36, .58], [.3, .7], [.14, .7]], [60, 16, 30]);
+    for (let k = 0; k < 4; k++) { const u = .13 + k * .06; P.poly([[u, .58], [u + .04, .58], [u + .02, .64]], [250, 246, 232]); }
+    P.line(.3, .14, .22, .02, T[1]); P.ell(.21, .02, .03, .03, [200, 250, 120]);
+  },
   manta: P => {
     const B = ramp('#2A4A7A');
     P.line(.5, .8, .5, .995, B[0]);
