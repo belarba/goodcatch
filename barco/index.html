@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Good Catch · Almoço da turma (protótipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
+<style>
+:root{color-scheme:dark;--abyss:#0B2233;--deep:#0E4A5C;--bark:#2E1A0C;--parch:#F6E7C1;--ink:#3B2414;--ink-soft:#6B4A2A;--gold:#F2B33D;--cream:#FFF1D0;--sun:#FFE27A;--pixel:"Jersey 10",ui-rounded,system-ui,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--abyss)}
+body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixel);image-rendering:pixelated;background:var(--sea-tile,none) 0 0/64px 64px,linear-gradient(180deg,#136A82 0,var(--deep) 34%,var(--abyss) 100%) fixed}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.wrap{max-width:480px;margin:0 auto;padding:10px 16px 40px;display:flex;flex-direction:column;gap:10px}
+.sp{display:block;width:calc(var(--w,0)*var(--m,1)*1px);height:calc(var(--h,0)*var(--m,1)*1px);background:center/100% 100% no-repeat;image-rendering:pixelated}
+.wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.parch{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:var(--ink);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.btn{appearance:none;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;padding:2px 14px 4px;font:400 28px/1 var(--pixel);color:var(--ink);cursor:pointer}
+.btn:active:not(:disabled){transform:translateY(2px)}
+.btn:disabled{border-image-source:var(--dull9);color:#4A3B26;cursor:default}
+.btn.dull{border-image-source:var(--dull9)}
+h1{margin:0;text-align:center;font:400 clamp(36px,11vw,50px)/.9 var(--pixel);color:var(--cream);letter-spacing:.5px;text-shadow:3px 0 var(--bark),-3px 0 var(--bark),0 3px var(--bark),0 -3px var(--bark),3px 3px var(--bark),-3px 3px var(--bark),3px -3px var(--bark),-3px -3px var(--bark),0 7px 0 rgba(4,16,26,.45)}
+h1 span{color:var(--gold)}
+.date{margin-top:4px;font-size:18px;color:#BFE7E6;text-align:center}
+.talk{display:grid;grid-template-columns:64px 1fr;gap:16px;align-items:center}
+.face{width:64px;height:56px;filter:drop-shadow(0 6px 6px rgba(4,16,26,.4))}
+.bubble{position:relative;min-height:52px;display:flex;align-items:center;padding:0 2px}
+.bubble::before,.bubble::after{content:"";position:absolute;top:50%;clip-path:polygon(100% 0,0 50%,100% 100%)}
+.bubble::before{left:-26px;width:17px;height:20px;margin-top:-10px;background:var(--bark)}
+.bubble::after{left:-20px;width:12px;height:12px;margin-top:-6px;background:var(--parch)}
+.bubble p{margin:0;font-size:20px;line-height:1.05}
+.feat{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 6px;padding:0 4px 0 0;color:var(--ink);font-size:20px}
+.chip img{width:24px;height:24px;image-rendering:pixelated}
+.meal{display:flex;flex-direction:column;gap:6px}
+.meter{position:relative;height:16px;border:5px solid transparent;border-image:var(--tag9) 3 fill / 6px}
+.meter i{position:absolute;left:0;top:0;bottom:0;background:#5E8E64}
+.plates{display:flex;gap:6px}
+.plate{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;min-height:40px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;font-size:19px;color:var(--ink-soft)}
+.plate.now{border-image-source:var(--gold9);border-image-slice:4 fill;color:var(--ink)}
+.plate em{font-style:normal;font-size:22px}
+.stage{overflow:hidden;padding:4px 0 18px}
+.sea{position:relative;width:fit-content;margin:0 auto;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5));transition:transform .55s ease-in}
+.sea.out{transform:translateX(-130%)}
+.sea.in{transform:translateX(130%);transition:none}
+.sea canvas{display:block;image-rendering:pixelated}
+.sea.t1 canvas{filter:brightness(1.06) saturate(1.05)}
+.sea.t2 canvas{filter:sepia(.32) saturate(1.25) hue-rotate(-12deg) brightness(.95)}
+.grid{position:absolute;left:0;top:0;right:0;display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(7,1fr);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.c{appearance:none;border:0;padding:0;background:transparent;position:relative;cursor:pointer}
+.c:disabled{cursor:default}
+@media (hover:hover){.c:not(:disabled):hover{background:rgba(255,226,122,.14)}}
+.c.sel{box-shadow:inset 0 0 0 4px var(--sun);background:rgba(255,226,122,.2)}
+.c .tag{position:absolute;right:1px;bottom:1px;min-width:24px;padding:0 3px;border:6px solid transparent;border-image:var(--tag9) 3 fill / 6px;color:var(--ink);font:400 20px/14px var(--pixel);text-align:center}
+.c .tag.hit{border-image-source:var(--gold9);border-image-slice:4 fill}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.left{display:flex;gap:1px;flex-wrap:wrap;max-width:60%}
+.left i.used{opacity:.3;filter:grayscale(1)}
+.panel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.panel p{margin:0;font-size:22px}
+.panel .em{font-size:56px;line-height:1}
+.two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.help p{margin:0 0 6px;font-size:20px;line-height:1.1}
+textarea{width:100%;height:76px;font:400 19px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
+.top{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:6px}
+.icon-btn{appearance:none;width:48px;height:48px;padding:0;display:grid;place-items:center;cursor:pointer}
+.c.win{box-shadow:inset 0 0 0 4px var(--sun);background:rgba(255,226,122,.3)}
+.book h2{margin:0 0 6px;font:400 26px/1 var(--pixel);color:var(--ink)}
+.log{list-style:none;margin:0;padding:0}
+.log li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-top:2px dashed #D9BE84;font-size:20px}
+.log li:first-child{border-top:0}
+.log li>span:first-child{color:var(--ink-soft)}
+.log .n{min-width:44px;text-align:right}
+.foot{text-align:center;font-size:18px;color:#BFE7E6}
+.foot a{color:var(--sun)}
+.loading{text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><span></span><div><h1>Almoço <span>da turma</span></h1><div class="date" id="sub"></div></div><button class="icon-btn wood" id="help-btn" aria-label="Como jogar"><i class="sp" id="help-icon"></i></button></header>
+  <div class="talk"><i class="sp face" id="cat"></i><div class="bubble parch"><p id="say" aria-live="polite">Carregando o mar…</p><div class="feat" id="feat" hidden></div></div></div>
+
+  <section class="parch help" id="help" hidden>
+    <p>Em cada ponto mora um <b>peixe grande</b> 🐠 com 3 hábitos: um fundo, uma profundidade e uma luz. Toque num quadrado pra ver os dele.</p>
+    <p>O número na boia diz <b>quantos hábitos do peixe grande</b> aquele quadrado tem. Compare os lances no diário pra descobrir onde ele está.</p>
+    <p>Cada lance puxa o que acertou: <b>1 hábito</b> = camarão 🦐, <b>2</b> = bagre 🐟, <b>3</b> = o peixe grande 🐠.</p>
+    <p>Pescou? <b>Fica</b> com ele e vai pro próximo ponto, ou <b>devolve</b> e tenta de novo.</p>
+    <p>São <b>8 lances pro dia todo</b>, 3 pontos de pesca. Meta: <b>12 kg</b> nos 3 pratos.</p>
+    <div class="two"><button class="btn" id="gotit">Entendi</button></div>
+  </section>
+
+  <section class="parch meal">
+    <div class="row"><span id="kg"></span><span style="font-size:18px;color:var(--ink-soft)">meta 12 kg</span></div>
+    <div class="meter"><i id="fill"></i></div>
+    <div class="plates" id="plates"></div>
+  </section>
+
+  <div class="stage"><div class="sea" id="seabox"><canvas id="sea" aria-hidden="true"></canvas><div class="grid" id="board"></div></div></div>
+
+  <div class="wood" id="bar"><div class="row"><div class="left" id="left" role="img"></div><button class="btn" id="cast">Lançar</button></div></div>
+
+  <section class="parch panel" id="catch" hidden>
+    <div class="em" id="cEm"></div>
+    <p id="cText"></p>
+    <div class="two"><button class="btn" id="keep">Ficar</button><button class="btn dull" id="release">Devolver</button></div>
+  </section>
+
+  <section class="parch book" id="logbox" hidden><h2>Lances neste ponto</h2><ol class="log" id="log"></ol></section>
+
+  <section class="parch panel" id="end" hidden>
+    <p id="eTitle" style="font-size:32px"></p>
+    <p id="eText"></p>
+    <textarea id="share" readonly></textarea>
+    <div class="two"><button class="btn" id="copy">Copiar</button><button class="btn dull" id="again">Outro mar</button></div>
+  </section>
+
+  <p class="foot">Protótipo de teste. O jogo do dia continua em <a href="/">goodcatch.fish</a>.</p>
+</div>
+<script type="module">
+// The lagoon's painting is read from the live game so this page always looks like today's; it breaks if @gen-start or the catch-scene marker move.
+const src=await (await fetch('/index.html')).text();
+const L=new Function(src.slice(src.indexOf('// @gen-start'),src.indexOf('// ---------- the catch scene'))+
+  ';return {genSea,bites,mulberry,seedFrom,paintSeabed,lightUp,surface,beach,pier2,lineTo,ring,splash,centre,art,IMG,ART,ART_READY,S,GW,GH,N,canvas,sprite,spStyle}')();
+const {genSea,bites,mulberry,seedFrom,paintSeabed,lightUp,surface,beach,pier2,lineTo,ring,splash,centre,art,IMG,ART,ART_READY,S,GW,GH,N,canvas,sprite,spStyle}=L;
+
+const BUCKET=8, GOAL=12, MAPS=3, LAND=520;
+const TIERS=[null,{name:'camarão',e:'🦐',min:.3,max:1},{name:'bagre',e:'🐟',min:1,max:4},{name:'peixe grande',e:'🐠',min:4,max:7}];
+const SPOTS=['Manhã','Meio-dia','Fim de tarde'];
+const NAMES={b0:'areia',b1:'coral',b2:'pedra',b3:'alga',d0:'raso',d1:'fundo',l0:'sol',l1:'sombra'};
+const featsOf=x=>`${NAMES['b'+x.b]} · ${NAMES['d'+x.d]} · ${NAMES['l'+x.l]}`;
+const sayBite=(n,x)=>n===3?`3 de 3: o peixe grande mora aqui (${featsOf(x)})!`
+  :n===0?`0 de 3: o peixe grande não tem nenhum destes hábitos (${featsOf(x)}).`
+  :`${n} de 3: o peixe grande tem ${n===1?'só 1':'2'} destes hábitos (${featsOf(x)}).`;
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0'), ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const kgs=x=>x.toFixed(1).replace('.',',')+' kg';
+const store={get(k){try{return JSON.parse(localStorage.getItem('goodcatch-barco:'+k))}catch{return null}},set(k,v){try{localStorage.setItem('goodcatch-barco:'+k,JSON.stringify(v))}catch{}}};
+const key=(r,c)=>r*100+c, cellAt=k=>S0.sea.grid[Math.floor(k/100)][k%100];
+
+function tileURL(cell,light){
+  const cv=paintSeabed([[cell]],0),x=cv.getContext('2d');
+  if(light){const img=x.getImageData(0,0,S,S);lightUp(img,[[cell]],2);x.putImageData(img,0,0)}
+  const out=canvas(16,16);out.getContext('2d').drawImage(cv,4,4,16,16,0,0,16,16);return out.toDataURL();
+}
+const TILE={b0:tileURL({b:0,d:0}),b1:tileURL({b:1,d:0}),b2:tileURL({b:2,d:0}),b3:tileURL({b:3,d:0}),d0:tileURL({d:0}),d1:tileURL({d:1}),l0:tileURL({d:0,l:0},true),l1:tileURL({d:0,l:1})};
+const chip=k=>`<span class="chip"><img alt="" src="${TILE[k]}">${NAMES[k]}</span>`;
+
+const param=new URLSearchParams(location.search).get('dia'), today=ymd(new Date());
+let date=/^\d{4}-\d{2}-\d{2}$/.test(param||'')?param:today, daily=date===today;
+let S0, bases, anim=null, moving=false;
+
+const weightOf=(m,k,n)=>{const t=TIERS[n],r=mulberry(seedFrom(`${date}:barco${m}:${k}`))();return Math.round((t.min+r*(t.max-t.min))*10)/10};
+const total=()=>S0.plates.reduce((x,p)=>x+(p?p.w:0),0);
+function loadMap(){S0.sea=genSea(`${date}:barco${S0.m}`);S0.casts=[];S0.sel=null;bases=[0,1].map(f=>paintSeabed(S0.sea.grid,f,2).getContext('2d').getImageData(0,0,GW*2,GW*2));q=-1}
+function newDay(){
+  S0={m:0,left:BUCKET,plates:[],casts:[],sel:null,pending:null,over:false,say:'Toque num quadrado pra ver como ele é.'};
+  loadMap();
+  const rec=daily&&store.get(date);
+  if(rec){S0.plates=rec.plates;S0.left=rec.left;S0.over=true}
+  $('catch').hidden=true;$('end').hidden=true;
+  render();if(S0.over)finish(false);
+}
+
+const work=canvas(GW,GH), wx=work.getContext('2d'), view=$('sea'), vx=view.getContext('2d'), work2=canvas(GW*2,GH*2), w2=work2.getContext('2d');
+let q=-1, lit=null;
+function fit(){
+  const dpr=devicePixelRatio||1, avail=$('seabox').parentElement.clientWidth-20, W=GW*2, H=GH*2;
+  const k=Math.max(Math.ceil(200*dpr/W),Math.floor(avail*dpr/W));
+  view.width=W*k;view.height=H*k;view.style.width=W*k/dpr+'px';view.style.height=H*k/dpr+'px';$('board').style.height=W*k/dpr+'px';
+}
+function drawSea(now){
+  const tk=Math.floor(now/125);
+  if(tk!==q){q=tk;const b=bases[(tk>>3)&1];lit=new ImageData(new Uint8ClampedArray(b.data),GW*2,GW*2);lightUp(lit,S0.sea.grid,tk*.25,2)}
+  wx.clearRect(0,0,GW,GH);surface(wx,S0.sea.grid,tk);
+  const last=S0.casts.at(-1);
+  if(last!==undefined&&!moving){const p=anim&&anim.k===last?Math.min(1,(now-anim.start)/LAND):1;lineTo(wx,centre(last),p)}
+  if(anim){const age=now-anim.start-LAND,c=centre(anim.k);if(age>=0&&age<800)ring(wx,c,3+age/60,1-age/800);if(anim.n>=2&&age>=0&&age<1300)splash(wx,c,age)}
+  w2.imageSmoothingEnabled=false;w2.putImageData(lit,0,0);beach(w2,tk,2);w2.drawImage(work,0,0,GW*2,GH*2);pier2(w2);
+  S0.casts.forEach((k,i)=>{if(anim&&anim.k===k&&now-anim.start<LAND)return;const c=centre(k);art(w2,'ui/bobber',c.x*2-8,c.y*2-12+(((tk>>1)+i)%3===0?2:0))});
+  vx.imageSmoothingEnabled=false;vx.drawImage(work2,0,0,view.width,view.height);
+}
+function loop(now){drawSea(now);requestAnimationFrame(loop)}
+
+function render(){
+  const m=Math.min(S0.m,MAPS-1), busy=!!anim||!!S0.pending||moving||S0.over;
+  $('sub').textContent=`${daily?'Hoje':'Treino'} · ${date.split('-').reverse().join('/')} · ponto ${m+1} de ${MAPS} · ${SPOTS[m]}`;
+  $('seabox').classList.toggle('t1',m===1);$('seabox').classList.toggle('t2',m===2);
+  const t=total();$('kg').textContent=`${kgs(t)} na mesa`;$('fill').style.width=Math.min(100,100*t/GOAL)+'%';
+  $('plates').innerHTML=Array.from({length:MAPS},(_,i)=>{const p=S0.plates[i],done=i<S0.plates.length||S0.over;
+    return `<span class="plate${i===S0.m&&!S0.over?' now':''}">${p?`<em>${TIERS[p.k].e}</em>${kgs(p.w)}`:done?'<em>🍽️</em>vazio':'prato '+(i+1)}</span>`}).join('');
+  $('board').innerHTML=S0.sea.grid.map((row,r)=>row.map((x,c)=>{const k=key(r,c),i=S0.casts.indexOf(k),n=i<0?null:bites(x,S0.sea.fish);
+    const tag=n!==null&&!(anim&&anim.k===k)?`<b class="tag${n===3?' hit':''}">${n}</b>`:'';
+    return `<button class="c${k===S0.sel?' sel':''}${S0.reveal&&bites(x,S0.sea.fish)===3?' win':''}" data-k="${k}"${busy||i>=0?' disabled':''} aria-label="${NAMES['b'+x.b]}, ${NAMES['d'+x.d]}, ${NAMES['l'+x.l]}${n===null?'':' · '+n}">${tag}</button>`}).join('')).join('');
+  const sx=S0.sel===null?null:cellAt(S0.sel);
+  $('feat').innerHTML=sx?['b'+sx.b,'d'+sx.d,'l'+sx.l].map(chip).join(''):'';$('feat').hidden=!sx;$('say').hidden=!!sx;$('say').textContent=S0.say;
+  $('cat').style.backgroundImage=`url(${ART['portrait/'+(S0.over&&total()>=GOAL?'catHappy':'catFace')]})`;
+  $('left').innerHTML=Array.from({length:BUCKET},(_,i)=>sprite('bobber',i<BUCKET-S0.left?'used':'')).join('');
+  $('left').setAttribute('aria-label',`${S0.left} lances no balde`);
+  $('cast').textContent=`Lançar · ${S0.left}`;$('cast').disabled=S0.sel===null||busy||S0.left<1;
+  $('bar').hidden=S0.over||!!S0.pending;
+  $('logbox').hidden=!S0.casts.length||S0.over;
+  $('log').innerHTML=S0.casts.map((k,i)=>[k,i]).reverse().map(([k,i])=>{const x=cellAt(k),n=anim&&anim.k===k?'…':bites(x,S0.sea.fish);
+    return `<li><span>${i+1}</span><span>${featsOf(x)}</span><span class="n">${n==='…'?n:`${n} de 3`}</span></li>`}).join('');
+}
+function cast(){
+  if(S0.sel===null||anim||S0.left<1)return;
+  const k=S0.sel,n=bites(cellAt(k),S0.sea.fish);S0.casts.push(k);S0.sel=null;S0.left--;anim={k,start:performance.now(),n};render();
+  setTimeout(()=>{anim=null;
+    if(!n){S0.say=S0.left?sayBite(0,cellAt(k)):'Nada… e o balde acabou.';render();if(!S0.left)emptyOut();return}
+    S0.pending={k:n,w:weightOf(S0.m,k,n)};S0.say=sayBite(n,cellAt(k));
+    $('cEm').textContent=TIERS[n].e;
+    $('cText').innerHTML=`Um <b>${TIERS[n].name}</b> de <b>${kgs(S0.pending.w)}</b>!<br><small>${S0.left} lance${S0.left===1?'':'s'} no balde · faltam ${kgs(Math.max(0,GOAL-total()))} pra meta</small>`;
+    $('catch').hidden=false;render();$('catch').scrollIntoView({block:'nearest',behavior:'smooth'})},LAND+400);
+}
+function keep(){
+  S0.plates[S0.m]=S0.pending;S0.pending=null;$('catch').hidden=true;
+  if(S0.m===MAPS-1){S0.m=MAPS;S0.over=true;render();finish(true);return}
+  if(!S0.left){S0.m++;emptyOut();return}
+  if(S0.plates[S0.m].k===3){travel();return}
+  moving=true;S0.reveal=true;S0.say=`O peixe grande estava aqui: ${featsOf(S0.sea.fish)}.`;render();
+  setTimeout(travel,2200);
+}
+function release(){S0.pending=null;$('catch').hidden=true;S0.say=S0.left?'Devolveu. Escolha outro quadrado.':'Devolveu… e o balde acabou.';render();if(!S0.left)emptyOut()}
+function emptyOut(){while(S0.plates.length<MAPS)S0.plates.push(null);S0.m=MAPS;S0.over=true;render();finish(true)}
+function travel(){
+  moving=true;render();const sb=$('seabox');sb.classList.add('out');
+  setTimeout(()=>{S0.m++;S0.reveal=false;loadMap();S0.say=`Chegamos no ponto ${S0.m+1}: ${SPOTS[S0.m].toLowerCase()}. Outro peixe, outros hábitos.`;
+    sb.classList.remove('out');sb.classList.add('in');render();
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{sb.classList.remove('in');setTimeout(()=>{moving=false;render()},560)}))},600);
+}
+function finish(save){
+  const t=total(),ok=t>=GOAL,hungry=S0.plates.filter(p=>!p).length;
+  if(save&&daily)store.set(date,{plates:S0.plates,left:S0.left});
+  if(save)S0.reveal=true;
+  S0.say=ok?'A turma vai almoçar bem hoje!':'Hmm… não deu pra todo mundo.';
+  $('eTitle').textContent=ok?'A turma almoçou! 🎉':'Alguém ficou com fome…';
+  $('eText').textContent=ok?`${kgs(t)} na mesa, a meta era ${GOAL} kg. Sobraram ${S0.left} lance${S0.left===1?'':'s'}.`
+    :`${kgs(t)} na mesa: faltaram ${kgs(GOAL-t)}.${hungry?` ${hungry} prato${hungry>1?'s':''} vazio${hungry>1?'s':''}.`:''}`;
+  $('share').value=`Good Catch · Almoço ${date.split('-').reverse().slice(0,2).join('/')}\n${S0.plates.map(p=>p?TIERS[p.k].e:'🍽️').join('')} ${kgs(t)} / ${GOAL} kg ${ok?'✅':'❌'}\ngoodcatch.fish/barco`;
+  $('end').hidden=false;render();if(save)$('end').scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+$('board').addEventListener('click',e=>{const b=e.target.closest('.c');if(!b||b.disabled)return;const k=+b.dataset.k;S0.sel=S0.sel===k?null:k;render()});
+$('cast').onclick=cast;$('keep').onclick=keep;$('release').onclick=release;
+$('copy').onclick=()=>{$('share').select();navigator.clipboard?.writeText($('share').value).catch(()=>{});$('copy').textContent='Copiado'};
+$('again').onclick=()=>{date=ymd(new Date(2026,0,1+Math.floor(Math.random()*700)));daily=false;$('copy').textContent='Copiar';newDay();scrollTo({top:0,behavior:'smooth'})};
+$('gotit').onclick=()=>{$('help').hidden=true;store.set('seenHelp2',1)};
+$('help-btn').onclick=()=>{$('help').hidden=!$('help').hidden;if(!$('help').hidden)$('help').scrollIntoView({block:'nearest',behavior:'smooth'})};
+$('help-icon').style.cssText=spStyle('ui/help');
+$('help').hidden=!!store.get('seenHelp2');
+let fitW=innerWidth;addEventListener('resize',()=>{if(innerWidth===fitW)return;fitW=innerWidth;fit()});
+newDay();fit();ART_READY.then(()=>render());document.fonts?.ready.then(fit);requestAnimationFrame(loop);
+</script>
+</body>
+</html>
