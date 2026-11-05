@@ -71,6 +71,10 @@ h1 span{color:var(--gold)}
 .photo canvas{display:block;width:100%;image-rendering:pixelated}
 .two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .help p{margin:0 0 6px;font-size:20px;line-height:1.1}
+header{position:relative}
+.ask{position:absolute;right:0;top:0;width:40px;height:40px;padding:0;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;font:400 26px/1 var(--pixel);color:var(--ink);cursor:pointer}
+dialog{padding:0;border:0;background:none;width:min(440px,calc(100vw - 32px));max-width:none}
+dialog::backdrop{background:rgba(4,16,26,.6)}
 textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
 .foot{text-align:center;font-size:18px;color:#BFE7E6}
 .foot a{color:var(--sun)}
@@ -78,15 +82,15 @@ textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);
 </head>
 <body>
 <div class="wrap">
-  <header><h1>Des<span>cida</span></h1><div class="date" id="sub"></div></header>
+  <header><h1>Des<span>cida</span></h1><div class="date" id="sub"></div><button class="ask" id="ask" aria-label="Como jogar">?</button></header>
 
-  <section class="parch help" id="help" hidden>
+  <dialog id="help" aria-label="Como jogar"><div class="parch help">
     <p>O peixão do dia mora no fundo. Desça o anzol pelas <b>5 camadas</b> do mar: em cada uma ele fisga alguma coisa, e cada coisa é um desafio.</p>
     <p>Acertou: <b>good catch!</b> Ganha o peixinho da camada e desce. Errou: o anzol enrosca e a pescaria acaba.</p>
     <p>No fundo, o peixão. Quanto mais perto do número certo, maior ele sai na foto.</p>
     <p>Toque numa relíquia para usar: 🪱 tira uma resposta errada, 🔄 troca o desafio, 🥅 segura um erro (ligue antes de responder).</p>
     <div class="two"><button class="btn" id="gotit">Bora</button></div>
-  </section>
+  </div></dialog>
 
   <div class="wood bar"><span id="score">0 pts</span><div class="relics" id="relics"></div></div>
 
@@ -445,8 +449,12 @@ $('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
 $('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
 $('other').onclick=()=>{date=ymd(new Date(2026,0,1+Math.floor(Math.random()*700)));$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
-$('gotit').onclick=()=>{$('help').hidden=true;store.set('seenHelp',1)};
-$('help').hidden=!!store.get('seenHelp');
+const help=$('help');
+$('gotit').onclick=()=>help.close();
+help.onclick=e=>{if(e.target===help)help.close()};
+help.onclose=()=>store.set('seenHelp',1);
+$('ask').onclick=()=>help.showModal();
+if(!store.get('seenHelp'))help.showModal();
 if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS});
 track(location.pathname);
 await ART_READY;
