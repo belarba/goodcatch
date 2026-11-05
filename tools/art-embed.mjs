@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { decodePNG, encodePNG } from './png.mjs';
 
-const root = new URL('../', import.meta.url), GROUPS = ['fish', 'portrait', 'plate', 'guests', 'ui'];
+const root = new URL('../', import.meta.url), GROUPS = ['fish', 'portrait', 'plate', 'guests', 'ui', 'descida'];
 const url = buf => `data:image/png;base64,${buf.toString('base64')}`;
 const recolour = (buf, fn) => { const { w, h, rgba } = decodePNG(buf); for (let i = 0; i < rgba.length; i += 4) if (rgba[i + 3]) rgba.set(fn(rgba[i], rgba[i + 1], rgba[i + 2]), i); return encodePNG(w, h, rgba); };
 
