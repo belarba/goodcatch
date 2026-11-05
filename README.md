@@ -57,19 +57,32 @@ medians and how many map/card pairs a naive player solves to within 90% (trivial
 `node tools/depth.mjs check` only runs the self-checks, including `leakPath`'s.
 
 
-## Timing fishing prototype
+## Fishing fight prototype (iteration 2)
 
-`novo-jogo/index.html` is the standalone five-fish timing prototype on
-`prototype/timing-fishing`. Serve the repository and open `/novo-jogo/`.
-Cast, then press the Hook button (touch, click, Space or Enter) to stop the cursor.
-Red escapes, yellow catches, green is a Perfect Catch. There is no time bonus.
-The sequence and bar settings use the UTC date, identical worldwide; the date is
-pinned when the page opens. Replays are unlimited for playtesting and results
-are session-only. The original game and village backend are independent.
+On `prototype/timing-fishing`, serve the repo with `python3 -m http.server`
+and open `/novo-jogo/`. One fish, three selectable behaviours, fixed seed (42).
+Hold mouse, touch or Space/Enter to reel; release to ease the line. Restart repeats
+the same schedule. Focus loss pauses and clears held input. No daily save or API.
 
-Tuning lives in `daily()`: catch width, perfect width and speed (bar widths per
-second). The cursor reflects at each edge. Backgrounding pauses the line.
-Only the essential cursor moves with reduced motion enabled. Art is reused from
-`art/`; Jersey 10 is bundled locally under its accompanying OFL license.
+Simulation: `novo-jogo/simulation.mjs` (DOM-free, 120 Hz substeps); presentation and
+input: `novo-jogo/fight.mjs`. Frame deltas cap at 50 ms. All gameplay lives in
+`novo-jogo/`; existing sprites and the bundled Jersey 10/OFL are retained.
+Run `node tools/timing-check.mjs` (physics and input) and `node tools/pista-check.mjs`.
 
-Checks: `node tools/timing-check.mjs` and `node tools/pista-check.mjs`.
+Tune `TUNE` in the simulation: `reel` (capture pace), `release` (tension relief),
+`engage` (sustained-hold spool-up), `breakGrace` and `slackGrace` (recovery time).
+`schedule()` controls force, warning time and rest/run durations. Force increases
+line tension and reduces reeling efficiency. Warning phases last 0.85–1 seconds.
+The constant pattern has a gentle periodic swell; impulsive fish have short strong
+pulls; skittish fish have long runs with longer rests. Excess/slack risks decay
+rather than resetting when the button changes.
+
+Playtest: repeat each behaviour five times, first with seed 42, then a different
+seed. Can you predict a pull from the fish turning? Do you look at the fish or only
+the tension meter? Does release feel like yielding rather than waiting? If every
+fish can be played with the same fixed button cadence, or repeated attempts feel
+like meter maintenance, change behaviour/force tradeoffs before adding content.
+Automated adaptive policies catch in about 12–16 seconds; this is balancing data,
+not evidence of human enjoyment. Sustained hold, permanent release and 10 Hz tap
+policies lose across five tested seeds. Human five-repetition playtesting is still
+needed before calling the mechanic validated. No merge or production deployment.

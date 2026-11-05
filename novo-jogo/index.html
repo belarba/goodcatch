@@ -7,21 +7,17 @@
 <style>
 @font-face{font-family:"Jersey 10";font-style:normal;font-weight:400;font-display:swap;src:url("jersey10.ttf") format("truetype")}
 *{box-sizing:border-box}body{margin:0;min-height:100svh;background:linear-gradient(#136A82,#0E4A5C 40%,#0B2233);color:#FFF1D0;font:400 22px/1.15 'Jersey 10',system-ui,sans-serif}main{max-width:480px;margin:auto;padding:12px 16px 28px;display:grid;gap:12px}header{text-align:center;position:relative}h1{font-size:48px;line-height:1;margin:0;text-shadow:3px 3px #2E1A0C}h1 span{color:#F2B33D}h2{font-size:26px;margin:0}p{margin:6px 0}small,.sub{font-size:16px}header p{color:#BFE7E6}button{font:inherit;cursor:pointer;touch-action:manipulation;color:#3B2414;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;min-height:52px;padding:4px 12px}button:active{transform:translateY(2px)}button:focus-visible,a:focus-visible{outline:3px solid #FFE27A;outline-offset:3px}button:disabled{cursor:default;border-image-source:var(--dull9)}.wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 8px 10px #04101a66)}.paper{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:#3B2414;padding:4px 6px}.talk{display:flex;align-items:center;gap:12px}.talk img{width:48px;height:48px;object-fit:contain}img,canvas{image-rendering:pixelated}.talk p{font-size:20px}.scene{position:relative;background:#136A82;overflow:hidden}canvas{display:block;margin:auto;max-width:100%}.label{display:flex;justify-content:space-between;gap:8px;font-size:18px}.rig{display:grid;gap:12px;padding:6px}.track{height:36px;position:relative;border:3px solid #2E1A0C;background:repeating-linear-gradient(135deg,#BD5248 0 7px,#A6443C 7px 9px);margin:8px 5px}.zone{position:absolute;top:0;bottom:0;background:#F2C75C;border-inline:2px solid #2E1A0C}.perfect{background:repeating-linear-gradient(90deg,#70C393 0 6px,#60AF82 6px 8px)}.cursor{position:absolute;top:-9px;bottom:-9px;width:6px;background:#FFF1D0;border:1px solid #2E1A0C;transform:translateX(-50%);box-shadow:0 0 0 2px #2E1A0C}.cursor:before{content:'▼';position:absolute;top:-16px;left:-7px;font:18px/1 system-ui;color:#FFF1D0}.legend{display:flex;justify-content:space-around;color:#3B2414;font-size:16px}.legend span{padding:3px 6px;background:#F6E7C1}.action{width:100%;font-size:28px}.status{min-height:46px;text-align:center;font-size:20px}.progress{display:flex;gap:6px;justify-content:center;margin:4px 0}.pip{width:36px;height:8px;background:#173E4C;border:1px solid #BFE7E6}.pip.done{background:#F2B33D}.pip.missed{background:#E8826A}.log{list-style:none;padding:0;margin:0}.log li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:2px dashed #D9BE84;font-size:18px}.log img{width:48px;height:40px;object-fit:contain}.log .quality{margin-left:auto;text-align:right;font-size:16px}.footer{text-align:center;font-size:16px;color:#BFE7E6}.footer a{color:#FFF1D0}.lang{position:absolute;right:0;top:0;font-size:16px;min-height:40px;padding:0 6px}#replay{width:100%;margin-top:10px}[hidden]{display:none!important}@media(prefers-reduced-motion:reduce){button:active{transform:none}}
-</style></head>
-<body><main>
-<header><h1>Good <span>Catch</span></h1><p id="date" class="sub"></p><button id="lang" class="lang" aria-label="Change language">EN</button></header>
+
+select,input{font:inherit;background:#F6E7C1;color:#3B2414;max-width:100%;min-height:40px} .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:18px}.controls input{width:90px}canvas{width:100%;max-width:none}.meter{height:14px;background:#173E4C;border:2px solid #2E1A0C;position:relative}.meter i{display:block;height:100%;background:#F2B33D}.meter .danger{position:absolute;inset:0 0 0 86%;border-left:2px solid #FFF1D0;background:#E8826A66}.action{touch-action:none;user-select:none;-webkit-user-select:none;min-height:68px}.action[data-held=true]{border-image-source:var(--dull9)}.rig{gap:8px}.status{margin:0;min-height:24px} #cue{min-height:24px;text-align:center} .sub{margin:2px 0}.small{font-size:18px}h1{font-size:40px}
+</style></head><body><main>
+<header><h1>Good <span>Catch</span></h1><p class="sub" id="subtitle"></p><button id="lang" class="lang">EN</button></header>
+<div class="paper controls"><label for="pattern" id="patternLabel"></label><select id="pattern"><option value="constant"></option><option value="impulsive"></option><option value="skittish"></option></select><label for="seed">Seed</label><input id="seed" type="number" min="0" max="4294967295" value="42"><button id="reset" class="small"></button></div>
 <div class="talk"><img src="../art/ui/catFace.png" alt=""><div class="paper"><p id="hint"></p></div></div>
-<section class="wood scene" aria-label="Fishing scene"><canvas id="sea" width="208" height="96"></canvas></section>
-<section class="wood rig" aria-labelledby="fishname">
-<div class="label"><span id="encounter"></span><span id="difficulty"></span></div><h2 id="fishname"></h2>
-<div id="progress" class="progress" aria-hidden="true"></div>
-<div class="track" id="track" aria-hidden="true"><div id="catchZone" class="zone"></div><div id="perfectZone" class="zone perfect"></div><div id="cursor" class="cursor"></div></div>
-<div class="legend" id="legend"></div>
-<button class="action" id="action"></button><p id="status" class="status" role="status" aria-live="polite"></p>
-</section>
-<section class="paper" id="results" hidden><h2 id="resultTitle"></h2><p id="summary"></p><ol class="log" id="log"></ol><button id="replay"></button></section>
-<p class="footer" id="footer"></p>
-</main><script>
+<section class="wood scene"><canvas id="sea" width="208" height="112" role="img" aria-label="Fishing scene"></canvas></section>
+<section class="wood rig"><p id="cue" role="status" aria-live="polite"></p><div class="label"><span id="tensionLabel"></span><span id="tensionText"></span></div><div class="meter" id="tensionMeter" role="meter" aria-valuemin="0" aria-valuemax="100"><i id="tension"></i><span class="danger"></span></div>
+<div class="label"><span id="progressLabel"></span><span id="progressText"></span></div><div class="meter" id="progressMeter" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="progress"></i></div>
+<button class="action" id="action"></button><p id="status" class="status small"></p></section>
+<p class="footer" id="footer"></p></main><script>
 'use strict';
 const canvas=(w,h)=>Object.assign(document.createElement('canvas'),{width:w,height:h});
 const dot=(x,c,a,b,w=1,h=1)=>{x.fillStyle=c;x.fillRect(a,b,w,h)};
@@ -45,43 +41,4 @@ function nine(kind){
 }
 for(const k of ['wood','parch','tag','gold','dull'])document.documentElement.style.setProperty(`--${k}9`,nine(k));
 
-const STR={pt:{tag:'FISGADA · PROTÓTIPO',hint:'Espere a boia puxar. Toque para parar a linha no verde!',ready:'Amarelo captura. Verde é Perfect Catch. Um toque por peixe.',start:'Lançar a linha',hook:'Fisgar!',next:'Próximo peixe →',finish:'Ver a pescaria',again:'Pescar de novo',lost:'Escapou',caught:'Capturado',perfect:'Perfect Catch!',feedback:['A linha afrouxou… o peixe escapou!','Boa! Peixe na cesta.','Perfect Catch! Essa foi na medida!'],zones:['× Escapa','✓ Captura','★ Perfect'],fish:['Sardinha','Peixe-palhaço','Baiacu','Garoupa','Dourado'],level:['Tranquilo','Ligeiro','Arisco','Forte','Lendário'],enc:'Peixe',title:'Sua pescaria',total:'capturados',replay:'Repetição · mesma sequência de hoje',footer:'Cinco peixes. Uma fisgada para cada um. Sem pressa.<br>Protótipo com repetições livres · <a href="../">Jogo original</a>',paused:'Linha pausada. Toque para continuar.',resume:'Continuar',waiting:'Observe o cursor e escolha a hora de fisgar.'},en:{tag:'HOOK SET · PROTOTYPE',hint:'Watch the bobber dip. Tap to stop the line in the green!',ready:'Yellow catches. Green is a Perfect Catch. One tap per fish.',start:'Cast the line',hook:'Hook!',next:'Next fish →',finish:'See your catch',again:'Fish again',lost:'Escaped',caught:'Caught',perfect:'Perfect Catch!',feedback:['A slack line… the fish got away!','Nice! A fish in the basket.','Perfect Catch! Right on the mark!'],zones:['× Escape','✓ Catch','★ Perfect'],fish:['Sardine','Clownfish','Pufferfish','Grouper','Golden fish'],level:['Easy','Quick','Skittish','Strong','Legendary'],enc:'Fish',title:'Your catch',total:'caught',replay:"Replay · same sequence today",footer:'Five fish. One hook set each. Take your time.<br>Prototype with free replays · <a href="../">Original game</a>',paused:'Line paused. Tap to continue.',resume:'Continue',waiting:'Watch the cursor and choose when to hook.'}};
-let lang=navigator.language.startsWith('pt')?'pt':'en';
-try{lang=localStorage.getItem('goodcatch:timing:lang')||lang}catch{}
-if(!STR[lang])lang='en';
-const $=id=>document.getElementById(id), t=key=>STR[lang][key];
-const now=new Date(), day=now.toISOString().slice(0,10); // UTC: one challenge worldwide.
-const SPECIES=['sardinha','palhaco','baiacu','garoupa','dourado'];
-// Pure daily setup; no per-player randomness. Difficulty windows strictly shrink.
-function daily(date){let seed=2166136261;for(const c of date)seed=Math.imul(seed^c.charCodeAt(0),16777619)>>>0;return SPECIES.map((id,i)=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return{id,width:[.64,.54,.44,.35,.28][i],green:[.24,.19,.15,.11,.08][i],speed:[.38,.48,.59,.70,.82][i],center:.38+(seed/4294967296)*.24,phase:(seed%100)/100}})}
-const encounters=daily(day);
-function position(f,elapsed){const v=(f.phase+elapsed*f.speed)%2;return v<=1?v:2-v}
-function quality(f,p){const d=Math.abs(p-f.center);return d<=f.green/2?2:d<=f.width/2?1:0}
-let index=0, phase='ready', results=[], elapsed=0, last=0, pos=0, raf=0, feedbackTime=0, replay=false;
-const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-const images={};for(const id of [...SPECIES,'catBack','bobber']){const im=new Image();im.src='../art/'+(SPECIES.includes(id)?'fish/':'ui/')+id+'.png';images[id]=im;im.onload=()=>draw(performance.now())}
-const ctx=$('sea').getContext('2d');ctx.imageSmoothingEnabled=false;
-function sprite(id,x,y,m=1){const im=images[id];if(im.complete&&im.naturalWidth)ctx.drawImage(im,Math.round(x),Math.round(y),im.naturalWidth*m,im.naturalHeight*m)}
-function draw(time){const x=ctx; x.clearRect(0,0,208,96);dot(x,'#76C7CD',0,0,208,28);dot(x,'#F6E7C1',20,9,20,3);dot(x,'#F6E7C1',28,6,18,3);dot(x,'#248F9D',0,28,208,68);dot(x,'#167387',0,54,208,42);
-for(let i=0;i<20;i++){const a=(i*37+(reduced?0:Math.floor(time/160))%208)%208,b=33+(i*13)%58;dot(x,i%2?'#3B9EAA':'#60B7BB',a,b,7,1)}
-for(let y=56;y<96;y+=6){dot(x,'#8B5A2B',0,y,62,6);dot(x,'#5E3A1A',0,y+5,62,1);dot(x,'#B97A45',3,y,54,1)}
-sprite('catBack',17,32);x.strokeStyle='#2E1A0C';x.lineWidth=1;x.beginPath();x.moveTo(39,44);x.lineTo(61,20);x.stroke();x.strokeStyle='#FFF1D0';x.beginPath();x.moveTo(61,20);x.quadraticCurveTo(91,17,116,53);x.stroke();
-let by=46+(phase==='running'&&!reduced?Math.round(Math.sin(time/130)*2):0);sprite('bobber',110,by);
-const f=encounters[Math.min(index,4)];const q=results[index]?.q;let fx=143,fy=64;if(phase==='feedback'){const a=reduced?1:Math.min(1,(time-feedbackTime)/600);fx=q===0?143+a*90:143-a*65;fy=q===0?64:64-Math.sin(a*Math.PI)*40}if(phase!=='finished')sprite(f.id,fx,fy);
-if(phase==='feedback'&&!reduced&&time-feedbackTime<650){dot(x,'#FFF1D0',107,43,2,5);dot(x,'#FFF1D0',123,47,2,4)}
-}
-function tick(time){if(phase==='running'){if(last)elapsed+=(time-last)/1000;pos=position(encounters[index],elapsed);$('cursor').style.left=(pos*100)+'%'}last=time;draw(time);if(phase==='running'||(phase==='feedback'&&!reduced&&time-feedbackTime<800))raf=requestAnimationFrame(tick)}
-function animate(){cancelAnimationFrame(raf);last=0;raf=requestAnimationFrame(tick)}
-function render(){document.documentElement.lang=lang;$('lang').textContent=lang==='pt'?'EN':'PT';$('date').textContent=t('tag')+' · '+day+(replay?' · '+t('replay'):'');$('hint').textContent=t('hint');$('footer').innerHTML=t('footer');$('encounter').textContent=t('enc')+' '+(index+1)+'/5';$('difficulty').textContent=t('level')[index];$('fishname').textContent=t('fish')[index];$('legend').innerHTML=t('zones').map(s=>'<span>'+s+'</span>').join('');const f=encounters[index];for(const [id,w]of[['catchZone',f.width],['perfectZone',f.green]]){$(id).style.left=(f.center-w/2)*100+'%';$(id).style.width=w*100+'%'}
-$('progress').innerHTML=encounters.map((_,i)=>'<span class="pip '+(results[i]?(results[i].q?'done':'missed'):'')+'"></span>').join('');$('track').hidden=phase==='finished';$('legend').hidden=phase==='finished';$('action').hidden=phase==='finished';$('action').textContent=phase==='ready'?t('start'):phase==='running'?t('hook'):phase==='paused'?t('resume'):index===4?t('finish'):t('next');$('status').textContent=phase==='ready'?t('ready'):phase==='running'?t('waiting'):phase==='paused'?t('paused'):phase==='feedback'?t('feedback')[results[index].q]:'';
-$('results').hidden=phase!=='finished';if(phase==='finished'){$('hint').textContent=t('title');$('resultTitle').textContent=t('title');$('summary').textContent=results.filter(r=>r.q>0).length+'/5 '+t('total')+' · '+results.filter(r=>r.q===2).length+' Perfect';$('log').innerHTML=results.map((r,i)=>'<li><img src="../art/fish/'+encounters[i].id+'.png" alt=""><span>'+t('fish')[i]+'</span><span class="quality">'+[t('lost'),t('caught'),t('perfect')][r.q]+'</span></li>').join('');$('replay').textContent=t('again')}draw(performance.now())}
-function act(){const time=performance.now();if(phase==='ready'){phase='running';elapsed=0;pos=position(encounters[index],0);$('cursor').style.left=pos*100+'%';render();animate()}else if(phase==='running'){// Judge the cursor actually painted on screen, avoiding a hidden extra frame of latency.
-results.push({q:quality(encounters[index],pos),position:pos});phase='feedback';feedbackTime=time;render();animate()}else if(phase==='paused'){phase='running';render();animate()}else if(phase==='feedback'&&time-feedbackTime>=650){if(index===4){phase='finished'}else{index++;phase='ready';elapsed=0;$('cursor').style.left=position(encounters[index],0)*100+'%'}render()}}
-$('action').addEventListener('pointerdown',e=>{if(!e.isPrimary||e.button!==0)return;e.preventDefault();$('action').focus({preventScroll:true});act()});
-$('action').addEventListener('click',e=>{if(e.detail===0)act()});
-$('action').addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&e.repeat)e.preventDefault()});
-$('replay').onclick=()=>{index=0;results=[];phase='ready';elapsed=0;replay=true;$('cursor').style.left=position(encounters[0],0)*100+'%';render();$('action').focus()};
-$('lang').onclick=()=>{lang=lang==='pt'?'en':'pt';try{localStorage.setItem('goodcatch:timing:lang',lang)}catch{}render()};
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&phase==='running'){phase='paused';cancelAnimationFrame(raf);render()}});
-$('cursor').style.left=position(encounters[0],0)*100+'%';render();
-</script></body></html>
+</script><script type="module" src="fight.mjs"></script></body></html>
