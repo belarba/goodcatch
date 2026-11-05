@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Good Catch · Descida (protótipo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
+<style>
+:root{color-scheme:dark;--abyss:#0B2233;--deep:#0E4A5C;--bark:#2E1A0C;--parch:#F6E7C1;--ink:#3B2414;--ink-soft:#6B4A2A;--gold:#F2B33D;--cream:#FFF1D0;--sun:#FFE27A;--ok:#3E8E41;--bad:#B23A2E;--pixel:"Jersey 10",ui-rounded,system-ui,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--abyss)}
+body{margin:0;min-height:100svh;color:var(--cream);font:400 22px/1.15 var(--pixel);background:var(--sea-tile,none) 0 0/64px 64px,linear-gradient(180deg,#136A82 0,var(--deep) 34%,var(--abyss) 100%) fixed}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.wrap{max-width:480px;margin:0 auto;padding:10px 16px 40px;display:flex;flex-direction:column;gap:10px}
+.wood{border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;color:var(--cream);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.parch{border:10px solid transparent;border-image:var(--parch9) 5 fill / 10px round;color:var(--ink);filter:drop-shadow(0 8px 10px rgba(4,16,26,.4))}
+.btn{appearance:none;border:8px solid transparent;border-image:var(--gold9) 4 fill / 8px round;background:none;padding:2px 14px 4px;font:400 26px/1 var(--pixel);color:var(--ink);cursor:pointer}
+.btn:active:not(:disabled){transform:translateY(2px)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.dull{border-image-source:var(--dull9);color:#4A3B26}
+h1{margin:0;text-align:center;font:400 clamp(36px,11vw,50px)/.9 var(--pixel);color:var(--cream);text-shadow:3px 0 var(--bark),-3px 0 var(--bark),0 3px var(--bark),0 -3px var(--bark),3px 3px var(--bark),-3px 3px var(--bark),3px -3px var(--bark),-3px -3px var(--bark),0 7px 0 rgba(4,16,26,.45)}
+h1 span{color:var(--gold)}
+.date{margin-top:4px;font-size:18px;color:#BFE7E6;text-align:center}
+.stage{position:relative;border:10px solid transparent;border-image:var(--wood9) 5 fill / 10px round;filter:drop-shadow(0 14px 18px rgba(4,16,26,.5));user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.stage canvas{display:block;width:100%;image-rendering:pixelated}
+.flash{position:absolute;left:50%;top:38%;transform:translateX(-50%);z-index:3;font-size:34px;color:var(--sun);text-shadow:0 3px 0 var(--bark),2px 0 var(--bark),-2px 0 var(--bark);pointer-events:none;white-space:nowrap}
+.over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:10px;text-align:center;background:rgba(4,16,26,.6);text-shadow:0 2px 0 var(--bark)}
+.over b{font-weight:400;font-size:34px;line-height:1;color:var(--sun)}
+.over span{font-size:20px;line-height:1.05}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.relics{display:flex;gap:6px}
+.relic{appearance:none;background:rgba(255,241,208,.12);border:2px solid rgba(255,241,208,.4);padding:2px 6px;font:400 18px/1 var(--pixel);cursor:pointer;display:flex;align-items:center;gap:3px}
+.relic:disabled{opacity:.3;cursor:default}
+.relic.on{background:var(--gold);color:var(--ink);border-color:var(--sun)}
+.card{display:flex;flex-direction:column;gap:8px}
+@media (prefers-reduced-motion:no-preference){.card{animation:deal .25s ease-out}}
+@keyframes deal{from{transform:translateY(16px);opacity:0}}
+.obj{font-size:18px;color:var(--ink-soft)}
+.q{margin:0;font-size:22px;line-height:1.05}
+.ctx{margin:0;padding:6px 8px;background:#FFF8E6;border:2px dashed var(--ink-soft);font-size:18px;line-height:1.15}
+.opts{display:grid;gap:6px}
+.opts.duo{grid-template-columns:1fr 1fr}
+.opt{appearance:none;display:flex;gap:8px;align-items:center;text-align:left;min-height:46px;padding:6px 10px;background:#FFF8E6;border:3px solid var(--bark);color:var(--ink);font:400 20px/1.05 var(--pixel);cursor:pointer}
+.opt b{font-weight:400;color:var(--ink-soft)}
+.opt:not(:disabled):hover{background:#FFEFC2}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:#DFF2D8}
+.opt.wrong{border-color:var(--bad);background:#F6D5CF}
+.opt.gone{opacity:.35;text-decoration:line-through}
+.after{margin:0;font-size:18px;color:var(--ink-soft)}
+.word{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.word i{font-style:normal;width:26px;height:34px;display:grid;place-items:center;font-size:26px;border-bottom:3px solid var(--ink)}
+.word i.sep{border:0;width:12px}
+.keys{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.key{appearance:none;height:40px;background:#FFF8E6;border:2px solid var(--bark);font:400 22px/1 var(--pixel);color:var(--ink);cursor:pointer;padding:0}
+.key.hit{background:#DFF2D8;border-color:var(--ok)}
+.key.miss{background:#F6D5CF;border-color:var(--bad);opacity:.6}
+.key:disabled{cursor:default}
+.est{display:flex;flex-direction:column;align-items:center;gap:6px}
+.est output{font-size:40px;line-height:1}
+.est .row{display:flex;gap:8px;align-items:center;width:100%}
+.est input{flex:1;accent-color:var(--ink)}
+.step{appearance:none;width:40px;height:40px;background:#FFF8E6;border:2px solid var(--bark);font:400 26px/1 var(--pixel);color:var(--ink);cursor:pointer}
+.panel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.panel p{margin:0;font-size:22px}
+.photo{width:100%;padding:10px 10px 4px;background:#FFF8E6;box-shadow:0 10px 20px rgba(4,16,26,.5);transform:rotate(-1.5deg)}
+.photo canvas{display:block;width:100%;image-rendering:pixelated}
+.two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.help p{margin:0 0 6px;font-size:20px;line-height:1.1}
+textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
+.foot{text-align:center;font-size:18px;color:#BFE7E6}
+.foot a{color:var(--sun)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>Des<span>cida</span></h1><div class="date" id="sub"></div></header>
+
+  <section class="parch help" id="help" hidden>
+    <p>O peixão do dia mora no fundo. Desça o anzol pelas <b>5 camadas</b> do mar: em cada uma ele fisga alguma coisa, e cada coisa é um desafio.</p>
+    <p>Acertou: <b>good catch!</b> Ganha o peixinho da camada e desce. Errou: o anzol enrosca e a pescaria acaba.</p>
+    <p>No fundo, o peixão. Quanto mais perto do número certo, maior ele sai na foto.</p>
+    <p>Toque numa relíquia para usar: 🪱 tira uma resposta errada, 🔄 troca o desafio, 🥅 segura um erro (ligue antes de responder).</p>
+    <div class="two"><button class="btn" id="gotit">Bora</button></div>
+  </section>
+
+  <div class="wood bar"><span id="score">0 pts</span><div class="relics" id="relics"></div></div>
+
+  <div class="stage"><canvas id="scene" width="320" height="200" aria-label="A linha descendo pelo mar"></canvas>
+    <span class="flash" id="flash" hidden></span>
+    <div class="over" id="start" hidden><b>Peixão do dia</b><span id="startHow"></span><button class="btn" id="go">Descer a linha</button></div>
+  </div>
+
+  <section class="parch card" id="card" hidden aria-live="polite"></section>
+
+  <section class="parch panel" id="end" hidden>
+    <div class="photo"><canvas id="photo" width="320" height="256"></canvas></div>
+    <p id="story"></p>
+    <textarea id="share" readonly></textarea>
+    <div class="two"><button class="btn" id="save">Salvar foto</button><button class="btn" id="copy">Copiar</button></div>
+    <div class="two"><button class="btn dull" id="retry">Tentar de novo</button><button class="btn dull" id="other">Outro dia</button></div>
+  </section>
+
+  <p class="foot">Protótipo de teste. O jogo do dia continua em <a href="/">goodcatch.fish</a>.</p>
+</div>
+<script type="module">
+// Painter and sprites come from the live game; breaks if @gen-start or the catch-scene marker move.
+const src=await (await fetch('/index.html')).text();
+const {mulberry,seedFrom,art,ART_READY,dot,CM,cmOf}=new Function(
+  src.slice(src.indexOf('// @gen-start'),src.indexOf('// ---------- the catch scene'))+
+  ';return {mulberry,seedFrom,art,ART_READY,dot,CM,cmOf}')();
+
+// ---------- content (facts to review) ----------
+const TRIVIA=[
+  [1,'Qual é o maior oceano da Terra?','Pacífico','Atlântico','Índico','Ártico'],
+  [1,'Quantas patas tem uma aranha?','8','6','10','12'],
+  [1,'Qual planeta é chamado de planeta vermelho?','Marte','Júpiter','Vênus','Saturno'],
+  [1,'Em que país ficam as pirâmides de Gizé?','Egito','México','Peru','Grécia'],
+  [1,'Qual é a capital da Argentina?','Buenos Aires','Montevidéu','Santiago','Lima'],
+  [1,'Qual é o maior animal do mundo?','Baleia-azul','Elefante-africano','Tubarão-baleia','Girafa'],
+  [1,'Quantos minutos tem o tempo normal de uma partida de futebol?','90','80','100','120'],
+  [1,'Azul misturado com amarelo dá que cor?','Verde','Roxo','Laranja','Marrom'],
+  [1,'Quantos lados tem um hexágono?','6','5','7','8'],
+  [2,'Quem pintou a Mona Lisa?','Leonardo da Vinci','Michelangelo','Rafael','Botticelli'],
+  [2,'Qual elemento químico tem o símbolo Fe?','Ferro','Flúor','Fósforo','Frâncio'],
+  [2,'Em que ano o homem pisou na Lua pela primeira vez?','1969','1965','1972','1961'],
+  [2,'Qual é o osso mais longo do corpo humano?','Fêmur','Tíbia','Úmero','Rádio'],
+  [2,'Quem escreveu Dom Casmurro?','Machado de Assis','José de Alencar','Eça de Queirós','Graciliano Ramos'],
+  [2,'Qual é a capital da Austrália?','Camberra','Sydney','Melbourne','Perth'],
+  [2,'Que gás as plantas absorvem na fotossíntese?','Gás carbônico','Oxigênio','Nitrogênio','Hélio'],
+  [2,'Qual metal é líquido em temperatura ambiente?','Mercúrio','Chumbo','Estanho','Zinco'],
+  [2,'Qual é a capital do Canadá?','Ottawa','Toronto','Montreal','Vancouver'],
+  [2,'Qual é o maior deserto quente do mundo?','Saara','Deserto da Arábia','Gobi','Kalahari'],
+  [3,'Quantos corações tem um polvo?','3','1','2','8'],
+  [3,'Em qual planeta o dia dura mais que o ano?','Vênus','Mercúrio','Marte','Netuno'],
+  [3,'Qual é o menor país do mundo?','Vaticano','Mônaco','San Marino','Liechtenstein'],
+  [3,'Qual é a montanha mais alta da África?','Kilimanjaro','Monte Quênia','Toubkal','Monte Stanley'],
+  [3,'Qual língua tem mais falantes nativos?','Mandarim','Espanhol','Inglês','Hindi'],
+  [3,'Qual é a capital da Turquia?','Ancara','Istambul','Esmirna','Antália'],
+  [3,'Qual oceano banha Moçambique?','Índico','Atlântico','Pacífico','Ártico'],
+  [3,'Qual é o único mamífero que voa de verdade?','Morcego','Esquilo-voador','Colugo','Petauro'],
+];
+const NUM=[
+  {q:'Qual país tem mais habitantes?',u:' milhões',items:[['Brasil',216],['Argentina',46],['Portugal',10.4],['Japão',124],['México',128],['Canadá',39],['Alemanha',84],['França',68],['Itália',59],['Espanha',48],['Chile',19.6],['Egito',112],['Nigéria',224],['Austrália',26.6],['Índia',1428],['EUA',335],['Peru',34],['Colômbia',52],['Uruguai',3.4],['Paraguai',6.9]]},
+  {q:'O que é mais alto?',u:' m',items:[['Monte Everest',8849],['Aconcágua',6961],['Kilimanjaro',5895],['Mont Blanc',4806],['Pico da Neblina',2995],['Monte Fuji',3776],['Pão de Açúcar',396],['Corcovado',710],['Torre Eiffel',330],['Burj Khalifa',828],['Cristo Redentor (só a estátua)',30],['Estátua da Liberdade com pedestal',93]]},
+  {q:'Qual animal adulto pesa mais?',u:' kg (aprox.)',items:[['Elefante-africano',6000],['Hipopótamo',1500],['Rinoceronte-branco',2300],['Girafa',1200],['Urso-polar',450],['Leão',190],['Gorila',160],['Cavalo',500],['Orca',5000],['Avestruz',120],['Onça-pintada',90],['Capivara',50],['Pinguim-imperador',30],['Panda-gigante',100]]},
+  {q:'Qual rio é mais longo?',u:' km',items:[['Nilo',6650],['Yangtzé',6300],['Paraná',4880],['São Francisco',2830],['Danúbio',2850],['Reno',1230],['Sena',777],['Tâmisa',346],['Tejo',1007],['Volga',3530]]},
+];
+const EVENTS=[[-2560,'a Grande Pirâmide de Gizé'],[-753,'a fundação de Roma (pela lenda)'],[476,'a queda do Império Romano do Ocidente'],[1440,'a prensa de Gutenberg'],[1492,'a chegada de Colombo à América'],[1500,'a chegada dos portugueses ao Brasil'],[1616,'a morte de Shakespeare'],[1776,'a independência dos EUA'],[1789,'a Revolução Francesa'],[1808,'a chegada da família real portuguesa ao Brasil'],[1822,'a independência do Brasil'],[1876,'o telefone de Bell'],[1879,'a lâmpada de Edison'],[1888,'a abolição da escravatura no Brasil'],[1889,'a Torre Eiffel'],[1896,'os primeiros Jogos Olímpicos modernos'],[1906,'o voo do 14-Bis'],[1912,'o naufrágio do Titanic'],[1914,'a abertura do Canal do Panamá'],[1928,'a descoberta da penicilina'],[1930,'a primeira Copa do Mundo'],[1945,'o fim da Segunda Guerra Mundial'],[1950,'a primeira transmissão de TV no Brasil'],[1957,'o lançamento do Sputnik'],[1960,'a inauguração de Brasília'],[1969,'a chegada do homem à Lua'],[1989,'a queda do Muro de Berlim'],[1994,'o Plano Real'],[2001,'a criação da Wikipédia'],[2007,'o primeiro iPhone'],[2020,'a pandemia de covid-19']];
+const ODD=[
+  {t:'capitais',in:['Roma','Paris','Madri','Lisboa','Berlim','Buenos Aires'],out:['Sydney','Barcelona','Milão','Nova York','Istambul']},
+  {t:'mamíferos',in:['Baleia','Morcego','Golfinho','Ornitorrinco','Vaca'],out:['Tubarão','Pinguim','Jacaré','Polvo']},
+  {t:'planetas',in:['Mercúrio','Vênus','Marte','Júpiter','Saturno','Netuno'],out:['Plutão','Lua','Sol','Ceres']},
+  {t:'instrumentos de corda',in:['Violão','Violino','Harpa','Cavaquinho','Contrabaixo'],out:['Flauta','Trompete','Bateria','Saxofone']},
+  {t:'pintores',in:['Picasso','Van Gogh','Monet','Tarsila do Amaral','Frida Kahlo'],out:['Mozart','Shakespeare','Einstein']},
+  {t:'países da América do Sul',in:['Chile','Peru','Bolívia','Uruguai','Paraguai','Equador'],out:['México','Panamá','Cuba','Costa Rica']},
+  {t:'gases nobres',in:['Hélio','Neônio','Argônio','Criptônio','Xenônio'],out:['Oxigênio','Hidrogênio','Nitrogênio','Cloro']},
+  {t:'esportes com bola',in:['Futebol','Vôlei','Basquete','Tênis','Handebol'],out:['Natação','Judô','Ciclismo','Remo']},
+  {t:'signos do zodíaco',in:['Áries','Touro','Leão','Escorpião','Peixes'],out:['Dragão','Cavalo','Galo']},
+  {t:'números primos',in:['2','3','5','7','11','13','17'],out:['9','15','21','27']},
+  {t:'línguas latinas',in:['Português','Espanhol','Italiano','Francês','Romeno'],out:['Alemão','Inglês','Holandês','Grego']},
+  {t:'animais que botam ovo',in:['Galinha','Tartaruga','Jacaré','Ornitorrinco','Pinguim'],out:['Golfinho','Morcego','Cavalo']},
+];
+const WORDS=[['ABACAXI','fruta com coroa'],['GIRASSOL','flor que segue o sol'],['BÚSSOLA','aponta o norte'],['BORBOLETA','já foi lagarta'],['CHOCOLATE','vem do cacau'],['DINOSSAURO','sumiu há 66 milhões de anos'],['TELESCÓPIO','para olhar as estrelas'],['PINGUIM','ave que não voa, mas nada'],['FAROL','guia os navios à noite'],['VULCÃO','montanha que cospe lava'],['ARCO-ÍRIS','sol depois da chuva'],['BICICLETA','duas rodas e pedal'],['TARTARUGA','casa nas costas'],['AMPULHETA','relógio de areia'],['CARANGUEJO','anda de lado'],['MARACUJÁ','fruta do suco que acalma'],['XADREZ','rei, rainha e cavalo'],['SAXOFONE','metal com palheta, som de jazz'],['PIRÂMIDE','túmulo de faraó'],['CANGURU','pula e tem bolsa'],['PARAQUEDAS','abre no meio do ar'],['LIQUIDIFICADOR','faz a vitamina'],['HELICÓPTERO','voa sem asas'],['SEREIA','metade gente, metade peixe'],['ÂNCORA','segura o barco parado'],['CATAVENTO','gira com o vento'],['MONTANHA-RUSSA','frio na barriga no parque'],['ORNITORRINCO','mamífero com bico de pato'],['TROMBONE','instrumento de vara']];
+const TALES=[
+  {v:['Polvo tem três corações.','Polvo tem sangue azul.'],m:'Polvo tem dez braços.',fix:'Polvo tem oito braços.'},
+  {v:['Para a botânica, a banana é uma baga.','Para a botânica, o morango não é uma baga.'],m:'O abacate é um legume.',fix:'O abacate é uma fruta.'},
+  {v:['Um dia em Vênus dura mais que um ano em Vênus.','No vácuo do espaço não existe som.'],m:'Dá para ver a Muralha da China da Lua a olho nu.',fix:'Não dá: ela é estreita demais.'},
+  {v:['O fêmur é o osso mais longo do corpo.','Bebês nascem com mais ossos que adultos.'],m:'Usamos só 10% do cérebro.',fix:'Usamos o cérebro todo, só não tudo ao mesmo tempo.'},
+  {v:['O coração do beija-flor passa de mil batidas por minuto.','Flamingos ficam rosa por causa do que comem.'],m:'Avestruz enterra a cabeça na areia quando tem medo.',fix:'É lenda: ele abaixa a cabeça para cuidar dos ovos.'},
+  {v:['O cavalo-marinho macho é quem fica grávido.','Boa parte do oxigênio que respiramos vem das algas do mar.'],m:'Peixe-dourado tem memória de 3 segundos.',fix:'Ele lembra das coisas por meses.'},
+  {v:['Um raio é mais quente que a superfície do Sol.','Raio pode cair duas vezes no mesmo lugar.'],m:'Ficar debaixo de uma árvore protege do raio.',fix:'É um dos piores lugares para ficar.'},
+  {v:['Mel bem guardado praticamente não estraga.','Chocolate faz mal para cachorro.'],m:'Chiclete engolido fica 7 anos no estômago.',fix:'Ele sai em poucos dias, como o resto.'},
+  {v:['Morcego não é cego.','Elefante não consegue pular.'],m:'Camelo guarda água na corcova.',fix:'A corcova é gordura.'},
+  {v:['O primeiro iPhone saiu em 2007.','A Wikipédia foi criada em 2001.'],m:'O primeiro e-mail foi enviado em 1995.',fix:'Foi em 1971.'},
+  {v:['Napoleão tinha altura normal para a época.','Os vikings não usavam capacete com chifres.'],m:'A Torre de Pisa foi feita torta de propósito.',fix:'Ela entortou porque o chão cedeu.'},
+  {v:['A cidade de São Paulo tem mais habitantes que Portugal inteiro.','O Brasil faz fronteira com quase todos os países da América do Sul.'],m:'O Rio de Janeiro é a cidade mais populosa do Brasil.',fix:'É São Paulo.'},
+];
+const EST=[
+  {q:'Quantos ossos tem o corpo humano adulto?',a:206,lo:50,hi:400,step:1,u:'',t:25},
+  {q:'Quantos países fazem parte da ONU?',a:193,lo:100,hi:260,step:1,u:'',t:15},
+  {q:'Qual a altura do Cristo Redentor, sem o pedestal?',a:30,lo:5,hi:100,step:1,u:' m',t:6},
+  {q:'Quantas teclas tem um piano?',a:88,lo:30,hi:160,step:1,u:'',t:8},
+  {q:'Quantos quilômetros tem uma maratona?',a:42,lo:10,hi:100,step:1,u:' km',t:4},
+  {q:'Qual a altura do Monte Everest?',a:8849,lo:3000,hi:15000,step:50,u:' m',t:700},
+  {q:'Quantos dentes tem um adulto, contando os sisos?',a:32,lo:10,hi:60,step:1,u:'',t:4},
+  {q:'Em que ano o Titanic afundou?',a:1912,lo:1850,hi:2000,step:1,u:'',t:10},
+  {q:'Quantos litros de sangue tem um adulto, mais ou menos?',a:5,lo:1,hi:20,step:.5,u:' L',t:1.2},
+  {q:'Quantas estrelas tem a bandeira do Brasil?',a:27,lo:5,hi:60,step:1,u:'',t:4},
+  {q:'Qual a distância da Terra até a Lua, em mil km?',a:384,lo:50,hi:1000,step:5,u:' mil km',t:50},
+  {q:'Quantos anos durou a Guerra dos Cem Anos?',a:116,lo:50,hi:200,step:1,u:' anos',t:15},
+  {q:'Quantas toneladas pesa um elefante-africano macho?',a:6,lo:1,hi:20,step:.5,u:' t',t:1.5},
+  {q:'Qual a velocidade máxima de um guepardo?',a:110,lo:30,hi:200,step:5,u:' km/h',t:15},
+];
+
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0'), ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, dm=d=>d.split('-').reverse().slice(0,2).join('/');
+const store={get(k){try{return JSON.parse(localStorage.getItem('goodcatch-descida:'+k))}catch{return null}},set(k,v){try{localStorage.setItem('goodcatch-descida:'+k,JSON.stringify(v))}catch{}}};
+const ease=p=>p<.5?2*p*p:1-(-2*p+2)**2/2, pick=(rng,a)=>a[Math.floor(rng()*a.length)];
+const shuffle=(rng,a)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+const fmt=n=>n.toLocaleString('pt-BR');
+const yr=y=>y<0?`${-y} a.C.`:String(y);
+const LET='ABCD';
+
+const NAMES={dourado:'Dourado',garoupa:'Garoupa',papagaio:'Peixe-papagaio',leao:'Peixe-leão',manta:'Raia-manta'};
+const BIG=Object.keys(NAMES), FEM={manta:1,garoupa:1};
+const o=sp=>(FEM[sp]?'a ':'o ')+NAMES[sp].toLowerCase();
+const LAYERS=[
+  {name:'Superfície',m:5,c:['#6FD0D8','#3AAFC0'],fish:'sardinha',snag:'bota',lose:'O anzol enroscou numa bota velha, logo na superfície.'},
+  {name:'Recife',m:20,c:['#35A3B5','#1E8399'],fish:'palhaco',snag:'lata',lose:'Fisgou uma lata de sardinha. Vazia.'},
+  {name:'Algas',m:45,c:['#1E7F86','#16626A'],fish:'cavalo',snag:'pneu',lose:'A linha enrolou num pneu coberto de alga.'},
+  {name:'Naufrágio',m:80,c:['#165B6E','#0F4457'],fish:'anjo',snag:'ancora',lose:'O anzol prendeu na âncora do navio afundado, e quem foi puxado foi o barco.'},
+  {name:'Abismo',m:130,c:['#0E3A4E','#082638'],fish:'linguado',snag:'polvo',lose:'Um polvo levou a isca e devolveu um bilhete: “valeu”.'},
+  {name:'Fundo',m:200,c:['#08283A','#04141F'],boss:true,snag:'linha',lose:'O peixão deu um tranco e arrebentou a linha.'},
+];
+const PTS=[100,150,200,250,300], BOSS=500;
+const RELICS={isca:{icon:'🪱',name:'Isca'},troca:{icon:'🔄',name:'Troca'},puca:{icon:'🥅',name:'Puçá'}};
+
+// ---------- formats: gen(rng, lvl) → state ----------
+// Choice states: {kind:'choice', q, ctx?, opts:[text], ans, after, cols?}
+const F={
+  trivia:{icon:'🍾',obj:'uma garrafa com mensagem',gen(r,l){
+    const d=l<2?1:l<4?2:3,[,q,a,...w]=pick(r,TRIVIA.filter(t=>t[0]===d));
+    const opts=shuffle(r,[a,...w]);return {kind:'choice',q,opts,ans:opts.indexOf(a),after:`Resposta: ${a}.`}}},
+  maismenos:{icon:'🐚',obj:'duas conchas, cada uma com um nome',gen(r,l){
+    const R=[3,2,1.6,1.35,1.2][l],G=[300,150,60,25,10][l];
+    for(;;){
+      if(r()<.25){const [a,b]=shuffle(r,EVENTS);if(Math.abs(a[0]-b[0])<G)continue;
+        const opts=[a,b];return {kind:'choice',q:'O que veio primeiro?',opts:opts.map(e=>e[1][0].toUpperCase()+e[1].slice(1)),ans:a[0]<b[0]?0:1,cols:1,after:`${yr(a[0])} e ${yr(b[0])}.`}}
+      const c=pick(r,NUM),[a,b]=shuffle(r,c.items);const hi=Math.max(a[1],b[1]),lo=Math.min(a[1],b[1]);if(hi/lo<R)continue;
+      return {kind:'choice',q:c.q,opts:[a[0],b[0]],ans:a[1]>b[1]?0:1,cols:2,after:`${a[0]}: ${fmt(a[1])}${c.u}. ${b[0]}: ${fmt(b[1])}${c.u}.`}}}},
+  tempo:{icon:'📰',obj:'um jornal velho, todo molhado',gen(r,l){
+    const G=[100,50,30,15,5][l];
+    for(;;){const four=shuffle(r,EVENTS).slice(0,4).sort((a,b)=>a[0]-b[0]);
+      if(four.some((e,i)=>i&&e[0]-four[i-1][0]<G))continue;
+      const k=Math.floor(r()*4),ev=four[k],rest=four.filter((_,i)=>i!==k);
+      const opts=[`Antes de ${yr(rest[0][0])}`,`Entre ${yr(rest[0][0])} e ${yr(rest[1][0])}`,`Entre ${yr(rest[1][0])} e ${yr(rest[2][0])}`,`Depois de ${yr(rest[2][0])}`];
+      return {kind:'choice',q:`Quando foi ${ev[1]}?`,ctx:rest.map(e=>`${yr(e[0])}: ${e[1]}`).join('<br>'),opts,ans:k,after:`Foi em ${yr(ev[0])}.`}}}},
+  intruso:{icon:'📦',obj:'uma caixa de achados e perdidos',gen(r,l){
+    const g=pick(r,ODD),opts=shuffle(r,[...shuffle(r,g.in).slice(0,3),pick(r,g.out)]);
+    return {kind:'choice',q:'Um destes não é do grupo. Qual?',opts,ans:opts.findIndex(x=>!g.in.includes(x)),cols:2,after:`Os outros três são ${g.t}.`}}},
+  pescador:{icon:'📻',obj:'um rádio velho, com três pescadores contando vantagem',gen(r,l){
+    const t=pick(r,TALES),opts=shuffle(r,[...t.v,t.m]);
+    return {kind:'choice',q:'É história de pescador: um deles está mentindo. Qual?',opts,ans:opts.indexOf(t.m),after:t.fix}}},
+  forca:{icon:'🛟',obj:'uma boia com o nome do barco meio apagado',gen(r,l){
+    const pool=WORDS.filter(([w])=>l<2?w.length<=8:l<4?w.length>=7:w.length>=9),[w,hint]=pick(r,pool);
+    const letters=[...new Set([...norm(w)].filter(c=>/[A-Z]/.test(c)))];
+    const show=new Set(shuffle(r,letters).slice(0,Math.round(letters.length*[.45,.4,.3,.25,.2][l])));
+    return {kind:'word',w,hint,show,used:new Set(show),miss:0,lives:3}}},
+  estimativa:{icon:'🐟',obj:'o peixão',gen(r){
+    const e=pick(r,EST);return {kind:'num',...e,v:e.lo}}},
+};
+
+function genDay(date){
+  const r=mulberry(seedFrom(`${date}:descida`));
+  return {formats:[...shuffle(r,Object.keys(F).filter(k=>k!=='estimativa')).slice(0,5),'estimativa'],sp:pick(r,BIG),
+    relics:shuffle(r,['isca','isca','troca','troca','puca','puca']).slice(0,3)};
+}
+const puzzle=(date,i,id,swap)=>F[id].gen(mulberry(seedFrom(`${date}:descida:${i}:${swap}`)),Math.min(i,4));
+
+// ---------- state ----------
+const urlDay=new URLSearchParams(location.search).get('dia');
+const today=ymd(new Date());
+let date=/^\d{4}-\d{2}-\d{2}$/.test(urlDay||'')?urlDay:today, st=null;
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches, DESC=RM?0:1700;
+
+function newRun(){
+  const day=genDay(date),bag={isca:0,troca:0,puca:0};day.relics.forEach(k=>bag[k]++);
+  st={day,i:0,res:[],score:0,caught:[],bag,shield:false,swap:0,s:null,anim:null,end:null};
+  $('sub').textContent=`Descida de ${dm(date)}${date===today?'':' · treino'}`;
+  $('startHow').textContent=`Hoje lá embaixo mora ${o(day.sp)}. Cinco camadas até ele.`;
+  $('start').hidden=false;$('card').hidden=true;$('end').hidden=true;
+  render();
+}
+function render(){
+  $('score').textContent=`${fmt(st.score)} pts`;
+  const live=st.s&&st.s.pick===undefined&&!st.anim&&!st.end;
+  $('relics').innerHTML=Object.entries(st.bag).filter(([,n])=>n).map(([k,n])=>
+    `<button class="relic${k==='puca'&&st.shield?' on':''}" data-r="${k}" ${live&&canUse(k)?'':'disabled'} aria-label="${RELICS[k].name}, ${n}">${RELICS[k].icon}<small>${n>1?'×'+n:''}</small></button>`).join('')||'<span style="font-size:18px;opacity:.6">sem relíquias</span>';
+}
+function canUse(k){const s=st.s;
+  if(k==='puca')return !st.shield;
+  if(k==='troca')return true;
+  if(s.kind==='choice')return s.opts.length-1-(s.gone?.size||0)>1;
+  if(s.kind==='word')return [...norm(s.w)].some(c=>/[A-Z]/.test(c)&&!s.show.has(c));
+  return !s.narrow;
+}
+$('relics').onclick=e=>{const b=e.target.closest('[data-r]');if(!b||b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--;
+  if(k==='puca'){st.shield=true;flash('Puçá pronto')}
+  if(k==='troca'){st.swap++;st.s=puzzle(date,st.i,st.day.formats[st.i],st.swap);flash('Trocou!')}
+  if(k==='isca'){
+    if(s.kind==='choice'){s.gone??=new Set();const w=[...s.opts.keys()].filter(i=>i!==s.ans&&!s.gone.has(i));s.gone.add(w[Math.floor(Math.random()*w.length)])}
+    if(s.kind==='word'){const c=[...new Set([...norm(s.w)])].filter(c=>/[A-Z]/.test(c)&&!s.show.has(c));const L=c[Math.floor(Math.random()*c.length)];s.show.add(L);s.used.add(L);if(solved(s))return drawCard(),correct()}
+    if(s.kind==='num'){const lo=Math.max(s.lo,s.a-2*s.t-Math.random()*s.t),hi=Math.min(s.hi,lo+3*s.t);s.lo=Math.floor(lo/s.step)*s.step;s.hi=Math.ceil(hi/s.step)*s.step;s.v=s.lo;s.narrow=true}
+  }
+  drawCard();render();
+};
+
+// ---------- the card ----------
+function drawCard(){
+  const s=st.s,id=st.day.formats[st.i],L=LAYERS[st.i],c=$('card'),done=s.pick!==undefined;
+  let h=`<div class="obj">${L.name} · ${L.m} m · ${L.boss?`<b>${NAMES[st.day.sp]} mordeu!</b> Puxe acertando o número.`:`o anzol fisgou ${F[id].obj} ${F[id].icon}`}</div>`;
+  if(s.kind==='choice'){
+    h+=`<p class="q">${s.q}</p>${s.ctx?`<p class="ctx">${s.ctx}</p>`:''}<div class="opts${s.cols===2?' duo':''}">`+
+      s.opts.map((t,i)=>{const k=[s.gone?.has(i)&&'gone',done&&i===s.ans&&'right',done&&i===s.pick&&i!==s.ans&&'wrong'].filter(Boolean).join(' ');
+        return `<button class="opt ${k}" data-i="${i}" ${done||s.gone?.has(i)?'disabled':''}><b>${LET[i]}</b>${t}</button>`}).join('')+'</div>';
+    if(done)h+=`<p class="after">${s.after}</p>`;
+  }
+  if(s.kind==='word'){
+    h+=`<p class="q">Que nome era? <span style="color:var(--ink-soft)">Dica: ${s.hint}</span></p><div class="word">`+
+      [...s.w].map(ch=>{const n=norm(ch);return /[A-Z]/.test(n)?`<i>${s.show.has(n)||done?ch:''}</i>`:`<i class="sep">${ch}</i>`}).join('')+'</div>'+
+      `<p class="after">Letra errada: ${'❌'.repeat(s.miss)}${'▫️'.repeat(Math.max(0,s.lives-s.miss))} · ${s.lives} erros e enrosca</p><div class="keys">`+
+      [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(k=>{const used=s.used.has(k),hit=used&&norm(s.w).includes(k);
+        return `<button class="key${used?hit?' hit':' miss':''}" data-k="${k}" ${used||done?'disabled':''}>${k}</button>`}).join('')+'</div>';
+  }
+  if(s.kind==='num'){
+    h+=`<p class="q">${s.q}</p><div class="est"><output id="ov">${fmt(s.v)}${s.u}</output>
+      <div class="row"><button class="step" data-d="-1" ${done?'disabled':''}>−</button><input type="range" id="rv" min="${s.lo}" max="${s.hi}" step="${s.step}" value="${s.v}" ${done?'disabled':''}><button class="step" data-d="1" ${done?'disabled':''}>+</button></div>
+      ${s.narrow?`<span class="after">A isca diz: fica entre ${fmt(s.lo)} e ${fmt(s.hi)}.</span>`:''}${s.hint?`<span class="after">${s.hint}</span>`:''}
+      ${done?`<p class="after">Resposta: ${fmt(s.a)}${s.u}. Você: ${fmt(s.pick)}${s.u}.</p>`:'<button class="btn" id="pull">Puxar!</button>'}</div>`;
+  }
+  c.innerHTML=h;c.hidden=false;
+  const rv=$('rv');if(rv&&!done)rv.oninput=()=>{s.v=+rv.value;$('ov').textContent=fmt(s.v)+s.u};
+}
+$('card').onclick=e=>{
+  const s=st.s;if(!s||st.anim||st.end||s.pick!==undefined)return;
+  const o=e.target.closest('.opt'),k=e.target.closest('.key'),d=e.target.closest('.step'),p=e.target.closest('#pull');
+  if(o&&!o.disabled){const i=+o.dataset.i;
+    if(i===s.ans){s.pick=i;drawCard();return correct()}
+    if(st.shield){st.shield=false;(s.gone??=new Set()).add(i);flash('O puçá segurou!');drawCard();return render()}
+    s.pick=i;drawCard();return wrong()}
+  if(k&&!k.disabled){const L=k.dataset.k;s.used.add(L);
+    if(norm(s.w).includes(L)){s.show.add(L);drawCard();if(solved(s)){s.pick=1;drawCard();return correct()}return}
+    s.miss++;
+    if(s.miss>=s.lives){if(st.shield){st.shield=false;s.lives++;flash('O puçá segurou!');drawCard();return render()}s.pick=0;drawCard();return wrong()}
+    return drawCard()}
+  if(d&&!d.disabled){s.v=Math.min(s.hi,Math.max(s.lo,+(s.v+ +d.dataset.d*s.step).toFixed(2)));$('rv').value=s.v;$('ov').textContent=fmt(s.v)+s.u;return}
+  if(p){const off=Math.abs(s.v-s.a);
+    if(off<=s.t){s.pick=s.v;s.perfect=off<=s.t/3;drawCard();return correct()}
+    if(st.shield){st.shield=false;s.hint=`O puçá segurou! É ${s.v<s.a?'mais':'menos'} que ${fmt(s.v)}.`;flash('O puçá segurou!');drawCard();return render()}
+    s.pick=s.v;drawCard();return wrong()}
+};
+const solved=s=>[...norm(s.w)].every(c=>!/[A-Z]/.test(c)||s.show.has(c));
+
+// ---------- flow ----------
+let flashT;
+function flash(t){const f=$('flash');f.textContent=t;f.hidden=false;clearTimeout(flashT);flashT=setTimeout(()=>f.hidden=true,1100)}
+function openLayer(){st.swap=0;st.s=puzzle(date,st.i,st.day.formats[st.i],0);drawCard();render();$('card').scrollIntoView({block:'nearest',behavior:'smooth'})}
+function correct(){
+  const L=LAYERS[st.i];st.res[st.i]='ok';render();
+  if(L.boss){const s=st.s;st.score+=BOSS+(s.perfect?250:0);flash(s.perfect?'Perfect catch!':'Good catch!');
+    st.q=s.perfect?96:Math.round(60+(1-Math.abs(s.pick-s.a)/s.t)*30);return setTimeout(()=>finish('done'),1300)}
+  st.score+=PTS[st.i];st.caught.push(L.fish);flash('Good catch!');render();
+  setTimeout(()=>{$('card').hidden=true;st.s=null;st.anim={from:st.i,t0:performance.now(),done:openLayer};st.i++;render()},1300);
+}
+function wrong(){st.res[st.i]='bad';render();flash('Enroscou!');setTimeout(()=>finish('snag'),1500)}
+
+// ---------- the scene ----------
+const sc=$('scene').getContext('2d'),W=320,H=200;
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`};
+function water(L,alpha){sc.globalAlpha=alpha;for(let b=0;b<10;b++)dot(sc,mix(L.c[0],L.c[1],b/9),0,b*20,W,20);sc.globalAlpha=1}
+function drawScene(now){
+  requestAnimationFrame(drawScene);if(!st)return;
+  const x=sc;x.imageSmoothingEnabled=false;
+  let L=LAYERS[st.i],depth=L.m,e=1,moving=false;
+  if(st.anim){const p=DESC?Math.min(1,(now-st.anim.t0)/DESC):1;e=ease(p);moving=p<1;const F0=LAYERS[st.anim.from];
+    depth=Math.round(F0.m+(L.m-F0.m)*e);water(F0,1);water(L,e);if(p>=1){const cb=st.anim.done;st.anim=null;cb()}}
+  else water(L,1);
+  if(st.i===0&&!st.anim)for(let i=0;i<4;i++){x.fillStyle='rgba(255,255,230,.10)';x.beginPath();x.moveTo(60+i*70,0);x.lineTo(90+i*70,0);x.lineTo(40+i*70,H);x.lineTo(20+i*70,H);x.fill()}
+  const sp=moving?6:1;
+  for(let i=0;i<16;i++){const y=H-((now/40*(1+i%3)*sp+i*53)%(H+10));dot(x,'rgba(255,255,255,.35)',(i*41+20)%W,Math.round(y),2+(i%2),2+(i%2))}
+  const fishSp=(st.anim?LAYERS[st.anim.from]:L).fish;
+  if(fishSp)for(let i=0;i<3;i++){const dir=i%2?-1:1,fx=((now/28*(1+i*.3)+i*150)%420)-50,fy=40+i*50-(moving?e*H*1.2:0);
+    if(fy>-30)art(x,`fish/${fishSp}`,Math.round(dir>0?fx:W-fx),Math.round(fy),dir>0)}
+  const bob=Math.round(Math.sin(now/500)*2),hy=112+bob;
+  dot(x,'rgba(255,246,222,.85)',W/2,0,1,hy);
+  dot(x,'#C9CED6',W/2,hy,2,8);dot(x,'#C9CED6',W/2-4,hy+8,6,2);dot(x,'#C9CED6',W/2-4,hy+4,2,4);
+  if(st.s&&!st.anim){
+    if(L.boss){x.save();x.translate(W/2-34,hy+10);x.scale(2,2);art(x,`fish/${st.day.sp}:dark`,0,0);x.restore()}
+    else{x.font='30px serif';x.textAlign='center';x.textBaseline='middle';x.fillText(F[st.day.formats[st.i]].icon,W/2,hy+30)}
+  }
+  dot(x,'rgba(4,16,26,.45)',8,10,14,180);
+  LAYERS.forEach((_,k)=>{const y=18+k*32,r=st.res[k],c=r==='ok'?'#F2B33D':r==='bad'?'#C2483A':k===st.i&&!st.end?'#FFF1D0':'#5E7E86';dot(x,'#2E1A0C',11,y-1,8,8);dot(x,c,12,y,6,6)});
+  x.fillStyle='#FFF1D0';x.font='20px "Jersey 10"';x.textAlign='right';x.textBaseline='alphabetic';
+  x.fillText(`${(st.anim?LAYERS[e<.5?st.anim.from:st.i]:L).name} · ${depth} m`,W-8,22);
+}
+
+// ---------- the photo ----------
+const SEA={sky:['#9FE3F2','#C9F1F6'],sea:['#3FC1C9','#1E8FA6','#14708A'],bed:'#E9D49A',deco:'#F28A80'};
+function backdrop(x,S,w,h,hz){
+  dot(x,S.sky[0],0,0,w,hz*.5);dot(x,S.sky[1],0,hz*.5,w,hz*.5);dot(x,'#FFF3B0',w-60,14,18,18);
+  const bands=[hz,hz+(h-hz)*.3,hz+(h-hz)*.65,h];S.sea.forEach((c,i)=>dot(x,c,0,bands[i],w,bands[i+1]-bands[i]));
+  for(let i=0;i<w+16;i+=16)dot(x,'rgba(255,255,255,.35)',i,hz+1+((i>>4)%2)*3,8,1);
+  dot(x,S.bed,0,h-10,w,10);for(let i=0;i<7;i++)dot(x,S.deco,i*53+17,h-16,10+i%3*4,6);
+}
+function boat(x,X,by){
+  dot(x,'rgba(4,20,40,.35)',X-26,by+12,52,4);dot(x,'#5E3A1A',X-26,by,52,4);dot(x,'#5E3A1A',X-22,by+4,44,4);dot(x,'#5E3A1A',X-18,by+8,36,4);
+  dot(x,'#9A6A3C',X-24,by+2,48,2);dot(x,'#B98553',X-20,by+6,40,2);
+}
+function paintPhoto(){
+  const c=$('photo'),x=c.getContext('2d'),PW=320,PH=216,hz=96,X=110,by=hz+30,done=st.end==='done',L=LAYERS[st.i];
+  x.imageSmoothingEnabled=false;x.clearRect(0,0,320,256);backdrop(x,SEA,PW,PH,hz);
+  boat(x,X,by);art(x,'portrait/'+(done?'catHappy':'catFace'),X-32,by-52);
+  st.caught.forEach((f,i)=>art(x,`fish/${f}`,14+i*22,PH-34));
+  for(let i=0;i<30;i++)dot(x,'#8A6A40',X+20+i*1.6,by-30-i*1.5,2,2);
+  const tx=X+68,ty=by-74;dot(x,'#FFF1D0',tx+8,ty,1,16);
+  if(done){art(x,'portrait/'+st.day.sp,X+34,by-66);for(let i=0;i<5;i++)dot(x,'#FFE27A',X+40+i*12,by-74+(i%2)*6,3,3)}
+  else if(L.snag==='bota'){const bx=tx,bt=ty+14;dot(x,'#4A2E14',bx,bt,18,30);dot(x,'#4A2E14',bx,bt+24,34,14);dot(x,'#2E1A0C',bx,bt+36,34,4);dot(x,'#6B4A2A',bx+2,bt+2,4,26);for(let i=0;i<4;i++)dot(x,'#C9A070',bx+6,bt+6+i*5,8,1)}
+  else if(L.snag==='linha'){x.strokeStyle='rgba(255,246,222,.85)';x.beginPath();x.moveTo(tx+8,ty+16);x.quadraticCurveTo(tx+30,ty+40,tx+20,ty+56);x.stroke();art(x,'portrait/'+st.day.sp,206,hz-58,true);for(let i=0;i<6;i++)dot(x,'#FFFFFF',214+i*8,hz-2-(i%2)*6,4,4)}
+  else{x.font='40px serif';x.textAlign='center';x.textBaseline='middle';x.fillText({lata:'🥫',pneu:'🛞',ancora:'⚓',polvo:'🐙'}[L.snag],tx+9,ty+40);
+    if(L.snag==='polvo'){dot(x,'#FFF8E6',tx+30,ty+30,40,18);x.fillStyle='#3B2414';x.font='16px "Jersey 10"';x.fillText('valeu',tx+50,ty+40)}}
+  dot(x,'#F6E7C1',0,PH,320,40);
+  x.fillStyle='#3B2414';x.font='22px "Jersey 10"';x.textAlign='left';x.textBaseline='alphabetic';x.fillText(`Good Catch · Descida ${dm(date)}`,10,PH+18);
+  x.fillStyle='#6B4A2A';x.font='18px "Jersey 10"';
+  x.fillText(done?`${NAMES[st.day.sp]} de ${st.cm} cm · ${fmt(st.score)} pts`:`Enroscou a ${L.m} m · ${fmt(st.score)} pts`,10,PH+34);
+}
+async function finish(end){
+  st.end=end;$('card').hidden=true;const L=LAYERS[st.i];
+  if(end==='done'){st.cm=cmOf(st.q,CM[st.day.sp]);st.score+=50*Object.values(st.bag).reduce((a,b)=>a+b,0)}
+  const story=end==='done'?`Good catch! ${NAMES[st.day.sp]} de ${st.cm} cm, lá do fundo.`:L.lose;
+  $('story').textContent=story;
+  const icons=st.day.formats.map((id,i)=>st.res[i]==='ok'?(LAYERS[i].boss?'🐟':F[id].icon):st.res[i]==='bad'?'❌':'▫️').join(' ');
+  $('share').value=`Good Catch · Descida ${dm(date)}\n${icons}\n${end==='done'?`${NAMES[st.day.sp]} de ${st.cm} cm`:`Enroscou a ${L.m} m`} · ${fmt(st.score)} pts\ngoodcatch.fish/descida/`;
+  if(date===today&&!store.get(date)){store.set(date,{end,depth:L.m,score:st.score,cm:st.cm||0});
+    track(end==='done'?`descida/fundo${st.q>=96?'-perfect':''}`:`descida/enroscou-${st.i+1}`,1)}
+  render();await ART_READY;await document.fonts?.ready;paintPhoto();
+  $('end').hidden=false;$('end').scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+const GC_CODE='belarba';
+function track(path,event){
+  if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return;
+  try{new Image().src=`https://${GC_CODE}.goatcounter.com/count?p=${encodeURIComponent(path)}&t=${encodeURIComponent(event?path:document.title)}${event?'&e=true':`&r=${encodeURIComponent(document.referrer)}&s=${screen.width},${screen.height},${devicePixelRatio}`}&rnd=${Math.random()}`}catch{}
+}
+$('go').onclick=()=>{$('start').hidden=true;if(date===today&&!store.get(date))track('descida/start',1);openLayer()};
+$('copy').onclick=()=>{track('descida/share',1);$('share').select();navigator.clipboard?.writeText($('share').value).catch(()=>{});$('copy').textContent='Copiado'};
+$('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-${date}.png`,{type:'image/png'});
+  if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:$('share').value})}catch{}return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
+$('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('other').onclick=()=>{date=ymd(new Date(2026,0,1+Math.floor(Math.random()*700)));$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('gotit').onclick=()=>{$('help').hidden=true;store.set('seenHelp',1)};
+$('help').hidden=!!store.get('seenHelp');
+if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS});
+track(location.pathname);
+await ART_READY;
+newRun();
+requestAnimationFrame(drawScene);
+</script>
+</body>
+</html>
