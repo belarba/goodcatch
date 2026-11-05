@@ -56,3 +56,20 @@ of the boat, one ignores the reef) and prints each as a % of the card's best, th
 medians and how many map/card pairs a naive player solves to within 90% (trivial ones).
 `node tools/depth.mjs check` only runs the self-checks, including `leakPath`'s.
 
+
+## Timing fishing prototype
+
+`novo-jogo/index.html` is the standalone five-fish timing prototype on
+`prototype/timing-fishing`. Serve the repository and open `/novo-jogo/`.
+Cast, then press the Hook button (touch, click, Space or Enter) to stop the cursor.
+Red escapes, yellow catches, green is a Perfect Catch. There is no time bonus.
+The sequence and bar settings use the UTC date, identical worldwide; the date is
+pinned when the page opens. Replays are unlimited for playtesting and results
+are session-only. The original game and village backend are independent.
+
+Tuning lives in `daily()`: catch width, perfect width and speed (bar widths per
+second). The cursor reflects at each edge. Backgrounding pauses the line.
+Only the essential cursor moves with reduced motion enabled. Art is reused from
+`art/`; Jersey 10 is bundled locally under its accompanying OFL license.
+
+Checks: `node tools/timing-check.mjs` and `node tools/pista-check.mjs`.
