@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Good Catch · Descida (protótipo)</title>
+<meta name="description" content="Desça o anzol por cinco camadas de mar até o peixão do dia. Errou, enroscou.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://goodcatch.fish/descida/">
+<meta property="og:title" content="Good Catch · Descida">
+<meta property="og:description" content="Desça o anzol por cinco camadas de mar até o peixão do dia. Errou, enroscou.">
+<meta property="og:image" content="https://goodcatch.fish/descida/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap">
 <style>
@@ -74,6 +83,30 @@ h1 span{color:var(--gold)}
 .step{appearance:none;width:40px;height:40px;background:#FFF8E6;border:2px solid var(--bark);font:400 26px/1 var(--pixel);color:var(--ink);cursor:pointer}
 .panel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .panel p{margin:0;font-size:22px}
+.verdict{margin:0;font:400 34px/1 var(--pixel);color:var(--ink)}
+.tally{width:100%;border-collapse:collapse;font-size:20px;color:var(--ink)}
+.tally td{padding:3px 2px;white-space:nowrap}
+.tally td:first-child{text-align:left}
+.tally td:nth-child(2){text-align:center}
+.tally td:last-child{text-align:right}
+.tally tr.off td{color:rgba(59,36,20,.35)}
+.tally tr.sum td{padding-top:4px;color:var(--ink-soft)}
+.tally tr.total td{border-top:3px solid var(--ink);padding-top:6px;font-size:26px}
+.rank{color:var(--ink-soft)}
+.rank b{font-weight:400;font-size:34px;color:var(--bad);vertical-align:-3px}
+.cais{width:100%;display:flex;flex-direction:column;gap:4px;text-align:left;padding:8px;background:#FFF8E6;border:2px dashed var(--ink-soft)}
+.cais b{font-weight:400;font-size:22px}
+.cais p{font-size:18px;color:var(--ink-soft)}
+.cais .row{display:grid;grid-template-columns:132px 1fr 44px;gap:6px;align-items:center;font-size:18px}
+.cais .row i{display:block;height:12px;background:var(--ink-soft)}
+.cais .row.me{color:var(--bad)}
+.cais .row.me i{background:var(--bad)}
+.cais .row span:last-child{text-align:right}
+.week{display:flex;gap:4px;justify-content:center}
+.week div{width:40px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:16px;color:var(--ink-soft)}
+.week div span{font-size:22px;line-height:1}
+.week div.now{color:var(--ink)}
+.streak{font-size:18px;color:var(--ink-soft)}
 .photo{width:100%;padding:10px 10px 4px;background:#FFF8E6;box-shadow:0 10px 20px rgba(4,16,26,.5);transform:rotate(-1.5deg)}
 .photo canvas{display:block;width:100%;image-rendering:pixelated}
 .two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -84,7 +117,7 @@ header{position:relative}
 .ask.mute.off{opacity:.45;text-decoration:line-through}
 dialog{padding:0;border:0;background:none;width:min(440px,calc(100vw - 32px));max-width:none}
 dialog::backdrop{background:rgba(4,16,26,.6)}
-textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
+textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
 .foot{text-align:center;font-size:18px;color:#BFE7E6}
 .foot a{color:var(--sun)}
 </style>
@@ -112,14 +145,21 @@ textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);
   <section class="parch card" id="card" hidden aria-live="polite"></section>
 
   <section class="parch panel" id="end" hidden>
+    <h2 class="verdict" id="verdict"></h2>
+    <table class="tally" id="tally"></table>
+    <p class="rank" id="rank"></p>
+    <section class="cais" id="cais" hidden aria-live="polite"></section>
     <div class="photo"><canvas id="photo" width="320" height="256"></canvas></div>
     <p id="story"></p>
     <textarea id="share" readonly></textarea>
     <div class="two"><button class="btn" id="save">Salvar foto</button><button class="btn" id="copy">Copiar</button></div>
-    <div class="two"><button class="btn dull" id="retry">Tentar de novo</button><button class="btn dull" id="other">Outro dia</button></div>
+    <div class="week" id="week"></div>
+    <p class="streak" id="streak"></p>
+    <div class="two"><button class="btn dull" id="retry" hidden>Tentar de novo</button><button class="btn dull" id="other">Treinar outro dia</button><button class="btn dull" id="home" hidden>Voltar para hoje</button></div>
   </section>
 
   <p class="foot">Protótipo de teste. O jogo do dia continua em <a href="/">goodcatch.fish</a>.</p>
+  <p class="foot">Sem cookies e sem cadastro. Para mostrar o cais, o jogo envia até onde você chegou e seus pontos, com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.</p>
 </div>
 <script type="module">
 // Painter and sprites come from the live game; breaks if @gen-start or the catch-scene marker move.
@@ -131,22 +171,14 @@ const {mulberry,seedFrom,art,ART,ART_DIM,ART_READY,dot,CM,cmOf}=new Function(
 // ---------- content (facts to review) ----------
 const TRIVIA=[
   [1,'Qual é o maior oceano da Terra?','Pacífico','Atlântico','Índico','Ártico'],
-  [1,'Quantas patas tem uma aranha?','8','6','10','12'],
   [1,'Qual planeta é chamado de planeta vermelho?','Marte','Júpiter','Vênus','Saturno'],
   [1,'Em que país ficam as pirâmides de Gizé?','Egito','México','Peru','Grécia'],
   [1,'Qual é a capital da Argentina?','Buenos Aires','Montevidéu','Santiago','Lima'],
   [1,'Qual é o maior animal do mundo?','Baleia-azul','Elefante-africano','Tubarão-baleia','Girafa'],
   [1,'Quantos minutos tem o tempo normal de uma partida de futebol?','90','80','100','120'],
-  [1,'Azul misturado com amarelo dá que cor?','Verde','Roxo','Laranja','Marrom'],
-  [1,'Quantos lados tem um hexágono?','6','5','7','8'],
   [1,'Quantos dias tem um ano bissexto?','366','365','364','367'],
   [1,'Qual é o planeta mais perto do Sol?','Mercúrio','Vênus','Terra','Marte'],
   [1,'Quantas cores tem o arco-íris?','7','5','6','8'],
-  [1,'Em que continente fica o Brasil?','América do Sul','África','Europa','Oceania'],
-  [1,'Qual é o idioma oficial do Brasil?','Português','Espanhol','Inglês','Tupi'],
-  [1,'Quantos jogadores de cada time ficam em campo no futebol?','11','10','9','12'],
-  [1,'O que a abelha produz?','Mel','Leite','Seda','Lã'],
-  [1,'Qual animal é chamado de rei da selva?','Leão','Tigre','Elefante','Gorila'],
   [2,'Quem pintou a Mona Lisa?','Leonardo da Vinci','Michelangelo','Rafael','Botticelli'],
   [2,'Qual elemento químico tem o símbolo Fe?','Ferro','Flúor','Fósforo','Frâncio'],
   [2,'Em que ano o homem pisou na Lua pela primeira vez?','1969','1965','1972','1961'],
@@ -165,6 +197,41 @@ const TRIVIA=[
   [3,'Qual é a capital da Turquia?','Ancara','Istambul','Esmirna','Antália'],
   [3,'Qual oceano banha Moçambique?','Índico','Atlântico','Pacífico','Ártico'],
   [3,'Qual é o único mamífero que voa de verdade?','Morcego','Esquilo-voador','Colugo','Petauro'],
+  [1,'Qual destes é um mamífero?','Golfinho','Tubarão','Salmão','Polvo'],
+  [2,'Qual é a capital do Japão?','Tóquio','Quioto','Osaka','Pequim'],
+  [2,'Quem foi o primeiro presidente do Brasil?','Deodoro da Fonseca','Getúlio Vargas','Dom Pedro II','Juscelino Kubitschek'],
+  [2,'Qual é o maior órgão do corpo humano?','Pele','Fígado','Coração','Pulmão'],
+  [2,'Qual planeta tem os anéis mais famosos?','Saturno','Júpiter','Urano','Netuno'],
+  [2,'Quantos estados tem o Brasil, sem contar o Distrito Federal?','26','24','27','25'],
+  [2,'Em que país nasceu o tango?','Argentina','Espanha','Cuba','México'],
+  [2,'Qual é a fórmula química da água?','H2O','CO2','O2','NaCl'],
+  [2,'Quem compôs a Nona Sinfonia, a do Hino à Alegria?','Beethoven','Mozart','Bach','Chopin'],
+  [2,'Qual é a moeda do Japão?','Iene','Yuan','Won','Rupia'],
+  [2,'Que vitamina o corpo produz com a luz do sol?','Vitamina D','Vitamina C','Vitamina A','Vitamina B12'],
+  [2,'Qual é o planeta mais quente do Sistema Solar?','Vênus','Mercúrio','Marte','Júpiter'],
+  [2,'Que país tem o formato de uma bota?','Itália','Grécia','Portugal','Chile'],
+  [3,'Qual é o elemento químico mais abundante no universo?','Hidrogênio','Hélio','Oxigênio','Carbono'],
+  [3,'Qual é o rio mais longo da Europa?','Volga','Danúbio','Reno','Sena'],
+  [3,'Quantas vértebras tem o pescoço humano?','7','5','9','12'],
+  [3,'Qual é a capital da Nova Zelândia?','Wellington','Auckland','Christchurch','Queenstown'],
+  [3,'Quem escreveu Cem Anos de Solidão?','Gabriel García Márquez','Jorge Luis Borges','Pablo Neruda','Mario Vargas Llosa'],
+  [3,'Qual é a montanha mais alta do Brasil?','Pico da Neblina','Pico da Bandeira','Monte Roraima','Agulhas Negras'],
+  [3,'Qual é o menor osso do corpo humano?','Estribo','Martelo','Bigorna','Falange'],
+  [3,'Quem pintou O Grito?','Edvard Munch','Van Gogh','Salvador Dalí','Gustav Klimt'],
+  [3,'Que mamífero tem a gestação mais longa?','Elefante','Baleia-azul','Girafa','Rinoceronte'],
+  [1,'Em que país fica Machu Picchu?','Peru','Bolívia','Chile','Equador'],
+  [1,'Qual destes não é considerado um planeta?','Plutão','Netuno','Mercúrio','Marte'],
+  [1,'Qual é a capital de Portugal?','Lisboa','Porto','Coimbra','Braga'],
+  [1,'Qual é a capital da Itália?','Roma','Milão','Veneza','Nápoles'],
+  [1,'Em que oceano fica o Havaí?','Pacífico','Atlântico','Índico','Ártico'],
+  [1,'Qual é o animal terrestre mais rápido?','Guepardo','Leão','Cavalo','Antílope'],
+  [1,'Qual é o maior planeta do Sistema Solar?','Júpiter','Saturno','Netuno','Terra'],
+  [1,'Que país sediou a Copa do Mundo de 2014?','Brasil','Alemanha','Rússia','África do Sul'],
+  [1,'Quantos lados tem um octógono?','8','6','10','12'],
+  [1,'Quem escreveu O Pequeno Príncipe?','Saint-Exupéry','Júlio Verne','Victor Hugo','Monteiro Lobato'],
+  [1,'Que fruta é a base do guacamole?','Abacate','Limão','Manga','Kiwi'],
+  [1,'Qual destes animais é um réptil?','Cobra','Sapo','Salamandra','Golfinho'],
+  [2,'Que metal é o mais usado nos fios elétricos de casa?','Cobre','Ferro','Ouro','Chumbo'],
 ];
 const NUM=[
   {q:'Qual país tem mais habitantes?',u:' milhões',items:[['Brasil',216],['Argentina',46],['Portugal',10.4],['Japão',124],['México',128],['Canadá',39],['Alemanha',84],['França',68],['Itália',59],['Espanha',48],['Chile',19.6],['Egito',112],['Nigéria',224],['Austrália',26.6],['Índia',1428],['EUA',335],['Peru',34],['Colômbia',52],['Uruguai',3.4],['Paraguai',6.9]]},
@@ -187,11 +254,22 @@ const ODD=[
   {d:3,t:'línguas latinas',in:['Português','Espanhol','Italiano','Francês','Romeno'],out:['Alemão','Inglês','Holandês','Grego']},
   {d:1,t:'animais que botam ovo',in:['Galinha','Tartaruga','Jacaré','Ornitorrinco','Pinguim'],out:['Golfinho','Morcego','Cavalo']},
   {d:1,t:'cores do arco-íris',in:['Vermelho','Laranja','Amarelo','Verde','Azul','Violeta'],out:['Marrom','Preto','Cinza']},
-  {d:1,t:'frutas',in:['Maçã','Banana','Uva','Manga','Laranja'],out:['Cenoura','Batata','Alface','Cebola']},
   {d:1,t:'coisas que andam na água',in:['Barco','Navio','Canoa','Jangada','Submarino'],out:['Avião','Trem','Ônibus']},
-  {d:1,t:'dias da semana',in:['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'],out:['Janeiro','Março','Agosto']},
+  {d:2,t:'continentes',in:['África','Ásia','Europa','Oceania','América','Antártida'],out:['Groenlândia','Sibéria','Brasil']},
+  {d:2,t:'ossos do corpo',in:['Fêmur','Tíbia','Úmero','Rádio','Crânio'],out:['Bíceps','Tendão','Fígado']},
+  {d:2,t:'felinos',in:['Leão','Tigre','Onça','Guepardo','Lince'],out:['Hiena','Lobo','Raposa']},
+  {d:2,t:'compositores clássicos',in:['Mozart','Bach','Beethoven','Chopin','Vivaldi'],out:['Picasso','Darwin','Galileu']},
+  {d:2,t:'aves',in:['Pinguim','Avestruz','Galinha','Pato','Coruja'],out:['Morcego','Abelha','Borboleta']},
+  {d:3,t:'metais',in:['Ferro','Cobre','Ouro','Prata','Zinco'],out:['Carbono','Enxofre','Iodo']},
+  {d:3,t:'livros de Machado de Assis',in:['Dom Casmurro','Quincas Borba','O Alienista','Memórias Póstumas de Brás Cubas'],out:['Macunaíma','Vidas Secas','Grande Sertão: Veredas']},
+  {d:3,t:'países que usam o euro',in:['Portugal','Espanha','França','Alemanha','Itália','Irlanda'],out:['Suíça','Reino Unido','Suécia','Dinamarca']},
+  {d:3,t:'constelações',in:['Órion','Cassiopeia','Escorpião','Cruzeiro do Sul'],out:['Via Láctea','Plêiades','Sirius']},
+  {d:1,t:'instrumentos de sopro',in:['Flauta','Trompete','Saxofone','Clarinete','Trombone'],out:['Violino','Piano','Bateria']},
+  {d:1,t:'estados do Nordeste',in:['Bahia','Ceará','Pernambuco','Maranhão','Piauí','Paraíba'],out:['Goiás','Minas Gerais','Pará']},
+  {d:1,t:'países da Europa',in:['França','Alemanha','Espanha','Polônia','Grécia'],out:['Egito','Marrocos','Canadá']},
+  {d:2,t:'répteis',in:['Cobra','Lagarto','Jacaré','Tartaruga','Camaleão'],out:['Sapo','Salamandra','Enguia']},
 ];
-const WORDS=[['ABACAXI','fruta com coroa'],['GIRASSOL','flor que segue o sol'],['BÚSSOLA','aponta o norte'],['BORBOLETA','já foi lagarta'],['CHOCOLATE','vem do cacau'],['DINOSSAURO','sumiu há 66 milhões de anos'],['TELESCÓPIO','para olhar as estrelas'],['PINGUIM','ave que não voa, mas nada'],['FAROL','guia os navios à noite'],['VULCÃO','montanha que cospe lava'],['ARCO-ÍRIS','sol depois da chuva'],['BICICLETA','duas rodas e pedal'],['TARTARUGA','casa nas costas'],['AMPULHETA','relógio de areia'],['CARANGUEJO','anda de lado'],['MARACUJÁ','fruta do suco que acalma'],['XADREZ','rei, rainha e cavalo'],['SAXOFONE','metal com palheta, som de jazz'],['PIRÂMIDE','túmulo de faraó'],['CANGURU','pula e tem bolsa'],['PARAQUEDAS','abre no meio do ar'],['LIQUIDIFICADOR','faz a vitamina'],['HELICÓPTERO','voa sem asas'],['SEREIA','metade gente, metade peixe'],['ÂNCORA','segura o barco parado'],['CATAVENTO','gira com o vento'],['MONTANHA-RUSSA','frio na barriga no parque'],['ORNITORRINCO','mamífero com bico de pato'],['TROMBONE','instrumento de vara']];
+const WORDS=[['ABACAXI','fruta com coroa'],['GIRASSOL','flor que segue o sol'],['BÚSSOLA','aponta o norte'],['BORBOLETA','já foi lagarta'],['CHOCOLATE','vem do cacau'],['DINOSSAURO','sumiu há 66 milhões de anos'],['TELESCÓPIO','para olhar as estrelas'],['PINGUIM','ave que não voa, mas nada'],['FAROL','guia os navios à noite'],['VULCÃO','montanha que cospe lava'],['ARCO-ÍRIS','sol depois da chuva'],['BICICLETA','duas rodas e pedal'],['TARTARUGA','casa nas costas'],['AMPULHETA','relógio de areia'],['CARANGUEJO','anda de lado'],['MARACUJÁ','fruta do suco que acalma'],['XADREZ','rei, rainha e cavalo'],['SAXOFONE','metal com palheta, som de jazz'],['PIRÂMIDE','túmulo de faraó'],['CANGURU','pula e tem bolsa'],['PARAQUEDAS','abre no meio do ar'],['LIQUIDIFICADOR','faz a vitamina'],['HELICÓPTERO','voa sem asas'],['SEREIA','metade gente, metade peixe'],['ÂNCORA','segura o barco parado'],['CATAVENTO','gira com o vento'],['MONTANHA-RUSSA','frio na barriga no parque'],['ORNITORRINCO','mamífero com bico de pato'],['TROMBONE','instrumento de vara'],['BALEIA','o maior animal do mundo'],['PIRATA','tapa-olho e papagaio no ombro'],['CORUJA','ave que caça de noite'],['PIPOCA','estoura no cinema'],['FOGUETE','vai até o espaço'],['GIRAFA','pescoço comprido'],['CACTO','planta do deserto, cheia de espinho'],['IGLU','casa feita de gelo'],['VIOLÃO','seis cordas, roda de samba'],['SORVETE','derrete no calor'],['TROVÃO','o barulho da tempestade'],['MORCEGO','dorme de cabeça para baixo'],['JACARÉ','parente do crocodilo, mora no Pantanal'],['TUBARÃO','barbatana para fora da água'],['ESCORPIÃO','ferrão na ponta do rabo'],['GELADEIRA','guarda a comida fria'],['CAMALEÃO','muda de cor'],['CHURRASCO','carne na brasa'],['TERREMOTO','a terra treme'],['ASTRONAUTA','anda no espaço'],['MICROSCÓPIO','vê o que é pequeno demais'],['ESPANTALHO','assusta os pássaros na roça'],['BIBLIOTECA','casa dos livros'],['HIPOPÓTAMO','o cavalo do rio, em grego'],['FORMIGUEIRO','casa das formigas'],['GUARDA-CHUVA','abre quando chove']];
 const TALES=[
   {d:1,v:['Polvo tem três corações.','Polvo tem sangue azul.'],m:'Polvo tem dez braços.',fix:'Polvo tem oito braços.'},
   {d:3,v:['Para a botânica, a banana é uma baga.','Para a botânica, o morango não é uma baga.'],m:'O abacate é um legume.',fix:'O abacate é uma fruta.'},
@@ -205,8 +283,20 @@ const TALES=[
   {d:2,v:['O primeiro iPhone saiu em 2007.','A Wikipédia foi criada em 2001.'],m:'O primeiro e-mail foi enviado em 1995.',fix:'Foi em 1971.'},
   {d:2,v:['Napoleão tinha altura normal para a época.','Os vikings não usavam capacete com chifres.'],m:'A Torre de Pisa foi feita torta de propósito.',fix:'Ela entortou porque o chão cedeu.'},
   {d:1,v:['A cidade de São Paulo tem mais habitantes que Portugal inteiro.','O Brasil faz fronteira com quase todos os países da América do Sul.'],m:'O Rio de Janeiro é a cidade mais populosa do Brasil.',fix:'É São Paulo.'},
-  {d:1,v:['O Sol é uma estrela.','A Lua não tem luz própria.'],m:'A Terra é o maior planeta do Sistema Solar.',fix:'O maior é Júpiter.'},
-  {d:1,v:['Aranha não é inseto.','Baleia é mamífero.'],m:'Pinguim vive no Polo Norte.',fix:'Pinguim vive no hemisfério sul; no Polo Norte não tem.'},
+  {d:1,v:['Aranha não é inseto.','Baleia é mamífero.'],m:'Pinguim vive no Polo Norte.',fix:'No Polo Norte não tem pinguim; quase todos vivem no hemisfério sul.'},
+  {d:1,v:['A água ferve a 100 °C ao nível do mar.','O gelo boia na água.'],m:'Raio nunca cai no mar.',fix:'Raio cai no mar, sim.'},
+  {d:1,v:['O Brasil já ganhou cinco Copas do Mundo.','A primeira Copa do Mundo foi no Uruguai.'],m:'O futebol foi inventado no Brasil.',fix:'As regras do futebol moderno nasceram na Inglaterra.'},
+  {d:2,v:['A Mona Lisa fica no Museu do Louvre.','Leonardo da Vinci também desenhava máquinas.'],m:'A Mona Lisa é um quadro enorme.',fix:'Ela é pequena: tem uns 77 cm de altura.'},
+  {d:2,v:['O Monte Everest cresce alguns milímetros por ano.','Tem neve na linha do Equador, no alto dos Andes.'],m:'O Saara é o maior deserto do mundo.',fix:'O maior é a Antártida; o Saara é o maior deserto quente.'},
+  {d:2,v:['A cenoura nem sempre foi laranja.','A batata veio da América do Sul.'],m:'Comer cenoura faz enxergar no escuro.',fix:'É lenda espalhada na Segunda Guerra.'},
+  {d:2,v:['Tubarões existem desde antes dos dinossauros.','Alguns tubarões precisam nadar para respirar.'],m:'Tubarão é um mamífero.',fix:'Tubarão é peixe.'},
+  {d:2,v:['A Islândia não tem mosquitos.','A Austrália é mais larga que a Lua.'],m:'O Brasil é o maior país do mundo.',fix:'O maior é a Rússia; o Brasil é o quinto.'},
+  {d:3,v:['O Oceano Pacífico é maior que todos os continentes juntos.','O ponto mais fundo do mar passa de 10 km.'],m:'O Mar Morto é de água doce.',fix:'Ele é tão salgado que a gente boia.'},
+  {d:3,v:['A Lua se afasta da Terra alguns centímetros por ano.','Um ano em Mercúrio dura 88 dias.'],m:'O lado da Lua que não vemos nunca recebe luz do Sol.',fix:'Ele recebe sol; só fica de costas para nós.'},
+  {d:3,v:['O polvo tem neurônios nos braços.','A estrela-do-mar não tem cérebro.'],m:'O cavalo-marinho é um mamífero.',fix:'O cavalo-marinho é peixe.'},
+  {d:1,v:['O Brasil faz fronteira com dez países.','A Amazônia passa por nove países.'],m:'O Brasil faz fronteira com o Chile.',fix:'Chile e Equador são os únicos da América do Sul sem fronteira com o Brasil.'},
+  {d:1,v:['O coração humano tem quatro cavidades.','O sangue venoso é vermelho-escuro.'],m:'O sangue dentro das veias é azul.',fix:'Ele é vermelho-escuro; parece azul por causa da pele.'},
+  {d:2,v:['O Japão tem mais de 6 mil ilhas.','A Rússia tem 11 fusos horários.'],m:'A China é o país com mais fusos horários.',fix:'A China usa um fuso só para o país inteiro.'},
 ];
 const EST=[
   {q:'Quantos ossos tem o corpo humano adulto?',a:206,lo:50,hi:400,step:1,u:''},
@@ -223,6 +313,21 @@ const EST=[
   {q:'Quantos anos durou a Guerra dos Cem Anos?',a:116,lo:50,hi:200,step:1,u:' anos'},
   {q:'Quantas toneladas pesa um elefante-africano macho?',a:6,lo:1,hi:20,step:.5,u:' t'},
   {q:'Qual a velocidade máxima de um guepardo?',a:110,lo:30,hi:200,step:5,u:' km/h'},
+  {q:'Qual o diâmetro da Terra, em km?',a:12742,lo:2000,hi:40000,step:100,u:' km'},
+  {q:'Em que ano caiu o Muro de Berlim?',a:1989,lo:1900,hi:2020,step:1,u:'',yr:1},
+  {q:'Em que ano Brasília foi inaugurada?',a:1960,lo:1900,hi:2020,step:1,u:'',yr:1},
+  {q:'Em que ano o Brasil ficou independente?',a:1822,lo:1700,hi:1950,step:1,u:'',yr:1},
+  {q:'Qual a altura da Torre Eiffel?',a:330,lo:50,hi:1000,step:5,u:' m'},
+  {q:'Quantos dias a Lua leva para dar uma volta na Terra?',a:27,lo:1,hi:100,step:1,u:' dias'},
+  {q:'Quantos milhões de litros cabem numa piscina olímpica?',a:2.5,lo:.5,hi:20,step:.5,u:' milhões de L'},
+  {q:'A que temperatura a água ferve, em graus Fahrenheit?',a:212,lo:50,hi:500,step:1,u:' °F'},
+  {q:'A que velocidade voa um avião comercial?',a:900,lo:200,hi:3000,step:50,u:' km/h'},
+  {q:'Quantas vezes por minuto bate o coração de um adulto em repouso?',a:70,lo:20,hi:200,step:1,u:''},
+  {q:'Quantos países tem a América do Sul?',a:12,lo:3,hi:40,step:1,u:''},
+  {q:'Quantos milhões de pessoas o Censo de 2022 contou no Brasil?',a:203,lo:50,hi:500,step:1,u:' milhões'},
+  {q:'Quantos anos viveu a pessoa mais velha já registrada?',a:122,lo:80,hi:200,step:1,u:' anos'},
+  {q:'Quantos mil km de litoral tem o Brasil?',a:7.4,lo:1,hi:30,step:.1,u:' mil km'},
+  {q:'Quantas casas tem um tabuleiro de xadrez?',a:64,lo:10,hi:200,step:1,u:''},
 ];
 
 // ---------- helpers ----------
@@ -248,42 +353,43 @@ const LAYERS=[
   {name:'Fundo',m:200,c:['#08283A','#04141F'],boss:true,snag:'linha',lose:'O peixão deu um tranco e arrebentou a linha.'},
 ];
 const PTS=[100,150,200,250,300], BOSS=500;
+const LAYER_E=['🌊','🪸','🌿','🚢','🦑','🐟'], SNAG_E={bota:'👢',lata:'🥫',pneu:'🛞',ancora:'⚓',polvo:'🐙',linha:'💥'};
 const RELICS={isca:{icon:'🪱',name:'Isca'},troca:{icon:'🔄',name:'Troca'},rede:{icon:'🥅',name:'Rede'}};
 
 // ---------- formats: gen(rng, lvl) → state ----------
 // Choice states: {kind:'choice', q, ctx?, opts:[text], ans, after, cols?}
-const lv=l=>l<2?1:l<4?2:3;
+const lv=l=>[1,2,2,3,3][l];
 const F={
-  trivia:{icon:'🍾',obj:'uma garrafa com mensagem',gen(r,l){
-    const [,q,a,...w]=pick(r,TRIVIA.filter(t=>t[0]===lv(l)));
+  trivia:{icon:'🍾',obj:'uma garrafa com mensagem',gen(r,l,c){
+    const [,q,a,...w]=c(lv(l),TRIVIA.filter(t=>t[0]===lv(l)));
     const opts=shuffle(r,[a,...w]);return {kind:'choice',q,opts,ans:opts.indexOf(a),after:`Resposta: ${a}.`}}},
   maismenos:{icon:'🐚',obj:'duas conchas, cada uma com um nome',gen(r,l){
-    const R=[3,2,1.6,1.35,1.2][l],G=[300,150,60,25,10][l];
+    const [R0,R1]=[[2,6],[1.5,2.5],[1.3,1.8],[1.15,1.5],[1.05,1.3]][l],[G0,G1]=[[150,600],[60,200],[25,80],[10,40],[3,15]][l];
     for(;;){
-      if(r()<.25){const [a,b]=shuffle(r,EVENTS);if(Math.abs(a[0]-b[0])<G)continue;
+      if(r()<.25){const [a,b]=shuffle(r,EVENTS),g=Math.abs(a[0]-b[0]);if(g<G0||g>G1)continue;
         const opts=[a,b];return {kind:'choice',q:'O que veio primeiro?',opts:opts.map(e=>e[1][0].toUpperCase()+e[1].slice(1)),ans:a[0]<b[0]?0:1,cols:1,after:`${yr(a[0])} e ${yr(b[0])}.`}}
-      const c=pick(r,NUM),[a,b]=shuffle(r,c.items);const hi=Math.max(a[1],b[1]),lo=Math.min(a[1],b[1]);if(hi/lo<R)continue;
+      const c=pick(r,NUM),[a,b]=shuffle(r,c.items);const q=Math.max(a[1],b[1])/Math.min(a[1],b[1]);if(q<R0||q>R1)continue;
       return {kind:'choice',q:c.q,opts:[a[0],b[0]],ans:a[1]>b[1]?0:1,cols:2,after:`${a[0]}: ${fmt(a[1])}${c.u}. ${b[0]}: ${fmt(b[1])}${c.u}.`}}}},
   tempo:{icon:'📰',obj:'um jornal velho, todo molhado',gen(r,l){
-    const G=[100,50,30,15,5][l];
+    const [G0,G1]=[[60,800],[30,300],[15,120],[8,50],[3,25]][l];
     for(;;){const four=shuffle(r,EVENTS).slice(0,4).sort((a,b)=>a[0]-b[0]);
-      if(four.some((e,i)=>i&&e[0]-four[i-1][0]<G))continue;
+      if(four.some((e,i)=>i&&(e[0]-four[i-1][0]<G0||e[0]-four[i-1][0]>G1)))continue;
       const k=Math.floor(r()*4),ev=four[k],rest=four.filter((_,i)=>i!==k);
       const opts=[`Antes de ${yr(rest[0][0])}`,`Entre ${yr(rest[0][0])} e ${yr(rest[1][0])}`,`Entre ${yr(rest[1][0])} e ${yr(rest[2][0])}`,`Depois de ${yr(rest[2][0])}`];
       return {kind:'choice',q:`Quando foi ${ev[1]}?`,ctx:rest.map(e=>`${yr(e[0])}: ${e[1]}`).join('<br>'),opts,ans:k,after:`Foi em ${yr(ev[0])}.`}}}},
-  intruso:{icon:'📦',obj:'uma caixa de achados e perdidos',gen(r,l){
-    const g=pick(r,ODD.filter(g=>g.d===lv(l))),opts=shuffle(r,[...shuffle(r,g.in).slice(0,3),pick(r,g.out)]);
+  intruso:{icon:'📦',obj:'uma caixa de achados e perdidos',gen(r,l,c){
+    const g=c(lv(l),ODD.filter(g=>g.d===lv(l))),opts=shuffle(r,[...shuffle(r,g.in).slice(0,3),pick(r,g.out)]);
     return {kind:'choice',q:'Um destes não é do grupo. Qual?',opts,ans:opts.findIndex(x=>!g.in.includes(x)),cols:2,after:`Os outros três são ${g.t}.`}}},
-  pescador:{icon:'📻',obj:'um rádio velho, com três pescadores contando vantagem',gen(r,l){
-    const t=pick(r,TALES.filter(t=>t.d===lv(l))),opts=shuffle(r,[...t.v,t.m]);
+  pescador:{icon:'📻',obj:'um rádio velho, com três pescadores contando vantagem',gen(r,l,c){
+    const t=c(lv(l),TALES.filter(t=>t.d===lv(l))),opts=shuffle(r,[...t.v,t.m]);
     return {kind:'choice',q:'É história de pescador: um deles está mentindo. Qual?',opts,ans:opts.indexOf(t.m),after:t.fix}}},
-  forca:{icon:'🛟',obj:'uma boia com o nome do barco meio apagado',gen(r,l){
-    const pool=WORDS.filter(([w])=>l<2?w.length<=8:l<4?w.length>=7:w.length>=9),[w,hint]=pick(r,pool);
+  forca:{icon:'🛟',obj:'uma boia com o nome do barco meio apagado',gen(r,l,c){
+    const [w,hint]=c(lv(l),WORDS.filter(([w])=>(w.length<=7?1:w.length<=9?2:3)===lv(l)));
     const letters=[...new Set([...norm(w)].filter(c=>/[A-Z]/.test(c)))];
-    const show=new Set(shuffle(r,letters).slice(0,Math.round(letters.length*[.45,.4,.3,.25,.2][l])));
+    const show=new Set(shuffle(r,letters).slice(0,Math.round(letters.length*[.35,.3,.2,.15,.1][l])));
     return {kind:'word',w,hint,show,used:new Set(show),miss:0,lives:3}}},
-  estimativa:{icon:'🐟',obj:'o peixão',gen(r){
-    const e=pick(r,EST);return {kind:'num',...e,t:e.yr?10:e.a*.15,tries:2,v:e.lo}}},
+  estimativa:{icon:'🐟',obj:'o peixão',gen(r,l,c){
+    const e=c(0,EST);return {kind:'num',...e,t:e.yr?6:e.a*.1,tries:2,v:e.lo}}},
 };
 
 Object.entries({trivia:'garrafa',maismenos:'conchas',tempo:'jornal',intruso:'caixa',pescador:'radio',forca:'boia'}).forEach(([k,v])=>F[k].spr=v);
@@ -293,7 +399,13 @@ function genDay(date){
   return {formats:[...shuffle(r,Object.keys(F).filter(k=>k!=='estimativa')).slice(0,5),'estimativa'],sp:pick(r,BIG),
     relics:shuffle(r,['isca','isca','troca','troca','rede','rede']).slice(0,3)};
 }
-const puzzle=(date,i,id,swap)=>F[id].gen(mulberry(seedFrom(`${date}:descida:${i}:${swap}`)),Math.min(i,4));
+const DAY0=Date.UTC(2026,10,1),QC={};
+function queue(date,swap,name,pool){const o=QC[name+':'+pool.length]??=shuffle(mulberry(seedFrom(`descida:fila:${name}:${pool.length}`)),pool);
+  const n=Math.round((Date.parse(date)-DAY0)/864e5)+swap*Math.ceil(o.length/2);return o[(n%o.length+o.length)%o.length]}
+// Days already played keep the exact challenges the live page dealt them; regenerating would change a day mid-play.
+const FROZEN={'2026-11-06':[[{"kind":"word","w":"GIRASSOL","hint":"flor que segue o sol","show":{"__set":["S","I","G"]},"used":{"__set":["S","I","G"]},"miss":0,"lives":3},{"kind":"word","w":"ÂNCORA","hint":"segura o barco parado","show":{"__set":["O","A"]},"used":{"__set":["O","A"]},"miss":0,"lives":3},{"kind":"word","w":"MARACUJÁ","hint":"fruta do suco que acalma","show":{"__set":["C","A","J"]},"used":{"__set":["C","A","J"]},"miss":0,"lives":3}],[{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Pinguim","Jacaré","Morcego","Tartaruga"],"ans":2,"cols":2,"after":"Os outros três são animais que botam ovo."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Costa Rica","Paraguai","Peru","Chile"],"ans":0,"cols":2,"after":"Os outros três são países da América do Sul."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Natação","Vôlei","Tênis","Futebol"],"ans":0,"cols":2,"after":"Os outros três são esportes com bola."}],[{"kind":"choice","q":"O que veio primeiro?","opts":["A Grande Pirâmide de Gizé","A chegada da família real portuguesa ao Brasil"],"ans":0,"cols":1,"after":"2560 a.C. e 1808."},{"kind":"choice","q":"O que é mais alto?","opts":["Pão de Açúcar","Monte Everest"],"ans":1,"cols":2,"after":"Pão de Açúcar: 396 m. Monte Everest: 8.849 m."},{"kind":"choice","q":"Qual rio é mais longo?","opts":["Yangtzé","Tejo"],"ans":0,"cols":2,"after":"Yangtzé: 6.300 km. Tejo: 1.007 km."}],[{"kind":"choice","q":"Quando foi a pandemia de covid-19?","ctx":"1440: a prensa de Gutenberg<br>1808: a chegada da família real portuguesa ao Brasil<br>1969: a chegada do homem à Lua","opts":["Antes de 1440","Entre 1440 e 1808","Entre 1808 e 1969","Depois de 1969"],"ans":3,"after":"Foi em 2020."},{"kind":"choice","q":"Quando foi o voo do 14-Bis?","ctx":"476: a queda do Império Romano do Ocidente<br>1822: a independência do Brasil<br>1889: a Torre Eiffel","opts":["Antes de 476","Entre 476 e 1822","Entre 1822 e 1889","Depois de 1889"],"ans":3,"after":"Foi em 1906."},{"kind":"choice","q":"Quando foi a morte de Shakespeare?","ctx":"476: a queda do Império Romano do Ocidente<br>1440: a prensa de Gutenberg<br>1994: o Plano Real","opts":["Antes de 476","Entre 476 e 1440","Entre 1440 e 1994","Depois de 1994"],"ans":2,"after":"Foi em 1616."}],[{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Para a botânica, o morango não é uma baga.","O abacate é um legume.","Para a botânica, a banana é uma baga."],"ans":1,"after":"O abacate é uma fruta."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["O abacate é um legume.","Para a botânica, o morango não é uma baga.","Para a botânica, a banana é uma baga."],"ans":0,"after":"O abacate é uma fruta."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["O abacate é um legume.","Para a botânica, a banana é uma baga.","Para a botânica, o morango não é uma baga."],"ans":0,"after":"O abacate é uma fruta."}],[{"kind":"num","q":"Qual a altura do Monte Everest?","a":8849,"lo":3000,"hi":15000,"step":50,"u":" m","t":1327.35,"tries":2,"v":3000},{"kind":"num","q":"Quantos litros de sangue tem um adulto, mais ou menos?","a":5,"lo":1,"hi":20,"step":0.5,"u":" L","t":0.75,"tries":2,"v":1},{"kind":"num","q":"Quantos dentes tem um adulto, contando os sisos?","a":32,"lo":10,"hi":60,"step":1,"u":"","t":4.8,"tries":2,"v":10}]]};
+const thaw=o=>JSON.parse(JSON.stringify(o),(k,v)=>v&&v.__set?new Set(v.__set):v);
+const puzzle=(date,i,id,swap)=>FROZEN[date]?.[i]?.[swap]?thaw(FROZEN[date][i][swap]):F[id].gen(mulberry(seedFrom(`${date}:descida:${i}:${swap}`)),Math.min(i,4),(d,pool)=>queue(date,swap,`${id}:${d}`,pool));
 
 // ---------- state ----------
 const urlDay=new URLSearchParams(location.search).get('dia');
@@ -323,8 +435,8 @@ const sfx={
 
 function newRun(){
   const day=genDay(date),bag={isca:0,troca:0,rede:0};day.relics.forEach(k=>bag[k]++);
-  st={day,i:0,res:[],score:0,caught:[],bag,shield:false,swap:0,s:null,anim:null,end:null};
-  $('sub').textContent=`Descida de ${dm(date)}${date===today?'':' · treino'}`;
+  st={day,i:0,res:[],score:0,caught:[],used:[],speed:[],pts:[],bonus:0,bag,shield:false,swap:0,s:null,anim:null,end:null};
+  $('sub').textContent=date===today?`Descida de ${dm(date)}`:`Treino · descida de ${dm(date)}`;
   $('startHow').textContent=`Hoje lá embaixo mora ${o(day.sp)}. Cinco camadas até ele.`;
   $('start').hidden=false;$('card').hidden=true;$('end').hidden=true;
   render();
@@ -344,7 +456,7 @@ function canUse(k){const s=st.s;
   if(s.kind==='word')return [...norm(s.w)].some(c=>/[A-Z]/.test(c)&&!s.show.has(c));
   return !s.narrow;
 }
-function useRelic(b){if(b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--;
+function useRelic(b){if(b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--;(st.used[st.i]??=[]).push(RELICS[k].icon);
   if(k==='rede'){st.shield=true;flash('Rede pronta')}
   if(k==='troca'){st.swap++;st.t0=performance.now();st.s=puzzle(date,st.i,st.day.formats[st.i],st.swap);flash('Trocou!')}
   if(k==='isca'){
@@ -416,10 +528,10 @@ const fastTxt=s=>s.fast?`+${s.fast} pela rapidez`:'';
 function openLayer(){st.swap=0;st.t0=performance.now();st.s=puzzle(date,st.i,st.day.formats[st.i],0);drawCard();render();$('card').scrollIntoView({block:'nearest',behavior:'smooth'})}
 function correct(){
   const L=LAYERS[st.i];st.res[st.i]='ok';render();
-  const s=st.s;st.fast=(st.fast||0)+s.fast;
-  if(L.boss){st.score+=BOSS+(s.perfect?250:0)+s.fast;flash(s.perfect?'Perfect catch!':'Good catch!',fastTxt(s));
+  const s=st.s;st.fast=(st.fast||0)+s.fast;st.speed[st.i]=s.fast>=(L.boss?BOSS:PTS[st.i])*.4;
+  if(L.boss){st.pts[st.i]=BOSS+(s.perfect?250:0)+s.fast;st.score+=st.pts[st.i];flash(s.perfect?'Perfect catch!':'Good catch!',fastTxt(s));
     st.q=s.perfect?96:Math.round(60+(1-Math.abs(s.pick-s.a)/s.t)*30);return setTimeout(()=>finish('done'),1600)}
-  st.score+=PTS[st.i]+s.fast;st.caught.push(L.fish);flash('Good catch!',fastTxt(s));render();
+  st.pts[st.i]=PTS[st.i]+s.fast;st.score+=st.pts[st.i];st.caught.push(L.fish);flash('Good catch!',fastTxt(s));render();
   setTimeout(()=>{$('card').hidden=true;st.s=null;st.fx=null;sfx.drop();st.anim={from:st.i,t0:performance.now(),done:openLayer};st.i++;render()},1300);
 }
 function wrong(){st.res[st.i]='bad';render();flash('Enroscou!');setTimeout(()=>finish('snag'),1500)}
@@ -516,17 +628,77 @@ function paintPhoto(){
   x.fillStyle='#6B4A2A';x.font='18px "Jersey 10"';
   x.fillText(done?`${NAMES[st.day.sp]} de ${st.cm} cm · ${fmt(st.score)} pts`:`Enroscou a ${L.m} m · ${fmt(st.score)} pts`,10,PH+34);
 }
+const RANKS=[[2200,'S'],[1700,'A'],[1200,'B'],[600,'C'],[0,'D']];
+const rankOf=n=>RANKS.find(([t])=>n>=t)[1];
+const cleared=r=>r.res.filter(x=>x==='ok').length;
+const API=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8787':'https://goodcatch-api.goodcatch-api.workers.dev';
+const playerId=()=>{try{let id=localStorage.getItem('goodcatch:player');if(!id){id=crypto.randomUUID();localStorage.setItem('goodcatch:player',id)}return id}catch{return null}};
 async function finish(end){
-  st.end=end;$('card').hidden=true;const L=LAYERS[st.i];
-  if(end==='done'){sfx.party();st.cm=cmOf(st.q,CM[st.day.sp]);st.score+=50*Object.values(st.bag).reduce((a,b)=>a+b,0)}
-  const story=end==='done'?`Good catch! ${NAMES[st.day.sp]} de ${st.cm} cm, lá do fundo.`:L.lose;
-  $('story').textContent=story;
-  const icons=st.day.formats.map((id,i)=>st.res[i]==='ok'?(LAYERS[i].boss?'🐟':F[id].icon):st.res[i]==='bad'?'❌':'▫️').join(' ');
-  $('share').value=`Good Catch · Descida ${dm(date)}\n${icons}\n${end==='done'?`${NAMES[st.day.sp]} de ${st.cm} cm`:`Enroscou a ${L.m} m`} · ${fmt(st.score)} pts\ngoodcatch.fish/descida/`;
-  if(date===today&&!store.get(date)){store.set(date,{end,depth:L.m,score:st.score,cm:st.cm||0});
-    track(end==='done'?`descida/fundo${st.q>=96?'-perfect':''}`:`descida/enroscou-${st.i+1}`,1)}
-  render();await ART_READY;await document.fonts?.ready;paintPhoto();
+  st.end=end;$('card').hidden=true;
+  if(end==='done'){sfx.party();st.cm=cmOf(st.q,CM[st.day.sp]);st.bonus=50*Object.values(st.bag).reduce((a,b)=>a+b,0);st.score+=st.bonus}
+  if(date===today&&!store.get(date)?.end){
+    const rec={end,i:st.i,res:st.res,score:st.score,cm:st.cm||0,q:st.q||0,caught:st.caught,used:st.used,speed:st.speed,pts:st.pts,bonus:st.bonus};
+    store.set(date,rec);track(end==='done'?`descida/fundo${st.q>=96?'-perfect':''}`:`descida/enroscou-${st.i+1}`,1);
+    sendPlay(rec)}
+  render();await showEnd();
+}
+function shareText(){
+  const rows=LAYERS.slice(0,st.i+1).map((l,i)=>{
+    const r=st.res[i]==='ok'?(l.boss?`${st.q>=96?'🏆':'🎣'} ${NAMES[st.day.sp]} ${st.cm} cm`:'🟩'):SNAG_E[l.snag];
+    return `${LAYER_E[i]} ${l.m} m ${r}${st.speed[i]?(l.boss?' ⚡':'⚡'):''}${st.used[i]?` (${st.used[i].join('')})`:''}`});
+  return `Good Catch · Descida ${dm(date)} · Rank ${rankOf(st.score)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish/descida/`;
+}
+function tally(){
+  const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];
+    return `<tr class="${on?'':'off'}"><td>${LAYER_E[i]} ${l.name}</td><td>${on?(st.used[i]||[]).join('')+(bad?' '+SNAG_E[l.snag]:''):''}</td><td>${on&&!bad?(p!=null?fmt(p):'✓'):on?'0':'—'}</td></tr>`});
+  if(st.end==='done')rows.push(`<tr class="sum"><td>Relíquias guardadas</td><td></td><td>${st.bonus?'+'+fmt(st.bonus):'0'}</td></tr>`);
+  rows.push(`<tr class="total"><td>TOTAL</td><td></td><td>${fmt(st.score)}</td></tr>`);
+  return rows.join('');
+}
+function week(){
+  const wd=(new Date(today+'T12:00:00').getDay()+6)%7,shift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return ymd(x)};
+  const days=Array.from({length:7},(_,k)=>shift(today,k-wd));
+  const icon=d=>{const r=store.get(d);if(!r?.end)return d>today?'·':'▫️';if(r.end==='done')return r.q>=96?'🏆':'🐟';
+    const k=r.i??LAYERS.findIndex(l=>l.m===r.depth);return SNAG_E[LAYERS[Math.max(0,k)].snag]};
+  $('week').innerHTML=days.map((d,k)=>`<div class="${d===today?'now':''}"><span>${icon(d)}</span>${['seg','ter','qua','qui','sex','sáb','dom'][k]}</div>`).join('');
+  let n=0,d=store.get(today)?.end?today:shift(today,-1);while(store.get(d)?.end){n++;d=shift(d,-1)}
+  $('streak').textContent=n?`Sequência: ${n} dia${n>1?'s':''} seguido${n>1?'s':''} no mar.`:'Volte amanhã para começar uma sequência.';
+}
+function cais(s){
+  const c=$('cais');c.hidden=false;
+  if(!s){c.innerHTML='<b>No cais hoje</b><p>Não deu para falar com o cais agora. Tente mais tarde.</p>';return}
+  if(s.players<10){c.innerHTML=`<b>No cais hoje</b><p>${s.players>1?`${s.players} pescadores voltaram até agora.`:'Você é um dos primeiros a voltar.'} Volte mais tarde para ver como se saiu.</p>`;return}
+  const me=s.you?.depth,top=Math.max(...s.dist),label=d=>d<6?`${LAYER_E[d]} ${LAYERS[d].name}`:'🎣 Pegou o peixão';
+  c.innerHTML=`<b>No cais hoje · ${s.players} pescadores</b><p>Onde cada um parou:</p>`+s.dist.map((n,d)=>{const p=Math.round(100*n/s.players);
+    return `<div class="row${d===me?' me':''}"><span>${label(d)}</span><i style="width:${top?Math.round(100*n/top):0}%"></i><span>${p}%</span></div>`}).join('')+
+    (s.better>0?`<p>Você fez mais pontos que ${s.better}% deles.</p>`:'');
+}
+async function stats(method,body){
+  const id=playerId();if(!id)return null;
+  try{const r=await fetch(method==='POST'?`${API}/descida/plays`:`${API}/descida/daily/${date}?player=${id}`,
+    method==='POST'?{method,headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,date,player:id})}:{});
+    return r.ok?await r.json():null}catch{return null}
+}
+let sent=null;
+function sendPlay(rec){sent=stats('POST',{depth:cleared(rec),score:rec.score,perfect:rec.end==='done'&&rec.q>=96?1:0})}
+async function showEnd(){
+  const L=LAYERS[st.i],done=st.end==='done',practice=date!==today;
+  $('verdict').textContent=done?(st.q>=96?'Perfect catch!':'Good catch!'):'Enroscou!';
+  $('tally').innerHTML=tally();
+  $('rank').innerHTML=`Rank <b>${rankOf(st.score)}</b>${practice?' · treino, não conta':''}`;
+  $('story').textContent=done?`${NAMES[st.day.sp]} de ${st.cm} cm, lá do fundo.`:L.lose;
+  $('share').value=shareText();$('share').rows=$('share').value.split('\n').length;
+  $('retry').hidden=!practice;$('home').hidden=!practice;
+  week();
+  $('cais').hidden=true;
+  await ART_READY;await document.fonts?.ready;paintPhoto();
   $('end').hidden=false;$('end').scrollIntoView({block:'nearest',behavior:'smooth'});
+  if(!practice)cais(await (sent||stats('GET')));
+}
+function restore(r){
+  const k=r.i??Math.max(0,LAYERS.findIndex(l=>l.m===r.depth));
+  Object.assign(st,{caught:[],used:[],speed:[],pts:null,bonus:0,q:0,...r,i:k,res:r.res||[...Array(k).fill('ok'),r.end==='done'?'ok':'bad']});
+  $('start').hidden=true;showEnd();
 }
 
 const GC_CODE='belarba';
@@ -540,7 +712,8 @@ $('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-
   if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:$('share').value})}catch{}return}
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
 $('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
-$('other').onclick=()=>{date=ymd(new Date(2026,0,1+Math.floor(Math.random()*700)));$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('other').onclick=()=>{do date=ymd(new Date(Date.now()-864e5*(1+Math.floor(Math.random()*400))));while(date===today);$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('home').onclick=()=>{location.href=location.pathname};
 const help=$('help');
 $('gotit').onclick=()=>help.close();
 help.onclick=e=>{if(e.target===help)help.close()};
@@ -549,10 +722,11 @@ $('ask').onclick=()=>help.showModal();
 const muteUI=()=>{$('mute').classList.toggle('off',muted);$('mute').setAttribute('aria-label',muted?'Som desligado':'Som ligado')};
 $('mute').onclick=()=>{muted=!muted;store.set('mute',muted?1:0);muteUI();if(!muted)sfx.win()};muteUI();
 if(!store.get('seenHelp'))help.showModal();
-if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr});
+if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr,store});
 track(location.pathname);
 await ART_READY;
 newRun();
+if(date===today&&store.get(date)?.end)restore(store.get(date));
 requestAnimationFrame(drawScene);
 </script>
 </body>

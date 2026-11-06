@@ -27,4 +27,6 @@ writeFileSync(new URL('icon.png', root), icon('portrait/catFace', 180, 2, ABYSS)
 const chrome = process.env.CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 execFileSync(chrome, ['--headless=new', '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=1200,630',
   '--virtual-time-budget=5000', `--screenshot=${fileURLToPath(new URL('og.png', root))}`, new URL('tools/og.html', root).href], { stdio: 'ignore' });
-console.log('wrote favicon.png, icon.png, og.png');
+execFileSync(chrome, ['--headless=new', '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=1200,630',
+  '--virtual-time-budget=5000', `--screenshot=${fileURLToPath(new URL('descida/og.png', root))}`, new URL('tools/og-descida.html', root).href], { stdio: 'ignore' });
+console.log('wrote favicon.png, icon.png, og.png, descida/og.png');

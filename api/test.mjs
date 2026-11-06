@@ -81,3 +81,19 @@ if (!isDay('2026-10-07')) fail('a real day passes isDay');
 for (const d of ['2026-99-99', '2026-02-30', '2026-1-1']) if (isDay(d)) fail(`isDay accepted ${d}`);
 if (validatePlay({ date: '2026-02-30', player: P, casts: [fishKey] }, '2026-03-01').error !== 'date') fail('an impossible date must be refused even next to today');
 console.log('api ok: validator and stats');
+
+// ---------- descida ----------
+const { validateDescida, summarizeDescida, minScore, maxScore } = await import('./src/descida.js');
+const D = (o = {}) => validateDescida({ date: DATE, player: P, depth: 6, score: 1700, perfect: 0, ...o }, TODAY);
+if (!D().ok) fail('a full descent must pass');
+if (!D({ depth: 2, score: 250 }).ok) fail('a snag after two layers must pass');
+if (minScore(0) !== 0 || maxScore(0) !== 0 || maxScore(6) !== 2650) fail(`score bounds moved: ${minScore(0)} ${maxScore(0)} ${maxScore(6)}`);
+const dBad = {
+  'depth 7': D({ depth: 7 }), 'negative depth': D({ depth: -1 }), 'score above the depth': D({ depth: 1, score: 400 }),
+  'score below the depth': D({ depth: 6, score: 900 }), 'perfect without the fish': D({ depth: 5, score: 1000, perfect: 1 }),
+  'float score': D({ score: 1700.5 }), 'bad player': D({ player: 'me' }), 'date too far': validateDescida({ date: '2026-09-25', player: P, depth: 0, score: 0, perfect: 0 }, TODAY),
+};
+for (const [name, r] of Object.entries(dBad)) if (r.ok) fail(`descida must refuse: ${name}`);
+const ds = summarizeDescida([{ player: P, depth: 3, score: 600 }, { player: 'b', depth: 1, score: 150 }, { player: 'c', depth: 6, score: 2000 }, { player: 'd', depth: 3, score: 500 }], P);
+if (ds.players !== 4 || ds.dist.join() !== '0,1,0,2,0,0,1' || ds.better !== 67 || ds.you.depth !== 3) fail(`descida summary: ${JSON.stringify(ds)}`);
+console.log('descida ok');
