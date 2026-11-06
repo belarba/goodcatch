@@ -83,6 +83,30 @@ h1 span{color:var(--gold)}
 .step{appearance:none;width:40px;height:40px;background:#FFF8E6;border:2px solid var(--bark);font:400 26px/1 var(--pixel);color:var(--ink);cursor:pointer}
 .panel{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .panel p{margin:0;font-size:22px}
+.verdict{margin:0;font:400 34px/1 var(--pixel);color:var(--ink)}
+.tally{width:100%;border-collapse:collapse;font-size:20px;color:var(--ink)}
+.tally td{padding:3px 2px;white-space:nowrap}
+.tally td:first-child{text-align:left}
+.tally td:nth-child(2){text-align:center}
+.tally td:last-child{text-align:right}
+.tally tr.off td{color:rgba(59,36,20,.35)}
+.tally tr.sum td{padding-top:4px;color:var(--ink-soft)}
+.tally tr.total td{border-top:3px solid var(--ink);padding-top:6px;font-size:26px}
+.rank{color:var(--ink-soft)}
+.rank b{font-weight:400;font-size:34px;color:var(--bad);vertical-align:-3px}
+.cais{width:100%;display:flex;flex-direction:column;gap:4px;text-align:left;padding:8px;background:#FFF8E6;border:2px dashed var(--ink-soft)}
+.cais b{font-weight:400;font-size:22px}
+.cais p{font-size:18px;color:var(--ink-soft)}
+.cais .row{display:grid;grid-template-columns:132px 1fr 44px;gap:6px;align-items:center;font-size:18px}
+.cais .row i{display:block;height:12px;background:var(--ink-soft)}
+.cais .row.me{color:var(--bad)}
+.cais .row.me i{background:var(--bad)}
+.cais .row span:last-child{text-align:right}
+.week{display:flex;gap:4px;justify-content:center}
+.week div{width:40px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:16px;color:var(--ink-soft)}
+.week div span{font-size:22px;line-height:1}
+.week div.now{color:var(--ink)}
+.streak{font-size:18px;color:var(--ink-soft)}
 .photo{width:100%;padding:10px 10px 4px;background:#FFF8E6;box-shadow:0 10px 20px rgba(4,16,26,.5);transform:rotate(-1.5deg)}
 .photo canvas{display:block;width:100%;image-rendering:pixelated}
 .two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
@@ -93,7 +117,7 @@ header{position:relative}
 .ask.mute.off{opacity:.45;text-decoration:line-through}
 dialog{padding:0;border:0;background:none;width:min(440px,calc(100vw - 32px));max-width:none}
 dialog::backdrop{background:rgba(4,16,26,.6)}
-textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
+textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);background:#FFF8E6;border:3px solid var(--bark);padding:4px}
 .foot{text-align:center;font-size:18px;color:#BFE7E6}
 .foot a{color:var(--sun)}
 </style>
@@ -121,14 +145,21 @@ textarea{width:100%;height:96px;font:400 18px/1.1 var(--pixel);color:var(--ink);
   <section class="parch card" id="card" hidden aria-live="polite"></section>
 
   <section class="parch panel" id="end" hidden>
+    <h2 class="verdict" id="verdict"></h2>
+    <table class="tally" id="tally"></table>
+    <p class="rank" id="rank"></p>
+    <section class="cais" id="cais" hidden aria-live="polite"></section>
     <div class="photo"><canvas id="photo" width="320" height="256"></canvas></div>
     <p id="story"></p>
     <textarea id="share" readonly></textarea>
     <div class="two"><button class="btn" id="save">Salvar foto</button><button class="btn" id="copy">Copiar</button></div>
-    <div class="two"><button class="btn dull" id="retry">Tentar de novo</button><button class="btn dull" id="other">Outro dia</button></div>
+    <div class="week" id="week"></div>
+    <p class="streak" id="streak"></p>
+    <div class="two"><button class="btn dull" id="retry" hidden>Tentar de novo</button><button class="btn dull" id="other">Treinar outro dia</button><button class="btn dull" id="home" hidden>Voltar para hoje</button></div>
   </section>
 
   <p class="foot">Protótipo de teste. O jogo do dia continua em <a href="/">goodcatch.fish</a>.</p>
+  <p class="foot">Sem cookies e sem cadastro. Para mostrar o cais, o jogo envia até onde você chegou e seus pontos, com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.</p>
 </div>
 <script type="module">
 // Painter and sprites come from the live game; breaks if @gen-start or the catch-scene marker move.
@@ -322,7 +353,6 @@ const LAYERS=[
   {name:'Fundo',m:200,c:['#08283A','#04141F'],boss:true,snag:'linha',lose:'O peixão deu um tranco e arrebentou a linha.'},
 ];
 const PTS=[100,150,200,250,300], BOSS=500;
-const s0=i=>st.res[i]==='ok'&&st.q>=96?'🏆':'🎣';
 const LAYER_E=['🌊','🪸','🌿','🚢','🦑','🐟'], SNAG_E={bota:'👢',lata:'🥫',pneu:'🛞',ancora:'⚓',polvo:'🐙',linha:'💥'};
 const RELICS={isca:{icon:'🪱',name:'Isca'},troca:{icon:'🔄',name:'Troca'},rede:{icon:'🥅',name:'Rede'}};
 
@@ -405,8 +435,8 @@ const sfx={
 
 function newRun(){
   const day=genDay(date),bag={isca:0,troca:0,rede:0};day.relics.forEach(k=>bag[k]++);
-  st={day,i:0,res:[],score:0,caught:[],used:[],speed:[],bag,shield:false,swap:0,s:null,anim:null,end:null};
-  $('sub').textContent=`Descida de ${dm(date)}${date===today?'':' · treino'}`;
+  st={day,i:0,res:[],score:0,caught:[],used:[],speed:[],pts:[],bonus:0,bag,shield:false,swap:0,s:null,anim:null,end:null};
+  $('sub').textContent=date===today?`Descida de ${dm(date)}`:`Treino · descida de ${dm(date)}`;
   $('startHow').textContent=`Hoje lá embaixo mora ${o(day.sp)}. Cinco camadas até ele.`;
   $('start').hidden=false;$('card').hidden=true;$('end').hidden=true;
   render();
@@ -499,9 +529,9 @@ function openLayer(){st.swap=0;st.t0=performance.now();st.s=puzzle(date,st.i,st.
 function correct(){
   const L=LAYERS[st.i];st.res[st.i]='ok';render();
   const s=st.s;st.fast=(st.fast||0)+s.fast;st.speed[st.i]=s.fast>=(L.boss?BOSS:PTS[st.i])*.4;
-  if(L.boss){st.score+=BOSS+(s.perfect?250:0)+s.fast;flash(s.perfect?'Perfect catch!':'Good catch!',fastTxt(s));
+  if(L.boss){st.pts[st.i]=BOSS+(s.perfect?250:0)+s.fast;st.score+=st.pts[st.i];flash(s.perfect?'Perfect catch!':'Good catch!',fastTxt(s));
     st.q=s.perfect?96:Math.round(60+(1-Math.abs(s.pick-s.a)/s.t)*30);return setTimeout(()=>finish('done'),1600)}
-  st.score+=PTS[st.i]+s.fast;st.caught.push(L.fish);flash('Good catch!',fastTxt(s));render();
+  st.pts[st.i]=PTS[st.i]+s.fast;st.score+=st.pts[st.i];st.caught.push(L.fish);flash('Good catch!',fastTxt(s));render();
   setTimeout(()=>{$('card').hidden=true;st.s=null;st.fx=null;sfx.drop();st.anim={from:st.i,t0:performance.now(),done:openLayer};st.i++;render()},1300);
 }
 function wrong(){st.res[st.i]='bad';render();flash('Enroscou!');setTimeout(()=>finish('snag'),1500)}
@@ -598,19 +628,77 @@ function paintPhoto(){
   x.fillStyle='#6B4A2A';x.font='18px "Jersey 10"';
   x.fillText(done?`${NAMES[st.day.sp]} de ${st.cm} cm · ${fmt(st.score)} pts`:`Enroscou a ${L.m} m · ${fmt(st.score)} pts`,10,PH+34);
 }
+const RANKS=[[2200,'S'],[1700,'A'],[1200,'B'],[600,'C'],[0,'D']];
+const rankOf=n=>RANKS.find(([t])=>n>=t)[1];
+const cleared=r=>r.res.filter(x=>x==='ok').length;
+const API=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://localhost:8787':'https://goodcatch-api.goodcatch-api.workers.dev';
+const playerId=()=>{try{let id=localStorage.getItem('goodcatch:player');if(!id){id=crypto.randomUUID();localStorage.setItem('goodcatch:player',id)}return id}catch{return null}};
 async function finish(end){
-  st.end=end;$('card').hidden=true;const L=LAYERS[st.i];
-  if(end==='done'){sfx.party();st.cm=cmOf(st.q,CM[st.day.sp]);st.score+=50*Object.values(st.bag).reduce((a,b)=>a+b,0)}
-  const story=end==='done'?`Good catch! ${NAMES[st.day.sp]} de ${st.cm} cm, lá do fundo.`:L.lose;
-  $('story').textContent=story;
+  st.end=end;$('card').hidden=true;
+  if(end==='done'){sfx.party();st.cm=cmOf(st.q,CM[st.day.sp]);st.bonus=50*Object.values(st.bag).reduce((a,b)=>a+b,0);st.score+=st.bonus}
+  if(date===today&&!store.get(date)?.end){
+    const rec={end,i:st.i,res:st.res,score:st.score,cm:st.cm||0,q:st.q||0,caught:st.caught,used:st.used,speed:st.speed,pts:st.pts,bonus:st.bonus};
+    store.set(date,rec);track(end==='done'?`descida/fundo${st.q>=96?'-perfect':''}`:`descida/enroscou-${st.i+1}`,1);
+    sendPlay(rec)}
+  render();await showEnd();
+}
+function shareText(){
   const rows=LAYERS.slice(0,st.i+1).map((l,i)=>{
-    const r=st.res[i]==='ok'?(l.boss?`${s0(i)} ${NAMES[st.day.sp]} ${st.cm} cm`:'🟩'):SNAG_E[l.snag];
+    const r=st.res[i]==='ok'?(l.boss?`${st.q>=96?'🏆':'🎣'} ${NAMES[st.day.sp]} ${st.cm} cm`:'🟩'):SNAG_E[l.snag];
     return `${LAYER_E[i]} ${l.m} m ${r}${st.speed[i]?(l.boss?' ⚡':'⚡'):''}${st.used[i]?` (${st.used[i].join('')})`:''}`});
-  $('share').value=`Good Catch · Descida ${dm(date)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish/descida/`;
-  if(date===today&&!store.get(date)){store.set(date,{end,depth:L.m,score:st.score,cm:st.cm||0});
-    track(end==='done'?`descida/fundo${st.q>=96?'-perfect':''}`:`descida/enroscou-${st.i+1}`,1)}
-  render();await ART_READY;await document.fonts?.ready;paintPhoto();
+  return `Good Catch · Descida ${dm(date)} · Rank ${rankOf(st.score)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish/descida/`;
+}
+function tally(){
+  const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];
+    return `<tr class="${on?'':'off'}"><td>${LAYER_E[i]} ${l.name}</td><td>${on?(st.used[i]||[]).join('')+(bad?' '+SNAG_E[l.snag]:''):''}</td><td>${on&&!bad?(p!=null?fmt(p):'✓'):on?'0':'—'}</td></tr>`});
+  if(st.end==='done')rows.push(`<tr class="sum"><td>Relíquias guardadas</td><td></td><td>${st.bonus?'+'+fmt(st.bonus):'0'}</td></tr>`);
+  rows.push(`<tr class="total"><td>TOTAL</td><td></td><td>${fmt(st.score)}</td></tr>`);
+  return rows.join('');
+}
+function week(){
+  const wd=(new Date(today+'T12:00:00').getDay()+6)%7,shift=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return ymd(x)};
+  const days=Array.from({length:7},(_,k)=>shift(today,k-wd));
+  const icon=d=>{const r=store.get(d);if(!r?.end)return d>today?'·':'▫️';if(r.end==='done')return r.q>=96?'🏆':'🐟';
+    const k=r.i??LAYERS.findIndex(l=>l.m===r.depth);return SNAG_E[LAYERS[Math.max(0,k)].snag]};
+  $('week').innerHTML=days.map((d,k)=>`<div class="${d===today?'now':''}"><span>${icon(d)}</span>${['seg','ter','qua','qui','sex','sáb','dom'][k]}</div>`).join('');
+  let n=0,d=store.get(today)?.end?today:shift(today,-1);while(store.get(d)?.end){n++;d=shift(d,-1)}
+  $('streak').textContent=n?`Sequência: ${n} dia${n>1?'s':''} seguido${n>1?'s':''} no mar.`:'Volte amanhã para começar uma sequência.';
+}
+function cais(s){
+  const c=$('cais');c.hidden=false;
+  if(!s){c.innerHTML='<b>No cais hoje</b><p>Não deu para falar com o cais agora. Tente mais tarde.</p>';return}
+  if(s.players<10){c.innerHTML=`<b>No cais hoje</b><p>${s.players>1?`${s.players} pescadores voltaram até agora.`:'Você é um dos primeiros a voltar.'} Volte mais tarde para ver como se saiu.</p>`;return}
+  const me=s.you?.depth,top=Math.max(...s.dist),label=d=>d<6?`${LAYER_E[d]} ${LAYERS[d].name}`:'🎣 Pegou o peixão';
+  c.innerHTML=`<b>No cais hoje · ${s.players} pescadores</b><p>Onde cada um parou:</p>`+s.dist.map((n,d)=>{const p=Math.round(100*n/s.players);
+    return `<div class="row${d===me?' me':''}"><span>${label(d)}</span><i style="width:${top?Math.round(100*n/top):0}%"></i><span>${p}%</span></div>`}).join('')+
+    (s.better>0?`<p>Você fez mais pontos que ${s.better}% deles.</p>`:'');
+}
+async function stats(method,body){
+  const id=playerId();if(!id)return null;
+  try{const r=await fetch(method==='POST'?`${API}/descida/plays`:`${API}/descida/daily/${date}?player=${id}`,
+    method==='POST'?{method,headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,date,player:id})}:{});
+    return r.ok?await r.json():null}catch{return null}
+}
+let sent=null;
+function sendPlay(rec){sent=stats('POST',{depth:cleared(rec),score:rec.score,perfect:rec.end==='done'&&rec.q>=96?1:0})}
+async function showEnd(){
+  const L=LAYERS[st.i],done=st.end==='done',practice=date!==today;
+  $('verdict').textContent=done?(st.q>=96?'Perfect catch!':'Good catch!'):'Enroscou!';
+  $('tally').innerHTML=tally();
+  $('rank').innerHTML=`Rank <b>${rankOf(st.score)}</b>${practice?' · treino, não conta':''}`;
+  $('story').textContent=done?`${NAMES[st.day.sp]} de ${st.cm} cm, lá do fundo.`:L.lose;
+  $('share').value=shareText();$('share').rows=$('share').value.split('\n').length;
+  $('retry').hidden=!practice;$('home').hidden=!practice;
+  week();
+  $('cais').hidden=true;
+  await ART_READY;await document.fonts?.ready;paintPhoto();
   $('end').hidden=false;$('end').scrollIntoView({block:'nearest',behavior:'smooth'});
+  if(!practice)cais(await (sent||stats('GET')));
+}
+function restore(r){
+  const k=r.i??Math.max(0,LAYERS.findIndex(l=>l.m===r.depth));
+  Object.assign(st,{caught:[],used:[],speed:[],pts:null,bonus:0,q:0,...r,i:k,res:r.res||[...Array(k).fill('ok'),r.end==='done'?'ok':'bad']});
+  $('start').hidden=true;showEnd();
 }
 
 const GC_CODE='belarba';
@@ -624,7 +712,8 @@ $('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-
   if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:$('share').value})}catch{}return}
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
 $('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
-$('other').onclick=()=>{date=ymd(new Date(2026,0,1+Math.floor(Math.random()*700)));$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('other').onclick=()=>{do date=ymd(new Date(Date.now()-864e5*(1+Math.floor(Math.random()*400))));while(date===today);$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('home').onclick=()=>{location.href=location.pathname};
 const help=$('help');
 $('gotit').onclick=()=>help.close();
 help.onclick=e=>{if(e.target===help)help.close()};
@@ -633,10 +722,11 @@ $('ask').onclick=()=>help.showModal();
 const muteUI=()=>{$('mute').classList.toggle('off',muted);$('mute').setAttribute('aria-label',muted?'Som desligado':'Som ligado')};
 $('mute').onclick=()=>{muted=!muted;store.set('mute',muted?1:0);muteUI();if(!muted)sfx.win()};muteUI();
 if(!store.get('seenHelp'))help.showModal();
-if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr});
+if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr,store});
 track(location.pathname);
 await ART_READY;
 newRun();
+if(date===today&&store.get(date)?.end)restore(store.get(date));
 requestAnimationFrame(drawScene);
 </script>
 </body>

@@ -1,4 +1,5 @@
 import { validatePlay, validateSize, summarize, isDay, weekDates, weekStats, streakStats, shiftDay } from './play.js';
+import { validateDescida, summarizeDescida } from './descida.js';
 
 const ORIGINS = new Set(['https://goodcatch.fish', 'http://localhost:8765']);
 const cors = req => {
@@ -21,6 +22,11 @@ async function stats(env, date, player) {
     env.DB.prepare('SELECT date, COUNT(*) AS players, SUM(won) AS caught FROM plays WHERE date BETWEEN ? AND ? GROUP BY date').bind(week[0], week[6]),
   ]);
   return { ...summarize(day.results, player), week: weekStats(date, wk.results), streak: streakStats(day.results, player) };
+}
+
+async function descidaStats(env, date, player) {
+  const { results } = await env.DB.prepare('SELECT player, depth, score, streak FROM descida WHERE date = ?').bind(date).all();
+  return summarizeDescida(results, player);
 }
 
 export default {
@@ -47,6 +53,19 @@ export default {
         .bind(v.q, v.date, v.player).run();
       return json(req, await stats(env, v.date, v.player));
     }
+    if (req.method === 'POST' && url.pathname === '/descida/plays') {
+      const { body, error } = await readBody(req, 512);
+      if (error) return json(req, { error }, 413);
+      const v = validateDescida(body, today());
+      if (!v.ok) return json(req, { error: v.error }, 400);
+      const prev = await env.DB.prepare('SELECT streak FROM descida WHERE date = ? AND player = ?').bind(shiftDay(v.date, -1), v.player).first('streak');
+      await env.DB.prepare('INSERT OR IGNORE INTO descida (date, player, depth, score, perfect, created_at, streak) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .bind(v.date, v.player, v.depth, v.score, v.perfect, Date.now(), (prev ?? 0) + 1).run();
+      return json(req, await descidaStats(env, v.date, v.player));
+    }
+    const dm = /^\/descida\/daily\/(\d{4}-\d\d-\d\d)$/.exec(url.pathname);
+    if (req.method === 'GET' && dm && !isDay(dm[1])) return json(req, { error: 'date' }, 400);
+    if (req.method === 'GET' && dm) return json(req, await descidaStats(env, dm[1], url.searchParams.get('player') || ''));
     const m = /^\/daily\/(\d{4}-\d\d-\d\d)$/.exec(url.pathname);
     if (req.method === 'GET' && m && !isDay(m[1])) return json(req, { error: 'date' }, 400);
     if (req.method === 'GET' && m) return json(req, await stats(env, m[1], url.searchParams.get('player') || ''));
