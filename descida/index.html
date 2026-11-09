@@ -2,9 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<script>history.replaceState(null,'','/'+location.search)</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Good Catch · Descida (protótipo)</title>
+<title>Good Catch · Descida</title>
 <meta name="description" content="Desça o anzol por cinco camadas de mar até o peixão do dia. Errou, enroscou.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://goodcatch.fish/descida/">
@@ -158,7 +159,6 @@ textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);
     <div class="two"><button class="btn dull" id="retry" hidden>Tentar de novo</button><button class="btn dull" id="other">Treinar outro dia</button><button class="btn dull" id="home" hidden>Voltar para hoje</button></div>
   </section>
 
-  <p class="foot">Protótipo de teste. O jogo do dia continua em <a href="/">goodcatch.fish</a>.</p>
   <p class="foot">Sem cookies e sem cadastro. Para mostrar o cais, o jogo envia até onde você chegou e seus pontos, com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.</p>
 </div>
 <script type="module">
@@ -658,7 +658,7 @@ function shareText(){
   const rows=LAYERS.slice(0,st.i+1).map((l,i)=>{
     const r=st.res[i]==='ok'?(l.boss?`${st.q>=96?'🏆':'🎣'} ${NAMES[st.day.sp]} ${st.cm} cm`:'🟩'):SNAG_E[l.snag];
     return `${LAYER_E[i]} ${l.m} m ${r}${st.speed[i]?(l.boss?' ⚡':'⚡'):''}${st.used[i]?` (${st.used[i].join('')})`:''}`});
-  return `Good Catch · Descida ${dm(date)} · Rank ${rankOf(st.score)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish/descida/`;
+  return `Good Catch · Descida ${dm(date)} · Rank ${rankOf(st.score)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish`;
 }
 function tally(){
   const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];
@@ -735,7 +735,7 @@ const muteUI=()=>{$('mute').classList.toggle('off',muted);$('mute').setAttribute
 $('mute').onclick=()=>{muted=!muted;store.set('mute',muted?1:0);muteUI();if(!muted)sfx.win()};muteUI();
 if(!store.get('seenHelp'))help.showModal();
 if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr,store});
-track(location.pathname);
+track('/descida/');
 await ART_READY;await DART_READY;
 newRun();
 if(date===today&&store.get(date)?.end)restore(store.get(date));
