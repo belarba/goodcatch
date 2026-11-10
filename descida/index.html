@@ -661,10 +661,9 @@ async function finish(end){
   render();await showEnd();
 }
 function shareText(){
-  const rows=LAYERS.slice(0,st.i+1).map((l,i)=>{
-    const r=st.res[i]==='ok'?(l.boss?`${st.q>=96?'🏆':'🎣'} ${NAMES[st.day.sp]} ${st.cm} cm`:'🟩'):SNAG_E[l.snag];
-    return `${LAYER_E[i]} ${l.m} m ${r}${st.speed[i]?(l.boss?' ⚡':'⚡'):''}${st.used[i]?` (${st.used[i].join('')})`:''}`});
-  return `Good Catch · Descida ${dm(date)} · Rank ${rankOf(st.score)} · ${fmt(st.score)} pts\n${rows.join('\n')}\ngoodcatch.fish`;
+  const done=st.end==='done',L=LAYERS[st.i];
+  const bar=LAYERS.map((l,i)=>i<st.i?'🟩':i>st.i?'⬛':done?(st.q>=96?'🏆':'🐟'):SNAG_E[l.snag]).join('');
+  return `🎣 Good Catch · Descida ${dm(date)}\n${bar} ${done?`${NAMES[st.day.sp]} ${st.cm} cm`:`${L.m} m`}\nRank ${rankOf(st.score)} · ${fmt(st.score)} pts\ngoodcatch.fish`;
 }
 function tally(){
   const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];
