@@ -111,8 +111,6 @@ h1 span{color:var(--gold)}
 .week div span{font-size:22px;line-height:1}
 .week div.now{color:var(--ink)}
 .streak{font-size:18px;color:var(--ink-soft)}
-.photo{width:100%;padding:10px 10px 4px;background:#FFF8E6;box-shadow:0 10px 20px rgba(4,16,26,.5);transform:rotate(-1.5deg)}
-.photo canvas{display:block;width:100%;image-rendering:pixelated}
 .two{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .help p{margin:0 0 6px;font-size:20px;line-height:1.1}
 header{position:relative}
@@ -144,13 +142,13 @@ textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);
     <h2 class="verdict">Diário de bordo</h2>
     <div class="days" id="days"></div>
     <p class="legend">🟩 acertou · 👢 enroscou · 🐟 pegou o peixão · ⬛ não chegou</p>
-    <div class="two"><button class="btn dull" id="other">Sortear um dia antigo</button><button class="btn" id="logClose">Fechar</button></div>
+    <div class="two"><button class="btn" id="logClose">Fechar</button></div>
   </div></dialog>
 
   <dialog id="help" aria-label="Como jogar"><div class="parch help">
     <p>O peixão do dia mora no fundo. Desça o anzol pelas <b>5 camadas</b> do mar: em cada uma ele fisga alguma coisa, e cada coisa é um desafio.</p>
     <p>Acertou: <b>good catch!</b> Ganha o peixinho da camada e desce. Errou: o anzol enrosca e a pescaria acaba.</p>
-    <p>No fundo, o peixão: chute o número. Você tem dois puxões, e quanto mais perto, maior ele sai na foto.</p>
+    <p>No fundo, o peixão: chute o número. Você tem dois puxões, e quanto mais perto, maior ele sai.</p>
     <p>Sem relógio, mas responder rápido vale pontos extras.</p>
     <p>O 📖 diário de bordo guarda todos os dias, e qualquer dia antigo dá para treinar de novo.</p>
     <p>Toque numa relíquia para usar: 🪱 tira uma resposta errada, 🔄 troca o desafio, 🥅 a rede segura um erro (ligue antes de responder).</p>
@@ -171,10 +169,9 @@ textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);
     <table class="tally" id="tally"></table>
     <p class="rank" id="rank"></p>
     <section class="cais" id="cais" hidden aria-live="polite"></section>
-    <div class="photo"><canvas id="photo" width="320" height="256"></canvas></div>
     <p id="story"></p>
     <textarea id="share" readonly></textarea>
-    <div class="two"><button class="btn" id="save">Salvar foto</button><button class="btn" id="copy">Copiar</button></div>
+    <div class="two"><button class="btn" id="copy">Copiar</button></div>
     <div class="week" id="week"></div>
     <p class="streak" id="streak"></p>
     <div class="two"><button class="btn dull" id="retry" hidden>Tentar de novo</button><button class="btn dull" id="logEnd">📖 Diário de bordo</button><button class="btn dull" id="home" hidden>Voltar para hoje</button></div>
@@ -707,36 +704,6 @@ function drawScene(now){
   x.fillText(`${(st.anim?LAYERS[e<.5?st.anim.from:st.i]:L).name} · ${depth} m`,W-8,22);
 }
 
-// ---------- the photo ----------
-const SEA={sky:['#9FE3F2','#C9F1F6'],sea:['#3FC1C9','#1E8FA6','#14708A'],bed:'#E9D49A',deco:'#F28A80'};
-function backdrop(x,S,w,h,hz){
-  dot(x,S.sky[0],0,0,w,hz*.5);dot(x,S.sky[1],0,hz*.5,w,hz*.5);dot(x,'#FFF3B0',w-60,14,18,18);
-  const bands=[hz,hz+(h-hz)*.3,hz+(h-hz)*.65,h];S.sea.forEach((c,i)=>dot(x,c,0,bands[i],w,bands[i+1]-bands[i]));
-  for(let i=0;i<w+16;i+=16)dot(x,'rgba(255,255,255,.35)',i,hz+1+((i>>4)%2)*3,8,1);
-  dot(x,S.bed,0,h-10,w,10);for(let i=0;i<7;i++)dot(x,S.deco,i*53+17,h-16,10+i%3*4,6);
-}
-function boat(x,X,by){
-  dot(x,'rgba(4,20,40,.35)',X-26,by+12,52,4);dot(x,'#5E3A1A',X-26,by,52,4);dot(x,'#5E3A1A',X-22,by+4,44,4);dot(x,'#5E3A1A',X-18,by+8,36,4);
-  dot(x,'#9A6A3C',X-24,by+2,48,2);dot(x,'#B98553',X-20,by+6,40,2);
-}
-function paintPhoto(){
-  const c=$('photo'),x=c.getContext('2d'),PW=320,PH=216,hz=96,X=110,by=hz+30,done=st.end==='done',L=LAYERS[st.i];
-  x.imageSmoothingEnabled=false;x.clearRect(0,0,320,256);if(DART['foto-fundo'])x.drawImage(DIMG['foto-fundo'],0,0,PW,PH);else backdrop(x,SEA,PW,PH,hz);
-  const cat=done?'gato-feliz':'gato-triste';
-  if(DART.barco)dart(x,'barco',X,by+8,1);else boat(x,X,by);
-  if(DART[cat])dart(x,cat,X,by-24,1);else art(x,'portrait/'+(done?'catHappy':'catFace'),X-32,by-52);
-  st.caught.forEach((f,i)=>art(x,`fish/${f}`,14+i*22,PH-34));
-  for(let i=0;i<30;i++)dot(x,'#8A6A40',X+20+i*1.6,by-30-i*1.5,2,2);
-  const tx=X+68,ty=by-74;dot(x,'#FFF1D0',tx+8,ty,1,16);
-  if(done){art(x,'portrait/'+st.day.sp,X+34,by-66);for(let i=0;i<5;i++)dot(x,'#FFE27A',X+40+i*12,by-74+(i%2)*6,3,3)}
-  else if(L.snag==='linha'){x.strokeStyle='rgba(255,246,222,.85)';x.beginPath();x.moveTo(tx+8,ty+16);x.quadraticCurveTo(tx+30,ty+40,tx+20,ty+56);x.stroke();art(x,'portrait/'+st.day.sp,206,hz-58,true);for(let i=0;i<6;i++)dot(x,'#FFFFFF',214+i*8,hz-2-(i%2)*6,4,4)}
-  else{item(x,L.snag,tx+8,ty+44,4);
-    if(L.snag==='polvo'){dot(x,'#2E1A0C',tx+43,ty+15,42,20);dot(x,'#FFF8E6',tx+44,ty+16,40,18);x.fillStyle='#3B2414';x.font='16px "Jersey 10"';x.textAlign='center';x.textBaseline='middle';x.fillText('valeu',tx+64,ty+26)}}
-  dot(x,'#F6E7C1',0,PH,320,40);
-  x.fillStyle='#3B2414';x.font='22px "Jersey 10"';x.textAlign='left';x.textBaseline='alphabetic';x.fillText(`Good Catch · Descida ${dm(date)}`,10,PH+18);
-  x.fillStyle='#6B4A2A';x.font='18px "Jersey 10"';
-  x.fillText(done?`${NAMES[st.day.sp]} de ${st.cm} cm · ${fmt(st.score)} pts`:`Enroscou a ${L.m} m · ${fmt(st.score)} pts`,10,PH+34);
-}
 const RANKS=[[2200,'S'],[1700,'A'],[1200,'B'],[600,'C'],[0,'D']];
 const rankOf=n=>RANKS.find(([t])=>n>=t)[1];
 const cleared=r=>r.res.filter(x=>x==='ok').length;
@@ -805,7 +772,6 @@ async function showEnd(){
   $('retry').hidden=date===today;$('home').hidden=date===today;
   week();
   $('cais').hidden=true;
-  await ART_READY;await document.fonts?.ready;paintPhoto();
   $('end').hidden=false;$('end').scrollIntoView({block:'nearest',behavior:'smooth'});
   if(!practice)cais(await (sent||stats('GET')));
 }
@@ -823,11 +789,7 @@ function track(path,event){
 }
 $('go').onclick=()=>{$('start').hidden=true;if(date===today&&!store.get(date))track('descida/start',1);openLayer()};
 $('copy').onclick=()=>{track('descida/share',1);$('share').select();navigator.clipboard?.writeText($('share').value).catch(()=>{});$('copy').textContent='Copiado'};
-$('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-${date}.png`,{type:'image/png'});
-  if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:$('share').value})}catch{}return}
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
 $('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
-$('other').onclick=()=>{log.close();do date=ymd(new Date(Date.now()-864e5*(1+Math.floor(Math.random()*400))));while(date===today);$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
 const log=$('log');let tick;
 const recOf=d=>{const o=store.get(d);if(o?.end)return [o,false];const t=d<today&&store.get('treino:'+d);return t?.end?[t,true]:[null,false]};
 function opens(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);const s=Math.floor((m-n)/1000);$('opens').textContent=`abre em ${pad(s/3600|0)}:${pad(s/60%60|0)}:${pad(s%60)}`}
