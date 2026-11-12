@@ -15,7 +15,7 @@ function literal(name) {
   return new Function(`return (${page.slice(i, j)})`)();
 }
 const SPR = literal('SPR');
-const LAYERS = new Function(`return ${page.slice(page.indexOf('const LAYERS=') + 13, page.indexOf('];', page.indexOf('const LAYERS=')) + 1)}`)();
+const LAYERS = new Function('tx', `return ${page.slice(page.indexOf('const LAYERS=') + 13, page.indexOf('];', page.indexOf('const LAYERS=')) + 1)}`)(pt => pt);
 
 const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 function canvas(w, h) {
@@ -68,7 +68,7 @@ for (const [k, l] of Object.entries(SNAG)) add(k, 32, 32, 'Enroscos', `Sobe na l
 for (const L of LAYERS) {
   const c = canvas(320, 200), mix = (a, b, t) => hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t));
   for (let b = 0; b < 10; b++) c.rect(mix(L.c[0], L.c[1], b / 9), 0, b * 20, 320, 20);
-  const slug = L.name.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const slug = L.k;
   add(`camada-${slug}`, 320, 200, 'Fundos das camadas', `A água da camada ${L.name.toLowerCase()} (${L.m} m), atrás da linha, dos peixes e das bolhas. Deixe o centro livre: a linha desce no meio.`, c.png());
 }
 

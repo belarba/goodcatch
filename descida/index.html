@@ -120,6 +120,7 @@ header{position:relative}
 .ask.mute{right:auto;left:0}
 .ask.mute.off{opacity:.45;text-decoration:line-through}
 .ask.log{right:46px;font-size:18px}
+.foot button{font:inherit;color:var(--sun);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
 .days{display:flex;flex-direction:column;gap:4px;max-height:55svh;overflow:auto;margin:8px 0}
 .day{appearance:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 8px;background:#FFF8E6;border:2px solid var(--bark);font:400 20px/1 var(--pixel);color:var(--ink);cursor:pointer;text-align:left}
 .day small{font-size:16px;color:var(--ink-soft)}
@@ -186,7 +187,7 @@ textarea{width:100%;resize:none;font:400 18px/1.1 var(--pixel);color:var(--ink);
     <div class="two"><button class="btn dull" id="retry" hidden>Tentar de novo</button><button class="btn dull" id="logEnd">📖 Diário de bordo</button><button class="btn dull" id="home" hidden>Voltar para hoje</button></div>
   </section>
 
-  <footer class="foot"><p>Feito por Daniel Belarmino · <a href="mailto:hello@goodcatch.fish">hello@goodcatch.fish</a></p><details><summary>Privacidade</summary><p>Sem cookies e sem cadastro. Para mostrar o cais, o jogo envia até onde você chegou e seus pontos, com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.</p></details></footer>
+  <footer class="foot"><p><button id="lang"></button></p><p>Feito por Daniel Belarmino · <a href="mailto:hello@goodcatch.fish">hello@goodcatch.fish</a></p><details><summary>Privacidade</summary><p>Sem cookies e sem cadastro. Para mostrar o cais, o jogo envia até onde você chegou e seus pontos, com um ID aleatório que não identifica ninguém. As visitas são contadas pelo GoatCounter, que não coleta dados pessoais.</p></details></footer>
 </div>
 <script type="module">
 // Painter and sprites come from the live game; breaks if @gen-start or the catch-scene marker move.
@@ -437,65 +438,304 @@ const EST=[
   {q:'A que altura fica o aro de uma cesta de basquete?',a:3.05,lo:1,hi:6,step:.05,u:' m'},
 ];
 
+// English banks, aligned by position with the Portuguese ones: item i is the translation or a stand-in for item i,
+// with the same level, the same numbers and a hangman word of the same length band, so a day deals the same slots.
+// Checked and frozen days rebuilt by tools/descida-en.mjs.
+const BANK_EN={
+TRIVIA:[
+  [1,'What is the largest ocean on Earth?','Pacific','Atlantic','Indian','Arctic'],
+  [1,'Which planet is called the red planet?','Mars','Jupiter','Venus','Saturn'],
+  [1,'In which country are the pyramids of Giza?','Egypt','Mexico','Peru','Greece'],
+  [1,'What is the capital of Argentina?','Buenos Aires','Montevideo','Santiago','Lima'],
+  [1,'What is the largest animal in the world?','Blue whale','African elephant','Whale shark','Giraffe'],
+  [1,'How many minutes does a regular soccer match last?','90','80','100','120'],
+  [1,'How many days are in a leap year?','366','365','364','367'],
+  [1,'Which planet is closest to the Sun?','Mercury','Venus','Earth','Mars'],
+  [1,'How many colors are in a rainbow?','7','5','6','8'],
+  [2,'Who painted the Mona Lisa?','Leonardo da Vinci','Michelangelo','Raphael','Botticelli'],
+  [2,'Which river runs through Paris?','Seine','Thames','Rhine','Danube'],
+  [2,'In what year did people first walk on the Moon?','1969','1965','1972','1961'],
+  [2,'What is the longest bone in the human body?','Femur','Tibia','Humerus','Radius'],
+  [2,'What is the capital of Australia?','Canberra','Sydney','Melbourne','Perth'],
+  [2,'Which gas do plants take in for photosynthesis?','Carbon dioxide','Oxygen','Nitrogen','Helium'],
+  [2,'How many strings does a standard guitar have?','6','4','5','7'],
+  [2,'What is the capital of Canada?','Ottawa','Toronto','Montreal','Vancouver'],
+  [2,'What is the largest hot desert in the world?','Sahara','Arabian Desert','Gobi','Kalahari'],
+  [3,'How many hearts does an octopus have?','3','1','2','8'],
+  [3,'On which planet is a day longer than a year?','Venus','Mercury','Mars','Neptune'],
+  [3,'What is the smallest country in the world?','Vatican City','Monaco','San Marino','Liechtenstein'],
+  [3,'What is the highest mountain in Africa?','Kilimanjaro','Mount Kenya','Toubkal','Mount Stanley'],
+  [3,'Which language has the most native speakers?','Mandarin','Spanish','English','Hindi'],
+  [3,'What is the capital of Turkey?','Ankara','Istanbul','Izmir','Antalya'],
+  [3,'Which ocean borders Mozambique?','Indian','Atlantic','Pacific','Arctic'],
+  [3,'What is the only mammal that can truly fly?','Bat','Flying squirrel','Colugo','Sugar glider'],
+  [1,'Which of these is a mammal?','Dolphin','Shark','Salmon','Octopus'],
+  [2,'What is the capital of Japan?','Tokyo','Kyoto','Osaka','Beijing'],
+  [2,'What is the largest organ of the human body?','Skin','Liver','Heart','Lung'],
+  [2,'Which planet has the most famous rings?','Saturn','Jupiter','Uranus','Neptune'],
+  [2,'In which country was the tango born?','Argentina','Spain','Cuba','Mexico'],
+  [2,'On which continent is Egypt?','Africa','Asia','Europe','Oceania'],
+  [2,'Who composed the Ninth Symphony, the one with the Ode to Joy?','Beethoven','Mozart','Bach','Chopin'],
+  [2,'What is the currency of Japan?','Yen','Yuan','Won','Rupee'],
+  [2,'Which vitamin does the body make from sunlight?','Vitamin D','Vitamin C','Vitamin A','Vitamin B12'],
+  [2,'What is the hottest planet in the Solar System?','Venus','Mercury','Mars','Jupiter'],
+  [2,'Which country is shaped like a boot?','Italy','Greece','Portugal','Chile'],
+  [3,'What is the capital of Morocco?','Rabat','Casablanca','Marrakesh','Fez'],
+  [3,'What is the longest river in Europe?','Volga','Danube','Rhine','Seine'],
+  [3,'How many vertebrae are in the human neck?','7','5','9','12'],
+  [3,'What is the capital of New Zealand?','Wellington','Auckland','Christchurch','Queenstown'],
+  [3,'Who wrote One Hundred Years of Solitude?','Gabriel García Márquez','Jorge Luis Borges','Pablo Neruda','Mario Vargas Llosa'],
+  [3,'What is the smallest bone in the human body?','Stirrup','Hammer','Anvil','Phalanx'],
+  [3,'Who painted The Scream?','Edvard Munch','Van Gogh','Salvador Dalí','Gustav Klimt'],
+  [3,'Which mammal has the longest pregnancy?','Elephant','Blue whale','Giraffe','Rhinoceros'],
+  [1,'In which country is Machu Picchu?','Peru','Bolivia','Chile','Ecuador'],
+  [1,'Which of these is no longer considered a planet?','Pluto','Neptune','Mercury','Mars'],
+  [1,'What is the capital of Portugal?','Lisbon','Porto','Coimbra','Braga'],
+  [1,'What is the capital of Italy?','Rome','Milan','Venice','Naples'],
+  [1,'In which ocean is Hawaii?','Pacific','Atlantic','Indian','Arctic'],
+  [1,'What is the fastest land animal?','Cheetah','Lion','Horse','Antelope'],
+  [1,'What is the largest planet in the Solar System?','Jupiter','Saturn','Neptune','Earth'],
+  [1,'Which country hosted the 2014 World Cup?','Brazil','Germany','Russia','South Africa'],
+  [1,'How many sides does an octagon have?','8','6','10','12'],
+  [1,'Who wrote The Little Prince?','Saint-Exupéry','Jules Verne','Victor Hugo','Lewis Carroll'],
+  [1,'Which fruit is the base of guacamole?','Avocado','Lime','Mango','Kiwi'],
+  [1,'Which of these animals is a reptile?','Snake','Frog','Salamander','Dolphin'],
+  [2,'Which metal is most used in household electrical wiring?','Copper','Iron','Gold','Lead'],
+  [1,'What is the name of Disney’s most famous mouse?','Mickey','Jerry','Stuart Little','Remy'],
+  [1,'Which country does pizza come from?','Italy','France','United States','Greece'],
+  [1,'How many players does a soccer team have on the field?','11','9','10','12'],
+  [1,'Which sport is played with a racket and a shuttlecock?','Badminton','Tennis','Squash','Ping-pong'],
+  [1,'Which country does sushi come from?','Japan','China','South Korea','Thailand'],
+  [1,'Which company makes the iPhone?','Apple','Samsung','Microsoft','Nokia'],
+  [1,'Which wooden puppet’s nose grows when he lies?','Pinocchio','Peter Pan','Geppetto','Aladdin'],
+  [1,'Which drink is made from roasted, ground beans?','Coffee','Tea','Lemonade','Milk'],
+  [1,'How many rings are in the Olympic symbol?','5','4','6','7'],
+  [1,'Which company created Windows?','Microsoft','Apple','IBM','Google'],
+  [1,'In which sport did Michael Jordan become famous?','Basketball','Baseball','Golf','Tennis'],
+  [2,'Who sang Thriller?','Michael Jackson','Prince','Stevie Wonder','Lionel Richie'],
+  [2,'Which city were the Beatles from?','Liverpool','London','Manchester','Dublin'],
+  [2,'Which Swedish band sang Dancing Queen?','ABBA','Roxette','Ace of Base','Europe'],
+  [2,'Who founded Microsoft with Paul Allen?','Bill Gates','Steve Jobs','Mark Zuckerberg','Jeff Bezos'],
+  [2,'Which social network did Mark Zuckerberg create?','Facebook','Twitter','Instagram','YouTube'],
+  [2,'Who directed the 1975 film Jaws?','Steven Spielberg','George Lucas','Francis Ford Coppola','Martin Scorsese'],
+  [2,'Which actor played Jack in Titanic?','Leonardo DiCaprio','Brad Pitt','Tom Cruise','Johnny Depp'],
+  [2,'Which country is paella from?','Spain','Portugal','Italy','Mexico'],
+  [2,'Which cheese goes on a margherita pizza?','Mozzarella','Parmesan','Gorgonzola','Cheddar'],
+  [2,'In which country were the ancient Olympic Games born?','Greece','Italy','Egypt','Turkey'],
+  [2,'Which character says “To infinity and beyond!”?','Buzz Lightyear','Woody','Shrek','Nemo'],
+  [2,'Who wrote Harry Potter?','J.K. Rowling','Agatha Christie','Stephen King','J.R.R. Tolkien'],
+  [2,'Which detective did Arthur Conan Doyle create?','Sherlock Holmes','Hercule Poirot','Miss Marple','Columbo'],
+  [2,'How many players does a volleyball team have on court?','6','5','7','8'],
+  [2,'Which country is famous for its chocolate and its watches?','Switzerland','Belgium','Austria','Netherlands'],
+  [2,'Who wrote Romeo and Juliet?','Shakespeare','Cervantes','Molière','Dante'],
+  [2,'Which singer was called the King of Rock and Roll?','Elvis Presley','Chuck Berry','Little Richard','Johnny Cash'],
+  [2,'Which Star Wars villain says “I am your father”?','Darth Vader','Darth Maul','Palpatine','Boba Fett'],
+  [2,'In which city is the Wimbledon tennis tournament played?','London','Paris','New York','Melbourne'],
+  [2,'Which scientist explained the evolution of species?','Charles Darwin','Isaac Newton','Gregor Mendel','Louis Pasteur'],
+  [3,'Who painted The Starry Night?','Van Gogh','Monet','Picasso','Renoir'],
+  [3,'What was Disney’s first animated feature film?','Snow White','Pinocchio','Fantasia','Cinderella'],
+  [3,'In which country was tennis player Roger Federer born?','Switzerland','Austria','Germany','Sweden'],
+  [3,'Which country is the band U2 from?','Ireland','England','Scotland','Australia'],
+  [3,'Which spice gives curry its yellow color?','Turmeric','Paprika','Cinnamon','Cumin'],
+  [3,'Which country does beef stroganoff come from?','Russia','France','Germany','Austria'],
+  [3,'Who composed The Four Seasons?','Vivaldi','Mozart','Bach','Chopin'],
+  [3,'In which country is Bollywood, the film industry?','India','Pakistan','Bangladesh','Nepal'],
+  [3,'Which sport has a quarterback and a running back?','American football','Rugby','Baseball','Hockey'],
+  [3,'Which country is Gouda cheese from?','Netherlands','Switzerland','Belgium','Denmark'],
+  [3,'Who wrote The Lord of the Rings?','J.R.R. Tolkien','C.S. Lewis','George R.R. Martin','J.K. Rowling'],
+  [3,'Which of the Beatles was the drummer?','Ringo Starr','John Lennon','Paul McCartney','George Harrison'],
+],
+NUM:[
+  {q:'Which country has more people?',u:' million',items:[['Brazil',216],['Argentina',46],['Portugal',10.4],['Japan',124],['Mexico',128],['Canada',39],['Germany',84],['France',68],['Italy',59],['Spain',48],['Chile',19.6],['Egypt',112],['Nigeria',224],['Australia',26.6],['India',1428],['USA',335],['Peru',34],['Colombia',52],['Uruguay',3.4],['Paraguay',6.9]]},
+  {q:'Which is taller?',u:' m',items:[['Mount Everest',8849],['Aconcagua',6961],['Kilimanjaro',5895],['Mont Blanc',4806],['Pico da Neblina, Brazil',2995],['Mount Fuji',3776],['Sugarloaf Mountain, Rio',396],['Corcovado, Rio',710],['Eiffel Tower',330],['Burj Khalifa',828],['Christ the Redeemer (statue only)',30],['Statue of Liberty with pedestal',93]]},
+  {q:'Which adult animal weighs more?',u:' kg (approx.)',items:[['African elephant',6000],['Hippopotamus',1500],['White rhino',2300],['Giraffe',1200],['Polar bear',450],['Lion',190],['Gorilla',160],['Horse',500],['Orca',5000],['Ostrich',120],['Jaguar',90],['Capybara',50],['Emperor penguin',30],['Giant panda',100]]},
+  {q:'Which river is longer?',u:' km',items:[['Nile',6650],['Yangtze',6300],['Paraná',4880],['São Francisco',2830],['Danube',2850],['Rhine',1230],['Seine',777],['Thames',346],['Tagus',1007],['Volga',3530]]},
+  {q:'Which country is bigger?',u:' thousand km²',items:[['Russia',17098],['Canada',9985],['USA',9834],['China',9597],['Brazil',8516],['Australia',7692],['India',3287],['Argentina',2780],['Mexico',1964],['Egypt',1002],['Spain',506],['Japan',378],['Germany',357],['Italy',302],['United Kingdom',244],['Portugal',92]]},
+  {q:'Which film made more at the box office?',u:' million dollars (approx.)',items:[['Avatar',2923],['Avengers: Endgame',2799],['Titanic',2264],['Star Wars: The Force Awakens',2071],['Jurassic World',1671],['The Lion King (2019)',1657],['Frozen II',1450],['Harry Potter and the Deathly Hallows: Part 2',1342],['Toy Story 4',1073],['Finding Dory',1029],['Shrek 2',935]]},
+],
+EVENTS:[[-2560,'the Great Pyramid of Giza'],[-753,'the founding of Rome (according to legend)'],[476,'the fall of the Western Roman Empire'],[1440,'Gutenberg’s printing press'],[1492,'Columbus’s arrival in the Americas'],[1500,'the Portuguese arrival in Brazil'],[1616,'the death of Shakespeare'],[1776,'the independence of the United States'],[1789,'the French Revolution'],[1822,'Champollion’s decoding of the hieroglyphs'],[1876,'Bell’s telephone'],[1879,'Edison’s light bulb'],[1888,'the first Kodak camera'],[1889,'the Eiffel Tower'],[1896,'the first modern Olympic Games'],[1912,'the sinking of the Titanic'],[1914,'the opening of the Panama Canal'],[1928,'the discovery of penicillin'],[1930,'the first World Cup'],[1945,'the end of World War II'],[1957,'the launch of Sputnik'],[1960,'the first working laser'],[1969,'the first Moon landing'],[1989,'the fall of the Berlin Wall'],[2001,'the creation of Wikipedia'],[2007,'the first iPhone'],[2020,'the covid-19 pandemic'],[1895,'the Lumière brothers’ first film screening'],[1927,'the first talking picture'],[1928,'the debut of Mickey Mouse'],[1953,'the coronation of Queen Elizabeth II'],[1955,'the opening of Disneyland'],[1963,'the assassination of John F. Kennedy'],[1976,'the founding of Apple'],[1977,'the first Star Wars film'],[1980,'the release of Pac-Man'],[1981,'the launch of MTV'],[1984,'the first Macintosh'],[1985,'the Live Aid concert'],[1986,'the Chernobyl accident'],[1991,'the first website'],[1997,'the first Harry Potter book'],[1998,'the founding of Google'],[2004,'the creation of Facebook'],[2005,'the creation of YouTube']],
+ODD:[
+  {d:1,t:'capitals',in:['Rome','Paris','Madrid','Lisbon','Berlin','Buenos Aires'],out:['Sydney','Barcelona','Milan','New York','Istanbul']},
+  {d:2,t:'mammals',in:['Whale','Bat','Dolphin','Platypus','Cow'],out:['Shark','Penguin','Alligator','Octopus']},
+  {d:2,t:'planets',in:['Mercury','Venus','Mars','Jupiter','Saturn','Neptune'],out:['Pluto','Moon','Sun','Ceres']},
+  {d:2,t:'string instruments',in:['Guitar','Violin','Harp','Ukulele','Double bass'],out:['Flute','Trumpet','Drums','Saxophone']},
+  {d:2,t:'painters',in:['Picasso','Van Gogh','Monet','Rembrandt','Frida Kahlo'],out:['Mozart','Shakespeare','Einstein']},
+  {d:1,t:'South American countries',in:['Chile','Peru','Bolivia','Uruguay','Paraguay','Ecuador'],out:['Mexico','Panama','Cuba','Costa Rica']},
+  {d:3,t:'winter sports',in:['Skiing','Curling','Bobsleigh','Ice skating','Biathlon'],out:['Surfing','Rowing','Sailing','Triathlon']},
+  {d:1,t:'ball sports',in:['Soccer','Volleyball','Basketball','Tennis','Handball'],out:['Swimming','Judo','Cycling','Rowing']},
+  {d:2,t:'signs of the zodiac',in:['Aries','Taurus','Leo','Scorpio','Pisces'],out:['Dragon','Horse','Rooster']},
+  {d:3,t:'prime numbers',in:['2','3','5','7','11','13','17'],out:['9','15','21','27']},
+  {d:3,t:'Romance languages',in:['Portuguese','Spanish','Italian','French','Romanian'],out:['German','English','Dutch','Greek']},
+  {d:1,t:'animals that lay eggs',in:['Chicken','Turtle','Alligator','Platypus','Penguin'],out:['Dolphin','Bat','Horse']},
+  {d:1,t:'colors of the rainbow',in:['Red','Orange','Yellow','Green','Blue','Violet'],out:['Brown','Black','Gray']},
+  {d:1,t:'things that travel on water',in:['Boat','Ship','Canoe','Raft','Submarine'],out:['Airplane','Train','Bus']},
+  {d:2,t:'continents',in:['Africa','Asia','Europe','Oceania','America','Antarctica'],out:['Greenland','Siberia','Brazil']},
+  {d:2,t:'bones of the body',in:['Femur','Tibia','Humerus','Radius','Skull'],out:['Biceps','Tendon','Liver']},
+  {d:2,t:'big cats',in:['Lion','Tiger','Jaguar','Cheetah','Lynx'],out:['Hyena','Wolf','Fox']},
+  {d:2,t:'classical composers',in:['Mozart','Bach','Beethoven','Chopin','Vivaldi'],out:['Picasso','Darwin','Galileo']},
+  {d:2,t:'birds',in:['Penguin','Ostrich','Chicken','Duck','Owl'],out:['Bat','Bee','Butterfly']},
+  {d:3,t:'African capitals',in:['Nairobi','Cairo','Dakar','Luanda','Accra'],out:['Johannesburg','Casablanca','Lagos']},
+  {d:3,t:'countries that use the euro',in:['Portugal','Spain','France','Germany','Italy','Ireland'],out:['Switzerland','United Kingdom','Sweden','Denmark']},
+  {d:3,t:'constellations',in:['Orion','Cassiopeia','Scorpius','Southern Cross'],out:['Milky Way','Pleiades','Sirius']},
+  {d:1,t:'wind instruments',in:['Flute','Trumpet','Saxophone','Clarinet','Trombone'],out:['Violin','Piano','Drums']},
+  {d:1,t:'European countries',in:['France','Germany','Spain','Poland','Greece'],out:['Egypt','Morocco','Canada']},
+  {d:2,t:'reptiles',in:['Snake','Lizard','Alligator','Turtle','Chameleon'],out:['Frog','Salamander','Eel']},
+  {d:1,t:'Disney princesses',in:['Cinderella','Snow White','Ariel','Belle','Aurora','Jasmine'],out:['Alice','Dorothy','Wendy']},
+  {d:1,t:'citrus fruits',in:['Lemon','Orange','Tangerine','Lime','Grapefruit'],out:['Apple','Banana','Grape','Strawberry']},
+  {d:1,t:'racket sports',in:['Tennis','Badminton','Squash','Ping-pong'],out:['Golf','Baseball','Hockey']},
+  {d:2,t:'Marvel superheroes',in:['Spider-Man','Iron Man','Thor','Hulk','Captain America','Black Panther'],out:['Batman','Superman','Wonder Woman','The Flash','Aquaman']},
+  {d:2,t:'Pixar films',in:['Toy Story','Finding Nemo','Up','Ratatouille','Cars','Inside Out'],out:['The Lion King','Shrek','Frozen','Ice Age']},
+  {d:2,t:'British bands',in:['The Beatles','The Rolling Stones','Queen','Pink Floyd','Led Zeppelin','Coldplay'],out:['ABBA','Bon Jovi','Nirvana','Metallica']},
+  {d:2,t:'kinds of Italian pasta',in:['Spaghetti','Lasagna','Penne','Ravioli','Fettuccine'],out:['Paella','Risotto','Croissant','Sushi']},
+  {d:2,t:'Formula 1 drivers',in:['Ayrton Senna','Michael Schumacher','Lewis Hamilton','Alain Prost','Niki Lauda'],out:['Roger Federer','Usain Bolt','Michael Phelps','Tiger Woods']},
+  {d:3,t:'video game consoles',in:['PlayStation','Xbox','Nintendo Switch','Sega Genesis','Game Boy'],out:['Walkman','iPod','Kindle']},
+  {d:3,t:'cheeses',in:['Brie','Gorgonzola','Parmesan','Cheddar','Camembert'],out:['Tofu','Hummus','Tahini']},
+  {d:3,t:'tech company founders',in:['Bill Gates','Steve Jobs','Mark Zuckerberg','Jeff Bezos','Larry Page'],out:['Albert Einstein','Isaac Newton','Galileo']},
+  {d:3,t:'tennis players',in:['Roger Federer','Rafael Nadal','Novak Djokovic','Serena Williams','Andre Agassi'],out:['Lionel Messi','Usain Bolt','Michael Jordan','Tiger Woods']},
+  {d:3,t:'spices',in:['Cinnamon','Turmeric','Cumin','Paprika','Nutmeg'],out:['Yeast','Gelatin','Cornstarch']},
+],
+WORDS:[['COCONUT','hairy fruit with water inside'],['SUNFLOWER','flower that follows the sun'],['COMPASS','points north'],['BUTTERFLY','used to be a caterpillar'],['CHOCOLATE','made from cocoa'],['TYRANNOSAURUS','king of the dinosaurs, with tiny arms'],['BINOCULARS','two lenses to see far away'],['PENGUIN','bird that can’t fly, but swims'],['BEACON','a light that guides ships at night'],['VOLCANO','mountain that spits lava'],['SNOWFLAKE','no two are alike'],['TRICYCLE','three wheels and pedals'],['TORTOISE','carries its house on its back'],['HOURGLASS','clock made of sand'],['HERMIT CRAB','lives in a borrowed shell'],['BLUEBERRY','small blue fruit, great in muffins'],['CHESS','king, queen and knight'],['SAXOPHONE','brass with a reed, the sound of jazz'],['PYRAMIDS','tombs of the pharaohs'],['KOALA','sleepy Australian that eats eucalyptus'],['PARAGLIDER','fly down a mountain under a wing'],['WASHING MACHINE','spins your clothes clean'],['HELICOPTER','flies without wings'],['MERMAID','half person, half fish'],['ANCHOR','keeps the boat in place'],['PINWHEEL','spins in the wind'],['ROLLER COASTER','butterflies in your stomach at the fair'],['HUMMINGBIRD','tiny bird that can fly backwards'],['TROMBONE','instrument with a slide'],['WHALE','the biggest animal in the world'],['PIRATE','eye patch and a parrot on the shoulder'],['OWL','bird that hunts at night'],['POPCORN','pops at the movies'],['ROCKET','goes all the way to space'],['GIRAFFE','very long neck'],['CACTUS','desert plant covered in spines'],['IGLOO','house made of ice'],['GUITAR','six strings around the campfire'],['SUNDAE','ice cream with toppings'],['THUNDER','the noise of the storm'],['BAT','sleeps upside down'],['CAIMAN','cousin of the crocodile, lives in the Amazon'],['SHARK','fin sticking out of the water'],['SCORPION','stinger at the tip of its tail'],['ICE CUBES','little frozen squares for your drink'],['CHAMELEON','changes color'],['BARBECUE','meat on the grill'],['AVALANCHE','snow rushing down the mountain'],['SPACE STATION','astronauts live there, in orbit'],['MICROSCOPE','sees what is too small to see'],['WHEELBARROW','one wheel, two handles, carries dirt'],['ENCYCLOPEDIA','all knowledge in many volumes'],['HIPPOPOTAMUS','“river horse”, in Greek'],['GRASSHOPPER','jumps in the grass and chirps'],['THUNDERSTORM','rain, lightning and loud booms'],['PIZZA','round, with cheese, born in Naples'],['SUSHI','rice and fish, from Japan'],['TENNIS','racket, net and a yellow ball'],['GOLF','club, ball and a hole in the grass'],['TARZAN','raised by apes in the jungle'],['SKATES','wheels on your feet'],['BOWLING','pins and a heavy ball'],['LASAGNA','layers of pasta and sauce'],['SOCCER','eleven on each side'],['MOBILE','phone that fits in your pocket'],['MOUSE','it clicks, but it isn’t an animal'],['DRACULA','vampire from Transylvania'],['INTERNET','network that connects the world'],['MARATHON','42 kilometers of running'],['BASEBALL','bat, glove and home run'],['MACARONI','pasta that goes with cheese'],['PANCAKES','stack them up with syrup'],['AMPLIFIER','makes the rock band loud'],['BUBBLEGUM','chew it and blow a bubble'],['SATELLITE','circles the Earth'],['CROISSANT','crescent-shaped bread from France'],['CARTOONS','animated shows on TV'],['JOYSTICK','move it to play the game'],['OLYMPICS','every four years, with five rings'],['CHAMPAGNE','French bubbly for the toast'],['SPOTLIGHT','shines on the star of the show'],['RAPUNZEL','let down her long hair from the tower'],['SPAGHETTI','long pasta, with meatballs'],['CHEESEBURGER','bun, beef and melted cheese'],['SMARTWATCH','tells the time and counts your steps'],['FRANKENSTEIN','monster made of parts'],['CALCULATOR','does the math for you'],['PHOTOCOPIER','makes copies of a page'],['CHEST OF DRAWERS','where folded clothes are kept'],['MERRY-GO-ROUND','spins at the playground']],
+TALES:[
+  {d:1,v:['An octopus has three hearts.','An octopus has blue blood.'],m:'An octopus has ten arms.',fix:'An octopus has eight arms.'},
+  {d:3,v:['To a botanist, a banana is a berry.','To a botanist, a strawberry is not a berry.'],m:'An avocado is a vegetable.',fix:'An avocado is a fruit.'},
+  {d:3,v:['A day on Venus lasts longer than a year on Venus.','There is no sound in the vacuum of space.'],m:'You can see the Great Wall of China from the Moon with the naked eye.',fix:'You can’t: it is far too narrow.'},
+  {d:2,v:['The femur is the longest bone in the body.','Babies are born with more bones than adults.'],m:'We only use 10% of our brain.',fix:'We use all of it, just not all at the same time.'},
+  {d:2,v:['A hummingbird’s heart can beat over a thousand times a minute.','Flamingos are pink because of what they eat.'],m:'Ostriches bury their heads in the sand when they are scared.',fix:'It’s a myth: they lower their heads to tend their eggs.'},
+  {d:3,v:['The male seahorse is the one that gets pregnant.','Much of the oxygen we breathe comes from algae in the sea.'],m:'A goldfish has a 3-second memory.',fix:'It remembers things for months.'},
+  {d:1,v:['Lightning is hotter than the surface of the Sun.','Lightning can strike the same place twice.'],m:'Standing under a tree protects you from lightning.',fix:'It is one of the worst places to stand.'},
+  {d:2,v:['Well-stored honey practically never goes bad.','Chocolate is bad for dogs.'],m:'Swallowed gum stays in your stomach for 7 years.',fix:'It passes in a few days, like everything else.'},
+  {d:2,v:['Bats are not blind.','Elephants can’t jump.'],m:'Camels store water in their humps.',fix:'The hump is fat.'},
+  {d:2,v:['The first iPhone came out in 2007.','Wikipedia was created in 2001.'],m:'The first email was sent in 1995.',fix:'It was in 1971.'},
+  {d:2,v:['Napoleon was of normal height for his time.','Vikings didn’t wear horned helmets.'],m:'The Tower of Pisa was built leaning on purpose.',fix:'It leans because the ground gave way.'},
+  {d:1,v:['A spider is not an insect.','A whale is a mammal.'],m:'Penguins live at the North Pole.',fix:'There are no penguins at the North Pole; almost all live in the Southern Hemisphere.'},
+  {d:1,v:['Water boils at 100 °C at sea level.','Ice floats on water.'],m:'Lightning never strikes the sea.',fix:'Lightning does strike the sea.'},
+  {d:1,v:['Brazil has won five World Cups.','The first World Cup was held in Uruguay.'],m:'Soccer was invented in Brazil.',fix:'The rules of modern soccer were born in England.'},
+  {d:2,v:['The Mona Lisa hangs in the Louvre.','Leonardo da Vinci also designed machines.'],m:'The Mona Lisa is a huge painting.',fix:'It’s small: about 77 cm tall.'},
+  {d:2,v:['Mount Everest grows a few millimeters every year.','There is snow on the Equator, high up in the Andes.'],m:'The Sahara is the largest desert in the world.',fix:'The largest is Antarctica; the Sahara is the largest hot desert.'},
+  {d:2,v:['Carrots weren’t always orange.','Potatoes came from South America.'],m:'Eating carrots lets you see in the dark.',fix:'It’s a myth spread during World War II.'},
+  {d:2,v:['Sharks have been around since before the dinosaurs.','Some sharks must keep swimming to breathe.'],m:'A shark is a mammal.',fix:'A shark is a fish.'},
+  {d:2,v:['Iceland has no mosquitoes.','Australia is wider than the Moon.'],m:'Brazil is the biggest country in the world.',fix:'The biggest is Russia; Brazil is fifth.'},
+  {d:3,v:['The Pacific Ocean is bigger than all the continents put together.','The deepest point of the sea is more than 10 km down.'],m:'The Dead Sea is fresh water.',fix:'It is so salty that you float.'},
+  {d:3,v:['The Moon moves a few centimeters away from Earth every year.','A year on Mercury lasts 88 days.'],m:'The side of the Moon we never see never gets any sunlight.',fix:'It gets sun; it just faces away from us.'},
+  {d:3,v:['An octopus has neurons in its arms.','A starfish has no brain.'],m:'A seahorse is a mammal.',fix:'A seahorse is a fish.'},
+  {d:1,v:['The human heart has four chambers.','Blood in the veins is dark red.'],m:'Blood inside the veins is blue.',fix:'It is dark red; it only looks blue through the skin.'},
+  {d:2,v:['Japan has more than 6,000 islands.','Russia has 11 time zones.'],m:'China is the country with the most time zones.',fix:'China uses a single time zone for the whole country.'},
+  {d:1,v:['Batman lives in Gotham.','Spider-Man’s real name is Peter Parker.'],m:'Superman came from Mars.',fix:'He came from Krypton.'},
+  {d:1,v:['Big Ben is in London.','The Statue of Liberty is in New York.'],m:'The Eiffel Tower is in Rome.',fix:'It is in Paris.'},
+  {d:1,v:['The first soccer World Cup was in 1930.','Italy has won four World Cups.'],m:'The World Cup is held every year.',fix:'It is held every four years.'},
+  {d:2,v:['To a botanist, a tomato is a fruit.','A peanut is not a nut: it’s a legume, a cousin of the bean.'],m:'Pizza was invented in the United States.',fix:'It was born in Italy, in Naples.'},
+  {d:2,v:['The first iPhone came out in 2007.','Apple was started in a garage.'],m:'Google was founded before Microsoft.',fix:'Microsoft dates from 1975; Google, from 1998.'},
+  {d:2,v:['The Vikings reached America before Columbus.','The Vikings came from Scandinavia.'],m:'Vikings wore horned helmets.',fix:'The horns came from 19th-century opera costumes.'},
+  {d:2,v:['Sashimi is raw fish served without rice.','In Japan, you don’t leave your chopsticks standing in the rice.'],m:'All sushi has raw fish.',fix:'Sushi means the seasoned rice; many kinds have no raw fish.'},
+  {d:2,v:['Marie Curie won two Nobel Prizes.','Einstein won the Nobel Prize in Physics.'],m:'Thomas Edison invented the telephone.',fix:'It was Graham Bell; Edison became famous for the light bulb.'},
+  {d:2,v:['Birds descend from dinosaurs.','Tyrannosaurus had short arms.'],m:'Dinosaurs lived alongside the first humans.',fix:'They died out some 66 million years earlier.'},
+  {d:2,v:['Chocolate comes from the cocoa seed.','The Aztecs drank cocoa as a beverage.'],m:'White chocolate is made from cocoa powder.',fix:'It only has cocoa butter, no powder.'},
+  {d:2,v:['The Titanic sailed from England.','The Titanic was headed for New York.'],m:'The Titanic sank because of a storm.',fix:'It hit an iceberg on a calm night.'},
+  {d:3,v:['Einstein was born in Germany.','Einstein played the violin.'],m:'Einstein failed math at school.',fix:'It’s a myth: he was excellent at math.'},
+  {d:3,v:['Napoleon was crowned emperor.','Napoleon died in exile on an island.'],m:'Napoleon was very short.',fix:'He was about 1.69 m, average for his time.'},
+  {d:3,v:['Chaplin made many silent films.','Chaplin’s most famous character is the Tramp.'],m:'Charlie Chaplin was American.',fix:'He was English, born in London.'},
+  {d:3,v:['Disneyland opened in the 1950s.','Donald Duck wears a sailor suit.'],m:'Walt Disney drew Mickey all by himself.',fix:'Mickey was drawn by Ub Iwerks, Disney’s partner.'},
+],
+EST:[
+  {q:'How many bones are in the adult human body?',a:206,lo:50,hi:400,step:1,u:''},
+  {q:'How many countries are members of the UN?',a:193,lo:100,hi:260,step:1,u:''},
+  {q:'How tall is the Christ the Redeemer statue in Rio, without its pedestal?',a:30,lo:5,hi:100,step:1,u:' m'},
+  {q:'How many keys does a piano have?',a:88,lo:30,hi:160,step:1,u:''},
+  {q:'How many kilometers long is a marathon?',a:42,lo:10,hi:100,step:1,u:' km'},
+  {q:'How tall is Mount Everest?',a:8849,lo:3000,hi:15000,step:50,u:' m'},
+  {q:'How many teeth does an adult have, counting wisdom teeth?',a:32,lo:10,hi:60,step:1,u:''},
+  {q:'In what year did the Titanic sink?',a:1912,lo:1850,hi:2000,step:1,u:'',yr:1},
+  {q:'About how many liters of blood does an adult have?',a:5,lo:1,hi:20,step:.5,u:' L'},
+  {q:'How far is the Moon from the Earth, in thousands of km?',a:384,lo:50,hi:1000,step:5,u:' thousand km'},
+  {q:'How many years did the Hundred Years’ War last?',a:116,lo:50,hi:200,step:1,u:' years'},
+  {q:'How many tons does a male African elephant weigh?',a:6,lo:1,hi:20,step:.5,u:' t'},
+  {q:'What is the top speed of a cheetah?',a:110,lo:30,hi:200,step:5,u:' km/h'},
+  {q:'What is the diameter of the Earth, in km?',a:12742,lo:2000,hi:40000,step:100,u:' km'},
+  {q:'In what year did the Berlin Wall fall?',a:1989,lo:1900,hi:2020,step:1,u:'',yr:1},
+  {q:'In what year did Brazil become independent?',a:1822,lo:1700,hi:1950,step:1,u:'',yr:1},
+  {q:'How tall is the Eiffel Tower?',a:330,lo:50,hi:1000,step:5,u:' m'},
+  {q:'How many days does the Moon take to go around the Earth?',a:27,lo:1,hi:100,step:1,u:' days'},
+  {q:'How many million liters does an Olympic pool hold?',a:2.5,lo:.5,hi:20,step:.5,u:' million L'},
+  {q:'At what temperature does water boil, in degrees Fahrenheit?',a:212,lo:50,hi:500,step:1,u:' °F'},
+  {q:'How fast does a passenger jet fly?',a:900,lo:200,hi:3000,step:50,u:' km/h'},
+  {q:'How many times a minute does an adult’s heart beat at rest?',a:70,lo:20,hi:200,step:1,u:''},
+  {q:'How many countries are there in South America?',a:12,lo:3,hi:40,step:1,u:''},
+  {q:'How old was the oldest person ever recorded?',a:122,lo:80,hi:200,step:1,u:' years'},
+  {q:'How many squares are on a chessboard?',a:64,lo:10,hi:200,step:1,u:''},
+  {q:'How many cards are in a deck, without the jokers?',a:52,lo:10,hi:120,step:1,u:''},
+  {q:'How many tiles are in a standard set of dominoes?',a:28,lo:5,hi:80,step:1,u:''},
+  {q:'How many minutes does an NBA game last, without overtime?',a:48,lo:10,hi:120,step:1,u:' min'},
+  {q:'How long is an Olympic swimming pool?',a:50,lo:10,hi:150,step:1,u:' m'},
+  {q:'How old was Mozart when he died?',a:35,lo:10,hi:90,step:1,u:' years'},
+  {q:'In what year did Elvis Presley die?',a:1977,lo:1940,hi:2010,step:1,u:'',yr:1},
+  {q:'In what year did the film Titanic, with Leonardo DiCaprio, come out?',a:1997,lo:1950,hi:2020,step:1,u:'',yr:1},
+  {q:'In what year did the Beatles break up?',a:1970,lo:1950,hi:2000,step:1,u:'',yr:1},
+  {q:'How many spaces are on a Monopoly board?',a:40,lo:10,hi:100,step:1,u:''},
+  {q:'How high is a basketball hoop?',a:3.05,lo:1,hi:6,step:.05,u:' m'},
+],
+};
+
 // ---------- helpers ----------
+const LANG=(()=>{let l=null;try{l=localStorage.getItem('goodcatch:lang')}catch{}return l==='pt'||l==='en'?l:/^pt\b/i.test(navigator.language||'')?'pt':'en'})(),EN=LANG==='en',tx=(pt,en)=>EN?en:pt;
+const BANK=EN?BANK_EN:{TRIVIA,NUM,EVENTS,ODD,WORDS,TALES,EST};
 const $=id=>document.getElementById(id);
-const pad=n=>String(n).padStart(2,'0'), ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, dm=d=>d.split('-').reverse().slice(0,2).join('/');
+const pad=n=>String(n).padStart(2,'0'), ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`, dm=d=>EN?new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}):d.split('-').reverse().slice(0,2).join('/');
 const store={get(k){try{return JSON.parse(localStorage.getItem('goodcatch-descida:'+k))}catch{return null}},set(k,v){try{localStorage.setItem('goodcatch-descida:'+k,JSON.stringify(v))}catch{}}};
 const ease=p=>p<.5?2*p*p:1-(-2*p+2)**2/2, pick=(rng,a)=>a[Math.floor(rng()*a.length)];
 const shuffle=(rng,a)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
-const fmt=n=>n.toLocaleString('pt-BR');
-const yr=y=>y<0?`${-y} a.C.`:String(y);
+const fmt=n=>n.toLocaleString(EN?'en-US':'pt-BR');
+const yr=y=>y<0?`${-y} ${tx('a.C.','BC')}`:String(y);
 const LET='ABCD';
 
 const NAMES={dourado:'Dourado',garoupa:'Garoupa',papagaio:'Peixe-papagaio',leao:'Peixe-leão',manta:'Raia-manta'};
 const BIG=Object.keys(NAMES);
 const LAYERS=[
-  {name:'Superfície',m:5,c:['#6FD0D8','#3AAFC0'],fish:'sardinha',snag:'bota',lose:'O anzol enroscou numa bota velha, logo na superfície.'},
-  {name:'Recife',m:20,c:['#35A3B5','#1E8399'],fish:'palhaco',snag:'lata',lose:'Fisgou uma lata de sardinha. Vazia.'},
-  {name:'Algas',m:45,c:['#1E7F86','#16626A'],fish:'cavalo',snag:'pneu',lose:'A linha enrolou num pneu coberto de alga.'},
-  {name:'Naufrágio',m:80,c:['#165B6E','#0F4457'],fish:'anjo',snag:'ancora',lose:'O anzol prendeu na âncora do navio afundado, e quem foi puxado foi o barco.'},
-  {name:'Abismo',m:130,c:['#0E3A4E','#082638'],fish:'linguado',snag:'polvo',lose:'Um polvo levou a isca e devolveu um bilhete: “valeu”.'},
-  {name:'Fundo',m:200,c:['#08283A','#04141F'],boss:true,snag:'linha',lose:'O peixão deu um tranco e arrebentou a linha.'},
+  {k:'superficie',name:tx('Superfície','Surface'),m:5,c:['#6FD0D8','#3AAFC0'],fish:'sardinha',snag:'bota',lose:tx('O anzol enroscou numa bota velha, logo na superfície.','The hook snagged an old boot, right at the surface.')},
+  {k:'recife',name:tx('Recife','Reef'),m:20,c:['#35A3B5','#1E8399'],fish:'palhaco',snag:'lata',lose:tx('Fisgou uma lata de sardinha. Vazia.','Hooked a sardine can. Empty.')},
+  {k:'algas',name:tx('Algas','Kelp'),m:45,c:['#1E7F86','#16626A'],fish:'cavalo',snag:'pneu',lose:tx('A linha enrolou num pneu coberto de alga.','The line got tangled on a tire covered in kelp.')},
+  {k:'naufragio',name:tx('Naufrágio','Shipwreck'),m:80,c:['#165B6E','#0F4457'],fish:'anjo',snag:'ancora',lose:tx('O anzol prendeu na âncora do navio afundado, e quem foi puxado foi o barco.','The hook caught the sunken ship’s anchor, and it was the boat that got pulled.')},
+  {k:'abismo',name:tx('Abismo','Abyss'),m:130,c:['#0E3A4E','#082638'],fish:'linguado',snag:'polvo',lose:tx('Um polvo levou a isca e devolveu um bilhete: “valeu”.','An octopus took the bait and sent back a note: “thanks”.')},
+  {k:'fundo',name:tx('Fundo','Seabed'),m:200,c:['#08283A','#04141F'],boss:true,snag:'linha',lose:tx('O peixão deu um tranco e arrebentou a linha.','The big fish gave a jerk and snapped the line.')},
 ];
 const PTS=[100,150,200,250,300], BOSS=500;
 const LAYER_E=['🌊','🪸','🌿','🚢','🦑','🐟'], SNAG_E={bota:'👢',lata:'🥫',pneu:'🛞',ancora:'⚓',polvo:'🐙',linha:'💥'};
-const RELICS={isca:{icon:'🪱',name:'Isca'},troca:{icon:'🔄',name:'Troca'},rede:{icon:'🥅',name:'Rede'}};
+const RELICS={isca:{icon:'🪱',name:tx('Isca','Bait')},troca:{icon:'🔄',name:tx('Troca','Swap')},rede:{icon:'🥅',name:tx('Rede','Net')}};
 
 // ---------- formats: gen(rng, lvl) → state ----------
 // Choice states: {kind:'choice', q, ctx?, opts:[text], ans, after, cols?}
 const lv=l=>[1,2,2,3,3][l];
 const F={
-  trivia:{icon:'🍾',obj:'uma garrafa com mensagem',gen(r,l,c){
-    const [,q,a,...w]=c(lv(l),TRIVIA.filter(t=>t[0]===lv(l)));
-    const opts=shuffle(r,[a,...w]);return {kind:'choice',q,opts,ans:opts.indexOf(a),after:`Resposta: ${a}.`}}},
-  maismenos:{icon:'🐚',obj:'duas conchas, cada uma com um nome',gen(r,l){
+  trivia:{icon:'🍾',obj:tx('uma garrafa com mensagem','a message in a bottle'),gen(r,l,c){
+    const [,q,a,...w]=c(lv(l),BANK.TRIVIA.filter(t=>t[0]===lv(l)));
+    const opts=shuffle(r,[a,...w]);return {kind:'choice',q,opts,ans:opts.indexOf(a),after:tx(`Resposta: ${a}.`,`Answer: ${a}.`)}}},
+  maismenos:{icon:'🐚',obj:tx('duas conchas, cada uma com um nome','two shells, each with a name'),gen(r,l){
     const [R0,R1]=[[2,6],[1.5,2.5],[1.3,1.8],[1.15,1.5],[1.05,1.3]][l],[G0,G1]=[[150,600],[60,200],[25,80],[10,40],[3,15]][l];
     for(;;){
-      if(r()<.25){const [a,b]=shuffle(r,EVENTS),g=Math.abs(a[0]-b[0]);if(g<G0||g>G1)continue;
-        const opts=[a,b];return {kind:'choice',q:'O que veio primeiro?',opts:opts.map(e=>e[1][0].toUpperCase()+e[1].slice(1)),ans:a[0]<b[0]?0:1,cols:1,after:`${yr(a[0])} e ${yr(b[0])}.`}}
-      const c=pick(r,NUM),[a,b]=shuffle(r,c.items);const q=Math.max(a[1],b[1])/Math.min(a[1],b[1]);if(q<R0||q>R1)continue;
+      if(r()<.25){const [a,b]=shuffle(r,BANK.EVENTS),g=Math.abs(a[0]-b[0]);if(g<G0||g>G1)continue;
+        const opts=[a,b];return {kind:'choice',q:tx('O que veio primeiro?','Which came first?'),opts:opts.map(e=>e[1][0].toUpperCase()+e[1].slice(1)),ans:a[0]<b[0]?0:1,cols:1,after:`${yr(a[0])} ${tx('e','and')} ${yr(b[0])}.`}}
+      const c=pick(r,BANK.NUM),[a,b]=shuffle(r,c.items);const q=Math.max(a[1],b[1])/Math.min(a[1],b[1]);if(q<R0||q>R1)continue;
       return {kind:'choice',q:c.q,opts:[a[0],b[0]],ans:a[1]>b[1]?0:1,cols:2,after:`${a[0]}: ${fmt(a[1])}${c.u}. ${b[0]}: ${fmt(b[1])}${c.u}.`}}}},
-  tempo:{icon:'📰',obj:'um jornal velho, todo molhado',gen(r,l){
+  tempo:{icon:'📰',obj:tx('um jornal velho, todo molhado','an old newspaper, soaking wet'),gen(r,l){
     const [G0,G1]=[[60,800],[30,300],[15,120],[8,50],[3,25]][l];
-    for(;;){const four=shuffle(r,EVENTS).slice(0,4).sort((a,b)=>a[0]-b[0]);
+    for(;;){const four=shuffle(r,BANK.EVENTS).slice(0,4).sort((a,b)=>a[0]-b[0]);
       if(four.some((e,i)=>i&&(e[0]-four[i-1][0]<G0||e[0]-four[i-1][0]>G1)))continue;
       const k=Math.floor(r()*4),ev=four[k],rest=four.filter((_,i)=>i!==k);
-      const opts=[`Antes de ${yr(rest[0][0])}`,`Entre ${yr(rest[0][0])} e ${yr(rest[1][0])}`,`Entre ${yr(rest[1][0])} e ${yr(rest[2][0])}`,`Depois de ${yr(rest[2][0])}`];
-      return {kind:'choice',q:`Quando foi ${ev[1]}?`,ctx:rest.map(e=>`${yr(e[0])}: ${e[1]}`).join('<br>'),opts,ans:k,after:`Foi em ${yr(ev[0])}.`}}}},
-  intruso:{icon:'📦',obj:'uma caixa de achados e perdidos',gen(r,l,c){
-    const g=c(lv(l),ODD.filter(g=>g.d===lv(l))),opts=shuffle(r,[...shuffle(r,g.in).slice(0,3),pick(r,g.out)]);
-    return {kind:'choice',q:'Um destes não é do grupo. Qual?',opts,ans:opts.findIndex(x=>!g.in.includes(x)),cols:2,after:`Os outros três são ${g.t}.`}}},
-  pescador:{icon:'📻',obj:'um rádio velho, com três pescadores contando vantagem',gen(r,l,c){
-    const t=c(lv(l),TALES.filter(t=>t.d===lv(l))),opts=shuffle(r,[...t.v,t.m]);
-    return {kind:'choice',q:'É história de pescador: um deles está mentindo. Qual?',opts,ans:opts.indexOf(t.m),after:t.fix}}},
-  forca:{icon:'🛟',obj:'uma boia com o nome do barco meio apagado',gen(r,l,c){
-    const [w,hint]=c(lv(l),WORDS.filter(([w])=>(w.length<=7?1:w.length<=9?2:3)===lv(l)));
+      const [y0,y1,y2]=rest.map(e=>yr(e[0])),opts=EN?[`Before ${y0}`,`Between ${y0} and ${y1}`,`Between ${y1} and ${y2}`,`After ${y2}`]:[`Antes de ${y0}`,`Entre ${y0} e ${y1}`,`Entre ${y1} e ${y2}`,`Depois de ${y2}`];
+      return {kind:'choice',q:tx(`Quando foi ${ev[1]}?`,`When was ${ev[1]}?`),ctx:rest.map(e=>`${yr(e[0])}: ${e[1]}`).join('<br>'),opts,ans:k,after:tx(`Foi em ${yr(ev[0])}.`,`It was in ${yr(ev[0])}.`)}}}},
+  intruso:{icon:'📦',obj:tx('uma caixa de achados e perdidos','a lost-and-found box'),gen(r,l,c){
+    const g=c(lv(l),BANK.ODD.filter(g=>g.d===lv(l))),opts=shuffle(r,[...shuffle(r,g.in).slice(0,3),pick(r,g.out)]);
+    return {kind:'choice',q:tx('Um destes não é do grupo. Qual?','One of these doesn’t belong. Which?'),opts,ans:opts.findIndex(x=>!g.in.includes(x)),cols:2,after:tx(`Os outros três são ${g.t}.`,`The other three are ${g.t}.`)}}},
+  pescador:{icon:'📻',obj:tx('um rádio velho, com três pescadores contando vantagem','an old radio, with three fishermen bragging'),gen(r,l,c){
+    const t=c(lv(l),BANK.TALES.filter(t=>t.d===lv(l))),opts=shuffle(r,[...t.v,t.m]);
+    return {kind:'choice',q:tx('É história de pescador: um deles está mentindo. Qual?','It’s a fish story: one of them is lying. Which?'),opts,ans:opts.indexOf(t.m),after:t.fix}}},
+  forca:{icon:'🛟',obj:tx('uma boia com o nome do barco meio apagado','a buoy with the boat’s name half worn off'),gen(r,l,c){
+    const [w,hint]=c(lv(l),BANK.WORDS.filter(([w])=>(w.length<=7?1:w.length<=9?2:3)===lv(l)));
     const letters=[...new Set([...norm(w)].filter(c=>/[A-Z]/.test(c)))];
     const show=new Set(shuffle(r,letters).slice(0,Math.round(letters.length*[.35,.3,.2,.15,.1][l])));
     return {kind:'word',w,hint,show,used:new Set(show),miss:0,lives:3}}},
-  estimativa:{icon:'🐟',obj:'o peixão',gen(r,l,c){
-    const e=c(0,EST);return {kind:'num',...e,t:e.yr?6:e.a*.1,tries:2,v:e.lo}}},
+  estimativa:{icon:'🐟',obj:tx('o peixão','the big fish'),gen(r,l,c){
+    const e=c(0,BANK.EST);return {kind:'num',...e,t:e.yr?6:e.a*.1,tries:2,v:e.lo}}},
 };
 
 Object.entries({trivia:'garrafa',maismenos:'conchas',tempo:'jornal',intruso:'caixa',pescador:'radio',forca:'boia'}).forEach(([k,v])=>F[k].spr=v);
@@ -515,8 +755,13 @@ const FROZEN={'2026-11-06':[[{"kind":"word","w":"GIRASSOL","hint":"flor que segu
 '2026-11-09':[[{"kind":"choice","q":"Quando foi a chegada da família real portuguesa ao Brasil?","ctx":"1876: o telefone de Bell<br>1945: o fim da Segunda Guerra Mundial<br>2007: o primeiro iPhone","opts":["Antes de 1876","Entre 1876 e 1945","Entre 1945 e 2007","Depois de 2007"],"ans":0,"after":"Foi em 1808."},{"kind":"choice","q":"Quando foi a prensa de Gutenberg?","ctx":"1616: a morte de Shakespeare<br>1776: a independência dos EUA<br>1896: os primeiros Jogos Olímpicos modernos","opts":["Antes de 1616","Entre 1616 e 1776","Entre 1776 e 1896","Depois de 1896"],"ans":0,"after":"Foi em 1440."},{"kind":"choice","q":"Quando foi a chegada dos portugueses ao Brasil?","ctx":"1789: a Revolução Francesa<br>1912: o naufrágio do Titanic<br>2001: a criação da Wikipédia","opts":["Antes de 1789","Entre 1789 e 1912","Entre 1912 e 2001","Depois de 2001"],"ans":0,"after":"Foi em 1500."}],[{"kind":"choice","q":"Quem escreveu Dom Casmurro?","opts":["José de Alencar","Graciliano Ramos","Eça de Queirós","Machado de Assis"],"ans":3,"after":"Resposta: Machado de Assis."},{"kind":"choice","q":"Qual planeta tem os anéis mais famosos?","opts":["Netuno","Júpiter","Saturno","Urano"],"ans":2,"after":"Resposta: Saturno."},{"kind":"choice","q":"Qual rio passa por Paris?","opts":["Danúbio","Tâmisa","Sena","Reno"],"ans":2,"after":"Resposta: Sena."}],[{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Chiclete engolido fica 7 anos no estômago.","Mel bem guardado praticamente não estraga.","Chocolate faz mal para cachorro."],"ans":0,"after":"Ele sai em poucos dias, como o resto."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Camelo guarda água na corcova.","Morcego não é cego.","Elefante não consegue pular."],"ans":0,"after":"A corcova é gordura."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Chiclete engolido fica 7 anos no estômago.","Mel bem guardado praticamente não estraga.","Chocolate faz mal para cachorro."],"ans":0,"after":"Ele sai em poucos dias, como o resto."}],[{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Enxofre","Prata","Cobre","Zinco"],"ans":0,"cols":2,"after":"Os outros três são metais."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Memórias Póstumas de Brás Cubas","Quincas Borba","Vidas Secas","O Alienista"],"ans":2,"cols":2,"after":"Os outros três são livros de Machado de Assis."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["11","13","17","15"],"ans":3,"cols":2,"after":"Os outros três são números primos."}],[{"kind":"word","w":"ESPANTALHO","hint":"assusta os pássaros na roça","show":{"__set":["L"]},"used":{"__set":["L"]},"miss":0,"lives":3},{"kind":"word","w":"DINOSSAURO","hint":"sumiu há 66 milhões de anos","show":{"__set":["D"]},"used":{"__set":["D"]},"miss":0,"lives":3},{"kind":"word","w":"ORNITORRINCO","hint":"mamífero com bico de pato","show":{"__set":["R"]},"used":{"__set":["R"]},"miss":0,"lives":3}],[{"kind":"num","q":"Qual o diâmetro da Terra, em km?","a":12742,"lo":2000,"hi":40000,"step":100,"u":" km","t":1274.2,"tries":2,"v":2000},{"kind":"num","q":"Quantas casas tem um tabuleiro de xadrez?","a":64,"lo":10,"hi":200,"step":1,"u":"","t":6.4,"tries":2,"v":10},{"kind":"num","q":"Qual a velocidade máxima de um guepardo?","a":110,"lo":30,"hi":200,"step":5,"u":" km/h","t":11,"tries":2,"v":30}]],
 '2026-11-10':[[{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Panamá","Peru","Bolívia","Uruguai"],"ans":0,"cols":2,"after":"Os outros três são países da América do Sul."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Trompete","Bateria","Trombone","Clarinete"],"ans":1,"cols":2,"after":"Os outros três são instrumentos de sopro."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Istambul","Lisboa","Paris","Madri"],"ans":0,"cols":2,"after":"Os outros três são capitais."}],[{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Tubarões existem desde antes dos dinossauros.","Alguns tubarões precisam nadar para respirar.","Tubarão é um mamífero."],"ans":2,"after":"Tubarão é peixe."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["O Japão tem mais de 6 mil ilhas.","A China é o país com mais fusos horários.","A Rússia tem 11 fusos horários."],"ans":1,"after":"A China usa um fuso só para o país inteiro."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["Tubarão é um mamífero.","Alguns tubarões precisam nadar para respirar.","Tubarões existem desde antes dos dinossauros."],"ans":0,"after":"Tubarão é peixe."}],[{"kind":"choice","q":"O que veio primeiro?","opts":["A queda do Muro de Berlim","A primeira transmissão de TV no Brasil"],"ans":1,"cols":1,"after":"1989 e 1950."},{"kind":"choice","q":"O que veio primeiro?","opts":["O telefone de Bell","O fim da Segunda Guerra Mundial"],"ans":0,"cols":1,"after":"1876 e 1945."},{"kind":"choice","q":"Qual rio é mais longo?","opts":["Nilo","Paraná"],"ans":0,"cols":2,"after":"Nilo: 6.650 km. Paraná: 4.880 km."}],[{"kind":"choice","q":"Em qual planeta o dia dura mais que o ano?","opts":["Mercúrio","Netuno","Marte","Vênus"],"ans":3,"after":"Resposta: Vênus."},{"kind":"choice","q":"Qual é a capital da Turquia?","opts":["Esmirna","Ancara","Antália","Istambul"],"ans":1,"after":"Resposta: Ancara."},{"kind":"choice","q":"Qual língua tem mais falantes nativos?","opts":["Inglês","Espanhol","Hindi","Mandarim"],"ans":3,"after":"Resposta: Mandarim."}],[{"kind":"word","w":"ORNITORRINCO","hint":"mamífero com bico de pato","show":{"__set":["T"]},"used":{"__set":["T"]},"miss":0,"lives":3},{"kind":"word","w":"CARANGUEJO","hint":"anda de lado","show":{"__set":["A"]},"used":{"__set":["A"]},"miss":0,"lives":3},{"kind":"word","w":"PARAQUEDAS","hint":"abre no meio do ar","show":{"__set":["D"]},"used":{"__set":["D"]},"miss":0,"lives":3}],[{"kind":"num","q":"Qual a velocidade máxima de um guepardo?","a":110,"lo":30,"hi":200,"step":5,"u":" km/h","t":11,"tries":2,"v":30},{"kind":"num","q":"Qual a altura do Cristo Redentor, sem o pedestal?","a":30,"lo":5,"hi":100,"step":1,"u":" m","t":3,"tries":2,"v":5},{"kind":"num","q":"Quantos ossos tem o corpo humano adulto?","a":206,"lo":50,"hi":400,"step":1,"u":"","t":20.6,"tries":2,"v":50}]],
 '2026-11-11':[[{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Milão","Madri","Paris","Roma"],"ans":0,"cols":2,"after":"Os outros três são capitais."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Marrom","Amarelo","Verde","Violeta"],"ans":0,"cols":2,"after":"Os outros três são cores do arco-íris."},{"kind":"choice","q":"Um destes não é do grupo. Qual?","opts":["Navio","Barco","Canoa","Avião"],"ans":3,"cols":2,"after":"Os outros três são coisas que andam na água."}],[{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["O Brasil é o maior país do mundo.","A Austrália é mais larga que a Lua.","A Islândia não tem mosquitos."],"ans":0,"after":"O maior é a Rússia; o Brasil é o quinto."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["A Mona Lisa é um quadro enorme.","Leonardo da Vinci também desenhava máquinas.","A Mona Lisa fica no Museu do Louvre."],"ans":0,"after":"Ela é pequena: tem uns 77 cm de altura."},{"kind":"choice","q":"É história de pescador: um deles está mentindo. Qual?","opts":["O Brasil é o maior país do mundo.","A Austrália é mais larga que a Lua.","A Islândia não tem mosquitos."],"ans":0,"after":"O maior é a Rússia; o Brasil é o quinto."}],[{"kind":"choice","q":"Quem foi o primeiro presidente do Brasil?","opts":["Juscelino Kubitschek","Getúlio Vargas","Deodoro da Fonseca","Dom Pedro II"],"ans":2,"after":"Resposta: Deodoro da Fonseca."},{"kind":"choice","q":"Qual é o osso mais longo do corpo humano?","opts":["Úmero","Rádio","Tíbia","Fêmur"],"ans":3,"after":"Resposta: Fêmur."},{"kind":"choice","q":"Qual é o maior deserto quente do mundo?","opts":["Gobi","Kalahari","Saara","Deserto da Arábia"],"ans":2,"after":"Resposta: Saara."}],[{"kind":"choice","q":"Quando foi a chegada do homem à Lua?","ctx":"1930: a primeira Copa do Mundo<br>1950: a primeira transmissão de TV no Brasil<br>2001: a criação da Wikipédia","opts":["Antes de 1930","Entre 1930 e 1950","Entre 1950 e 2001","Depois de 2001"],"ans":2,"after":"Foi em 1969."},{"kind":"choice","q":"Quando foi a Torre Eiffel?","ctx":"1928: a descoberta da penicilina<br>1950: a primeira transmissão de TV no Brasil<br>1960: a inauguração de Brasília","opts":["Antes de 1928","Entre 1928 e 1950","Entre 1950 e 1960","Depois de 1960"],"ans":0,"after":"Foi em 1889."},{"kind":"choice","q":"Quando foi o naufrágio do Titanic?","ctx":"1889: a Torre Eiffel<br>1960: a inauguração de Brasília<br>2001: a criação da Wikipédia","opts":["Antes de 1889","Entre 1889 e 1960","Entre 1960 e 2001","Depois de 2001"],"ans":1,"after":"Foi em 1912."}],[{"kind":"word","w":"PARAQUEDAS","hint":"abre no meio do ar","show":{"__set":["S"]},"used":{"__set":["S"]},"miss":0,"lives":3},{"kind":"word","w":"MONTANHA-RUSSA","hint":"frio na barriga no parque","show":{"__set":["N"]},"used":{"__set":["N"]},"miss":0,"lives":3},{"kind":"word","w":"TELESCÓPIO","hint":"para olhar as estrelas","show":{"__set":["E"]},"used":{"__set":["E"]},"miss":0,"lives":3}],[{"kind":"num","q":"Quantos ossos tem o corpo humano adulto?","a":206,"lo":50,"hi":400,"step":1,"u":"","t":20.6,"tries":2,"v":50},{"kind":"num","q":"Quantos dias a Lua leva para dar uma volta na Terra?","a":27,"lo":1,"hi":100,"step":1,"u":" dias","t":2.7,"tries":2,"v":1},{"kind":"num","q":"Quantas estrelas tem a bandeira do Brasil?","a":27,"lo":5,"hi":60,"step":1,"u":"","t":2.7,"tries":2,"v":5}]]};
+// @frozen-en-start
+// Generated by tools/descida-en.mjs from FROZEN. Do not edit.
+const FROZEN_EN={"2026-11-06":[[{"kind":"word","w":"SUNFLOWER","hint":"flower that follows the sun","show":{"__set":["S","N","L"]},"used":{"__set":["S","N","L"]},"miss":0,"lives":3},{"kind":"word","w":"ANCHOR","hint":"keeps the boat in place","show":{"__set":["A","C"]},"used":{"__set":["A","C"]},"miss":0,"lives":3},{"kind":"word","w":"BLUEBERRY","hint":"small blue fruit, great in muffins","show":{"__set":["B","U","R"]},"used":{"__set":["B","U","R"]},"miss":0,"lives":3}],[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Penguin","Alligator","Bat","Turtle"],"ans":2,"cols":2,"after":"The other three are animals that lay eggs."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Costa Rica","Paraguay","Peru","Chile"],"ans":0,"cols":2,"after":"The other three are South American countries."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Swimming","Volleyball","Tennis","Soccer"],"ans":0,"cols":2,"after":"The other three are ball sports."}],[{"kind":"choice","q":"Which came first?","opts":["The Great Pyramid of Giza","The Portuguese royal family’s arrival in Brazil"],"ans":0,"cols":1,"after":"2560 BC and 1808."},{"kind":"choice","q":"Which is taller?","opts":["Sugarloaf Mountain, Rio","Mount Everest"],"ans":1,"cols":2,"after":"Sugarloaf Mountain, Rio: 396 m. Mount Everest: 8,849 m."},{"kind":"choice","q":"Which river is longer?","opts":["Yangtze","Tagus"],"ans":0,"cols":2,"after":"Yangtze: 6,300 km. Tagus: 1,007 km."}],[{"kind":"choice","q":"When was the covid-19 pandemic?","ctx":"1440: Gutenberg’s printing press<br>1808: the Portuguese royal family’s arrival in Brazil<br>1969: the first Moon landing","opts":["Before 1440","Entre 1440 and 1808","Entre 1808 and 1969","After 1969"],"ans":3,"after":"It was in 2020."},{"kind":"choice","q":"When was Santos-Dumont’s flight in the 14-bis?","ctx":"476: the fall of the Western Roman Empire<br>1822: Champollion’s decoding of the hieroglyphs<br>1889: the Eiffel Tower","opts":["Before 476","Entre 476 and 1822","Entre 1822 and 1889","After 1889"],"ans":3,"after":"It was in 1906."},{"kind":"choice","q":"When was the death of Shakespeare?","ctx":"476: the fall of the Western Roman Empire<br>1440: Gutenberg’s printing press<br>1994: the opening of the Channel Tunnel","opts":["Before 476","Entre 476 and 1440","Entre 1440 and 1994","After 1994"],"ans":2,"after":"It was in 1616."}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["To a botanist, a strawberry is not a berry.","An avocado is a vegetable.","To a botanist, a banana is a berry."],"ans":1,"after":"An avocado is a fruit."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["An avocado is a vegetable.","To a botanist, a strawberry is not a berry.","To a botanist, a banana is a berry."],"ans":0,"after":"An avocado is a fruit."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["An avocado is a vegetable.","To a botanist, a banana is a berry.","To a botanist, a strawberry is not a berry."],"ans":0,"after":"An avocado is a fruit."}],[{"kind":"num","q":"How tall is Mount Everest?","a":8849,"lo":3000,"hi":15000,"step":50,"u":" m","t":1327.35,"tries":2,"v":3000},{"kind":"num","q":"About how many liters of blood does an adult have?","a":5,"lo":1,"hi":20,"step":0.5,"u":" L","t":0.75,"tries":2,"v":1},{"kind":"num","q":"How many teeth does an adult have, counting wisdom teeth?","a":32,"lo":10,"hi":60,"step":1,"u":"","t":4.8,"tries":2,"v":10}]],"2026-11-07":[[{"kind":"choice","q":"Which country hosted the 2014 World Cup?","opts":["South Africa","Russia","Germany","Brazil"],"ans":3,"after":"Answer: Brazil."},{"kind":"choice","q":"In which ocean is Hawaii?","opts":["Indian","Pacific","Atlantic","Arctic"],"ans":1,"after":"Answer: Pacific."},{"kind":"choice","q":"Which country hosted the 2014 World Cup?","opts":["South Africa","Germany","Russia","Brazil"],"ans":3,"after":"Answer: Brazil."}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Carrots weren’t always orange.","Potatoes came from South America.","Eating carrots lets you see in the dark."],"ans":2,"after":"It’s a myth spread during World War II."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Ostriches bury their heads in the sand when they are scared.","Flamingos are pink because of what they eat.","A hummingbird’s heart can beat over a thousand times a minute."],"ans":0,"after":"It’s a myth: they lower their heads to tend their eggs."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Potatoes came from South America.","Carrots weren’t always orange.","Eating carrots lets you see in the dark."],"ans":2,"after":"It’s a myth spread during World War II."}],[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Cheetah","Hyena","Lynx","Lion"],"ans":1,"cols":2,"after":"The other three are big cats."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Frida Kahlo","Monet","Shakespeare","Picasso"],"ans":2,"cols":2,"after":"The other three are painters."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Tendon","Radius","Tibia","Humerus"],"ans":0,"cols":2,"after":"The other three are bones of the body."}],[{"kind":"choice","q":"When was the end of World War II?","ctx":"1928: the discovery of penicillin<br>1994: the opening of the Channel Tunnel<br>2020: the covid-19 pandemic","opts":["Before 1928","Entre 1928 and 1994","Entre 1994 and 2020","After 2020"],"ans":1,"after":"It was in 1945."},{"kind":"choice","q":"When was Edison’s light bulb?","ctx":"1914: the opening of the Panama Canal<br>1928: the discovery of penicillin<br>1945: the end of World War II","opts":["Before 1914","Entre 1914 and 1928","Entre 1928 and 1945","After 1945"],"ans":0,"after":"It was in 1879."},{"kind":"choice","q":"When was the first Kodak camera?","ctx":"1914: the opening of the Panama Canal<br>1957: the launch of Sputnik<br>1994: the opening of the Channel Tunnel","opts":["Before 1914","Entre 1914 and 1957","Entre 1957 and 1994","After 1994"],"ans":0,"after":"It was in 1888."}],[{"kind":"word","w":"HELICOPTER","hint":"flies without wings","show":{"__set":["H"]},"used":{"__set":["H"]},"miss":0,"lives":3},{"kind":"word","w":"GRASSHOPPER","hint":"jumps in the grass and chirps","show":{"__set":["G"]},"used":{"__set":["G"]},"miss":0,"lives":3},{"kind":"word","w":"THUNDERSTORM","hint":"rain, lightning and loud booms","show":{"__set":["T"]},"used":{"__set":["T"]},"miss":0,"lives":3}],[{"kind":"num","q":"In what year did Brazil become independent?","a":1822,"lo":1700,"hi":1950,"step":1,"u":"","yr":1,"t":6,"tries":2,"v":1700},{"kind":"num","q":"About how many liters of blood does an adult have?","a":5,"lo":1,"hi":20,"step":0.5,"u":" L","t":0.5,"tries":2,"v":1},{"kind":"num","q":"In what year did the Beatles get together?","a":1960,"lo":1900,"hi":2020,"step":1,"u":"","yr":1,"t":6,"tries":2,"v":1900}]],"2026-11-08":[[{"kind":"choice","q":"What is the largest planet in the Solar System?","opts":["Neptune","Earth","Jupiter","Saturn"],"ans":2,"after":"Answer: Jupiter."},{"kind":"choice","q":"Which of these is a mammal?","opts":["Octopus","Salmon","Shark","Dolphin"],"ans":3,"after":"Answer: Dolphin."},{"kind":"choice","q":"What is the largest planet in the Solar System?","opts":["Neptune","Earth","Jupiter","Saturn"],"ans":2,"after":"Answer: Jupiter."}],[{"kind":"word","w":"SCORPION","hint":"stinger at the tip of its tail","show":{"__set":["S","O"]},"used":{"__set":["S","O"]},"miss":0,"lives":3},{"kind":"word","w":"TORTOISE","hint":"carries its house on its back","show":{"__set":["T","R"]},"used":{"__set":["T","R"]},"miss":0,"lives":3},{"kind":"word","w":"SAXOPHONE","hint":"brass with a reed, the sound of jazz","show":{"__set":["S","X"]},"used":{"__set":["S","X"]},"miss":0,"lives":3}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Vikings didn’t wear horned helmets.","Napoleon was of normal height for his time.","The Tower of Pisa was built leaning on purpose."],"ans":2,"after":"It leans because the ground gave way."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Mount Everest grows a few millimeters every year.","The Sahara is the largest desert in the world.","There is snow on the Equator, high up in the Andes."],"ans":1,"after":"The largest is Antarctica; the Sahara is the largest hot desert."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Napoleon was of normal height for his time.","Vikings didn’t wear horned helmets.","The Tower of Pisa was built leaning on purpose."],"ans":2,"after":"It leans because the ground gave way."}],[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Ireland","United Kingdom","Spain","Portugal"],"ans":1,"cols":2,"after":"The other three are countries that use the euro."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Orion","Scorpius","Pleiades","Southern Cross"],"ans":2,"cols":2,"after":"The other three are constellations."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Casablanca","Dakar","Accra","Luanda"],"ans":0,"cols":2,"after":"The other three are African capitals."}],[{"kind":"choice","q":"Which adult animal weighs more?","opts":["Hippopotamus","Giraffe"],"ans":0,"cols":2,"after":"Hippopotamus: 1,500 kg (approx.). Giraffe: 1,200 kg (approx.)."},{"kind":"choice","q":"Which came first?","opts":["The first modern Olympic Games","The first Kodak camera"],"ans":1,"cols":1,"after":"1896 and 1888."},{"kind":"choice","q":"Which river is longer?","opts":["Tagus","Rhine"],"ans":1,"cols":2,"after":"Tagus: 1,007 km. Rhine: 1,230 km."}],[{"kind":"num","q":"In what year did the Beatles get together?","a":1960,"lo":1900,"hi":2020,"step":1,"u":"","yr":1,"t":6,"tries":2,"v":1900},{"kind":"num","q":"How many teeth does an adult have, counting wisdom teeth?","a":32,"lo":10,"hi":60,"step":1,"u":"","t":3.2,"tries":2,"v":10},{"kind":"num","q":"What is the diameter of the Earth, in km?","a":12742,"lo":2000,"hi":40000,"step":100,"u":" km","t":1274.2,"tries":2,"v":2000}]],"2026-11-09":[[{"kind":"choice","q":"When was the Portuguese royal family’s arrival in Brazil?","ctx":"1876: Bell’s telephone<br>1945: the end of World War II<br>2007: the first iPhone","opts":["Before 1876","Entre 1876 and 1945","Entre 1945 and 2007","After 2007"],"ans":0,"after":"It was in 1808."},{"kind":"choice","q":"When was Gutenberg’s printing press?","ctx":"1616: the death of Shakespeare<br>1776: the independence of the United States<br>1896: the first modern Olympic Games","opts":["Before 1616","Entre 1616 and 1776","Entre 1776 and 1896","After 1896"],"ans":0,"after":"It was in 1440."},{"kind":"choice","q":"When was the Portuguese arrival in Brazil?","ctx":"1789: the French Revolution<br>1912: the sinking of the Titanic<br>2001: the creation of Wikipedia","opts":["Before 1789","Entre 1789 and 1912","Entre 1912 and 2001","After 2001"],"ans":0,"after":"It was in 1500."}],[{"kind":"choice","q":"Who wrote Don Quixote?","opts":["Dante","Goethe","Homer","Cervantes"],"ans":3,"after":"Answer: Cervantes."},{"kind":"choice","q":"Which planet has the most famous rings?","opts":["Neptune","Jupiter","Saturn","Uranus"],"ans":2,"after":"Answer: Saturn."},{"kind":"choice","q":"Which river runs through Paris?","opts":["Danube","Thames","Seine","Rhine"],"ans":2,"after":"Answer: Seine."}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Swallowed gum stays in your stomach for 7 years.","Well-stored honey practically never goes bad.","Chocolate is bad for dogs."],"ans":0,"after":"It passes in a few days, like everything else."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Camels store water in their humps.","Bats are not blind.","Elephants can’t jump."],"ans":0,"after":"The hump is fat."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Swallowed gum stays in your stomach for 7 years.","Well-stored honey practically never goes bad.","Chocolate is bad for dogs."],"ans":0,"after":"It passes in a few days, like everything else."}],[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Sulfur","Silver","Copper","Zinc"],"ans":0,"cols":2,"after":"The other three are metals."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Hamlet","Macbeth","Don Quixote","Othello"],"ans":2,"cols":2,"after":"The other three are plays by Shakespeare."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["11","13","17","15"],"ans":3,"cols":2,"after":"The other three are prime numbers."}],[{"kind":"word","w":"WHEELBARROW","hint":"one wheel, two handles, carries dirt","show":{"__set":["W"]},"used":{"__set":["W"]},"miss":0,"lives":3},{"kind":"word","w":"TYRANNOSAURUS","hint":"king of the dinosaurs, with tiny arms","show":{"__set":["T"]},"used":{"__set":["T"]},"miss":0,"lives":3},{"kind":"word","w":"HUMMINGBIRD","hint":"tiny bird that can fly backwards","show":{"__set":["H"]},"used":{"__set":["H"]},"miss":0,"lives":3}],[{"kind":"num","q":"What is the diameter of the Earth, in km?","a":12742,"lo":2000,"hi":40000,"step":100,"u":" km","t":1274.2,"tries":2,"v":2000},{"kind":"num","q":"How many squares are on a chessboard?","a":64,"lo":10,"hi":200,"step":1,"u":"","t":6.4,"tries":2,"v":10},{"kind":"num","q":"What is the top speed of a cheetah?","a":110,"lo":30,"hi":200,"step":5,"u":" km/h","t":11,"tries":2,"v":30}]],"2026-11-10":[[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Panama","Peru","Bolivia","Uruguay"],"ans":0,"cols":2,"after":"The other three are South American countries."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Trumpet","Drums","Trombone","Clarinet"],"ans":1,"cols":2,"after":"The other three are wind instruments."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Istanbul","Lisbon","Paris","Madrid"],"ans":0,"cols":2,"after":"The other three are capitals."}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Sharks have been around since before the dinosaurs.","Some sharks must keep swimming to breathe.","A shark is a mammal."],"ans":2,"after":"A shark is a fish."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Japan has more than 6,000 islands.","China is the country with the most time zones.","Russia has 11 time zones."],"ans":1,"after":"China uses a single time zone for the whole country."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["A shark is a mammal.","Some sharks must keep swimming to breathe.","Sharks have been around since before the dinosaurs."],"ans":0,"after":"A shark is a fish."}],[{"kind":"choice","q":"Which came first?","opts":["The fall of the Berlin Wall","The first TV broadcast in Brazil"],"ans":1,"cols":1,"after":"1989 and 1950."},{"kind":"choice","q":"Which came first?","opts":["Bell’s telephone","The end of World War II"],"ans":0,"cols":1,"after":"1876 and 1945."},{"kind":"choice","q":"Which river is longer?","opts":["Nile","Paraná"],"ans":0,"cols":2,"after":"Nile: 6,650 km. Paraná: 4,880 km."}],[{"kind":"choice","q":"On which planet is a day longer than a year?","opts":["Mercury","Neptune","Mars","Venus"],"ans":3,"after":"Answer: Venus."},{"kind":"choice","q":"What is the capital of Turkey?","opts":["Izmir","Ankara","Antalya","Istanbul"],"ans":1,"after":"Answer: Ankara."},{"kind":"choice","q":"Which language has the most native speakers?","opts":["English","Spanish","Hindi","Mandarin"],"ans":3,"after":"Answer: Mandarin."}],[{"kind":"word","w":"HUMMINGBIRD","hint":"tiny bird that can fly backwards","show":{"__set":["H"]},"used":{"__set":["H"]},"miss":0,"lives":3},{"kind":"word","w":"HERMIT CRAB","hint":"lives in a borrowed shell","show":{"__set":["H"]},"used":{"__set":["H"]},"miss":0,"lives":3},{"kind":"word","w":"PARAGLIDER","hint":"fly down a mountain under a wing","show":{"__set":["P"]},"used":{"__set":["P"]},"miss":0,"lives":3}],[{"kind":"num","q":"What is the top speed of a cheetah?","a":110,"lo":30,"hi":200,"step":5,"u":" km/h","t":11,"tries":2,"v":30},{"kind":"num","q":"How tall is the Christ the Redeemer statue in Rio, without its pedestal?","a":30,"lo":5,"hi":100,"step":1,"u":" m","t":3,"tries":2,"v":5},{"kind":"num","q":"How many bones are in the adult human body?","a":206,"lo":50,"hi":400,"step":1,"u":"","t":20.6,"tries":2,"v":50}]],"2026-11-11":[[{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Milan","Madrid","Paris","Rome"],"ans":0,"cols":2,"after":"The other three are capitals."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Brown","Yellow","Green","Violet"],"ans":0,"cols":2,"after":"The other three are colors of the rainbow."},{"kind":"choice","q":"One of these doesn’t belong. Which?","opts":["Ship","Boat","Canoe","Airplane"],"ans":3,"cols":2,"after":"The other three are things that travel on water."}],[{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Brazil is the biggest country in the world.","Australia is wider than the Moon.","Iceland has no mosquitoes."],"ans":0,"after":"The biggest is Russia; Brazil is fifth."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["The Mona Lisa is a huge painting.","Leonardo da Vinci also designed machines.","The Mona Lisa hangs in the Louvre."],"ans":0,"after":"It’s small: about 77 cm tall."},{"kind":"choice","q":"It’s a fish story: one of them is lying. Which?","opts":["Brazil is the biggest country in the world.","Australia is wider than the Moon.","Iceland has no mosquitoes."],"ans":0,"after":"The biggest is Russia; Brazil is fifth."}],[{"kind":"choice","q":"Who was the first president of the United States?","opts":["Abraham Lincoln","Thomas Jefferson","George Washington","John Adams"],"ans":2,"after":"Answer: George Washington."},{"kind":"choice","q":"What is the longest bone in the human body?","opts":["Humerus","Radius","Tibia","Femur"],"ans":3,"after":"Answer: Femur."},{"kind":"choice","q":"What is the largest hot desert in the world?","opts":["Gobi","Kalahari","Sahara","Arabian Desert"],"ans":2,"after":"Answer: Sahara."}],[{"kind":"choice","q":"When was the first Moon landing?","ctx":"1930: the first World Cup<br>1950: the first TV broadcast in Brazil<br>2001: the creation of Wikipedia","opts":["Before 1930","Entre 1930 and 1950","Entre 1950 and 2001","After 2001"],"ans":2,"after":"It was in 1969."},{"kind":"choice","q":"When was the Eiffel Tower?","ctx":"1928: the discovery of penicillin<br>1950: the first TV broadcast in Brazil<br>1960: the first working laser","opts":["Before 1928","Entre 1928 and 1950","Entre 1950 and 1960","After 1960"],"ans":0,"after":"It was in 1889."},{"kind":"choice","q":"When was the sinking of the Titanic?","ctx":"1889: the Eiffel Tower<br>1960: the first working laser<br>2001: the creation of Wikipedia","opts":["Before 1889","Entre 1889 and 1960","Entre 1960 and 2001","After 2001"],"ans":1,"after":"It was in 1912."}],[{"kind":"word","w":"PARAGLIDER","hint":"fly down a mountain under a wing","show":{"__set":["P"]},"used":{"__set":["P"]},"miss":0,"lives":3},{"kind":"word","w":"ROLLER COASTER","hint":"butterflies in your stomach at the fair","show":{"__set":["R"]},"used":{"__set":["R"]},"miss":0,"lives":3},{"kind":"word","w":"BINOCULARS","hint":"two lenses to see far away","show":{"__set":["B"]},"used":{"__set":["B"]},"miss":0,"lives":3}],[{"kind":"num","q":"How many bones are in the adult human body?","a":206,"lo":50,"hi":400,"step":1,"u":"","t":20.6,"tries":2,"v":50},{"kind":"num","q":"How many days does the Moon take to go around the Earth?","a":27,"lo":1,"hi":100,"step":1,"u":" days","t":2.7,"tries":2,"v":1},{"kind":"num","q":"How many bones are in one human hand?","a":27,"lo":5,"hi":60,"step":1,"u":"","t":2.7,"tries":2,"v":5}]]};
+// @frozen-en-end
+const FZ=EN?FROZEN_EN:FROZEN;
 const thaw=o=>JSON.parse(JSON.stringify(o),(k,v)=>v&&v.__set?new Set(v.__set):v);
-const puzzle=(date,i,id,swap)=>FROZEN[date]?.[i]?.[swap]?thaw(FROZEN[date][i][swap]):F[id].gen(mulberry(seedFrom(`${date}:descida:${i}:${swap}`)),Math.min(i,4),(d,pool)=>queue(date,swap,`${id}:${d}`,pool));
+const puzzle=(date,i,id,swap)=>FZ[date]?.[i]?.[swap]?thaw(FZ[date][i][swap]):F[id].gen(mulberry(seedFrom(`${date}:descida:${i}:${swap}`)),Math.min(i,4),(d,pool)=>queue(date,swap,`${id}:${d}`,pool));
 
 // ---------- state ----------
 const urlDay=new URLSearchParams(location.search).get('dia');
@@ -547,8 +792,8 @@ const sfx={
 function newRun(){
   const day=genDay(date),bag={isca:0,troca:0,rede:0};day.relics.forEach(k=>bag[k]++);
   st={day,i:0,res:[],score:0,caught:[],used:[],speed:[],pts:[],bonus:0,bag,shield:false,swap:0,s:null,anim:null,end:null};
-  $('sub').textContent=date===today?dm(date):`Treino · ${dm(date)}`;
-  $('startHow').textContent='Hoje lá embaixo mora o peixão. Cinco camadas até ele.';
+  $('sub').textContent=date===today?dm(date):`${tx('Treino','Practice')} · ${dm(date)}`;
+  $('startHow').textContent=tx('Hoje lá embaixo mora o peixão. Cinco camadas até ele.','The big fish of the day lives down below. Five layers to get there.');
   $('start').hidden=false;$('card').hidden=true;$('end').hidden=true;
   render();
 }
@@ -569,8 +814,8 @@ function canUse(k){const s=st.s;
 }
 const relicIcon=k=>{const a=`reliquia-${k}`;return DART[a]?`<img src="${DART[a]}" width="${DART_DIM[a][0]*2}" height="${DART_DIM[a][1]*2}" alt="" style="image-rendering:pixelated">`:RELICS[k].icon};
 function useRelic(b){if(b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--;(st.used[st.i]??=[]).push(RELICS[k].icon);
-  if(k==='rede'){st.shield=true;flash('Rede pronta')}
-  if(k==='troca'){st.swap++;st.t0=performance.now();st.s=puzzle(date,st.i,st.day.formats[st.i],st.swap);flash('Trocou!')}
+  if(k==='rede'){st.shield=true;flash(tx('Rede pronta','Net ready'))}
+  if(k==='troca'){st.swap++;st.t0=performance.now();st.s=puzzle(date,st.i,st.day.formats[st.i],st.swap);flash(tx('Trocou!','Swapped!'))}
   if(k==='isca'){
     if(s.kind==='choice'){s.gone??=new Set();const w=[...s.opts.keys()].filter(i=>i!==s.ans&&!s.gone.has(i));s.gone.add(w[Math.floor(Math.random()*w.length)])}
     if(s.kind==='word'){const c=[...new Set([...norm(s.w)])].filter(c=>/[A-Z]/.test(c)&&!s.show.has(c));const L=c[Math.floor(Math.random()*c.length)];s.show.add(L);s.used.add(L);if(solved(s)){s.pick=1;return settle(true)}}
@@ -580,10 +825,25 @@ function useRelic(b){if(b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--
 }
 
 // ---------- the card ----------
-const TOOLS='<div class="assist"><span>Precisa de ajuda?</span><div class="relics" id="relics"></div></div>';
+if(EN){document.documentElement.lang='en';
+  for(const [s,t] of Object.entries({'#ask':'How to play','#logTop':'Logbook','#pic':'Catch photo','#log':'Logbook','#help':'How to play','#scene':'The line going down through the sea'}))document.querySelector(s).setAttribute('aria-label',t);
+  for(const [s,t] of Object.entries({
+    '#save':'Save photo','#copy':'Copy','#picClose':'Close','#logClose':'Close','#log h2':'Logbook','#start b':'Fish of the day','#go':'Drop the line',
+    '#picOpen':'📸 Photo and share','#retry':'Try again','#logEnd':'📖 Logbook','#home':'Back to today',
+    '#log .legend':'🟩 right · 👢 snagged · 🐟 caught the big fish · ⬛ didn’t get there',
+    '#help .help':`<p>The big fish of the day lives at the bottom. Drop the hook through the sea’s <b>5 layers</b>: in each one it catches something, and each thing is a challenge.</p>
+    <p>Right answer: <b>good catch!</b> You keep the layer’s little fish and go deeper. Wrong answer: the hook snags and the trip is over.</p>
+    <p>At the bottom, the big fish: guess the number. You get two pulls, and the closer you get, the bigger it comes up.</p>
+    <p>There’s no clock, but answering fast is worth extra points.</p>
+    <p>The 📖 logbook keeps every day, and you can practice any past day again.</p>
+    <p>Tap a relic to use it: 🪱 removes a wrong answer, 🔄 swaps the challenge, 🥅 the net holds one mistake (turn it on before you answer).</p>
+    <div class="two"><button class="btn" id="gotit">Let’s go</button></div>`,
+    '.foot':`<p><button id="lang"></button></p><p>Made by Daniel Belarmino · <a href="mailto:hello@goodcatch.fish">hello@goodcatch.fish</a></p><details><summary>Privacy</summary><p>No cookies and no sign-up. To show the pier, the game sends how far you got and your points, with a random ID that identifies no one. Visits are counted by GoatCounter, which collects no personal data.</p></details>`,
+  }))document.querySelector(s).innerHTML=t}
+const TOOLS='<div class="assist"><span>'+tx('Precisa de ajuda?','Need help?')+'</span><div class="relics" id="relics"></div></div>';
 function drawCard(){
   const s=st.s,id=st.day.formats[st.i],L=LAYERS[st.i],c=$('card'),done=s.pick!==undefined,shown=done&&s.shown;
-  let h=`<div class="obj">${L.name} · ${L.m} m · ${L.boss?`<b>O peixão mordeu!</b> Puxe acertando o número.`:`o anzol fisgou ${F[id].obj}`}</div>`;
+  let h=`<div class="obj">${L.name} · ${L.m} m · ${L.boss?tx(`<b>O peixão mordeu!</b> Puxe acertando o número.`,`<b>The big fish bit!</b> Hit the number to reel it in.`):`${tx('o anzol fisgou','the hook caught')} ${F[id].obj}`}</div>`;
   if(s.kind==='choice'){
     h+=`<p class="q">${s.q}</p>${s.ctx?`<p class="ctx">${s.ctx}</p>`:''}<div class="opts${s.cols===2?' duo':''}">`+
       s.opts.map((t,i)=>{const k=[s.gone?.has(i)&&'gone',done&&!shown&&i===s.pick&&'chosen',shown&&i===s.ans&&'right',shown&&i===s.pick&&i!==s.ans&&'wrong'].filter(Boolean).join(' ');
@@ -591,21 +851,21 @@ function drawCard(){
     if(shown)h+=`<p class="after">${s.after}</p>`;
   }
   if(s.kind==='word'){
-    h+=`<p class="q">Que nome era? <span style="color:var(--ink-soft)">Dica: ${s.hint}</span></p><div class="word">`+
+    h+=`<p class="q">${tx('Que nome era?','What name was it?')} <span style="color:var(--ink-soft)">${tx('Dica','Hint')}: ${s.hint}</span></p><div class="word">`+
       [...s.w].map(ch=>{const n=norm(ch);return /[A-Z]/.test(n)?`<i>${s.show.has(n)||shown?ch:''}</i>`:`<i class="sep">${ch}</i>`}).join('')+'</div>'+
-      `<p class="after">Letra errada: ${'❌'.repeat(s.miss)}${'▫️'.repeat(Math.max(0,s.lives-s.miss))} · ${s.lives} erros e enrosca</p><div class="keys">`+
+      `<p class="after">${tx('Letra errada','Wrong letters')}: ${'❌'.repeat(s.miss)}${'▫️'.repeat(Math.max(0,s.lives-s.miss))} · ${tx(`${s.lives} erros e enrosca`,`${s.lives} misses and it snags`)}</p><div class="keys">`+
       [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map(k=>{const used=s.used.has(k),hit=used&&norm(s.w).includes(k);
         return `<button class="key${used?hit?' hit':' miss':''}" data-k="${k}" ${used||done?'disabled':''}>${k}</button>`}).join('')+'</div>'+TOOLS;
   }
   if(s.kind==='num'){
     h+=`<p class="q">${s.q}</p><div class="est"><output id="ov">${fmt(s.v)}${s.u}</output>
       <div class="row"><button class="step" data-d="-1" ${done?'disabled':''}>−</button><input type="range" id="rv" min="${s.lo}" max="${s.hi}" step="${s.step}" value="${s.v}" ${done?'disabled':''}><button class="step" data-d="1" ${done?'disabled':''}>+</button></div>
-      ${done?'':`<span class="after">${s.tries>1?'Você tem 2 puxões.':'Último puxão!'}</span>`}
-      ${s.narrow?`<span class="after">A isca diz: fica entre ${fmt(s.lo)} e ${fmt(s.hi)}.</span>`:''}${s.hint?`<span class="after">${s.hint}</span>`:''}
-      ${shown?`<p class="after">Resposta: ${fmt(s.a)}${s.u}. Você: ${fmt(s.pick)}${s.u}.</p>`:done?'<p class="after">Puxando…</p>':'<button class="btn" id="pull">Puxar!</button>'}</div>`+TOOLS;
+      ${done?'':`<span class="after">${s.tries>1?tx('Você tem 2 puxões.','You have 2 pulls.'):tx('Último puxão!','Last pull!')}</span>`}
+      ${s.narrow?`<span class="after">${tx(`A isca diz: fica entre ${fmt(s.lo)} e ${fmt(s.hi)}.`,`The bait says: it’s between ${fmt(s.lo)} and ${fmt(s.hi)}.`)}</span>`:''}${s.hint?`<span class="after">${s.hint}</span>`:''}
+      ${shown?`<p class="after">${tx('Resposta','Answer')}: ${fmt(s.a)}${s.u}. ${tx('Você','You')}: ${fmt(s.pick)}${s.u}.</p>`:done?`<p class="after">${tx('Puxando…','Reeling…')}</p>`:`<button class="btn" id="pull">${tx('Puxar!','Reel in!')}</button>`}</div>`+TOOLS;
   }
-  const hr=shown?hitRate(st.i):null;if(hr!=null)h+=`<p class="after">${hr}% de quem chegou aqui acertou.</p>`;
-  if(s.next)h=h.replace(TOOLS,'')+'<button class="btn" id="down">Descer ↓</button>';
+  const hr=shown?hitRate(st.i):null;if(hr!=null)h+=`<p class="after">${tx(`${hr}% de quem chegou aqui acertou.`,`${hr}% of those who got here got it right.`)}</p>`;
+  if(s.next)h=h.replace(TOOLS,'')+`<button class="btn" id="down">${tx('Descer ↓','Go deeper ↓')}</button>`;
   c.innerHTML=h;c.hidden=false;render();
   const rv=$('rv');if(rv&&!done)rv.oninput=()=>{s.v=+rv.value;$('ov').textContent=fmt(s.v)+s.u};
 }
@@ -615,17 +875,17 @@ $('card').onclick=e=>{
   const rb=e.target.closest('[data-r]');if(rb)return useRelic(rb);
   const o=e.target.closest('.opt'),k=e.target.closest('.key'),d=e.target.closest('.step'),p=e.target.closest('#pull');
   if(o&&!o.disabled){const i=+o.dataset.i;
-    if(i!==s.ans&&st.shield){st.shield=false;(s.gone??=new Set()).add(i);flash('A rede segurou!');sfx.held();drawCard();return render()}
+    if(i!==s.ans&&st.shield){st.shield=false;(s.gone??=new Set()).add(i);flash(tx('A rede segurou!','The net held!'));sfx.held();drawCard();return render()}
     s.pick=i;return settle(i===s.ans)}
   if(k&&!k.disabled){const L=k.dataset.k;s.used.add(L);
     if(norm(s.w).includes(L)){s.show.add(L);if(solved(s)){s.pick=1;return settle(true)}sfx.hit();return drawCard()}
     s.miss++;if(s.miss<s.lives)sfx.miss();
-    if(s.miss>=s.lives){if(st.shield){st.shield=false;s.lives++;flash('A rede segurou!');sfx.held();drawCard();return render()}s.pick=0;return settle(false)}
+    if(s.miss>=s.lives){if(st.shield){st.shield=false;s.lives++;flash(tx('A rede segurou!','The net held!'));sfx.held();drawCard();return render()}s.pick=0;return settle(false)}
     return drawCard()}
   if(d&&!d.disabled){s.v=Math.min(s.hi,Math.max(s.lo,+(s.v+ +d.dataset.d*s.step).toFixed(2)));$('rv').value=s.v;$('ov').textContent=fmt(s.v)+s.u;return}
-  if(p){const off=Math.abs(s.v-s.a),dir=`É ${s.v<s.a?'mais':'menos'} que ${fmt(s.v)}${s.u}.`;
+  if(p){const off=Math.abs(s.v-s.a),dir=EN?`It’s ${s.v<s.a?'more':'less'} than ${fmt(s.v)}${s.u}.`:`É ${s.v<s.a?'mais':'menos'} que ${fmt(s.v)}${s.u}.`;
     if(off>s.t&&(s.tries>1||st.shield)){
-      if(s.tries>1){s.tries--;s.hint=`Ele puxou! ${dir}`;flash('Ele puxou!')}else{st.shield=false;s.hint=`A rede segurou! ${dir}`;flash('A rede segurou!')}
+      if(s.tries>1){s.tries--;s.hint=`${tx('Ele puxou!','It pulled!')} ${dir}`;flash(tx('Ele puxou!','It pulled!'))}else{st.shield=false;s.hint=`${tx('A rede segurou!','The net held!')} ${dir}`;flash(tx('A rede segurou!','The net held!'))}
       s.retried=true;sfx.held();drawCard();return render()}
     s.pick=s.v;s.perfect=off<=s.t/3&&!s.retried;return settle(off<=s.t)}
 };
@@ -639,7 +899,7 @@ const solved=s=>[...norm(s.w)].every(c=>!/[A-Z]/.test(c)||s.show.has(c));
 // ---------- flow ----------
 let flashT;
 function flash(t,sub){const f=$('flash');f.textContent=t;if(sub){const m=document.createElement('small');m.textContent=sub;f.append(m)}f.hidden=false;clearTimeout(flashT);flashT=setTimeout(()=>f.hidden=true,sub?1500:1100)}
-const fastTxt=s=>s.fast?`+${s.fast} pela rapidez`:'';
+const fastTxt=s=>s.fast?`+${s.fast} ${tx('pela rapidez','for speed')}`:'';
 let village=null;
 const hitRate=i=>{const d=village?.dist;if(!d)return null;const reach=d.slice(i).reduce((a,b)=>a+b,0),hit=d.slice(i+1).reduce((a,b)=>a+b,0);return reach>=10?Math.round(100*hit/reach):null};
 function openLayer(){if(!st.i)stats('GET').then(s=>village=s);st.swap=0;st.t0=performance.now();st.s=puzzle(date,st.i,st.day.formats[st.i],0);drawCard();render();$('card').scrollIntoView({block:'nearest',behavior:'smooth'})}
@@ -654,7 +914,7 @@ function correct(){
 function descend(){
   $('card').hidden=true;st.s=null;st.fx=null;sfx.drop();st.anim={from:st.i,t0:performance.now(),done:openLayer};st.i++;render();
 }
-function wrong(){st.res[st.i]='bad';render();flash('Enroscou!');setTimeout(()=>finish('snag'),1500)}
+function wrong(){st.res[st.i]='bad';render();flash(tx('Enroscou!','Snagged!'));setTimeout(()=>finish('snag'),1500)}
 
 // ---------- the scene ----------
 const SPR={
@@ -686,7 +946,7 @@ function item(x,k,cx,cy,s){
 
 const sc=$('scene').getContext('2d'),W=320,H=200;
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`};
-function water(L,alpha){const k='camada-'+norm(L.name).toLowerCase();sc.globalAlpha=alpha;
+function water(L,alpha){const k='camada-'+L.k;sc.globalAlpha=alpha;
   if(DART[k])sc.drawImage(DIMG[k],0,0,W,H);else for(let b=0;b<10;b++)dot(sc,mix(L.c[0],L.c[1],b/9),0,b*20,W,20);sc.globalAlpha=1}
 function drawScene(now){
   requestAnimationFrame(drawScene);if(!st)return;
@@ -729,11 +989,11 @@ function paintPhoto(){
   put('foto-fundo');put('gato-barco');put(done?'gato-rosto-feliz':'gato-rosto-triste');
   if(done||L.snag==='linha'){put('peixao');put(done?'peixao-fisgado':'peixao-fugiu');done?line(...PHOTO.mouth):line(192,112,189,126)}
   else{line(...PHOTO.hook[L.snag]);put('enrosco-'+L.snag);
-    if(L.snag==='polvo'){dot(x,'#2E1A0C',262,150,62,26);dot(x,'#FFF8E6',264,152,58,22);x.fillStyle='#3B2414';x.font='20px "Jersey 10"';x.textAlign='center';x.textBaseline='middle';x.fillText('valeu',293,163)}}
+    if(L.snag==='polvo'){dot(x,'#2E1A0C',262,150,62,26);dot(x,'#FFF8E6',264,152,58,22);x.fillStyle='#3B2414';x.font='20px "Jersey 10"';x.textAlign='center';x.textBaseline='middle';x.fillText(tx('valeu','thanks'),293,163)}}
   dot(x,'#F6E7C1',0,H,W,40);
   x.fillStyle='#3B2414';x.font='22px "Jersey 10"';x.textAlign='left';x.textBaseline='alphabetic';x.fillText(`Good Catch · ${dm(date)}`,10,H+18);
   x.fillStyle='#6B4A2A';x.font='18px "Jersey 10"';
-  x.fillText(done?`Fisgou o peixão · ${fmt(st.score)} pts`:`Enroscou a ${L.m} m · ${fmt(st.score)} pts`,10,H+34);
+  x.fillText(done?`${tx('Fisgou o peixão','Caught the big fish')} · ${fmt(st.score)} pts`:`${tx('Enroscou a','Snagged at')} ${L.m} m · ${fmt(st.score)} pts`,10,H+34);
 }
 const RANKS=[[2200,'S'],[1700,'A'],[1200,'B'],[600,'C'],[0,'D']];
 const rankOf=n=>RANKS.find(([t])=>n>=t)[1];
@@ -760,7 +1020,7 @@ function shareText(){
 function tally(){
   const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];
     return `<tr class="${on?'':'off'}"><td>${LAYER_E[i]} ${l.name}</td><td>${on?(st.used[i]||[]).join('')+(bad?' '+SNAG_E[l.snag]:''):''}</td><td>${on&&!bad?(p!=null?fmt(p):'✓'):on?'0':'—'}</td></tr>`});
-  if(st.end==='done')rows.push(`<tr class="sum"><td>Relíquias guardadas</td><td></td><td>${st.bonus?'+'+fmt(st.bonus):'0'}</td></tr>`);
+  if(st.end==='done')rows.push(`<tr class="sum"><td>${tx('Relíquias guardadas','Relics kept')}</td><td></td><td>${st.bonus?'+'+fmt(st.bonus):'0'}</td></tr>`);
   rows.push(`<tr class="total"><td>TOTAL</td><td></td><td>${fmt(st.score)}</td></tr>`);
   return rows.join('');
 }
@@ -771,19 +1031,19 @@ function week(){
   const days=Array.from({length:7},(_,k)=>shift(today,k-wd));
   const icon=d=>{const r=store.get(d);if(!r?.end)return d>today?'·':'▫️';if(r.end==='done')return r.q>=96?'🏆':'🐟';
     return SNAG_E[LAYERS[layerOf(r)].snag]};
-  $('week').innerHTML=days.map((d,k)=>`<div class="${d===today?'now':''}"><span>${icon(d)}</span>${['seg','ter','qua','qui','sex','sáb','dom'][k]}</div>`).join('');
+  $('week').innerHTML=days.map((d,k)=>`<div class="${d===today?'now':''}"><span>${icon(d)}</span>${(EN?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['seg','ter','qua','qui','sex','sáb','dom'])[k]}</div>`).join('');
   let n=0,d=store.get(today)?.end?today:shift(today,-1);while(store.get(d)?.end){n++;d=shift(d,-1)}
-  $('streak').textContent=n?`Sequência: ${n} dia${n>1?'s':''} seguido${n>1?'s':''} no mar.`:'';$('streak').hidden=!n;
+  $('streak').textContent=n?EN?`Streak: ${n} day${n>1?'s':''} in a row at sea.`:`Sequência: ${n} dia${n>1?'s':''} seguido${n>1?'s':''} no mar.`:'';$('streak').hidden=!n;
 }
 function cais(s){
   const c=$('cais');c.hidden=false;
-  const where=date===today?'hoje':'em '+dm(date);
-  if(!s){c.innerHTML=`<b>No cais ${where}</b><p>Não deu para falar com o cais agora. Tente mais tarde.</p>`;return}
-  if(s.players<10){c.innerHTML=`<b>No cais ${where}</b><p>${s.players>1?`${s.players} pescadores voltaram até agora.`:'Você é um dos primeiros a voltar.'} Volte mais tarde para ver como se saiu.</p>`;return}
-  const me=s.you?.depth,top=Math.max(...s.dist),label=d=>d<6?`${LAYER_E[d]} ${LAYERS[d].name}`:'🎣 Pegou o peixão';
-  c.innerHTML=`<b>No cais ${where} · ${s.players} pescadores</b><p>Onde cada um parou:</p>`+s.dist.map((n,d)=>{const p=Math.round(100*n/s.players);
+  const where=date===today?tx('hoje','today'):tx('em ','on ')+dm(date),pier=tx('No cais','At the pier');
+  if(!s){c.innerHTML=`<b>${pier} ${where}</b><p>${tx('Não deu para falar com o cais agora. Tente mais tarde.','Couldn’t reach the pier right now. Try again later.')}</p>`;return}
+  if(s.players<10){c.innerHTML=`<b>${pier} ${where}</b><p>${s.players>1?tx(`${s.players} pescadores voltaram até agora.`,`${s.players} anglers are back so far.`):tx('Você é um dos primeiros a voltar.','You’re one of the first back.')} ${tx('Volte mais tarde para ver como se saiu.','Come back later to see how you did.')}</p>`;return}
+  const me=s.you?.depth,top=Math.max(...s.dist),label=d=>d<6?`${LAYER_E[d]} ${LAYERS[d].name}`:tx('🎣 Pegou o peixão','🎣 Caught the big fish');
+  c.innerHTML=`<b>${pier} ${where} · ${s.players} ${tx('pescadores','anglers')}</b><p>${tx('Onde cada um parou:','Where everyone stopped:')}</p>`+s.dist.map((n,d)=>{const p=Math.round(100*n/s.players);
     return `<div class="row${d===me?' me':''}"><span>${label(d)}</span><i style="width:${top?Math.round(100*n/top):0}%"></i><span>${p}%</span></div>`}).join('')+
-    (s.better>0?`<p>Você fez mais pontos que ${s.better}% deles.</p>`:'');
+    (s.better>0?`<p>${tx(`Você fez mais pontos que ${s.better}% deles.`,`You scored more than ${s.better}% of them.`)}</p>`:'');
 }
 async function stats(method,body){
   const id=playerId();if(!id)return null;
@@ -795,10 +1055,10 @@ let sent=null;
 function sendPlay(rec){sent=stats('POST',{depth:cleared(rec),score:rec.score,perfect:rec.end==='done'&&rec.q>=96?1:0})}
 async function showEnd(){
   const L=LAYERS[st.i],done=st.end==='done',practice=st.key!==date;
-  $('verdict').textContent=done?(st.q>=96?'Perfect catch!':'Good catch!'):'Enroscou!';
+  $('verdict').textContent=done?(st.q>=96?'Perfect catch!':'Good catch!'):tx('Enroscou!','Snagged!');
   $('tally').innerHTML=tally();
-  $('rank').innerHTML=`Rank <b>${rankOf(st.score)}</b>${practice?' · treino, não conta':''}`;
-  $('story').textContent=done?'Fisgou o peixão lá do fundo.':L.lose;
+  $('rank').innerHTML=`Rank <b>${rankOf(st.score)}</b>${practice?tx(' · treino, não conta',' · practice, doesn’t count'):''}`;
+  $('story').textContent=done?tx('Fisgou o peixão lá do fundo.','Caught the big fish from the very bottom.'):L.lose;
   $('share').value=shareText();$('share').rows=$('share').value.split('\n').length;
   $('retry').hidden=date===today;$('home').hidden=date===today;
   week();clock();
@@ -823,17 +1083,17 @@ $('go').onclick=()=>{$('start').hidden=true;if(date===today&&!store.get(date))tr
 $('save').onclick=()=>$('photo').toBlob(async b=>{const f=new File([b],`descida-${date}.png`,{type:'image/png'});
   if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:$('share').value})}catch{}return}
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;a.click()});
-$('copy').onclick=()=>{track('descida/share',1);$('share').select();navigator.clipboard?.writeText($('share').value).catch(()=>{});$('copy').textContent='Copiado'};
-$('retry').onclick=()=>{$('copy').textContent='Copiar';newRun();scrollTo({top:0,behavior:'smooth'})};
+$('copy').onclick=()=>{track('descida/share',1);$('share').select();navigator.clipboard?.writeText($('share').value).catch(()=>{});$('copy').textContent=tx('Copiado','Copied')};
+$('retry').onclick=()=>{$('copy').textContent=tx('Copiar','Copy');newRun();scrollTo({top:0,behavior:'smooth'})};
 const log=$('log'),pic=$('pic');
 const recOf=d=>{const o=store.get(d);if(o?.end)return [o,false];const t=d<today&&store.get('treino:'+d);return t?.end?[t,true]:[null,false]};
 function clock(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);const s=Math.floor((m-n)/1000),t=`${pad(s/3600|0)}:${pad(s/60%60|0)}:${pad(s%60)}`;
-  $('next').textContent=`Próxima descida em ${t}`;const o=$('opens');if(o)o.textContent=`abre em ${t}`}
+  $('next').textContent=tx(`Próxima descida em ${t}`,`Next drop in ${t}`);const o=$('opens');if(o)o.textContent=tx(`abre em ${t}`,`opens in ${t}`)}
 setInterval(clock,1000);
 function diary(){
   const next=shift(today,1),rows=[`<div class="day lock"><span>${dm(next)} <small>#${num(next)}</small></span><small id="opens"></small></div>`];
   for(let d=today;d>=FIRST;d=shift(d,-1)){const [r,t]=recOf(d);
-    rows.push(`<button class="day${d===date?' now':''}" data-d="${d}"><span>${dm(d)} <small>#${num(d)}</small></span><span>${r?barOf(r)+(t?' <small>treino</small>':''):`<small>${d===today?'hoje, ainda não desceu':'não desceu'}</small>`}</span></button>`)}
+    rows.push(`<button class="day${d===date?' now':''}" data-d="${d}"><span>${dm(d)} <small>#${num(d)}</small></span><span>${r?barOf(r)+(t?` <small>${tx('treino','practice')}</small>`:''):`<small>${d===today?tx('hoje, ainda não desceu','today, not dropped yet'):tx('não desceu','not dropped')}</small>`}</span></button>`)}
   $('days').innerHTML=rows.join('');clock();
 }
 $('logTop').onclick=$('logEnd').onclick=()=>{diary();log.showModal()};
@@ -845,11 +1105,13 @@ $('picClose').onclick=()=>pic.close();
 $('days').onclick=e=>{const b=e.target.closest('[data-d]');if(b)location.href=b.dataset.d===today?location.pathname:'?dia='+b.dataset.d};
 $('home').onclick=()=>{location.href=location.pathname};
 const help=$('help');
+$('lang').textContent=EN?'Ver em português':'Play in English';
+$('lang').onclick=()=>{try{localStorage.setItem('goodcatch:lang',EN?'pt':'en')}catch{}location.reload()};
 $('gotit').onclick=()=>help.close();
 help.onclick=e=>{if(e.target===help)help.close()};
 help.onclose=()=>store.set('seenHelp',1);
 $('ask').onclick=()=>help.showModal();
-const muteUI=()=>{$('mute').classList.toggle('off',muted);$('mute').setAttribute('aria-label',muted?'Som desligado':'Som ligado')};
+const muteUI=()=>{$('mute').classList.toggle('off',muted);$('mute').setAttribute('aria-label',muted?tx('Som desligado','Sound off'):tx('Som ligado','Sound on'))};
 $('mute').onclick=()=>{muted=!muted;store.set('mute',muted?1:0);muteUI();if(!muted)sfx.win()};muteUI();
 if(!store.get('seenHelp'))help.showModal();
 if(location.hostname==='localhost')globalThis.__dbg=()=>({st,F,genDay,puzzle,LAYERS,spr,store});
