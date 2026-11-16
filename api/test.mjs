@@ -83,7 +83,8 @@ if (validatePlay({ date: '2026-02-30', player: P, casts: [fishKey] }, '2026-03-0
 console.log('api ok: validator and stats');
 
 // ---------- descida ----------
-const { validateDescida, summarizeDescida, minScore, maxScore } = await import('./src/descida.js');
+const { validateDescida, summarizeDescida, minScore, maxScore, pts } = await import('./src/descida.js');
+for (const d of ['2026-11-06', '2026-11-20']) if (pts(d).some(p => Math.round(p * .5 / 5) * 5 > p * .5)) fail(`speed bonus rounds past the cap on ${d}: ${pts(d)}`);
 const D = (o = {}) => validateDescida({ date: DATE, player: P, depth: 6, score: 1700, perfect: 0, ...o }, TODAY);
 if (!D().ok) fail('a full descent must pass');
 if (!D({ depth: 2, score: 250 }).ok) fail('a snag after two layers must pass');
@@ -96,4 +97,11 @@ const dBad = {
 for (const [name, r] of Object.entries(dBad)) if (r.ok) fail(`descida must refuse: ${name}`);
 const ds = summarizeDescida([{ player: P, depth: 3, score: 600 }, { player: 'b', depth: 1, score: 150 }, { player: 'c', depth: 6, score: 2000 }, { player: 'd', depth: 3, score: 500 }], P);
 if (ds.players !== 4 || ds.dist.join() !== '0,1,0,2,0,0,1' || ds.better !== 67 || ds.you.depth !== 3) fail(`descida summary: ${JSON.stringify(ds)}`);
+const T10 = '2026-11-20', D10 = (o = {}) => validateDescida({ date: T10, player: P, depth: 10, score: 2500, perfect: 0, ...o }, T10);
+if (!D10().ok || maxScore(10, T10) !== 3850 || minScore(10, T10) !== 2300) fail(`ten-layer bounds: ${JSON.stringify(D10())} ${minScore(10, T10)} ${maxScore(10, T10)}`);
+if (D10({ depth: 11 }).ok || D({ depth: 7 }).ok) fail('a day must refuse a depth past its own layers');
+if (!D({ used: '0i,3t' }).ok || D({ used: '' }).used !== '' || D().used !== null) fail('used must pass through, absent as null');
+const uBad = { 'unknown tackle': D({ used: '0x' }), 'four pieces': D({ used: '0i,1i,2t,3r' }), 'past the snag': D({ depth: 2, score: 250, used: '3i' }), 'not a string': D({ used: 3 }), 'trailing comma': D({ used: '0i,' }) };
+for (const [name, r] of Object.entries(uBad)) if (r.ok) fail(`descida must refuse used: ${name}`);
+if (summarizeDescida([{ player: P, depth: 10, score: 3000 }], P, T10).dist.length !== 11) fail('ten-layer dist');
 console.log('descida ok');

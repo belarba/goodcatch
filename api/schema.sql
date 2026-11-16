@@ -18,5 +18,6 @@ CREATE TABLE IF NOT EXISTS descida (
   perfect INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
   streak INTEGER,
+  used TEXT,
   PRIMARY KEY (date, player)
 );
