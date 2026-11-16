@@ -15,7 +15,7 @@ function literal(name) {
   return new Function(`return (${page.slice(i, j)})`)();
 }
 const SPR = literal('SPR');
-const LAYERS = new Function('tx', `return ${page.slice(page.indexOf('const LAYERS=') + 13, page.indexOf('];', page.indexOf('const LAYERS=')) + 1)}`)(pt => pt);
+const LAYERS = new Function('tx', `return ${page.slice(page.indexOf('const LAYER_POOL=') + 17, page.indexOf('];', page.indexOf('const LAYER_POOL=')) + 1)}`)(pt => pt);
 
 const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
 function canvas(w, h) {
@@ -62,7 +62,7 @@ const add = (name, w, h, group, where, png) => { PIECES.push({ name, w, h, group
 
 const OBJ = { garrafa: 'trivia', conchas: 'mais ou menos', jornal: 'linha do tempo', caixa: 'intruso', radio: 'história de pescador', boia: 'forca' };
 for (const [k, f] of Object.entries(OBJ)) add(k, 32, 32, 'Objetos fisgados', `No anzol, durante o desafio (${f}). Aparece em 32×32.`, upscale(sprite16(k), 16, 16, 2));
-const SNAG = { bota: 'superfície', lata: 'recife', pneu: 'algas', ancora: 'naufrágio', polvo: 'abismo' };
+const SNAG = Object.fromEntries(LAYERS.filter(L => !L.boss && L.snag).map(L => [L.snag, L.name.toLowerCase()]));
 for (const [k, l] of Object.entries(SNAG)) add(k, 32, 32, 'Enroscos', `Sobe na linha quando erra no ${l}, e vai para a foto em 64×64 (dobro).`, upscale(sprite16(k), 16, 16, 2));
 
 for (const L of LAYERS) {

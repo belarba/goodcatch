@@ -26,7 +26,7 @@ async function stats(env, date, player) {
 
 async function descidaStats(env, date, player) {
   const { results } = await env.DB.prepare('SELECT player, depth, score, streak FROM descida WHERE date = ?').bind(date).all();
-  return summarizeDescida(results, player);
+  return summarizeDescida(results, player, date);
 }
 
 export default {
@@ -59,8 +59,8 @@ export default {
       const v = validateDescida(body, today());
       if (!v.ok) return json(req, { error: v.error }, 400);
       const prev = await env.DB.prepare('SELECT streak FROM descida WHERE date = ? AND player = ?').bind(shiftDay(v.date, -1), v.player).first('streak');
-      await env.DB.prepare('INSERT OR IGNORE INTO descida (date, player, depth, score, perfect, created_at, streak) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        .bind(v.date, v.player, v.depth, v.score, v.perfect, Date.now(), (prev ?? 0) + 1).run();
+      await env.DB.prepare('INSERT OR IGNORE INTO descida (date, player, depth, score, perfect, created_at, streak, used) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+        .bind(v.date, v.player, v.depth, v.score, v.perfect, Date.now(), (prev ?? 0) + 1, v.used).run();
       return json(req, await descidaStats(env, v.date, v.player));
     }
     const dm = /^\/descida\/daily\/(\d{4}-\d\d-\d\d)$/.exec(url.pathname);

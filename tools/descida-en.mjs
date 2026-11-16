@@ -1,6 +1,7 @@
 // Checks that the Descida's English banks (BANK_EN) line up with the Portuguese ones position by position, and
 // rebuilds FROZEN_EN from FROZEN: each frozen challenge is matched to its Portuguese bank item and swapped for the
 // English item at the same position. Items that have since left the banks are translated in GONE below.
+// Days from EN_FROM were played in English: their FROZEN_EN entry is the English page's own deal and is kept as is.
 // Run `node tools/descida-en.mjs` after editing any bank or FROZEN; it exits 1 and lists what is missing.
 import { readFileSync, writeFileSync } from 'node:fs';
 
@@ -9,6 +10,7 @@ const between = (a, b) => { const i = html.indexOf(a), j = html.indexOf(b, i); i
 const PT = new Function(between('const TRIVIA=[', 'const BANK_EN=') + ';return {TRIVIA,NUM,EVENTS,ODD,WORDS,TALES,EST}')();
 const EN = new Function(between('const BANK_EN=', '// ---------- helpers') + ';return BANK_EN')();
 const FROZEN = new Function(between('const FROZEN=', '// @frozen-en-start') + ';return FROZEN')();
+const EN_FROM = '2026-11-12', KEPT = new Function(between('const FROZEN_EN=', '// @frozen-en-end') + ';return FROZEN_EN')();
 
 const GONE = {
   events: {
@@ -27,6 +29,7 @@ const GONE = {
     'Quantas estrelas tem a bandeira do Brasil?': { q: 'How many bones are in one human hand?', u: '' },
   },
   odd: {
+    'Os outros três são pintores.': ['painters', { Shakespeare: 'Shakespeare' }],
     'Os outros três são metais.': ['metals', { Enxofre: 'Sulfur', Prata: 'Silver', Cobre: 'Copper', Zinco: 'Zinc' }],
     'Os outros três são livros de Machado de Assis.': ['plays by Shakespeare', { 'Memórias Póstumas de Brás Cubas': 'Hamlet', 'Quincas Borba': 'Macbeth', 'O Alienista': 'Othello', 'Vidas Secas': 'Don Quixote' }],
   },
@@ -75,14 +78,14 @@ function translate(p) {
     const g = PT.ODD.findIndex(o => p.after === `Os outros três são ${o.t}.`), pt = PT.ODD[g], en = EN.ODD[g];
     if (g < 0 && GONE.odd[p.after]) { const [t, map] = GONE.odd[p.after]; return { ...p, q: 'One of these doesn’t belong. Which?', opts: p.opts.map(o => map[o] ?? (missing.add(`option: ${o}`), o)), after: `The other three are ${t}.` }; }
     if (g < 0) { missing.add(`odd group: ${p.after}`); return p; }
-    return { ...p, q: 'One of these doesn’t belong. Which?', opts: p.opts.map(o => pt.in.includes(o) ? en.in[pt.in.indexOf(o)] : en.out[pt.out.indexOf(o)]), after: `The other three are ${en.t}.` };
+    return { ...p, q: 'One of these doesn’t belong. Which?', opts: p.opts.map(o => pt.in.includes(o) ? en.in[pt.in.indexOf(o)] : pt.out.includes(o) ? en.out[pt.out.indexOf(o)] : GONE.odd[p.after]?.[1][o] ?? (missing.add(`option: ${o}`), o)), after: `The other three are ${en.t}.` };
   }
   const s = PT.TALES.findIndex(x => p.opts.includes(x.m));
   if (s >= 0) { const pt = PT.TALES[s], en = EN.TALES[s];
     return { ...p, q: 'It’s a fish story: one of them is lying. Which?', opts: p.opts.map(o => o === pt.m ? en.m : en.v[pt.v.indexOf(o)]), after: en.fix }; }
   missing.add(`challenge: ${p.q}`); return p;
 }
-const FROZEN_EN = Object.fromEntries(Object.entries(FROZEN).map(([d, layers]) => [d, layers.map(l => l.map(translate))]));
+const FROZEN_EN = Object.fromEntries(Object.entries(FROZEN).map(([d, layers]) => [d, d >= EN_FROM && KEPT[d] ? KEPT[d] : layers.map(l => l.map(translate))]));
 for (const p of Object.values(FROZEN_EN).flat(2)) if (p.kind === 'choice') check(p.opts.every(Boolean) && new Set(p.opts).size === p.opts.length, `FROZEN_EN: broken options in “${p.q}”`);
 
 for (const m of missing) bad.push(`not translated: ${m}`);
