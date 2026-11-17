@@ -7,8 +7,8 @@
 <meta name="theme-color" content="#0B2233">
 <link rel="icon" href="/favicon.png">
 <link rel="apple-touch-icon" href="/icon.png">
-<meta name="robots" content="noindex">
-<title>Good Catch</title>
+<title>Good Catch · jogo diário no fundo do mar</title>
+<link rel="canonical" href="https://goodcatch.fish/descida/">
 <meta name="description" content="Desça o anzol por dez camadas de mar até o peixão do dia. Errou, enroscou.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://goodcatch.fish/descida/">
@@ -848,6 +848,7 @@ function useRelic(b){if(b.disabled)return;const k=b.dataset.r,s=st.s;st.bag[k]--
 
 // ---------- the card ----------
 if(EN){document.documentElement.lang='en';
+  document.title='Good Catch · a daily dive to the fish of the day';document.querySelector('meta[name=description]').content='Drop the hook through ten layers of sea to the big fish of the day. One mistake and you’re snagged.';
   for(const [s,t] of Object.entries({'#ask':'How to play','#logTop':'Logbook','#pic':'Catch photo','#log':'Logbook','#help':'How to play','#scene':'The line going down through the sea'}))document.querySelector(s).setAttribute('aria-label',t);
   for(const [s,t] of Object.entries({
     '#save':'Save photo','#copy':'Copy','#picClose':'Close','#logClose':'Close','#log h2':'Logbook','#go':'Cast the line',
