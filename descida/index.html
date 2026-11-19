@@ -1083,7 +1083,8 @@ function fishStory({n,player,en,caught,cm}){const g=k=>STORY[k][en?'en':'pt'][st
 // @historia-end
 function shareText(){
   const done=st.end==='done',story=fishStory({n:num(date),player:playerId()||'',en:EN,caught:done,cm:st.cm});
-  return `🎣 Good Catch · ${dm(date)}\n${story}\n${done?`${barOf(st)}\nRank ${rankOf(st.score)} · ${fmt(st.score)} pts\n`:''}goodcatch.fish`;
+  const dots=layersOf(date).map((_,i)=>i<=layerOf(st)?'●':'○').join('');
+  return `🎣 Good Catch · ${dm(date)}\n${story}\n${done?`${barOf(st)}\nRank ${rankOf(st.score)} · ${fmt(st.score)} pts`:`${dots} · ${fmt(st.score)} pts`}\ngoodcatch.fish`;
 }
 function tally(){
   const rows=LAYERS.map((l,i)=>{const on=i<=st.i,bad=on&&st.res[i]!=='ok',p=st.pts?.[i];

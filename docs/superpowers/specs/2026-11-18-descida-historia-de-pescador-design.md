@@ -7,8 +7,10 @@ pública de quem foi mal. Com isso, o grupo só vê quem foi bem, e o jogo perde
 conversa.
 
 ## O que muda
-- **Não pegou o peixão** (`st.end !== 'done'`): o post traz só uma história de pescador, sem
-  barra, sem profundidade, sem rank, sem pontos. É mentira assumida e exagerada, do tipo "quase
+- **Não pegou o peixão** (`st.end !== 'done'`): o post traz uma história de pescador e, embaixo,
+  uma linha discreta de bolinhas e pontos (`●●●○○○○○○○ · 320 pts`, ● até a camada em que parou),
+  sem a barra de emojis e sem rank. (Revisto em 19/nov: o dono quis sinalizar onde a pessoa
+  parou; as bolinhas chamam menos atenção que os emojis.) É mentira assumida e exagerada, do tipo "quase
   peguei", e não diz nada do resultado real (nem a bota, nem o pneu).
 - **Pegou o peixão**: a barra, o rank e os pontos continuam como hoje, com uma frase de vantagem
   por cima que usa o tamanho real (`st.cm`).
